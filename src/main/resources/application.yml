@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: word-online-server
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          socket:
+            INFO
