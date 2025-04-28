@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Component
 public class SessionManager {
-    private static Map<String, SessionObject> sessions;
+    private static Map<String, SessionObject> sessions = new java.util.concurrent.ConcurrentHashMap<>();
 
     public void createSession(SessionObject sessionObject) {
         sessions.put(sessionObject.getLeftUserId(),sessionObject);
