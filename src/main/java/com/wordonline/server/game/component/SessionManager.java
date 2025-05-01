@@ -1,6 +1,7 @@
 package com.wordonline.server.game.component;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.service.GameLoop;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -10,6 +11,11 @@ public class SessionManager {
     private static Map<String, SessionObject> sessions = new java.util.concurrent.ConcurrentHashMap<>();
 
     public void createSession(SessionObject sessionObject) {
+        GameLoop gameLoop = new GameLoop(sessionObject);
+        sessionObject.setGameLoop(gameLoop);
+        Thread thread = new Thread(gameLoop);
+        thread.start();
+
         sessions.put(sessionObject.getLeftUserId(),sessionObject);
         sessions.put(sessionObject.getRightUserId(),sessionObject);
     }

@@ -49,7 +49,7 @@ public class MatchingManager {
                 String.format("/queue/match-status/%s", uid2),
                 matchedInfoDto);
 
-        sessionManager.createSession(new SessionObject(sessionId, uid1, uid2));
+        sessionManager.createSession(new SessionObject(sessionId, uid1, uid2, template));
         return true;
     }
 }
