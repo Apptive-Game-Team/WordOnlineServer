@@ -13,13 +13,13 @@ public class SessionObject {
     final SimpMessagingTemplate template;
     final String broadcastUrl;
 
+    @Setter
+    private GameLoop gameLoop;
+
     public SessionObject(String sessionId, String leftUserId, String rightUserId, SimpMessagingTemplate template){
         this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
         broadcastUrl = String.format("/game/%s/frameinfos", sessionId);
     }
-
-    @Setter
-    GameLoop gameLoop;
 
     public void broadcastFrameInfo(FrameInfo frameInfo){
         template.convertAndSend(broadcastUrl, frameInfo);
