@@ -3,6 +3,7 @@ package com.wordonline.server.matching.component;
 import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedList;
 import java.util.Queue;
 
+@Slf4j
 @Component
 public class MatchingManager {
 
@@ -56,6 +58,4 @@ public class MatchingManager {
         sessionManager.createSession(new SessionObject(sessionId, uid1, uid2, template));
         return true;
     }
-
-    private static final Logger log = LoggerFactory.getLogger(MatchingManager.class);
 }
