@@ -8,3 +8,4 @@ import java.util.List;
 public class CardInfoDto {
     private final List<String> added;
 }
+

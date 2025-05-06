@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UpdatedObjectDto {
     private final int id;
-    private final Status type;
+    private final Status status;
     private final Effect effect;
     private final Position position;
 }

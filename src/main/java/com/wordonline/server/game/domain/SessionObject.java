@@ -21,8 +21,8 @@ public class SessionObject {
         broadcastUrl = String.format("/game/%s/frameinfos", sessionId);
     }
 
-    public void broadcastFrameInfo(FrameInfo frameInfo){
-        template.convertAndSend(broadcastUrl, frameInfo);
+    public void broadcastFrameInfo(Object data){
+        template.convertAndSend(broadcastUrl, data);
     }
 }
 

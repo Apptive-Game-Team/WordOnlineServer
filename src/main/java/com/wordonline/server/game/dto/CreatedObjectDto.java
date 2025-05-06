@@ -8,4 +8,5 @@ public class CreatedObjectDto {
     private final int id;
     private final String type;
     private final Position position;
+    private final Master master;
 }

@@ -1,11 +1,7 @@
 package com.wordonline.server.game.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.core.ReactiveAdapterRegistry;
-
-import java.util.List;
 
 @Setter
 @RequiredArgsConstructor
