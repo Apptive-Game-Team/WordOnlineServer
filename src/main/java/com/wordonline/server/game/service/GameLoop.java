@@ -1,8 +1,6 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.game.domain.FrameInfo;
-import com.wordonline.server.game.domain.Position;
-import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.dto.*;
 
 import java.util.ArrayList;
@@ -10,10 +8,11 @@ import java.util.List;
 
 public class GameLoop implements Runnable {
     private boolean _running = true;
-    private final int FPS = 10;
+    public static final int FPS = 10;
     private final SessionObject sessionObject;
     private int _frameNum = 0;
 
+    private GameSessionData gameSessionData = new GameSessionData();
 
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
@@ -31,8 +30,7 @@ public class GameLoop implements Runnable {
             _frameNum++;
             long startTime = System.currentTimeMillis();
 
-            FrameInfo frameInfo = update();
-            sessionObject.broadcastFrameInfo(getTestFrameInfoDto(_frameNum));
+            update();
 
             long endTime = System.currentTimeMillis();
             long sleepTime = frameDuration - (endTime - startTime);
@@ -45,9 +43,31 @@ public class GameLoop implements Runnable {
         }
     }
 
-    private FrameInfo update() {
-        // TODO
-        return null;
+    private void update() {
+        CardInfoDto leftCardInfo = new CardInfoDto();
+        CardInfoDto rightCardInfo = new CardInfoDto();
+        ObjectsInfoDto objectsInfoDto = new ObjectsInfoDto();
+        FrameInfoDto leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto);
+        FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto);
+
+        gameSessionData.manaCharger.chargeMana(gameSessionData.leftPlayerData, leftFrameInfoDto, _frameNum);
+        gameSessionData.manaCharger.chargeMana(gameSessionData.rightPlayerData, rightFrameInfoDto, _frameNum);
+
+        gameSessionData.leftCardDeck.drawCard(gameSessionData.leftPlayerData, leftCardInfo);
+        gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
+
+        for (GameObject gameObject : gameSessionData.gameObjects) {
+            gameObject.update();
+        }
+
+        sessionObject.sendFrameInfo(
+            sessionObject.getLeftUserId(),
+            leftFrameInfoDto
+        );
+        sessionObject.sendFrameInfo(
+            sessionObject.getRightUserId(),
+            rightFrameInfoDto
+        );
     }
 
     // For Test
@@ -69,7 +89,6 @@ public class GameLoop implements Runnable {
             UpdatedObjectDto updatedObjectDto = new UpdatedObjectDto(1, Status.Move, Effect.Burn, new Position(frameNum * 0.5f % 100, 10));
             objectsInfoDto = new ObjectsInfoDto(List.of(), List.of(updatedObjectDto));
         }
-
 
         return new FrameInfoDto(mana, cardInfoDto, objectsInfoDto);
     }
