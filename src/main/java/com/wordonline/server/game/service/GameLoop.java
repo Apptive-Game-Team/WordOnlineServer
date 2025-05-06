@@ -14,6 +14,7 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
 
+
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
     }

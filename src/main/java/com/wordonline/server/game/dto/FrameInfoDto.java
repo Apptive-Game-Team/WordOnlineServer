@@ -1,9 +1,10 @@
 package com.wordonline.server.game.dto;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Setter
+@Data
 @RequiredArgsConstructor
 public class FrameInfoDto {
     private final String type = "frame";

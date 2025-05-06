@@ -18,7 +18,7 @@ public class SessionObject {
 
     public SessionObject(String sessionId, String leftUserId, String rightUserId, SimpMessagingTemplate template){
         this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
-        broadcastUrl = String.format("/game/%s/frameinfos", sessionId);
+        broadcastUrl = String.format("/game/%s/frameInfos", sessionId);
     }
 
     public void broadcastFrameInfo(Object data){

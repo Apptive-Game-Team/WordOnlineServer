@@ -1,8 +1,8 @@
 package com.wordonline.server.game.domain;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 
-@RequiredArgsConstructor
+@Data
 public class Position {
     private final float x, y;
 }
