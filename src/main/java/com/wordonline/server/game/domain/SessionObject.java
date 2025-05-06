@@ -11,18 +11,18 @@ public class SessionObject {
     final String leftUserId;
     final String rightUserId;
     final SimpMessagingTemplate template;
-    final String broadcastUrl;
+    final String url;
 
     @Setter
     private GameLoop gameLoop;
 
     public SessionObject(String sessionId, String leftUserId, String rightUserId, SimpMessagingTemplate template){
         this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
-        broadcastUrl = String.format("/game/%s/frameInfos", sessionId);
+        url = String.format("/game/%s/frameInfos", sessionId);
     }
 
-    public void broadcastFrameInfo(Object data){
-        template.convertAndSend(broadcastUrl, data);
+    public void sendFrameInfo(String userId, Object data){
+        template.convertAndSend(String.format("%s/%s", url, userId), data);
     }
 }
 
