@@ -1,13 +1,15 @@
 package com.wordonline.server.game.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerData {
     public final static int MAX_CARD_NUM = 6;
+    public final static int MAX_HP = 100;
 
-    public int mana;
-    public int hp;
-    public List<String> cards;
+    public int mana = 0;
+    public int hp = MAX_HP;
+    public List<String> cards = new ArrayList<>();
 
     // validate and add card
     public boolean addCard(String card) {
@@ -23,5 +25,4 @@ public class PlayerData {
         // TODO validate using cards
         return true;
     }
-
 }
