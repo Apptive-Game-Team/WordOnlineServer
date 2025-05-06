@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
+// This class is used to send updated object information to the client
 public class UpdatedObjectDto {
     private final int id;
     private final Status status;

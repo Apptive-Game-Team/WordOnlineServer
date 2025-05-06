@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
+// This class is used to send created object information to the client
 public class CreatedObjectDto {
     private final int id;
     private final String type;

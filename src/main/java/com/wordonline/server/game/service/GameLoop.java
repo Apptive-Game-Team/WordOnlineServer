@@ -3,9 +3,9 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.dto.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
+// GameLoop is the main class that runs the game loop
 public class GameLoop implements Runnable {
     private boolean _running = true;
     public static final int FPS = 10;
@@ -23,6 +23,7 @@ public class GameLoop implements Runnable {
         runLoop();
     }
 
+    // this method is called when the game loop is started
     private void runLoop() {
         long frameDuration = 1000 / FPS;
 
@@ -43,6 +44,7 @@ public class GameLoop implements Runnable {
         }
     }
 
+    // this method is called when the game loop is stopped
     private void update() {
         CardInfoDto leftCardInfo = new CardInfoDto();
         CardInfoDto rightCardInfo = new CardInfoDto();
@@ -71,6 +73,7 @@ public class GameLoop implements Runnable {
     }
 
     // For Test
+    // TODO: remove this method
     private FrameInfoDto getTestFrameInfoDto(int frameNum) {
         int mana = (int) (frameNum * 0.1 % 100);
         CardInfoDto cardInfoDto;

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
+// this class is used to manage the sessions
 public class SessionManager {
     private static Map<String, SessionObject> sessions = new java.util.concurrent.ConcurrentHashMap<>();
 

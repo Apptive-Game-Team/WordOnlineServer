@@ -1,10 +1,9 @@
 package com.wordonline.server.game.dto;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Data
+// This class is used to send frame information to the client
 public class FrameInfoDto {
     private final String type = "frame";
     private int updatedMana;

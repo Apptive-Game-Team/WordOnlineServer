@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+// This class is used to store player data
 public class PlayerData {
     public final static int MAX_CARD_NUM = 6;
     public final static int MAX_HP = 100;

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
+// This class is used to store the game object data
+// TODO - method for updating object and ObjectsInfoDto ex) updatePosition
 public class GameObject implements Component {
     private final int id;
     private final Master master;

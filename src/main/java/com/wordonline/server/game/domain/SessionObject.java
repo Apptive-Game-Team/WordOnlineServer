@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Getter
+// this class is used to store the session information
+// it sends the frame information to the client
 public class SessionObject {
     final String sessionId;
     final String leftUserId;
@@ -21,6 +23,7 @@ public class SessionObject {
         url = String.format("/game/%s/frameInfos", sessionId);
     }
 
+    // this method is used to send the frame information to the client
     public void sendFrameInfo(String userId, Object data){
         template.convertAndSend(String.format("%s/%s", url, userId), data);
     }

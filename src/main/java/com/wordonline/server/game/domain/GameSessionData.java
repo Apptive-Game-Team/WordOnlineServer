@@ -6,6 +6,7 @@ import com.wordonline.server.game.service.ManaCharger;
 import java.util.ArrayList;
 import java.util.List;
 
+// this class is used to store the game session data
 public class GameSessionData {
     public final PlayerData leftPlayerData = new PlayerData();
     public final PlayerData rightPlayerData = new PlayerData();

@@ -1,12 +1,12 @@
 package com.wordonline.server.game.dto;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+// This class is used to send object information to the client
 public class ObjectsInfoDto {
     private final List<CreatedObjectDto> create;
     private final List<UpdatedObjectDto> update;
