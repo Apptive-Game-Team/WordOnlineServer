@@ -1,6 +1,6 @@
 package com.wordonline.server.game.domain;
 
-public enum Type {
+public enum PrefabType {
     Slime,
     Magic,
 }

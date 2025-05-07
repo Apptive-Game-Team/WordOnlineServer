@@ -15,7 +15,7 @@ public class GameObject implements Component {
     private final int id;
     private final Master master;
 
-    private Type type;
+    private PrefabType type;
     private Status status;
     private Effect effect;
     private Position position;
