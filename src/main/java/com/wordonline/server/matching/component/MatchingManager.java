@@ -3,6 +3,7 @@ package com.wordonline.server.matching.component;
 import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedList;
 import java.util.Queue;
 
+@Slf4j
 @Component
 public class MatchingManager {
 
@@ -49,7 +51,9 @@ public class MatchingManager {
                 String.format("/queue/match-status/%s", uid2),
                 matchedInfoDto);
 
-        sessionManager.createSession(new SessionObject(sessionId, uid1, uid2));
+        log.info("matched {} and {}", uid1, uid2);
+
+        sessionManager.createSession(new SessionObject(sessionId, uid1, uid2, template));
         return true;
     }
 }

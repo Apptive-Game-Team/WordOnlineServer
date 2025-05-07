@@ -22,13 +22,14 @@ public class MatchingController {
     @MessageMapping("/echo")
     @SendTo("/topic/echo")
     public String echo(String message) {
-        log.info("Received message: " + message);
+        log.info("Received message: {}", message);
         return message;
     }
 
     // matching queue request
     @MessageMapping("/game/match/queue")
     public void queueMatching(String userId) {
+        log.info("queued userId: {}", userId);
         matchingManager.enqueue(userId);
         template.convertAndSend(
                 String.format("/queue/match-status/%s", userId),
