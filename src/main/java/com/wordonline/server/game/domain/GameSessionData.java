@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain;
 
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.CardDeck;
 import com.wordonline.server.game.service.ManaCharger;
 
@@ -15,4 +16,24 @@ public class GameSessionData {
     public final CardDeck leftCardDeck = new CardDeck();
     public final CardDeck rightCardDeck = new CardDeck();
     public final ManaCharger manaCharger = new ManaCharger();
+
+    public PlayerData getPlayerData(Master master){
+        if (master == Master.LeftPlayer) {
+            return leftPlayerData;
+        } else if (master == Master.RightPlayer) {
+            return rightPlayerData;
+        } else {
+            return null;
+        }
+    }
+
+    public CardDeck getCardDeck(Master master){
+        if (master == Master.LeftPlayer) {
+            return leftCardDeck;
+        } else if (master == Master.RightPlayer) {
+            return rightCardDeck;
+        } else {
+            return null;
+        }
+    }
 }
