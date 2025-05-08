@@ -1,6 +1,6 @@
 package com.wordonline.server.game.dto;
 
-import com.wordonline.server.game.domain.CardType;
+import com.wordonline.server.game.domain.magic.CardType;
 import lombok.Data;
 
 import java.util.List;

@@ -1,21 +1,34 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.*;
+import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
+import com.wordonline.server.game.domain.magic.parser.MagicParser;
+import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.*;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 // GameLoop is the main class that runs the game loop
+@Slf4j
 public class GameLoop implements Runnable {
     private boolean _running = true;
-    public static final int FPS = 10;
+    public static final int FPS = 1;
     private final SessionObject sessionObject;
     private int _frameNum = 0;
+    private final MagicParser magicParser = new DummyMagicParser();
+
+    @Getter
+    private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
     public void close() {
         _running = false;
     }
 
+    @Getter
     private GameSessionData gameSessionData = new GameSessionData();
 
     public GameLoop(SessionObject sessionObject){
@@ -52,20 +65,25 @@ public class GameLoop implements Runnable {
         Master master = sessionObject.getUserSide(userId);
         PlayerData playerData = gameSessionData.getPlayerData(master);
 
-        if (inputRequestDto.getCards() == null || inputRequestDto.getCards().isEmpty()) {
+
+        boolean valid = playerData.useCards(inputRequestDto.getCards());
+
             return new InputResponseDto(false, playerData.mana);
         }
 
-        boolean valid = playerData.useCards(inputRequestDto.getCards());
-        return new InputResponseDto(valid, playerData.mana);
+        magic.run(this);
 
+        return new InputResponseDto(valid, playerData.mana);
     }
+
 
     // this method is called when the game loop is stopped
     private void update() {
         CardInfoDto leftCardInfo = new CardInfoDto();
         CardInfoDto rightCardInfo = new CardInfoDto();
-        ObjectsInfoDto objectsInfoDto = new ObjectsInfoDto();
+
+        ObjectsInfoDto objectsInfoDto = objectsInfoDtoBuilder.getObjectsInfoDto();
+
         FrameInfoDto leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto);
         FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto);
 
@@ -106,7 +124,7 @@ public class GameLoop implements Runnable {
 
 
         if (frameNum == 1) {
-            CreatedObjectDto createdObjectDto = new CreatedObjectDto(1, "Fireball", new Position(0, 10), Master.LeftPlayer);
+            CreatedObjectDto createdObjectDto = new CreatedObjectDto(1, PrefabType.Magic, new Position(0, 10), Master.LeftPlayer);
             objectsInfoDto = new ObjectsInfoDto(List.of(createdObjectDto), List.of());
         } else if (frameNum > 1) {
             UpdatedObjectDto updatedObjectDto = new UpdatedObjectDto(1, Status.Move, Effect.Burn, new Position(frameNum * 0.5f % 100, 10));
@@ -116,3 +134,4 @@ public class GameLoop implements Runnable {
         return new FrameInfoDto(mana, cardInfoDto, objectsInfoDto);
     }
 }
+

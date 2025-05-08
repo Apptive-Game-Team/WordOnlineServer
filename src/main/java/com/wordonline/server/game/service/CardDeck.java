@@ -1,6 +1,6 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.game.domain.CardType;
+import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.dto.CardInfoDto;
 

@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain;
+package com.wordonline.server.game.domain.magic;
 
 import lombok.Getter;
 

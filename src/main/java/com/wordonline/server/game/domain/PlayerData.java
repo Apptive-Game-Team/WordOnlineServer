@@ -1,5 +1,7 @@
 package com.wordonline.server.game.domain;
 
+import com.wordonline.server.game.domain.magic.CardType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +41,6 @@ public class PlayerData {
             this.cards.remove(card);
             mana -= card.getManaCost();
         }
-
-        // TODO: Implement the logic to use the cards
 
         return true;
     }

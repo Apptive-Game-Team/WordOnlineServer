@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain;
 
+import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.CardDeck;
 import com.wordonline.server.game.service.ManaCharger;
