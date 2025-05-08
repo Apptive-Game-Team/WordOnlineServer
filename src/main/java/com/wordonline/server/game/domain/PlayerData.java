@@ -22,8 +22,20 @@ public class PlayerData {
     }
 
     // validate and use cards
-    public boolean useCards(String[] cards) {
-        // TODO validate using cards
+    public boolean useCards(List<String> cards) {
+        List<String> tempCards = new ArrayList<>(this.cards);
+        for (String card : cards) {
+            if (!tempCards.remove(card)) {
+                return false;
+            }
+        }
+
+        for (String card : cards) {
+            this.cards.remove(card);
+        }
+
+        // TODO - Add mana cost logic
+
         return true;
     }
 }

@@ -17,7 +17,7 @@ public class CardDeck {
 
     // random pick card and update to Player Data, Frame Info Dto
     public void drawCard(PlayerData player, CardInfoDto cardInfoDto) {
-        if (cards.isEmpty())
+        if (cards.isEmpty() || player.cards.size() >= PlayerData.MAX_CARD_NUM)
             return;
 
         int cardIndex = rand.nextInt(cards.size());

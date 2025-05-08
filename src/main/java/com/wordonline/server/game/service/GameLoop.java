@@ -12,6 +12,10 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
 
+    public void close() {
+        _running = false;
+    }
+
     private GameSessionData gameSessionData = new GameSessionData();
 
     public GameLoop(SessionObject sessionObject){
@@ -44,6 +48,19 @@ public class GameLoop implements Runnable {
         }
     }
 
+    public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
+        Master master = sessionObject.getUserSide(userId);
+        PlayerData playerData = gameSessionData.getPlayerData(master);
+
+        if (inputRequestDto.getCards() == null || inputRequestDto.getCards().isEmpty()) {
+            return new InputResponseDto(false, playerData.mana);
+        }
+
+        boolean valid = playerData.useCards(inputRequestDto.getCards());
+        return new InputResponseDto(valid, playerData.mana);
+
+    }
+
     // this method is called when the game loop is stopped
     private void update() {
         CardInfoDto leftCardInfo = new CardInfoDto();
@@ -61,6 +78,9 @@ public class GameLoop implements Runnable {
         for (GameObject gameObject : gameSessionData.gameObjects) {
             gameObject.update();
         }
+
+        leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
+        rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
 
         sessionObject.sendFrameInfo(
             sessionObject.getLeftUserId(),
