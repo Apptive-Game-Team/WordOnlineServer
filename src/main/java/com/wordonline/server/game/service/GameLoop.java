@@ -65,9 +65,12 @@ public class GameLoop implements Runnable {
         Master master = sessionObject.getUserSide(userId);
         PlayerData playerData = gameSessionData.getPlayerData(master);
 
+        Magic magic = magicParser.parseMagic(inputRequestDto.getCards());
 
         boolean valid = playerData.useCards(inputRequestDto.getCards());
 
+        if (magic == null) {
+            log.info("{}: {} is not valid", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana);
         }
 
