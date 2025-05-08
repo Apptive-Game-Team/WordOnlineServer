@@ -10,10 +10,10 @@ public class PlayerData {
 
     public int mana = 0;
     public int hp = MAX_HP;
-    public List<String> cards = new ArrayList<>();
+    public List<CardType> cards = new ArrayList<>();
 
     // validate and add card
-    public boolean addCard(String card) {
+    public boolean addCard(CardType card) {
         if (MAX_CARD_NUM >= cards.size() + 1) {
             cards.add(card);
             return true;
@@ -22,19 +22,25 @@ public class PlayerData {
     }
 
     // validate and use cards
-    public boolean useCards(List<String> cards) {
-        List<String> tempCards = new ArrayList<>(this.cards);
-        for (String card : cards) {
+    public boolean useCards(List<CardType> cards) {
+        int totalManaCost = 0;
+        List<CardType> tempCards = new ArrayList<>(this.cards);
+        for (CardType card : cards) {
+            totalManaCost += card.getManaCost();
             if (!tempCards.remove(card)) {
                 return false;
             }
         }
-
-        for (String card : cards) {
-            this.cards.remove(card);
+        if (totalManaCost > mana) {
+            return false;
         }
 
-        // TODO - Add mana cost logic
+        for (CardType card : cards) {
+            this.cards.remove(card);
+            mana -= card.getManaCost();
+        }
+
+        // TODO: Implement the logic to use the cards
 
         return true;
     }

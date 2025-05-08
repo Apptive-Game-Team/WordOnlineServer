@@ -98,7 +98,7 @@ public class GameLoop implements Runnable {
         int mana = (int) (frameNum * 0.1 % 100);
         CardInfoDto cardInfoDto;
         if (frameNum <= 6) {
-            cardInfoDto = new CardInfoDto(List.of("Dummy"));
+            cardInfoDto = new CardInfoDto(List.of(CardType.Dummy));
         } else {
             cardInfoDto = new CardInfoDto(List.of());
         }

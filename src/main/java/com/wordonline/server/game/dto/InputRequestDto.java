@@ -1,5 +1,6 @@
 package com.wordonline.server.game.dto;
 
+import com.wordonline.server.game.domain.CardType;
 import lombok.Data;
 
 import java.util.List;
@@ -7,5 +8,5 @@ import java.util.List;
 @Data
 public class InputRequestDto {
     private final String type = "useMagic";
-    private final List<String> cards;
+    private final List<CardType> cards;
 }

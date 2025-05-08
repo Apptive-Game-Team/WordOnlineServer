@@ -1,5 +1,6 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.game.domain.CardType;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.dto.CardInfoDto;
 
@@ -13,7 +14,7 @@ public class CardDeck {
 
     // Dummy cards for testing
     // TODO: Replace with actual card data
-    List<String> cards = new ArrayList<>(List.of("Dummy", "Dummy", "Dummy", "Dummy", "Dummy", "Dummy"));
+    List<CardType> cards = new ArrayList<>(List.of(CardType.Dummy, CardType.Dummy, CardType.Dummy, CardType.Dummy, CardType.Dummy, CardType.Dummy));
 
     // random pick card and update to Player Data, Frame Info Dto
     public void drawCard(PlayerData player, CardInfoDto cardInfoDto) {
@@ -21,7 +22,7 @@ public class CardDeck {
             return;
 
         int cardIndex = rand.nextInt(cards.size());
-        String card = cards.get(cardIndex);
+        CardType card = cards.get(cardIndex);
         if (player.addCard(card)){ // Added
             cardInfoDto.addCard(card);
             cards.remove(cardIndex);
