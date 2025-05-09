@@ -1,21 +1,18 @@
 package com.wordonline.server.game.domain.object;
 
-import com.wordonline.server.game.domain.Position;
-import com.wordonline.server.game.domain.PrefabType;
+import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // This class is used to store the game object data
-// TODO - method for updating object and ObjectsInfoDto ex) updatePosition
 @Getter
-public class GameObject implements Component {
+public class GameObject {
     private final int id;
     private static int idCounter = 0;
     private final Master master;
@@ -55,19 +52,17 @@ public class GameObject implements Component {
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
     }
 
-    @Override
     public void start() {
+        type.initialize(this);
         for (Component component : components)
             component.start();
     }
 
-    @Override
     public void update() {
         for (Component component : components)
             component.update();
     }
 
-    @Override
     public void onDestroy() {
         for (Component component : components)
             component.onDestroy();

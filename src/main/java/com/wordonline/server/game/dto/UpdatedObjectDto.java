@@ -1,6 +1,6 @@
 package com.wordonline.server.game.dto;
 
-import com.wordonline.server.game.domain.Position;
+import com.wordonline.server.game.domain.object.Position;
 import com.wordonline.server.game.domain.object.GameObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;

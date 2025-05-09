@@ -1,12 +1,11 @@
 package com.wordonline.server.game.domain.magic.parser;
 
-import com.wordonline.server.game.domain.Position;
-import com.wordonline.server.game.domain.PrefabType;
+import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.dto.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,6 +6,8 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

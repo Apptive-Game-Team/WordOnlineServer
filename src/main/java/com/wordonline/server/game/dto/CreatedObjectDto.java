@@ -1,7 +1,7 @@
 package com.wordonline.server.game.dto;
 
-import com.wordonline.server.game.domain.Position;
-import com.wordonline.server.game.domain.PrefabType;
+import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.PrefabType;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
