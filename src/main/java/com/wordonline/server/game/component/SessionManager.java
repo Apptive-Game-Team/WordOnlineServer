@@ -2,12 +2,12 @@ package com.wordonline.server.game.component;
 
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-@Component
 // this class is used to manage the sessions
+@Service
 public class SessionManager {
     private static Map<String, SessionObject> sessions = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -17,16 +17,15 @@ public class SessionManager {
         Thread thread = new Thread(gameLoop);
         thread.start();
 
-        sessions.put(sessionObject.getLeftUserId(),sessionObject);
-        sessions.put(sessionObject.getRightUserId(),sessionObject);
+        sessions.put(sessionObject.getSessionId(),sessionObject);
     }
 
     public void closeSession(SessionObject sessionObject) {
-        sessions.remove(sessionObject.getRightUserId());
-        sessions.remove(sessionObject.getLeftUserId());
+        sessionObject.getGameLoop().close();
+        sessions.remove(sessionObject.getSessionId());
     }
 
-    public SessionObject getSessionObject(String userId) {
-        return sessions.get(userId);
+    public SessionObject getSessionObject(String sessionId) {
+        return sessions.get(sessionId);
     }
 }

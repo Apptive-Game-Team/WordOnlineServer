@@ -1,0 +1,53 @@
+package com.wordonline.server.game.service;
+
+import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.dto.*;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
+public class ObjectsInfoDtoBuilder {
+
+    private List<CreatedObjectDto> createdObjectDtos = new ArrayList<>();
+    private List<UpdatedObjectDto> updatedObjectDtos = new ArrayList<>();
+    private final GameLoop gameLoop;
+
+    public ObjectsInfoDtoBuilder(GameLoop gameLoop) {
+        this.gameLoop = gameLoop;
+    }
+
+    public ObjectsInfoDto getObjectsInfoDto () {
+        ObjectsInfoDto result = new ObjectsInfoDto(createdObjectDtos, updatedObjectDtos);
+        createdObjectDtos = new ArrayList<>();
+        updatedObjectDtos = new ArrayList<>();
+        log.info("ObjectsInfoDto: {}", result);
+        return result;
+    }
+
+    public void createGameObject(GameObject gameObject) {
+        gameLoop.getGameSessionData().gameObjects.add(gameObject);
+        CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster());
+        createdObjectDtos.add(createdObjectDto);
+        log.info("CreatedObjectDto: {}", createdObjectDto);
+        gameObject.start();
+    }
+
+    public void updateGameObject(GameObject gameObject) {
+        UpdatedObjectDto updatedObjectDto = updatedObjectDtos.stream()
+                .filter(dto -> dto.getId() == gameObject.getId())
+                .findFirst()
+                .orElse(null);
+        if (updatedObjectDto != null) { // if the object is already in the update list, update it
+            updatedObjectDto.setPosition(gameObject.getPosition());
+            updatedObjectDto.setStatus(gameObject.getStatus());
+            updatedObjectDto.setEffect(gameObject.getEffect());
+        } else { // if the object is not in the update list, add it
+            updatedObjectDto = new UpdatedObjectDto(gameObject);
+            updatedObjectDtos.add(updatedObjectDto);
+        }
+        log.info("UpdatedObjectDto: {}", updatedObjectDto);
+    }
+}
+

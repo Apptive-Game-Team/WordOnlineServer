@@ -1,15 +1,25 @@
 package com.wordonline.server.game.dto;
 
-import com.wordonline.server.game.domain.Position;
+import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.GameObject;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Data
-@RequiredArgsConstructor
+@Setter
+@AllArgsConstructor
 // This class is used to send updated object information to the client
 public class UpdatedObjectDto {
     private final int id;
-    private final Status status;
-    private final Effect effect;
-    private final Position position;
+    private Status status;
+    private Effect effect;
+    private Position position;
+
+    public UpdatedObjectDto(GameObject gameObject) {
+        this.id = gameObject.getId();
+        this.status = gameObject.getStatus();
+        this.effect = gameObject.getEffect();
+        this.position = gameObject.getPosition();
+    }
 }
