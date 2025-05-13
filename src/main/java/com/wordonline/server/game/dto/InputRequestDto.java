@@ -9,4 +9,5 @@ import java.util.List;
 public class InputRequestDto {
     private final String type = "useMagic";
     private final List<CardType> cards;
+    private final int id;
 }

@@ -73,12 +73,12 @@ public class GameLoop implements Runnable {
 
         if (magic == null) {
             log.info("{}: {} is not valid", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana);
+            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
         }
 
         magic.run(this);
 
-        return new InputResponseDto(valid, playerData.mana);
+        return new InputResponseDto(valid, playerData.mana, inputRequestDto.getId());
     }
 
 
