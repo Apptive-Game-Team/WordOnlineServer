@@ -23,17 +23,15 @@ public class GameObject {
     private Effect effect;
     @Getter
     private Position position;
-    private float radius;
 
     private final GameLoop gameLoop;
     private final List<Component> components = new ArrayList<Component>();
 
-    public GameObject(Master master, PrefabType type, Position position, float radius, GameLoop gameLoop) {
+    public GameObject(Master master, PrefabType type, Position position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
         this.type = type;
         this.position = position;
-        this.radius = radius;
         this.gameLoop = gameLoop;
         this.status = Status.Idle;
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
@@ -68,9 +66,5 @@ public class GameObject {
     public void onDestroy() {
         for (Component component : components)
             component.onDestroy();
-    }
-
-    public void onCollision(GameObject other) {
-
     }
 }
