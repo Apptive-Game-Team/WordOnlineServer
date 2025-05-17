@@ -8,4 +8,8 @@ import lombok.Data;
 // This class is used to represent the position of an object in the game
 public class Position {
     private float x, y;
+
+    public Position add(float x, float y) {
+        return new Position(this.x + x, this.y + y);
+    }
 }
