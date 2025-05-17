@@ -1,6 +1,6 @@
 package com.wordonline.server.game.domain.magic.parser;
 
-import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
@@ -20,7 +20,7 @@ public class DummyMagicParser implements MagicParser {
             return null;
 
         return (gameLoop) -> {
-            new GameObject(Master.None, PrefabType.Dummy, new Position(1, 1), gameLoop);
+            new GameObject(Master.None, PrefabType.Dummy, new Vector2(1, 1), gameLoop);
         };
     }
 

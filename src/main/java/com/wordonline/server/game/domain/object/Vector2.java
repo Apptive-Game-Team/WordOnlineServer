@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 // This class is used to represent the position of an object in the game
-public class Position {
+public class Vector2 {
     private float x, y;
 }

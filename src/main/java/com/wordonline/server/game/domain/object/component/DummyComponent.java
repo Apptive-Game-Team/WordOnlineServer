@@ -1,7 +1,7 @@
 package com.wordonline.server.game.domain.object.component;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.service.GameLoop;
 
 
@@ -20,7 +20,7 @@ public class DummyComponent extends Component {
 
     @Override
     public void update() {
-        Position position = gameObject.getPosition();
+        Vector2 position = gameObject.getPosition();
         position.setX(position.getX() + speed / GameLoop.FPS);
         position.setY(position.getY() + speed / GameLoop.FPS);
         gameObject.setPosition(position);

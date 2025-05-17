@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
 import lombok.Getter;
@@ -63,6 +63,8 @@ public class GameLoop implements Runnable {
         }
     }
 
+    
+
     public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
         Master master = sessionObject.getUserSide(userId);
         PlayerData playerData = gameSessionData.getPlayerData(master);
@@ -102,6 +104,8 @@ public class GameLoop implements Runnable {
             gameObject.update();
         }
 
+
+        
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
 
@@ -129,10 +133,10 @@ public class GameLoop implements Runnable {
 
 
         if (frameNum == 1) {
-            CreatedObjectDto createdObjectDto = new CreatedObjectDto(1, PrefabType.Magic, new Position(0, 10), Master.LeftPlayer);
+            CreatedObjectDto createdObjectDto = new CreatedObjectDto(1, PrefabType.Magic, new Vector2(0, 10), Master.LeftPlayer);
             objectsInfoDto = new ObjectsInfoDto(List.of(createdObjectDto), List.of());
         } else if (frameNum > 1) {
-            UpdatedObjectDto updatedObjectDto = new UpdatedObjectDto(1, Status.Move, Effect.Burn, new Position(frameNum * 0.5f % 100, 10));
+            UpdatedObjectDto updatedObjectDto = new UpdatedObjectDto(1, Status.Move, Effect.Burn, new Vector2(frameNum * 0.5f % 100, 10));
             objectsInfoDto = new ObjectsInfoDto(List.of(), List.of(updatedObjectDto));
         }
 
