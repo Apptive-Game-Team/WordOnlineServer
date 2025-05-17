@@ -39,6 +39,14 @@ public class GameObject {
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
     }
 
+    public Component getComponent(Type type) {
+        for (Component component : components) {
+            if (component.getClass() == type) {
+                return component;
+            }
+        }
+        return null;
+    }
 
     public void destroy() {
         setStatus(Status.Destroyed);

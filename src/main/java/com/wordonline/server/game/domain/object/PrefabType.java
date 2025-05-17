@@ -3,8 +3,12 @@ package com.wordonline.server.game.domain.object;
 import com.wordonline.server.game.domain.object.component.DummyComponent;
 
 public enum PrefabType {
-    Slime(null),
-    Magic(null),
+    // fire
+    FireShot(null),
+    FireDrop(null),
+    FireSummon(null),
+    FireExplode(null),
+
     Dummy((gameObject) -> {
         gameObject.getComponents().add(new DummyComponent(gameObject));
     });

@@ -114,29 +114,5 @@ public class GameLoop implements Runnable {
             rightFrameInfoDto
         );
     }
-
-    // For Test
-    // TODO: remove this method
-    private FrameInfoDto getTestFrameInfoDto(int frameNum) {
-        int mana = (int) (frameNum * 0.1 % 100);
-        CardInfoDto cardInfoDto;
-        if (frameNum <= 6) {
-            cardInfoDto = new CardInfoDto(List.of(CardType.Dummy));
-        } else {
-            cardInfoDto = new CardInfoDto(List.of());
-        }
-        ObjectsInfoDto objectsInfoDto = null;
-
-
-        if (frameNum == 1) {
-            CreatedObjectDto createdObjectDto = new CreatedObjectDto(1, PrefabType.Magic, new Position(0, 10), Master.LeftPlayer);
-            objectsInfoDto = new ObjectsInfoDto(List.of(createdObjectDto), List.of());
-        } else if (frameNum > 1) {
-            UpdatedObjectDto updatedObjectDto = new UpdatedObjectDto(1, Status.Move, Effect.Burn, new Position(frameNum * 0.5f % 100, 10));
-            objectsInfoDto = new ObjectsInfoDto(List.of(), List.of(updatedObjectDto));
-        }
-
-        return new FrameInfoDto(mana, cardInfoDto, objectsInfoDto);
-    }
 }
 
