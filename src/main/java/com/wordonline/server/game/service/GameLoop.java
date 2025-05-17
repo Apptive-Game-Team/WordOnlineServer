@@ -63,15 +63,7 @@ public class GameLoop implements Runnable {
         }
     }
 
-    boolean isColliding(GameObject a, GameObject b) {
-        float dx = a.getPosition().getX() - b.getPosition().getX();
-        float dy = a.getPosition().getY() - b.getPosition().getY();
-        float distanceSquared = dx * dx + dy * dy;
-
-        float collisionRadiusSum = a.getRadius() + b.getRadius();
-        return distanceSquared < (collisionRadiusSum * collisionRadiusSum);
-    }
-
+    
 
     public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
         Master master = sessionObject.getUserSide(userId);
