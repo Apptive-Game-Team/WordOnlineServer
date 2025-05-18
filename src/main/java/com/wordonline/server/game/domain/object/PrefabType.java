@@ -12,16 +12,16 @@ import static com.wordonline.server.game.domain.magic.CardType.Summon;
 public enum PrefabType {
     // fire
     FireShot((gameObject -> {
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject));
+        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
     })),
     FireDrop((gameObject -> {
-        gameObject.getComponents().add(new Drop(gameObject));
+        gameObject.getComponents().add(new Drop(gameObject, 7));
     })),
     FireSummon((gameObject -> {
-        gameObject.getComponents().add(new Spawner(gameObject));
+        gameObject.getComponents().add(new Spawner(gameObject, 5));
     })),
     FireExplode((gameObject -> {
-        gameObject.getComponents().add(new Explode(gameObject));
+        gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
     FireSlime((gameObject -> {
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));

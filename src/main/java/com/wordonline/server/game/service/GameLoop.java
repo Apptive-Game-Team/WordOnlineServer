@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
+import com.wordonline.server.game.util.Physics;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +25,18 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
+    // TODO - implement a real physics engine
+    public final Physics physics = new Physics() { //
+        @Override
+        public List<GameObject> overlapCircleAll(GameObject object, float distance) {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public GameObject raycast(GameObject object, Vector2 direction, float distance) {
+            return null;
+        }
+    };
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);

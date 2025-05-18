@@ -11,13 +11,13 @@ public class SimplePathFinder implements PathFinder {
         // Implement a simple pathfinding algorithm here
         // For example, a straight line path
         List<Vector2> path = new ArrayList<>();
-        int deltaX = (int) (endPosition.getX() - startPosition.getX());
-        int deltaY = (int) (endPosition.getY() - startPosition.getY());
-        int steps = Math.max(Math.abs(deltaX), Math.abs(deltaY));
+        float deltaX = endPosition.getX() - startPosition.getX();
+        float deltaY = endPosition.getY() - startPosition.getY();
+        int steps = Math.max(Math.abs((int) deltaX), Math.abs((int) deltaY));
 
         for (int i = 0; i <= steps; i++) {
-            float x = startPosition.getX() + (deltaX * i) / (float) steps;
-            float y = startPosition.getY() + (deltaY * i) / (float) steps;
+            float x = startPosition.getX() + (deltaX * i) / steps;
+            float y = startPosition.getY() + (deltaY * i) / steps;
             path.add(new Vector2(x, y));
         }
 

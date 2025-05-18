@@ -26,7 +26,7 @@ public class DummyMagicParser implements MagicParser {
         } else if (cards.contains(CardType.Summon)) {
             return (gameLoop) -> {
                 new GameObject(Master.RightPlayer, PrefabType.FireSummon, new Vector2(7, 3), gameLoop);
-                new GameObject(Master.LeftPlayer, PrefabType.FireSummon, new Vector2(-7, -3), gameLoop);
+                new GameObject(Master.LeftPlayer, PrefabType.FireSummon, new Vector2(-7, 1), gameLoop);
             };
         } else if (cards.contains(CardType.Drop)) {
             return (gameLoop) -> {
