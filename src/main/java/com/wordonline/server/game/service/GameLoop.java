@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Position;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
 import lombok.Getter;
@@ -63,6 +63,8 @@ public class GameLoop implements Runnable {
         }
     }
 
+    
+
     public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
         Master master = sessionObject.getUserSide(userId);
         PlayerData playerData = gameSessionData.getPlayerData(master);
@@ -102,6 +104,8 @@ public class GameLoop implements Runnable {
             gameObject.update();
         }
 
+
+        
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
 

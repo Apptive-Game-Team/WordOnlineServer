@@ -24,12 +24,13 @@ public class GameObject {
 
     private Effect effect;
     @Getter
-    private Position position;
+    private Vector2 position;
+    private float radius;
 
     private final GameLoop gameLoop;
     private final List<Component> components = new ArrayList<Component>();
 
-    public GameObject(Master master, PrefabType type, Position position, GameLoop gameLoop) {
+    public GameObject(Master master, PrefabType type, Vector2 position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
         this.type = type;
@@ -55,7 +56,7 @@ public class GameObject {
         gameLoop.getGameSessionData().gameObjects.remove(this);
     }
 
-    public void setPosition(Position position) {
+    public void setPosition(Vector2 position) {
         this.position = position;
         if (Math.abs(position.getX()) > GameConfig.X_BOUND || Math.abs(position.getY()) > GameConfig.Y_BOUND) {
             destroy();
