@@ -13,6 +13,7 @@ public class GameSessionData {
     public final PlayerData leftPlayerData = new PlayerData();
     public final PlayerData rightPlayerData = new PlayerData();
     public final List<GameObject> gameObjects = new ArrayList<>();
+    public final List<GameObject> gameObjectsToAdd = new ArrayList<>();
 
     public final CardDeck leftCardDeck = new CardDeck();
     public final CardDeck rightCardDeck = new CardDeck();

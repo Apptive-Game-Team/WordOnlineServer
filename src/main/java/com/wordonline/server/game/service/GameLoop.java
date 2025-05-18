@@ -12,6 +12,7 @@ import com.wordonline.server.game.dto.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // GameLoop is the main class that runs the game loop
@@ -100,8 +101,15 @@ public class GameLoop implements Runnable {
         gameSessionData.leftCardDeck.drawCard(gameSessionData.leftPlayerData, leftCardInfo);
         gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
 
+        List<GameObject> toRemove = new ArrayList<>();
+        gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
+        gameSessionData.gameObjectsToAdd.clear();
         for (GameObject gameObject : gameSessionData.gameObjects) {
-            gameObject.update();
+            if (gameObject.getStatus() == Status.Destroyed) {
+                toRemove.add(gameObject);
+            } else {
+                gameObject.update();
+            }
         }
 
 
@@ -117,6 +125,8 @@ public class GameLoop implements Runnable {
             sessionObject.getRightUserId(),
             rightFrameInfoDto
         );
+
+        gameSessionData.gameObjects.removeAll(toRemove);
     }
 }
 
