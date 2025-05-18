@@ -21,8 +21,8 @@ public class DummyComponent extends Component {
     @Override
     public void update() {
         Vector2 position = gameObject.getPosition();
-        position.setX(position.getX() + speed / GameLoop.FPS);
-        position.setY(position.getY() + speed / GameLoop.FPS);
+        position.setX(position.getX() + speed * gameObject.getGameLoop().deltaTime);
+        position.setY(position.getY() + speed * gameObject.getGameLoop().deltaTime);
         gameObject.setPosition(position);
     }
 

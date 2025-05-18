@@ -20,8 +20,6 @@ public abstract class MagicComponent extends Component {
 
     }
 
-    public abstract void use(Master master);
-
     public MagicComponent(GameObject gameObject) {
         super(gameObject);
     }

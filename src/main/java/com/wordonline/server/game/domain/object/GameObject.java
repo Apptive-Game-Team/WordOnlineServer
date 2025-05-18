@@ -30,6 +30,16 @@ public class GameObject {
     private final GameLoop gameLoop;
     private final List<Component> components = new ArrayList<Component>();
 
+    public GameObject(GameObject parent, PrefabType type) {
+        this.id = idCounter++;
+        this.master = parent.getMaster();
+        this.type = type;
+        this.position = parent.getPosition();
+        this.gameLoop = parent.getGameLoop();
+        this.status = Status.Idle;
+        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+    }
+
     public GameObject(Master master, PrefabType type, Vector2 position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
@@ -53,7 +63,6 @@ public class GameObject {
         setStatus(Status.Destroyed);
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
         onDestroy();
-        gameLoop.getGameSessionData().gameObjects.remove(this);
     }
 
     public void setPosition(Vector2 position) {
