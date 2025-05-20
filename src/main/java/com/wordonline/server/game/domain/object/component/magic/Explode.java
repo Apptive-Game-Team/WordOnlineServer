@@ -1,10 +1,9 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
+import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.Attackable;
-import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Status;
-import com.wordonline.server.game.service.GameLoop;
 
 import java.util.List;
 
@@ -28,16 +27,16 @@ public class Explode extends MagicComponent {
         } else {
             List<GameObject> gameObjects = gameObject.getGameLoop().physics.overlapCircleAll(gameObject, EXPLODE_RADIUS);
             for (GameObject otherObject : gameObjects) {
-                List<Attackable> attackables = otherObject.getComponents()
+                List<Damageable> attackables = otherObject.getComponents()
                         .stream()
-                        .filter(component -> component instanceof Attackable)
-                        .map(component -> (Attackable) component)
+                        .filter(component -> component instanceof Damageable)
+                        .map(component -> (Damageable) component)
                         .toList();
                 if (attackables.isEmpty()) {
                     continue;
                 }
                 otherObject.setStatus(Status.Damaged);
-                attackables.forEach(attackable -> attackable.onAttack(damage));
+                attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage)));
             }
 
             gameObject.setStatus(Status.Attack);

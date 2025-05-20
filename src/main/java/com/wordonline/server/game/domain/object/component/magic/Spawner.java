@@ -1,12 +1,11 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
+import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
-import com.wordonline.server.game.domain.object.component.Attackable;
-import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.domain.object.component.Damageable;
 
-public class Spawner extends MagicComponent implements Attackable {
+public class Spawner extends MagicComponent implements Damageable {
     public static final int SPAWN_INTERNAL = 2;
 
     private float counter = 0;
@@ -37,8 +36,8 @@ public class Spawner extends MagicComponent implements Attackable {
     }
 
     @Override
-    public void onAttack(int damage) {
-        hp -= damage;
+    public void onDamaged(AttackInfo attackInfo) {
+        hp -= attackInfo.getDamage();
         if (hp <= 0) {
             gameObject.destroy();
         }

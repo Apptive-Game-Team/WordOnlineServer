@@ -1,8 +1,9 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.slime;
 
+import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
-import com.wordonline.server.game.domain.object.component.Attackable;
+import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
@@ -135,8 +136,8 @@ public class Slime extends StateMachineMob {
                 setState(new MoveState());
             } else if (timer > attackInterval) {
                 timer = 0;
-                Attackable attackable = ((Attackable) target.getComponents().stream()
-                        .filter(component -> component instanceof Attackable)
+                Damageable attackable = ((Damageable) target.getComponents().stream()
+                        .filter(component -> component instanceof Damageable)
                         .findFirst()
                         .orElse(null));
                 if (attackable == null) {
@@ -144,7 +145,7 @@ public class Slime extends StateMachineMob {
                     return;
                 }
 
-                attackable.onAttack(damage);
+                attackable.onDamaged(new AttackInfo(damage));
                 gameObject.setStatus(Status.Attack);
             }
         }
