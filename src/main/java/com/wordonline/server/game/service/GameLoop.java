@@ -7,8 +7,14 @@ import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.component.Collidable;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
+import com.wordonline.server.game.util.BruteCollisionChecker;
+import com.wordonline.server.game.util.CollisionChecker;
+import com.wordonline.server.game.util.Physics;
+import com.wordonline.server.game.util.SimplePhysics;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +28,8 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
+    public final Physics physics = new SimplePhysics(getGameSessionData().gameObjects);
+    public final CollisionChecker collisionChecker = new BruteCollisionChecker();
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -103,6 +111,22 @@ public class GameLoop implements Runnable {
         for (GameObject gameObject : gameSessionData.gameObjects) {
             gameObject.update();
         }
+        
+        List<GameObject> objects = gameSessionData.gameObjects;
+        for (int i = 0; i < objects.size(); i++) {
+        GameObject a = objects.get(i);
+        if (!(a instanceof Collidable collidableA)) continue;
+
+        for (int j = i + 1; j < objects.size(); j++) {
+            GameObject b = objects.get(j);
+            if (!(b instanceof Collidable collidableB)) continue;
+
+            if (collisionChecker.isColliding(a, b)) {
+                collidableA.onCollision(b);
+                collidableB.onCollision(a);
+            }
+        }
+    }
 
 
         
