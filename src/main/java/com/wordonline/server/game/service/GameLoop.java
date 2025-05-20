@@ -30,8 +30,6 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
-    public final Physics physics = new SimplePhysics(getGameSessionData().gameObjects);
-    public final CollisionChecker collisionChecker = new BruteCollisionChecker();
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -46,6 +44,9 @@ public class GameLoop implements Runnable {
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
     }
+
+    public final Physics physics = new SimplePhysics(getGameSessionData().gameObjects);
+    public final CollisionChecker collisionChecker = new BruteCollisionChecker();
 
     public float deltaTime = 1/FPS;
 
