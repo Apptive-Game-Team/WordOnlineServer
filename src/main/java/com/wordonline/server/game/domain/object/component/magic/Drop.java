@@ -1,11 +1,9 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.Attackable;
+import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Collidable;
-import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
-import com.wordonline.server.game.service.GameLoop;
 
 import java.util.List;
 
@@ -28,10 +26,10 @@ public class Drop extends MagicComponent implements Collidable {
 
     @Override
     public void onCollision(GameObject otherObject) {
-        List<Attackable> attackables = otherObject.getComponents()
+        List<Damageable> attackables = otherObject.getComponents()
                 .stream()
-                .filter(component -> component instanceof Attackable)
-                .map(component -> (Attackable) component)
+                .filter(component -> component instanceof Damageable)
+                .map(component -> (Damageable) component)
                 .toList();
         if (attackables.isEmpty()) {
             return;
@@ -39,7 +37,7 @@ public class Drop extends MagicComponent implements Collidable {
         direction = 0;
         gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
-        attackables.forEach(attackable -> attackable.onAttack(damage));
+        attackables.forEach(attackable -> attackable.onDamaged(damage));
 
         gameObject.destroy();
     }
