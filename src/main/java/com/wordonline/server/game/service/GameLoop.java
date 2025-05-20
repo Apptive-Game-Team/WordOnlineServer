@@ -18,13 +18,15 @@ import com.wordonline.server.game.util.SimplePhysics;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 // GameLoop is the main class that runs the game loop
 @Slf4j
 public class GameLoop implements Runnable {
     private boolean _running = true;
-    public static final int FPS = 1;
+    public static final int FPS = 10;
     private final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
@@ -44,6 +46,8 @@ public class GameLoop implements Runnable {
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
     }
+
+    public float deltaTime = 1/FPS;
 
     @Override
     public void run() {
@@ -68,6 +72,7 @@ public class GameLoop implements Runnable {
                 } catch (InterruptedException ignored) {
                 }
             }
+            deltaTime = (System.currentTimeMillis() - startTime) / 1000.0f;
         }
     }
 
@@ -77,18 +82,22 @@ public class GameLoop implements Runnable {
         Master master = sessionObject.getUserSide(userId);
         PlayerData playerData = gameSessionData.getPlayerData(master);
 
-        Magic magic = magicParser.parseMagic(inputRequestDto.getCards());
+        Magic magic = magicParser.parseMagic(inputRequestDto.getCards(), master);
 
         boolean valid = playerData.useCards(inputRequestDto.getCards());
 
         if (magic == null) {
-            log.info("{}: {} is not valid", master, inputRequestDto.getCards());
+            log.info("{}: {} is not valid : cannot parsed", master, inputRequestDto.getCards());
+            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
+        } else if (!valid) {
+            log.info("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
         }
 
         magic.run(this);
+        gameSessionData.getCardDeck(master).cards.addAll(inputRequestDto.getCards());
 
-        return new InputResponseDto(valid, playerData.mana, inputRequestDto.getId());
+        return new InputResponseDto(true, playerData.mana, inputRequestDto.getId());
     }
 
 
@@ -108,8 +117,15 @@ public class GameLoop implements Runnable {
         gameSessionData.leftCardDeck.drawCard(gameSessionData.leftPlayerData, leftCardInfo);
         gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
 
+        List<GameObject> toRemove = new ArrayList<>();
+        gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
+        gameSessionData.gameObjectsToAdd.clear();
         for (GameObject gameObject : gameSessionData.gameObjects) {
-            gameObject.update();
+            if (gameObject.getStatus() == Status.Destroyed) {
+                toRemove.add(gameObject);
+            } else {
+                gameObject.update();
+            }
         }
         
         List<GameObject> objects = gameSessionData.gameObjects;
@@ -128,8 +144,6 @@ public class GameLoop implements Runnable {
         }
     }
 
-
-        
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
 
@@ -141,30 +155,8 @@ public class GameLoop implements Runnable {
             sessionObject.getRightUserId(),
             rightFrameInfoDto
         );
-    }
 
-    // For Test
-    // TODO: remove this method
-    private FrameInfoDto getTestFrameInfoDto(int frameNum) {
-        int mana = (int) (frameNum * 0.1 % 100);
-        CardInfoDto cardInfoDto;
-        if (frameNum <= 6) {
-            cardInfoDto = new CardInfoDto(List.of(CardType.Dummy));
-        } else {
-            cardInfoDto = new CardInfoDto(List.of());
-        }
-        ObjectsInfoDto objectsInfoDto = null;
-
-
-        if (frameNum == 1) {
-            CreatedObjectDto createdObjectDto = new CreatedObjectDto(1, PrefabType.Magic, new Vector2(0, 10), Master.LeftPlayer);
-            objectsInfoDto = new ObjectsInfoDto(List.of(createdObjectDto), List.of());
-        } else if (frameNum > 1) {
-            UpdatedObjectDto updatedObjectDto = new UpdatedObjectDto(1, Status.Move, Effect.Burn, new Vector2(frameNum * 0.5f % 100, 10));
-            objectsInfoDto = new ObjectsInfoDto(List.of(), List.of(updatedObjectDto));
-        }
-
-        return new FrameInfoDto(mana, cardInfoDto, objectsInfoDto);
+        gameSessionData.gameObjects.removeAll(toRemove);
     }
 }
 

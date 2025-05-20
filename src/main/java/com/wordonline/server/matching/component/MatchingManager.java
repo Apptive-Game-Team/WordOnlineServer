@@ -52,8 +52,14 @@ public class MatchingManager {
                 matchedInfoDto);
 
         log.info("matched {} and {}", uid1, uid2);
-
-        sessionManager.createSession(new SessionObject(sessionId, uid1, uid2, template));
-        return true;
+        try {
+            Thread.sleep(2000);
+            sessionManager.createSession(new SessionObject(sessionId, uid1, uid2, template));
+            return true;
+        } catch (InterruptedException e) {
+            log.error("Error while creating session", e);
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 }

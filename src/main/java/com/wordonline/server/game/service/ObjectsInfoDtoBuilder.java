@@ -27,8 +27,8 @@ public class ObjectsInfoDtoBuilder {
     }
 
     public void createGameObject(GameObject gameObject) {
-        gameLoop.getGameSessionData().gameObjects.add(gameObject);
-        CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster());
+        gameLoop.getGameSessionData().gameObjectsToAdd.add(gameObject);
+        CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition().add(9, 5), gameObject.getMaster());
         createdObjectDtos.add(createdObjectDto);
         log.info("CreatedObjectDto: {}", createdObjectDto);
         gameObject.start();
@@ -40,11 +40,12 @@ public class ObjectsInfoDtoBuilder {
                 .findFirst()
                 .orElse(null);
         if (updatedObjectDto != null) { // if the object is already in the update list, update it
-            updatedObjectDto.setPosition(gameObject.getPosition());
+            updatedObjectDto.setPosition(gameObject.getPosition().add(9, 5));
             updatedObjectDto.setStatus(gameObject.getStatus());
             updatedObjectDto.setEffect(gameObject.getEffect());
         } else { // if the object is not in the update list, add it
             updatedObjectDto = new UpdatedObjectDto(gameObject);
+            updatedObjectDto.setPosition(gameObject.getPosition().add(9, 5));
             updatedObjectDtos.add(updatedObjectDto);
         }
         log.info("UpdatedObjectDto: {}", updatedObjectDto);

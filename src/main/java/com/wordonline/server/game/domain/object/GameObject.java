@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
@@ -7,6 +8,7 @@ import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,16 @@ public class GameObject {
     private final GameLoop gameLoop;
     private final List<Component> components = new ArrayList<Component>();
 
+    public GameObject(GameObject parent, PrefabType type) {
+        this.id = idCounter++;
+        this.master = parent.getMaster();
+        this.type = type;
+        this.position = parent.getPosition();
+        this.gameLoop = parent.getGameLoop();
+        this.status = Status.Idle;
+        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+    }
+
     public GameObject(Master master, PrefabType type, Vector2 position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
@@ -38,12 +50,32 @@ public class GameObject {
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
     }
 
+    public Component getComponent(Type type) {
+        for (Component component : components) {
+            if (component.getClass() == type) {
+                return component;
+            }
+        }
+        return null;
+    }
+
+    public void destroy() {
+        setStatus(Status.Destroyed);
+        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        onDestroy();
+    }
+
     public void setPosition(Vector2 position) {
         this.position = position;
+        if (Math.abs(position.getX()) > GameConfig.X_BOUND || Math.abs(position.getY()) > GameConfig.Y_BOUND) {
+            destroy();
+            return;
+        }
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
     }
 
     public void setStatus(Status status) {
+        if (this.status == Status.Destroyed) return;
         this.status = status;
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
     }
