@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
+import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Collidable;
@@ -37,7 +38,7 @@ public class Drop extends MagicComponent implements Collidable {
         direction = 0;
         gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
-        attackables.forEach(attackable -> attackable.onDamaged(damage));
+        attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage)));
 
         gameObject.destroy();
     }

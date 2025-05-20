@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.mob;
 
+import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Component;
@@ -14,9 +15,9 @@ public abstract class Mob extends Component implements Damageable {
     protected int speed;
 
     @Override
-    public void onDamaged(int damage) {
-        log.info("Mob : onDamaged hp: {} damage: {}", hp, damage);
-        this.hp -= damage;
+    public void onDamaged(AttackInfo attackInfo) {
+        log.info("Mob : onDamaged hp: {} damage: {}", hp, attackInfo.getDamage());
+        this.hp -= attackInfo.getDamage();
         if (this.hp <= 0) {
             onDeath();
         }

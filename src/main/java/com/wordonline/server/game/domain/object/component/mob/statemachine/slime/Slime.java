@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.slime;
 
+import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Damageable;
@@ -144,7 +145,7 @@ public class Slime extends StateMachineMob {
                     return;
                 }
 
-                attackable.onDamaged(damage);
+                attackable.onDamaged(new AttackInfo(damage));
                 gameObject.setStatus(Status.Attack);
             }
         }
