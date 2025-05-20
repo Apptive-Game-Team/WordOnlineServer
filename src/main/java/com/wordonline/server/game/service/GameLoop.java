@@ -5,6 +5,8 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Collidable;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
@@ -28,7 +30,7 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
-    private final ResultChecker resultChecker;
+    public final ResultChecker resultChecker;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -43,6 +45,9 @@ public class GameLoop implements Runnable {
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
          resultChecker = new ResultChecker(sessionObject);
+
+         new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
+        new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
     }
 
     public final Physics physics = new SimplePhysics(getGameSessionData().gameObjects);
