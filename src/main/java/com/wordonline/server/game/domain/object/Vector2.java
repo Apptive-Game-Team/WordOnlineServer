@@ -29,6 +29,10 @@ public class Vector2 {
         return new Vector2(this.x * scalar, this.y * scalar);
     }
 
+    public double dot(Vector2 other) {
+        return this.x * other.x + this.y * other.y;
+    }
+    
     public Vector2 normalize() {
         double length = Math.sqrt(x * x + y * y);
         if (length == 0) {
