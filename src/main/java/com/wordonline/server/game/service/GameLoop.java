@@ -1,15 +1,14 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Collidable;
-import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
+import com.wordonline.server.game.dto.frame.FrameInfoDto;
+import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.util.BruteCollisionChecker;
 import com.wordonline.server.game.util.CollisionChecker;
 import com.wordonline.server.game.util.Physics;
@@ -19,7 +18,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 // GameLoop is the main class that runs the game loop
@@ -30,6 +28,7 @@ public class GameLoop implements Runnable {
     private final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
+    private final ResultChecker resultChecker;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -43,6 +42,7 @@ public class GameLoop implements Runnable {
 
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
+         resultChecker = new ResultChecker(sessionObject);
     }
 
     public final Physics physics = new SimplePhysics(getGameSessionData().gameObjects);
@@ -76,8 +76,6 @@ public class GameLoop implements Runnable {
             deltaTime = (System.currentTimeMillis() - startTime) / 1000.0f;
         }
     }
-
-    
 
     public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
         Master master = sessionObject.getUserSide(userId);
@@ -131,19 +129,19 @@ public class GameLoop implements Runnable {
         
         List<GameObject> objects = gameSessionData.gameObjects;
         for (int i = 0; i < objects.size(); i++) {
-        GameObject a = objects.get(i);
-        if (!(a instanceof Collidable collidableA)) continue;
+            GameObject a = objects.get(i);
+            if (!(a instanceof Collidable collidableA)) continue;
 
-        for (int j = i + 1; j < objects.size(); j++) {
-            GameObject b = objects.get(j);
-            if (!(b instanceof Collidable collidableB)) continue;
+            for (int j = i + 1; j < objects.size(); j++) {
+                GameObject b = objects.get(j);
+                if (!(b instanceof Collidable collidableB)) continue;
 
-            if (collisionChecker.isColliding(a, b)) {
-                collidableA.onCollision(b);
-                collidableB.onCollision(a);
+                if (collisionChecker.isColliding(a, b)) {
+                    collidableA.onCollision(b);
+                    collidableB.onCollision(a);
+                }
             }
         }
-    }
 
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
@@ -156,6 +154,11 @@ public class GameLoop implements Runnable {
             sessionObject.getRightUserId(),
             rightFrameInfoDto
         );
+
+        // Check for game over
+        if (resultChecker.checkResult()) {
+            _running = false;
+        }
 
         gameSessionData.gameObjects.removeAll(toRemove);
     }

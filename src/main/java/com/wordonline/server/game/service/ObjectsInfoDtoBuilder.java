@@ -2,6 +2,8 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.*;
+import com.wordonline.server.game.dto.frame.CreatedObjectDto;
+import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
