@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 
 public class PlayerHealthComponent extends Mob {
-    private static final int MAX_HEALTH = 1;
+    private static final int MAX_HEALTH = 100;
 
     @Override
     public void start() {}
