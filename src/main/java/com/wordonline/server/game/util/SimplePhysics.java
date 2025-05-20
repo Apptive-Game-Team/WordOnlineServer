@@ -47,7 +47,7 @@ public class SimplePhysics implements Physics{
 
             if (projection < 0 || projection > distance) continue;
 
-            Vector2 closestPoint = origin.add(dirNorm.scale(((float)projection)));
+            Vector2 closestPoint = origin.add(dirNorm.multiply(((float)projection)));
             double perpendicularDist = other.getPosition().distance(closestPoint);
 
             if (perpendicularDist <= other.getRadius() && projection < closestDist) {

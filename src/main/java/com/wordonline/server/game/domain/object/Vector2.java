@@ -29,10 +29,6 @@ public class Vector2 {
         return new Vector2(this.x * scalar, this.y * scalar);
     }
 
-    public Vector2 scale(float scalar) {
-        return new Vector2(x * scalar, y * scalar);
-    }
-
     public double dot(Vector2 other) {
         return this.x * other.x + this.y * other.y;
     }
