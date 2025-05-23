@@ -21,25 +21,25 @@ public class DummyMagicParser implements MagicParser {
         log.debug(cards.toString());
         if (cards.contains(CardType.Dummy)) {
             return (gameLoop) -> {
-                GameObject gameObject = new GameObject(master, PrefabType.Dummy, new Vector2(1, 1), gameLoop);
+                GameObject gameObject = new GameObject(master, PrefabType.Dummy, new Vector2(10, 6), gameLoop);
             };
         } else if (cards.contains(CardType.Summon)) {
             return (gameLoop) -> {
-                new GameObject(Master.RightPlayer, PrefabType.FireSummon, new Vector2(7, 3), gameLoop);
-                new GameObject(Master.LeftPlayer, PrefabType.FireSummon, new Vector2(-7, 1), gameLoop);
+                new GameObject(Master.RightPlayer, PrefabType.FireSummon, new Vector2(16, 8), gameLoop);
+                new GameObject(Master.LeftPlayer, PrefabType.FireSummon, new Vector2(2, 6), gameLoop);
             };
         } else if (cards.contains(CardType.Drop)) {
             return (gameLoop) -> {
-                GameObject gameObject = new GameObject(master, PrefabType.FireDrop, new Vector2(2, 1), gameLoop);
+                GameObject gameObject = new GameObject(master, PrefabType.FireDrop, new Vector2(11, 6), gameLoop);
             };
         } else if (cards.contains(CardType.Explode)) {
             return (gameLoop) -> {
-                GameObject gameObject = new GameObject(master, PrefabType.FireExplode, new Vector2(3, 1), gameLoop);
+                GameObject gameObject = new GameObject(master, PrefabType.FireExplode, new Vector2(12, 6), gameLoop);
             };
         } else if (cards.contains(CardType.Shoot)) {
             return (gameLoop) -> {
-                new GameObject(Master.LeftPlayer, PrefabType.FireShot, new Vector2(-7, 0), gameLoop);
-                new GameObject(Master.RightPlayer, PrefabType.FireShot, new Vector2(7, 0), gameLoop);
+                new GameObject(Master.LeftPlayer, PrefabType.FireShot, new Vector2(2, 5), gameLoop);
+                new GameObject(Master.RightPlayer, PrefabType.FireShot, new Vector2(16, 5), gameLoop);
             };
         }
         return null;

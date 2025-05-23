@@ -1,5 +1,6 @@
-package com.wordonline.server.game.dto;
+package com.wordonline.server.game.dto.frame;
 
+import com.wordonline.server.game.dto.UpdatedObjectDto;
 import lombok.Data;
 
 import java.util.ArrayList;
