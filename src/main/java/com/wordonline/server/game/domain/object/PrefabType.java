@@ -12,7 +12,7 @@ import static com.wordonline.server.game.domain.magic.CardType.Summon;
 public enum PrefabType {
     // fire
     FireShot((gameObject -> {
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
+        gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     FireDrop((gameObject -> {
         gameObject.getComponents().add(new Drop(gameObject, 7));

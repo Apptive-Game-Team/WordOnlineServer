@@ -1,7 +1,10 @@
 package com.wordonline.server.game.domain.magic;
 
 import com.wordonline.server.game.service.GameLoop;
+import lombok.RequiredArgsConstructor;
 
-public interface Magic {
-    void run(GameLoop gameLoop);
+@RequiredArgsConstructor
+public abstract class Magic {
+    public final CardType magicType;
+    public abstract void run(GameLoop gameLoop);
 }

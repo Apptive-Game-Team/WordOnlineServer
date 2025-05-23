@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Collidable;
 import com.wordonline.server.game.dto.Master;
@@ -12,22 +13,24 @@ import java.util.List;
 public class Shot extends MagicComponent implements Collidable {
     public static final int SPEED = 2;
 
-    private int direction = 0;
+    private Vector2 direction;
     private final int damage;
 
-    public Shot(Master master, GameObject gameObject, int damage) {
+    public Shot(GameObject gameObject, int damage) {
         super(gameObject);
         this.damage = damage;
-        if (master == Master.LeftPlayer) {
-            direction = 1;
-        } else if (master == Master.RightPlayer) {
-            direction = -1;
-        }
+    }
+
+    public void setTarget(Vector2 targetPosition) {
+        direction = (targetPosition.subtract(gameObject.getPosition()));
     }
 
     @Override
     public void update() {
-        gameObject.setPosition(gameObject.getPosition().add(direction * SPEED * gameObject.getGameLoop().deltaTime, 0));
+        if (direction == null) {
+            return;
+        }
+        gameObject.setPosition(gameObject.getPosition().add(direction.multiply(SPEED * gameObject.getGameLoop().deltaTime)));
     }
 
     @Override
@@ -40,7 +43,7 @@ public class Shot extends MagicComponent implements Collidable {
         if (attackables.isEmpty()) {
             return;
         }
-        direction = 0;
+        direction = Vector2.ZERO;
         gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
         attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage)));
