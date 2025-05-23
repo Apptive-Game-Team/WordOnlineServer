@@ -51,10 +51,10 @@ public class GameObject {
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
     }
 
-    public Component getComponent(Type type) {
+    public <T> T getComponent(Class<T> clazz) {
         for (Component component : components) {
-            if (component.getClass() == type) {
-                return component;
+            if (clazz.isInstance(component)) {
+                return (T) component;
             }
         }
         return null;
@@ -68,7 +68,7 @@ public class GameObject {
 
     public void setPosition(Vector2 position) {
         this.position = position;
-        if (Math.abs(position.getX()) > GameConfig.X_BOUND || Math.abs(position.getY()) > GameConfig.Y_BOUND) {
+        if (Math.abs(position.getX() - GameConfig.X_MID) > GameConfig.X_BOUND || Math.abs(position.getY() - GameConfig.Y_MID) > GameConfig.Y_BOUND) {
             destroy();
             return;
         }

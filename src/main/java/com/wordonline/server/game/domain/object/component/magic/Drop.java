@@ -8,6 +8,7 @@ import com.wordonline.server.game.dto.Status;
 
 import java.util.List;
 
+@Deprecated
 public class Drop extends MagicComponent implements Collidable {
     public static final int SPEED = 2;
 

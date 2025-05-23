@@ -8,8 +8,8 @@ import com.wordonline.server.game.dto.Status;
 import java.util.List;
 
 public class Explode extends MagicComponent {
-    public static final int EXPLODE_DELAY = 2;
-    public static final int EXPLODE_RADIUS = 10;
+    public static final float EXPLODE_DELAY = 0.5f;
+    public static final int EXPLODE_RADIUS = 3;
 
     private boolean isRunning = false;
 

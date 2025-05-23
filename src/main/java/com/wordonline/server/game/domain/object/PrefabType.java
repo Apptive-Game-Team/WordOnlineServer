@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object;
 import com.wordonline.server.game.domain.object.component.DummyComponent;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
 import com.wordonline.server.game.domain.object.component.effect.LeafFieldEffectReceiver;
+import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
@@ -132,7 +133,12 @@ public enum PrefabType {
 
     Dummy((gameObject) -> {
         gameObject.getComponents().add(new DummyComponent(gameObject));
-    }),;
+    }),
+
+    Player((gameObject)-> {
+        gameObject.setRadius(1);
+        gameObject.getComponents().add(new PlayerHealthComponent(gameObject));
+    });
 
     private final PrefabInitializer prefabInitializer;
 

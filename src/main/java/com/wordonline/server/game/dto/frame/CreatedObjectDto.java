@@ -1,7 +1,8 @@
-package com.wordonline.server.game.dto;
+package com.wordonline.server.game.dto.frame;
 
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.dto.Master;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 

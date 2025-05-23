@@ -23,7 +23,7 @@ public class InputController {
 
     @MessageMapping("{sessionId}/{userId}")
     public void handleInput(@DestinationVariable String sessionId, @DestinationVariable String userId, @Payload InputRequestDto inputRequestDto) {
-        InputResponseDto responseDto = sessionManager.getSessionObject(sessionId).getGameLoop().handleInput(userId, inputRequestDto);
+        InputResponseDto responseDto = sessionManager.getSessionObject(sessionId).getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
 }

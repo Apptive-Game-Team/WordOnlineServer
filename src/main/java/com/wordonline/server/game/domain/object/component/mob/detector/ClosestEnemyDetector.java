@@ -16,7 +16,7 @@ public class ClosestEnemyDetector implements Detector {
         GameObject closest = null;
         double closestDistance = Double.MAX_VALUE;
 
-        for (GameObject target : gameLoop.getGameSessionData().gameObjects) {
+        for (GameObject target : gameLoop.gameSessionData.gameObjects) {
             if (target.getMaster() == self.getMaster() || target.getComponents().stream().noneMatch(component -> component instanceof Damageable)) continue;
 
             double distance = self.getPosition().distance(target.getPosition());
