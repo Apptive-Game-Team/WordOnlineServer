@@ -7,6 +7,7 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
-    @Getter
     private Vector2 position;
+    @Setter
     private float radius;
 
     private final GameLoop gameLoop;
