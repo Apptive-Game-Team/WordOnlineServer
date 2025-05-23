@@ -1,15 +1,16 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Collidable;
-import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.dto.*;
+import com.wordonline.server.game.dto.frame.FrameInfoDto;
+import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.util.BruteCollisionChecker;
 import com.wordonline.server.game.util.CollisionChecker;
 import com.wordonline.server.game.util.Physics;
@@ -28,7 +29,8 @@ public class GameLoop implements Runnable {
     public static final int FPS = 10;
     public final SessionObject sessionObject;
     private int _frameNum = 0;
-    public final MagicParser magicParser = new DummyMagicParser();
+    private final MagicParser magicParser = new DummyMagicParser();
+    public final ResultChecker resultChecker;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -41,6 +43,10 @@ public class GameLoop implements Runnable {
 
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
+         resultChecker = new ResultChecker(sessionObject);
+
+         new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
+        new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
     }
 
     public final Physics physics = new SimplePhysics(gameSessionData.gameObjects);
@@ -105,19 +111,19 @@ public class GameLoop implements Runnable {
         
         List<GameObject> objects = gameSessionData.gameObjects;
         for (int i = 0; i < objects.size(); i++) {
-        GameObject a = objects.get(i);
-        if (!(a instanceof Collidable collidableA)) continue;
+            GameObject a = objects.get(i);
+            if (!(a instanceof Collidable collidableA)) continue;
 
-        for (int j = i + 1; j < objects.size(); j++) {
-            GameObject b = objects.get(j);
-            if (!(b instanceof Collidable collidableB)) continue;
+            for (int j = i + 1; j < objects.size(); j++) {
+                GameObject b = objects.get(j);
+                if (!(b instanceof Collidable collidableB)) continue;
 
-            if (collisionChecker.isColliding(a, b)) {
-                collidableA.onCollision(b);
-                collidableB.onCollision(a);
+                if (collisionChecker.isColliding(a, b)) {
+                    collidableA.onCollision(b);
+                    collidableB.onCollision(a);
+                }
             }
         }
-    }
 
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
@@ -130,6 +136,11 @@ public class GameLoop implements Runnable {
             sessionObject.getRightUserId(),
             rightFrameInfoDto
         );
+
+        // Check for game over
+        if (resultChecker.checkResult()) {
+            _running = false;
+        }
 
         gameSessionData.gameObjects.removeAll(toRemove);
     }

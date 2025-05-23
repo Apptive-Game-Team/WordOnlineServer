@@ -1,7 +1,7 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.PlayerData;
-import com.wordonline.server.game.dto.FrameInfoDto;
+import com.wordonline.server.game.dto.frame.FrameInfoDto;
 
 // this class is responsible for charging mana for players
 public class ManaCharger {

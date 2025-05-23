@@ -7,6 +7,7 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class GameObject {
     private Effect effect;
     @Getter
     private Vector2 position;
+    @Setter
     private float radius;
 
     private final GameLoop gameLoop;
@@ -67,7 +69,7 @@ public class GameObject {
 
     public void setPosition(Vector2 position) {
         this.position = position;
-        if (Math.abs(position.getX()) > GameConfig.X_BOUND || Math.abs(position.getY()) > GameConfig.Y_BOUND) {
+        if (Math.abs(position.getX() - GameConfig.X_MID) > GameConfig.X_BOUND || Math.abs(position.getY() - GameConfig.Y_MID) > GameConfig.Y_BOUND) {
             destroy();
             return;
         }
