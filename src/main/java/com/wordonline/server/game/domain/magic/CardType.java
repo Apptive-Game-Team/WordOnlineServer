@@ -11,6 +11,8 @@ public enum CardType {
     Drop(Type.Magic, 35),
     Summon(Type.Magic, 15),
     Explode(Type.Magic, 40),
+    @Deprecated
+    Drop(Type.Magic, 35, GameConfig.WIDTH * 3f / 4),
 
     Fire(Type.Type, 0),
     Ice(Type.Type, 0),
