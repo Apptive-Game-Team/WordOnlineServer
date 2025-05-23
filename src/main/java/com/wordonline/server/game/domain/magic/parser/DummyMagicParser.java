@@ -28,11 +28,7 @@ public class DummyMagicParser implements MagicParser {
                 new GameObject(Master.RightPlayer, PrefabType.FireSummon, new Vector2(7, 3), gameLoop);
                 new GameObject(Master.LeftPlayer, PrefabType.FireSummon, new Vector2(-7, 1), gameLoop);
             };
-        } else if (cards.contains(CardType.Drop)) {
-            return (gameLoop) -> {
-                GameObject gameObject = new GameObject(master, PrefabType.FireDrop, new Vector2(2, 1), gameLoop);
-            };
-        } else if (cards.contains(CardType.Explode)) {
+        }  else if (cards.contains(CardType.Explode)) {
             return (gameLoop) -> {
                 GameObject gameObject = new GameObject(master, PrefabType.FireExplode, new Vector2(3, 1), gameLoop);
             };
