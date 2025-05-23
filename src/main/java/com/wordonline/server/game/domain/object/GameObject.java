@@ -52,10 +52,10 @@ public class GameObject {
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
     }
 
-    public Component getComponent(Type type) {
+    public <T> T getComponent(Class<T> clazz) {
         for (Component component : components) {
-            if (component.getClass() == type) {
-                return component;
+            if (clazz.isInstance(component)) {
+                return (T) component;
             }
         }
         return null;

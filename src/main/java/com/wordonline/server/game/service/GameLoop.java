@@ -27,7 +27,7 @@ import java.util.List;
 public class GameLoop implements Runnable {
     private boolean _running = true;
     public static final int FPS = 10;
-    private final SessionObject sessionObject;
+    public final SessionObject sessionObject;
     private int _frameNum = 0;
     private final MagicParser magicParser = new DummyMagicParser();
     public final ResultChecker resultChecker;
@@ -39,8 +39,7 @@ public class GameLoop implements Runnable {
         _running = false;
     }
 
-    @Getter
-    private GameSessionData gameSessionData = new GameSessionData();
+    public final GameSessionData gameSessionData = new GameSessionData();
 
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
@@ -50,8 +49,9 @@ public class GameLoop implements Runnable {
         new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
     }
 
-    public final Physics physics = new SimplePhysics(getGameSessionData().gameObjects);
+    public final Physics physics = new SimplePhysics(gameSessionData.gameObjects);
     public final CollisionChecker collisionChecker = new BruteCollisionChecker();
+    public final InputHandler inputHandler = new InputHandler(this);
 
     public float deltaTime = 1/FPS;
 
@@ -81,29 +81,6 @@ public class GameLoop implements Runnable {
             deltaTime = (System.currentTimeMillis() - startTime) / 1000.0f;
         }
     }
-
-    public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
-        Master master = sessionObject.getUserSide(userId);
-        PlayerData playerData = gameSessionData.getPlayerData(master);
-
-        Magic magic = magicParser.parseMagic(inputRequestDto.getCards(), master);
-
-        boolean valid = playerData.useCards(inputRequestDto.getCards());
-
-        if (magic == null) {
-            log.info("{}: {} is not valid : cannot parsed", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
-        } else if (!valid) {
-            log.info("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
-        }
-
-        magic.run(this);
-        gameSessionData.getCardDeck(master).cards.addAll(inputRequestDto.getCards());
-
-        return new InputResponseDto(true, playerData.mana, inputRequestDto.getId());
-    }
-
 
     // this method is called when the game loop is stopped
     private void update() {

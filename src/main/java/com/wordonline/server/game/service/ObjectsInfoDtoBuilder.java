@@ -29,7 +29,7 @@ public class ObjectsInfoDtoBuilder {
     }
 
     public void createGameObject(GameObject gameObject) {
-        gameLoop.getGameSessionData().gameObjectsToAdd.add(gameObject);
+        gameLoop.gameSessionData.gameObjectsToAdd.add(gameObject);
         CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster());
         createdObjectDtos.add(createdObjectDto);
         log.info("CreatedObjectDto: {}", createdObjectDto);
