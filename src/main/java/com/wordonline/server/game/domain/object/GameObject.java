@@ -24,7 +24,6 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
-    @Getter
     private Vector2 position;
     @Setter
     private float radius;
