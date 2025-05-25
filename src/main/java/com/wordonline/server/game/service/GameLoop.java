@@ -1,8 +1,7 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.parser.DummyMagicParser;
+import com.wordonline.server.game.domain.magic.parser.BasicMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
@@ -29,7 +28,7 @@ public class GameLoop implements Runnable {
     public static final int FPS = 10;
     public final SessionObject sessionObject;
     private int _frameNum = 0;
-    public final MagicParser magicParser = new DummyMagicParser();
+    public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
 
     @Getter
