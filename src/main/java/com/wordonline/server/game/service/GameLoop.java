@@ -110,15 +110,19 @@ public class GameLoop implements Runnable {
         }
         
         List<GameObject> objects = gameSessionData.gameObjects;
+
         for (int i = 0; i < objects.size(); i++) {
             GameObject a = objects.get(i);
-            if (!(a instanceof Collidable collidableA)) continue;
+            Collidable collidableA = a.getComponent(Collidable.class);
+            if (collidableA == null) continue;
 
             for (int j = i + 1; j < objects.size(); j++) {
                 GameObject b = objects.get(j);
-                if (!(b instanceof Collidable collidableB)) continue;
+                Collidable collidableB = b.getComponent(Collidable.class);
+                if (collidableB == null) continue;
 
                 if (collisionChecker.isColliding(a, b)) {
+                    log.info("Collision detected between {} and {}", a.getType(), b.getType());
                     collidableA.onCollision(b);
                     collidableB.onCollision(a);
                 }
