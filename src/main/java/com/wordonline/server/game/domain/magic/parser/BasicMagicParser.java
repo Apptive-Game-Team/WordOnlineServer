@@ -18,15 +18,16 @@ public class BasicMagicParser implements MagicParser {
 
     @Override
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
-        if (cards.contains(CardType.Summon)) {
-            cards.remove(CardType.Summon);
-            return summonMagicParser.parseMagic(cards, master, position);
-        } else if (cards.contains(CardType.Explode)) {
-            cards.remove(CardType.Explode);
-            return explodeMagicParser.parseMagic(cards, master, position);
-        } else if (cards.contains(CardType.Shoot)) {
-            cards.remove(CardType.Shoot);
-            return shootMagicParser.parseMagic(cards, master, position);
+        List<CardType> mutableCards = new ArrayList<>(cards);
+        if (mutableCards.contains(CardType.Summon)) {
+            mutableCards.remove(CardType.Summon);
+            return summonMagicParser.parseMagic(mutableCards, master, position);
+        } else if (mutableCards.contains(CardType.Explode)) {
+            mutableCards.remove(CardType.Explode);
+            return explodeMagicParser.parseMagic(mutableCards, master, position);
+        } else if (mutableCards.contains(CardType.Shoot)) {
+            mutableCards.remove(CardType.Shoot);
+            return shootMagicParser.parseMagic(mutableCards, master, position);
         }
         return null;
     }
