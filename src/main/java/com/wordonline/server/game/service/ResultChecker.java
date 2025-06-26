@@ -4,9 +4,7 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.result.ResultDto;
 import com.wordonline.server.game.dto.result.ResultType;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @RequiredArgsConstructor
 public class ResultChecker {
@@ -39,5 +37,4 @@ public class ResultChecker {
         );
         return true;
     }
-
 }
