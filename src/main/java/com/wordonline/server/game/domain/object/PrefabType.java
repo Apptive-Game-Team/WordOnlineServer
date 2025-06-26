@@ -15,7 +15,7 @@ public enum PrefabType {
     FireShot((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
+        gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     FireSummon((gameObject -> {
         gameObject.setRadius(0.5f);
@@ -41,7 +41,7 @@ public enum PrefabType {
     WaterShot((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
+        gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     WaterSummon((gameObject -> {
         gameObject.setRadius(0.5f);
@@ -66,7 +66,7 @@ public enum PrefabType {
     // rock
     RockShot((gameObject -> {
         gameObject.setRadius(0.5f);
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
+        gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     RockSummon((gameObject -> {
         gameObject.setRadius(0.5f);
@@ -85,7 +85,7 @@ public enum PrefabType {
     ElectricShot((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
+        gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     ElectricSummon((gameObject -> {
         gameObject.setRadius(0.5f);
@@ -107,7 +107,7 @@ public enum PrefabType {
     LeafShot((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
-        gameObject.getComponents().add(new Shot(gameObject.getMaster(), gameObject, 10));
+        gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     LeafSummon((gameObject -> {
         gameObject.setRadius(0.5f);
