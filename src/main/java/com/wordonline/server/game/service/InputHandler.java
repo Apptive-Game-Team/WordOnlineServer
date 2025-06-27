@@ -9,6 +9,8 @@ import com.wordonline.server.game.dto.Master;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 public class InputHandler {
@@ -19,7 +21,7 @@ public class InputHandler {
         PlayerData playerData = gameLoop.gameSessionData.getPlayerData(master);
 
         // Parse the magic from the input request
-        Magic magic = gameLoop.magicParser.parseMagic(inputRequestDto.getCards(), master, inputRequestDto.getPosition());
+        Magic magic = gameLoop.magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()), master, inputRequestDto.getPosition());
 
         // Check if the player has enough mana and card
         boolean valid = playerData.useCards(inputRequestDto.getCards());

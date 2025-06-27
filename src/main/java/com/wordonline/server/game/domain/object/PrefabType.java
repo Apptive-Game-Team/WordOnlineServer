@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object;
 
 import com.wordonline.server.game.domain.object.component.DummyComponent;
+import com.wordonline.server.game.domain.object.component.PathSpawner;
+import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
 import com.wordonline.server.game.domain.object.component.effect.LeafFieldEffectReceiver;
 import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
@@ -27,15 +29,17 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
+    FireField((gameObject) -> {
+        gameObject.setRadius(0.5f);
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, 5f));
+    }),
     FireSlime((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
     })),
-    FireField((gameObject) -> {
-        gameObject.setRadius(0.5f);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-    }),
 
     // water
     WaterShot((gameObject -> {
@@ -53,15 +57,17 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
+    WaterField((gameObject) -> {
+        gameObject.setRadius(0.5f);
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, 5f));
+    }),
     WaterSlime((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
     })),
-    WaterField((gameObject) -> {
-        gameObject.setRadius(0.5f);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
-    }),
 
     // rock
     RockShot((gameObject -> {
@@ -119,17 +125,18 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
-    LeafSlime((gameObject -> {
-        gameObject.setRadius(0.5f);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
-        gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
-    })),
     LeafField((gameObject) -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new LeafFieldEffectReceiver(gameObject));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, 5f));
     }),
-
+    LeafSlime((gameObject -> {
+        gameObject.setRadius(0.5f);
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
+        gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
+    })),
 
     Dummy((gameObject) -> {
         gameObject.getComponents().add(new DummyComponent(gameObject));

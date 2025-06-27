@@ -15,7 +15,7 @@ public enum CardType {
     Explode(Type.Magic, 40, GameConfig.WIDTH / 2f),
 
     Fire(Type.Type, 0, GameConfig.WIDTH / 4f),
-    Ice(Type.Type, 0, GameConfig.WIDTH / 4f),
+    Water(Type.Type, 0, GameConfig.WIDTH / 4f),
     Lightning(Type.Type, 0, GameConfig.WIDTH / 4f),
     Rock(Type.Type, 0, GameConfig.WIDTH / 4f),
     Leaf(Type.Type, 0, GameConfig.WIDTH / 4f);
