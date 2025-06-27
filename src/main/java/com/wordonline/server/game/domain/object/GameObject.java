@@ -8,8 +8,6 @@ import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +56,16 @@ public class GameObject {
             }
         }
         return null;
+    }
+
+    public <T> List<T> getComponents(Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        for (Component component : components) {
+            if (clazz.isInstance(component)) {
+                result.add((T) component);
+            }
+        }
+        return result;
     }
 
     public void destroy() {
