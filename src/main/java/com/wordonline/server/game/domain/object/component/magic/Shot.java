@@ -14,10 +14,12 @@ public class Shot extends MagicComponent implements Collidable {
     public static final int SPEED = 2;
 
     private Vector2 direction;
+    private Master master;
     private final int damage;
 
-    public Shot(GameObject gameObject, int damage) {
+    public Shot(Master master,GameObject gameObject, int damage) {
         super(gameObject);
+        this.master = master;
         this.damage = damage;
     }
 

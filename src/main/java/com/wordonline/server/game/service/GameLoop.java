@@ -29,7 +29,7 @@ public class GameLoop implements Runnable {
     public static final int FPS = 10;
     public final SessionObject sessionObject;
     private int _frameNum = 0;
-    private final MagicParser magicParser = new DummyMagicParser();
+    public final MagicParser magicParser = new DummyMagicParser();
     public final ResultChecker resultChecker;
 
     @Getter
