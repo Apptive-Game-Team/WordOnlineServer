@@ -6,13 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.status.StatusEffect;
 import com.wordonline.server.game.dto.Effect;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.slime.Slime; // 예시용
-import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
-import com.wordonline.server.game.domain.object.component.magic.AttackComponent;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
-import com.wordonline.server.game.domain.object.component.mob.MovementComponent;
-import com.wordonline.server.game.domain.object.PrefabType;
-import com.wordonline.server.game.dto.Status;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -52,10 +46,6 @@ public class StatusEffectComponent extends Component {
                               .onDamaged(new AttackInfo(1));
                 }
                 case Wet -> {
-                    if (gameObject.getPrefabType() == PrefabType.LeafField) {
-                    gameObject.getComponent(Mob.class)
-                              .onDamaged(new AttackInfo(-1));
-                    }
                 }
                 case Shock -> {
                     if (!e.isExpired()) {
