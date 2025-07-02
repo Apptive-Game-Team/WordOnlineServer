@@ -22,17 +22,17 @@ import java.util.List;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/auth/kakao/**").permitAll()
+                                .requestMatchers(
+                                        "/api/auth/kakao/**",
+                                        "/**" ).permitAll()
                                 .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.disable());
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }

@@ -42,11 +42,11 @@ public class KakaoAuthController {
                 principal,
                 null,
                 principal.getAuthorities());
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        HttpSession session = request.getSession(true);
-//        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        HttpSession session = request.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
         return "kakao-login-complete";
     }
