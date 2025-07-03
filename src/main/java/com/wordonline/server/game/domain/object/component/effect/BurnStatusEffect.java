@@ -29,7 +29,7 @@ public class BurnStatusEffect extends BaseStatusEffect {
         Mob mob = gameObject.getComponent(Mob.class);
         while (damageTick >= 1.0f) {
             if (mob != null) {
-                mob.onDamaged(new AttackInfo((int)DPS));
+                mob.onDamaged(new AttackInfo((int)DPS,ElementType.FIRE));
             }
             damageTick -= 1.0f;
         }

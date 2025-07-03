@@ -17,8 +17,6 @@ public abstract class Mob extends Component implements Damageable {
     protected int maxHp;
     @Getter @Setter
     protected int speed;
-    @Setter
-    protected ElementType element;
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
@@ -28,7 +26,7 @@ public abstract class Mob extends Component implements Damageable {
                 });
 
         log.info("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
-        this.hp -= attackInfo.getDamage() * ElementalChart.getMultiplier(attackInfo.getElement(),element);
+        this.hp -= attackInfo.getDamage() * ElementalChart.getMultiplier(attackInfo.getElement(),gameObject.getElement());
         if (this.hp <= 0) {
             onDeath();
         }
@@ -41,12 +39,5 @@ public abstract class Mob extends Component implements Damageable {
         this.maxHp = maxHp;
         this.hp = maxHp;
         this.speed = speed;
-    }
-    public Mob(GameObject gameObject, int maxHp, int speed, ElementType element) {
-        super(gameObject);
-        this.maxHp = maxHp;
-        this.hp = maxHp;
-        this.speed = speed;
-        this.element = element;
     }
 }

@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
@@ -22,6 +23,7 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
+    private ElementType element;
     private Vector2 position;
     @Setter
     private float radius;
