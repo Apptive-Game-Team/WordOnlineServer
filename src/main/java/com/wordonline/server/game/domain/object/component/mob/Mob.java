@@ -5,13 +5,14 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Component;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class Mob extends Component implements Damageable {
     protected int hp;
     protected int maxHp;
-    @Getter
+    @Getter @Setter
     protected int speed;
 
     @Override
