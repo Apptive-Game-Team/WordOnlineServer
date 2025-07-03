@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Effect;
@@ -26,8 +27,8 @@ public class SnaredStatusEffect extends BaseStatusEffect {
     }
 
     @Override
-    public void handleAttack(Effect attackEffect) {
-        if (attackEffect == Effect.Burn) {
+    public void handleAttack(ElementType attackType) {
+        if (attackType == ElementType.FIRE) {
             Mob mob = gameObject.getComponent(Mob.class);
             if (mob != null) {
                 mob.onDamaged(new AttackInfo(removalDamage));

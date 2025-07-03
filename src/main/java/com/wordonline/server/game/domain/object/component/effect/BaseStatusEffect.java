@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
@@ -28,7 +29,7 @@ public abstract class BaseStatusEffect extends Component {
     }
 
     //특정 속성 공격 맞았을떄
-    public abstract void handleAttack(Effect attackEffect);
+    public abstract void handleAttack(ElementType attackType);
 
     protected void expire() {
         gameObject.setEffect(Effect.None);
