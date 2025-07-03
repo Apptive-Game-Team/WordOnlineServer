@@ -145,7 +145,7 @@ public class Slime extends StateMachineMob {
                     return;
                 }
 
-                attackable.onDamaged(new AttackInfo(damage));
+                attackable.onDamaged(new AttackInfo(damage, gameObject.getElement()));
                 gameObject.setStatus(Status.Attack);
             }
         }

@@ -39,7 +39,7 @@ public class Drop extends MagicComponent implements Collidable {
         direction = 0;
         gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
-        attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage)));
+        attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage, gameObject.getElement())));
 
         gameObject.destroy();
     }

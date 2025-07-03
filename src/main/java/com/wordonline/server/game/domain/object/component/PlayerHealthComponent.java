@@ -23,6 +23,6 @@ public class PlayerHealthComponent extends Mob {
     }
 
     public PlayerHealthComponent(GameObject gameObject) {
-        super(gameObject, MAX_HEALTH, 0, ElementType.NONE);
+        super(gameObject, MAX_HEALTH, 0);
     }
 }

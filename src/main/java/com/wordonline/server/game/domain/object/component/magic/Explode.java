@@ -37,7 +37,7 @@ public class Explode extends MagicComponent {
                     continue;
                 }
                 otherObject.setStatus(Status.Damaged);
-                attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage,gameObject.getElement())));
+                attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage, gameObject.getElement())));
             }
 
             gameObject.setStatus(Status.Attack);
