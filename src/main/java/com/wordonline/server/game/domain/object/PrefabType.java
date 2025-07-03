@@ -19,51 +19,59 @@ public enum PrefabType {
     // fire
     FireShot((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     FireSummon((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Spawner(gameObject, 5));
     })),
     FireExplode((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
     FireField((gameObject) -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, 5f));
     }),
     FireSlime((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
-        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
     // water
     WaterShot((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     WaterSummon((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Spawner(gameObject, 5));
     })),
     WaterExplode((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
     WaterField((gameObject) -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, 5f));
     }),
@@ -79,14 +87,17 @@ public enum PrefabType {
     // rock
     RockShot((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     RockSummon((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new Spawner(gameObject, 5));
     })),
     RockExplode((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
     RockSlime((gameObject -> {
@@ -99,16 +110,19 @@ public enum PrefabType {
     // electric
     ElectricShot((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     ElectricSummon((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Spawner(gameObject, 5));
     })),
     ElectricExplode((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
@@ -123,21 +137,25 @@ public enum PrefabType {
     // leaf
     LeafShot((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Shot(gameObject, 10));
     })),
     LeafSummon((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Spawner(gameObject, 5));
     })),
     LeafExplode((gameObject -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Explode(gameObject, 8));
     })),
     LeafField((gameObject) -> {
         gameObject.setRadius(0.5f);
+        gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new LeafFieldEffectReceiver(gameObject));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, 5f));
