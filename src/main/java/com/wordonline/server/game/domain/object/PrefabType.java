@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object;
 import com.wordonline.server.game.domain.object.component.DummyComponent;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
+import com.wordonline.server.game.domain.object.component.effect.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
 import com.wordonline.server.game.domain.object.component.effect.LeafFieldEffectReceiver;
 import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
@@ -39,6 +40,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
     // water
@@ -67,6 +69,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
     // rock
@@ -85,6 +88,7 @@ public enum PrefabType {
     RockSlime((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
     // electric
@@ -107,6 +111,7 @@ public enum PrefabType {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
     // leaf
@@ -136,6 +141,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
     Dummy((gameObject) -> {
@@ -145,6 +151,7 @@ public enum PrefabType {
     Player((gameObject)-> {
         gameObject.setRadius(1);
         gameObject.getComponents().add(new PlayerHealthComponent(gameObject));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     });
 
     private final PrefabInitializer prefabInitializer;
