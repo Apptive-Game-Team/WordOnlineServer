@@ -33,7 +33,7 @@ public abstract class BaseStatusEffect extends Component {
 
     protected void expire() {
         gameObject.setEffect(Effect.None);
-        gameObject.getComponents().remove(this);
+        gameObject.getComponentsToRemove().add(this);
     }
 
     @Override

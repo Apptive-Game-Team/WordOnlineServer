@@ -31,6 +31,8 @@ public class GameObject {
 
     private final GameLoop gameLoop;
     private final List<Component> components = new ArrayList<Component>();
+    private List<Component> componentsToAdd = new ArrayList<Component>();
+    private List<Component> componentsToRemove = new ArrayList<Component>();
 
     public GameObject(GameObject parent, PrefabType type) {
         this.id = idCounter++;

@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
@@ -94,6 +95,8 @@ public class GameLoop implements Runnable {
         gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
 
         List<GameObject> toRemove = new ArrayList<>();
+        List<Component> componentsToAdd = new ArrayList<>();
+        List<Component> componentsToRemove = new ArrayList<>();
         gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
         gameSessionData.gameObjectsToAdd.clear();
         for (GameObject gameObject : gameSessionData.gameObjects) {
@@ -126,6 +129,12 @@ public class GameLoop implements Runnable {
         }
 
         gameSessionData.gameObjects.removeAll(toRemove);
+        
+        for (GameObject gameObject : gameSessionData.gameObjects)
+        {
+            gameObject.getComponents().addAll(gameObject.getComponentsToAdd()); 
+            gameObject.getComponents().removeAll(gameObject.getComponentsToRemove()); 
+        }
     }
 }
 
