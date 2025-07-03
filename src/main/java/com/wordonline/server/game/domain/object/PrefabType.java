@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object;
 
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.DummyComponent;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -10,6 +11,7 @@ import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.slime.Slime;
 import com.wordonline.server.game.dto.Effect;
 
@@ -40,6 +42,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
+        gameObject.getComponent(Mob.class).setElement(ElementType.FIRE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -69,6 +72,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
+        gameObject.getComponent(Mob.class).setElement(ElementType.WATER);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -88,6 +92,7 @@ public enum PrefabType {
     RockSlime((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponent(Mob.class).setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -111,6 +116,7 @@ public enum PrefabType {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
+        gameObject.getComponent(Mob.class).setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -141,6 +147,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
+        gameObject.getComponent(Mob.class).setElement(ElementType.LEAF);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
