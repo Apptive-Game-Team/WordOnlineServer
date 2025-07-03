@@ -34,14 +34,18 @@ public class GameObject {
     private List<Component> componentsToAdd = new ArrayList<Component>();
     private List<Component> componentsToRemove = new ArrayList<Component>();
 
-    public GameObject(GameObject parent, PrefabType type) {
+    public GameObject(GameObject parent, Master master, PrefabType type) {
         this.id = idCounter++;
-        this.master = parent.getMaster();
+        this.master = master;
         this.type = type;
         this.position = parent.getPosition();
         this.gameLoop = parent.getGameLoop();
         this.status = Status.Idle;
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+    }
+
+    public GameObject(GameObject parent, PrefabType type) {
+        this(parent, parent.getMaster(), type);
     }
 
     public GameObject(Master master, PrefabType type, Vector2 position, GameLoop gameLoop) {
