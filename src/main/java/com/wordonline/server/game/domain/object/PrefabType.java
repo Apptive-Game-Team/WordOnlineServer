@@ -170,11 +170,13 @@ public enum PrefabType {
     })),
 
     Dummy((gameObject) -> {
+        gameObject.setElement(ElementType.NONE);
         gameObject.getComponents().add(new DummyComponent(gameObject));
     }),
 
     Player((gameObject)-> {
         gameObject.setRadius(1);
+        gameObject.setElement(ElementType.NONE);
         gameObject.getComponents().add(new PlayerHealthComponent(gameObject));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     });
