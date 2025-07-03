@@ -42,7 +42,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
-        gameObject.getComponent(Mob.class).setElement(ElementType.FIRE);
+        gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -72,7 +72,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
-        gameObject.getComponent(Mob.class).setElement(ElementType.WATER);
+        gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -92,7 +92,7 @@ public enum PrefabType {
     RockSlime((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
-        gameObject.getComponent(Mob.class).setElement(ElementType.ROCK);
+        gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -116,7 +116,7 @@ public enum PrefabType {
         gameObject.setRadius(0.5f);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
-        gameObject.getComponent(Mob.class).setElement(ElementType.LIGHTING);
+        gameObject.setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 
@@ -147,7 +147,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Slime(gameObject, 19, 1, 10));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
-        gameObject.getComponent(Mob.class).setElement(ElementType.LEAF);
+        gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     })),
 

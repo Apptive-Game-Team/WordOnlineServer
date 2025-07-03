@@ -23,6 +23,7 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
+    @Setter @Getter
     private ElementType element;
     private Vector2 position;
     @Setter
