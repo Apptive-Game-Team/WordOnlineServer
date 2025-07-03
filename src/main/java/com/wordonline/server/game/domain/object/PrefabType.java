@@ -46,7 +46,6 @@ public enum PrefabType {
     FireSummon((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Spawner(gameObject, 5, PrefabType.FireSlime));
     })),
 
@@ -80,7 +79,6 @@ public enum PrefabType {
     WaterSummon((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.setElement(ElementType.WATER);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Spawner(gameObject, 5, PrefabType.WaterSlime));
     })),
 
@@ -130,7 +128,6 @@ public enum PrefabType {
     ElectricSummon((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.setElement(ElementType.LIGHTING);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Spawner(gameObject, 5, ElectricSlime));
     })),
 
@@ -165,7 +162,6 @@ public enum PrefabType {
     LeafSummon((gameObject -> {
         gameObject.setRadius(0.5f);
         gameObject.setElement(ElementType.LEAF);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Spawner(gameObject, 5, PrefabType.LeafSlime));
     })),
 
