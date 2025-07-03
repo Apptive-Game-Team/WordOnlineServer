@@ -9,9 +9,7 @@ public class AttackInfo {
     private int damage;
     private ElementType element;
     private Effect effect;
-    public AttackInfo(int damage) {
-        this.damage = damage;
-    }
+    
     public AttackInfo(int damage, ElementType element) {
         this.damage = damage;
         this.element = element;
