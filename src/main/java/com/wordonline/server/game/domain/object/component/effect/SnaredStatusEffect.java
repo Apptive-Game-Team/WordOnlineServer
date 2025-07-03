@@ -9,7 +9,7 @@ import com.wordonline.server.game.dto.Effect;
 public class SnaredStatusEffect extends BaseStatusEffect {
     private static final float SLOW_MULTIPLIER = 0.5f;
     private final int removalDamage;
-    private int originalSpeed;
+    private float originalSpeed;
 
     public SnaredStatusEffect(GameObject owner, float duration, int removalDamage) {
         super(owner, duration);

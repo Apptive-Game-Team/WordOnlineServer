@@ -16,7 +16,7 @@ public abstract class Mob extends Component implements Damageable {
     protected int hp;
     protected int maxHp;
     @Getter @Setter
-    protected int speed;
+    protected float speed;
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
@@ -38,7 +38,7 @@ public abstract class Mob extends Component implements Damageable {
 
     public abstract void onDeath();
 
-    public Mob(GameObject gameObject, int maxHp, int speed) {
+    public Mob(GameObject gameObject, int maxHp, float speed) {
         super(gameObject);
         this.maxHp = maxHp;
         this.hp = maxHp;

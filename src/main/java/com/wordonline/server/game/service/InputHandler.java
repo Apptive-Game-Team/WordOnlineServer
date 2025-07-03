@@ -23,14 +23,16 @@ public class InputHandler {
         // Parse the magic from the input request
         Magic magic = gameLoop.magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()), master, inputRequestDto.getPosition());
 
+        if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > magic.magicType.getRange()) {
+            log.info("{}: {} is not valid : too far", master, inputRequestDto.getCards());
+            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
+        }
+
         // Check if the player has enough mana and card
         boolean valid = playerData.useCards(inputRequestDto.getCards());
 
         if (magic == null) {
             log.info("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
-        } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > magic.magicType.getRange()) {
-            log.info("{}: {} is not valid : too far", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
         } else if (!valid) {
             log.info("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());

@@ -33,7 +33,7 @@ public class Slime extends StateMachineMob {
         setState(new IdleState());
     }
 
-    public Slime(GameObject gameObject, int maxHp, int speed, int damage) {
+    public Slime(GameObject gameObject, int maxHp, float speed, int damage) {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
         this.detector = new ClosestEnemyDetector(gameObject.getGameLoop());
@@ -54,7 +54,6 @@ public class Slime extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            log.info("Slime : IdleState");
             timer += gameObject.getGameLoop().deltaTime;
             if (timer > Detector.DETECTING_INTERVAL) {
                 target = detector.detect(gameObject);
@@ -85,7 +84,6 @@ public class Slime extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            log.info("Slime : MoveState");
             if (target.getStatus() == Status.Destroyed || path == null || path.isEmpty()) {
                 setState(new IdleState());
                 return;
@@ -127,7 +125,6 @@ public class Slime extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            log.info("Slime : AttackState");
             if (target.getStatus() == Status.Destroyed) {
                 setState(new IdleState());
             }

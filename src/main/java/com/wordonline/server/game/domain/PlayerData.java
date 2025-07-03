@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // This class is used to store player data
@@ -14,7 +15,7 @@ public class PlayerData {
 
     public int mana = 0;
     public int hp = MAX_HP;
-    public List<CardType> cards = new ArrayList<>();
+    public List<CardType> cards = Collections.synchronizedList(new ArrayList<>());
 
     // validate and add card
     public boolean addCard(CardType card) {

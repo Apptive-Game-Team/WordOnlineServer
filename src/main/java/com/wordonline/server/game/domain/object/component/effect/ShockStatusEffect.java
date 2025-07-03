@@ -7,7 +7,7 @@ import com.wordonline.server.game.dto.Effect;
 
 public class ShockStatusEffect extends BaseStatusEffect {
     private static final float STUN_DURATION = 0.5f;
-    private int originalSpeed;
+    private float originalSpeed;
 
     public ShockStatusEffect(GameObject owner) {
         super(owner, STUN_DURATION);
