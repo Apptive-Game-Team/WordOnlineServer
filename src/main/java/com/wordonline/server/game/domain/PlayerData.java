@@ -1,8 +1,11 @@
 package com.wordonline.server.game.domain;
 
 import com.wordonline.server.game.domain.magic.CardType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // This class is used to store player data
@@ -12,7 +15,7 @@ public class PlayerData {
 
     public int mana = 0;
     public int hp = MAX_HP;
-    public List<CardType> cards = new ArrayList<>();
+    public List<CardType> cards = Collections.synchronizedList(new ArrayList<>());
 
     // validate and add card
     public boolean addCard(CardType card) {
@@ -30,6 +33,7 @@ public class PlayerData {
         for (CardType card : cards) {
             totalManaCost += card.getManaCost();
             if (!tempCards.remove(card)) {
+                log.info("temp cards: {}, trying card {}", tempCards, card);
                 return false;
             }
         }
@@ -44,4 +48,6 @@ public class PlayerData {
 
         return true;
     }
+
+    private static final Logger log = LoggerFactory.getLogger(PlayerData.class);
 }

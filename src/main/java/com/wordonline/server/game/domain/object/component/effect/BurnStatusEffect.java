@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Effect;
@@ -25,11 +26,10 @@ public class BurnStatusEffect extends BaseStatusEffect {
         float dt = gameObject.getGameLoop().deltaTime;
         damageTick += dt;
 
-
         Mob mob = gameObject.getComponent(Mob.class);
         while (damageTick >= 1.0f) {
             if (mob != null) {
-                mob.onDamaged(new AttackInfo((int)DPS));
+                mob.onDamaged(new AttackInfo((int)DPS,ElementType.FIRE));
             }
             damageTick -= 1.0f;
         }
@@ -38,8 +38,8 @@ public class BurnStatusEffect extends BaseStatusEffect {
     }
 
     @Override
-    public void handleAttack(Effect attackEffect) {
-        if (attackEffect == Effect.Wet) {
+    public void handleAttack(ElementType attackType) {
+        if (attackType == ElementType.WATER) {
             expire();
         }
     }

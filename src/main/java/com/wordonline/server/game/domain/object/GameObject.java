@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
@@ -22,21 +23,29 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
+    @Setter @Getter
+    private ElementType element;
     private Vector2 position;
     @Setter
     private float radius;
 
     private final GameLoop gameLoop;
     private final List<Component> components = new ArrayList<Component>();
+    private List<Component> componentsToAdd = new ArrayList<Component>();
+    private List<Component> componentsToRemove = new ArrayList<Component>();
 
-    public GameObject(GameObject parent, PrefabType type) {
+    public GameObject(GameObject parent, Master master, PrefabType type) {
         this.id = idCounter++;
-        this.master = parent.getMaster();
+        this.master = master;
         this.type = type;
         this.position = parent.getPosition();
         this.gameLoop = parent.getGameLoop();
         this.status = Status.Idle;
         gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+    }
+
+    public GameObject(GameObject parent, PrefabType type) {
+        this(parent, parent.getMaster(), type);
     }
 
     public GameObject(Master master, PrefabType type, Vector2 position, GameLoop gameLoop) {

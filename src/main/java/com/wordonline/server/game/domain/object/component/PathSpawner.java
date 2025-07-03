@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.dto.Master;
 
 public class PathSpawner extends Component {
 
@@ -25,7 +26,7 @@ public class PathSpawner extends Component {
         double distance = gameObject.getPosition().distance(lastSpawnPosition);
         if (distance >= interval) {
             lastSpawnPosition = gameObject.getPosition();
-            GameObject newObject = new GameObject(gameObject, prefabType);
+            GameObject newObject = new GameObject(gameObject, Master.None, prefabType);
             gameObject.getGameLoop().getObjectsInfoDtoBuilder().createGameObject(newObject);
         }
     }

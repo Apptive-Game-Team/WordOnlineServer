@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Effect;
@@ -12,11 +13,11 @@ public class WetStatusEffect extends BaseStatusEffect {
     }
 
     @Override
-    public void handleAttack(Effect attackEffect) {
+    public void handleAttack(ElementType attackType) {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob == null) return;
 
-        switch (attackEffect) {
+        switch (attackType) {
             //Not Implemented ElementType...
 //            case Fire -> {
 //                mob.setDamageMultiplier(0.5f);
