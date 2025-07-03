@@ -31,7 +31,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
         if (attackType == ElementType.FIRE) {
             Mob mob = gameObject.getComponent(Mob.class);
             if (mob != null) {
-                mob.onDamaged(new AttackInfo(removalDamage, ElementType.FIRE));
+                mob.applyDamage(new AttackInfo(removalDamage, ElementType.FIRE));
             }
             expire();
         }

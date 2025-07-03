@@ -10,7 +10,7 @@ public class Spawner extends MagicComponent implements Damageable {
 
     private float counter = 0;
     private boolean isRunning = false;
-
+    private PrefabType prefabType;
     private int hp = 0;
     private int maxHp = 0;
 
@@ -24,12 +24,13 @@ public class Spawner extends MagicComponent implements Damageable {
             counter += gameObject.getGameLoop().deltaTime;
         } else {
             counter = 0;
-            new GameObject(gameObject, PrefabType.FireSlime);
+            new GameObject(gameObject, prefabType);
         }
     }
 
-    public Spawner(GameObject gameObject, int maxHp) {
+    public Spawner(GameObject gameObject, int maxHp, PrefabType prefabType) {
         super(gameObject);
+        this.prefabType = prefabType;
         isRunning = true;
         this.maxHp = maxHp;
         this.hp = maxHp;

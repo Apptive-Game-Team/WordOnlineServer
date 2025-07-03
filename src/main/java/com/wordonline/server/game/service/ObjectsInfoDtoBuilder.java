@@ -22,9 +22,10 @@ public class ObjectsInfoDtoBuilder {
 
     public ObjectsInfoDto getObjectsInfoDto () {
         ObjectsInfoDto result = new ObjectsInfoDto(createdObjectDtos, updatedObjectDtos);
+        if (!createdObjectDtos.isEmpty() || !updatedObjectDtos.isEmpty())
+            log.info("ObjectsInfoDto: {}", result);
         createdObjectDtos = new ArrayList<>();
         updatedObjectDtos = new ArrayList<>();
-        log.info("ObjectsInfoDto: {}", result);
         return result;
     }
 
