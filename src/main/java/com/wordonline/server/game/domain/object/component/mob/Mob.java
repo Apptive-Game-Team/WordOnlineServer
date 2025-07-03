@@ -1,10 +1,13 @@
 package com.wordonline.server.game.domain.object.component.mob;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
+import com.wordonline.server.game.domain.magic.ElementalChart;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Component;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -13,11 +16,13 @@ public abstract class Mob extends Component implements Damageable {
     protected int maxHp;
     @Getter
     protected int speed;
+    @Setter
+    protected ElementType element;
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
-        log.info("Mob : onDamaged hp: {} damage: {}", hp, attackInfo.getDamage());
-        this.hp -= attackInfo.getDamage();
+        log.info("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
+        this.hp -= attackInfo.getDamage() * ElementalChart.getMultiplier(attackInfo.getElement(),element);
         if (this.hp <= 0) {
             onDeath();
         }
@@ -30,5 +35,12 @@ public abstract class Mob extends Component implements Damageable {
         this.maxHp = maxHp;
         this.hp = maxHp;
         this.speed = speed;
+    }
+    public Mob(GameObject gameObject, int maxHp, int speed, ElementType element) {
+        super(gameObject);
+        this.maxHp = maxHp;
+        this.hp = maxHp;
+        this.speed = speed;
+        this.element = element;
     }
 }
