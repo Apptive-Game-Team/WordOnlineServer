@@ -1,6 +1,6 @@
 package com.wordonline.server.game.domain.magic;
 
-public class ElementalChart {
+public abstract class ElementalChart {
     // row: ATK, col: DEF
     private static final float[][] CHART = {
             // DEF    ATK  NONE   FIRE   GRASS  WATER  LIGHTING  ROCK
