@@ -1,6 +1,5 @@
 package com.wordonline.server.game.domain.magic.parser;
 
-import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.sub.ExplodeMagicParser;
