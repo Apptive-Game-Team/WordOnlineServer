@@ -8,6 +8,8 @@ import lombok.Data;
 public class FrameInfoDto {
     private final String type = "frame";
     private int updatedMana;
+    private int leftPlayerHp;
+    private int rightPlayerHp;
     private final CardInfoDto cards;
     private final ObjectsInfoDto objects;
 

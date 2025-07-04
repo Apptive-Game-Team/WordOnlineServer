@@ -62,7 +62,7 @@ public abstract class StateMachineMob extends Mob {
         public abstract void onUpdate();
     }
 
-    public StateMachineMob(GameObject gameObject, int maxHp, int speed) {
+    public StateMachineMob(GameObject gameObject, int maxHp, float speed) {
         super(gameObject, maxHp, speed);
     }
 }
