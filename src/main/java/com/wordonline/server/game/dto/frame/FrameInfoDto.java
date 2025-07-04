@@ -1,5 +1,6 @@
 package com.wordonline.server.game.dto.frame;
 
+import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.dto.CardInfoDto;
 import lombok.Data;
 
@@ -13,9 +14,11 @@ public class FrameInfoDto {
     private final CardInfoDto cards;
     private final ObjectsInfoDto objects;
 
-    public FrameInfoDto(CardInfoDto cardInfoDto, ObjectsInfoDto objectsInfoDto){
+    public FrameInfoDto(CardInfoDto cardInfoDto, ObjectsInfoDto objectsInfoDto, GameSessionData gameSessionData){
         cards = cardInfoDto;
         objects = objectsInfoDto;
+        leftPlayerHp = gameSessionData.leftPlayerData.hp;
+        rightPlayerHp = gameSessionData.rightPlayerData.hp;
     }
 
     public FrameInfoDto(int updatedMana, CardInfoDto cards, ObjectsInfoDto objects) {
