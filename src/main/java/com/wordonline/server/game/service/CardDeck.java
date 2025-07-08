@@ -15,7 +15,7 @@ public class CardDeck {
     // Dummy cards for testing
     // TODO: Replace with actual card data
     List<CardType> cards = new ArrayList<>(List.of( CardType.Shoot, CardType.Summon,
-            CardType.Shoot, CardType.Explode, CardType.Summon, CardType.Rock, CardType.Leaf,
+            CardType.Shoot, CardType.Explode, CardType.Spawn, CardType.Rock, CardType.Leaf,
     CardType.Water, CardType.Lightning, CardType.Fire));
 
     // random pick card and update to Player Data, Frame Info Dto
