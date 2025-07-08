@@ -21,7 +21,7 @@ public enum CardType {
     Rock(Type.Type, 0, GameConfig.WIDTH / 4f),
     Leaf(Type.Type, 0, GameConfig.WIDTH / 4f);
 
-    enum Type {
+    public enum Type {
         Magic,
         Type
     }
