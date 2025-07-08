@@ -5,7 +5,7 @@ import com.wordonline.server.game.dto.Master;
 
 public class CollisionChecker{
     public boolean isColliding(GameObject obj1, GameObject obj2) {
-        if (obj1.getMaster() == obj2.getMaster() ||
+        if (obj1.getMaster() == obj2.getMaster() &&
                 obj1.getMaster() != Master.None) {
             return false;
         }
