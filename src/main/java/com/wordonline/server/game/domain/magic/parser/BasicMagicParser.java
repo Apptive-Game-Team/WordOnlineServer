@@ -31,8 +31,8 @@ public class BasicMagicParser implements MagicParser {
             mutableCards.remove(CardType.Shoot);
             return shootMagicParser.parseMagic(mutableCards, master, position);
         } else if (mutableCards.contains(CardType.Spawn)) {
-            mutableCards.remove(CardType.Shoot);
-            return shootMagicParser.parseMagic(mutableCards, master, position);
+            mutableCards.remove(CardType.Spawn);
+            return spawnMagicParser.parseMagic(mutableCards, master, position);
         }
         return null;
     }
