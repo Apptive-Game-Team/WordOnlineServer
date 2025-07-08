@@ -28,11 +28,8 @@ public class Explode extends MagicComponent {
             gameObject.setRadius(EXPLODE_RADIUS);
             List<GameObject> gameObjects = gameObject.getGameLoop().physics.overlapCircleAll(gameObject, EXPLODE_RADIUS);
             for (GameObject otherObject : gameObjects) {
-                List<Damageable> attackables = otherObject.getComponents()
-                        .stream()
-                        .filter(component -> component instanceof Damageable)
-                        .map(component -> (Damageable) component)
-                        .toList();
+                List<Damageable> attackables = otherObject.getComponents(Damageable.class);
+
                 if (attackables.isEmpty()) {
                     continue;
                 }

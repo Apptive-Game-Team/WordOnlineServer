@@ -12,7 +12,6 @@ import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.slime.Slime;
 import com.wordonline.server.game.dto.Effect;
 
