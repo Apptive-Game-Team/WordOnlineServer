@@ -95,18 +95,7 @@ public class GameLoop implements Runnable {
         gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
 
         List<GameObject> toRemove = new ArrayList<>();
-        List<Component> componentsToAdd = new ArrayList<>();
-        List<Component> componentsToRemove = new ArrayList<>();
-        gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
-        gameSessionData.gameObjectsToAdd.clear();
-        for (GameObject gameObject : gameSessionData.gameObjects) {
-            if (gameObject.getStatus() == Status.Destroyed) {
-                toRemove.add(gameObject);
-            } else {
-                gameObject.update();
-            }
-        }
-        
+
         List<GameObject> objects = gameSessionData.gameObjects;
 
         collisionSystem.checkAndHandleCollisions(objects);
@@ -126,6 +115,16 @@ public class GameLoop implements Runnable {
         // Check for game over
         if (resultChecker.checkResult()) {
             _running = false;
+        }
+
+        gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
+        gameSessionData.gameObjectsToAdd.clear();
+        for (GameObject gameObject : gameSessionData.gameObjects) {
+            if (gameObject.getStatus() == Status.Destroyed) {
+                toRemove.add(gameObject);
+            } else {
+                gameObject.update();
+            }
         }
 
         gameSessionData.gameObjects.removeAll(toRemove);
