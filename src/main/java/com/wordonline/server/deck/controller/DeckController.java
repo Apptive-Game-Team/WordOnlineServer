@@ -7,11 +7,14 @@ import com.wordonline.server.deck.dto.DeckResponseDto;
 import com.wordonline.server.deck.service.DeckService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@PreAuthorize("isAuthenticated()")
 @RequestMapping("/api/users/mine")
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +44,7 @@ public class DeckController {
 
     @PostMapping("/decks")
     public ResponseEntity<DeckResponseDto> saveDeck(
-            @RequestBody DeckRequestDto deckRequestDto,
+            @Validated @RequestBody DeckRequestDto deckRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
             ) {
         return ResponseEntity.ok(
@@ -55,7 +58,7 @@ public class DeckController {
     @PutMapping("/decks/{deckId}")
     public ResponseEntity<DeckResponseDto> updateDeck(
             @PathVariable Long deckId,
-            @RequestBody DeckRequestDto deckRequestDto,
+            @Validated @RequestBody DeckRequestDto deckRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         return ResponseEntity.ok(
