@@ -4,6 +4,7 @@ import com.wordonline.server.auth.domain.KakaoUser;
 import com.wordonline.server.auth.domain.PrincipalDetails;
 import com.wordonline.server.auth.dto.KakaoUserInfoResponseDto;
 import com.wordonline.server.auth.service.KakaoAuthService;
+import com.wordonline.server.auth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,15 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.AuthenticationException;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/kakao")
 public class KakaoAuthController {
 
     private final KakaoAuthService kakaoAuthService;
+    private final UserService userService;
 
     @ResponseBody
     @GetMapping("")
@@ -32,10 +36,13 @@ public class KakaoAuthController {
     }
 
     @GetMapping("/callback")
-    public String callback(@RequestParam("code") String code, HttpServletRequest request) {
+    public String callback(@RequestParam("code") String code, HttpServletRequest request) throws AuthenticationException {
         String accessToken = kakaoAuthService.getAccessTokenFromKakao(code);
         KakaoUserInfoResponseDto userInfoResponseDto = kakaoAuthService.getUserInfo(accessToken);
         KakaoUser kakaoUser = KakaoUser.from(userInfoResponseDto);
+
+        userService.loginOrRegisterUser(kakaoUser);
+
         PrincipalDetails principal = new PrincipalDetails(kakaoUser);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -49,5 +56,12 @@ public class KakaoAuthController {
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
         return "kakao-login-complete";
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(e.getMessage());
     }
 }
