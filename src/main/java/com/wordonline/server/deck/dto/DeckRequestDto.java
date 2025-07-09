@@ -1,4 +1,6 @@
 package com.wordonline.server.deck.dto;
+
+import com.wordonline.server.deck.validation.DeckValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -9,6 +11,7 @@ public record DeckRequestDto(
         @Size(max = 31, message = "Deck name must be at most 50 characters")
         String name,
         @Size(max = 10, min = 10, message = "Num of cards must be 10")
+        @DeckValid
         List<Long> cardIds
 ) {
 

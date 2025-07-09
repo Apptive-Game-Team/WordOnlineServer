@@ -4,11 +4,14 @@ import com.wordonline.server.deck.domain.DeckInfo;
 import com.wordonline.server.deck.dto.*;
 import com.wordonline.server.deck.repository.DeckRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +34,16 @@ public class DeckService {
         deckRepository.saveCardToUser(userId, 9, 3);
 
         deckRepository.getCardPool(userId);
+    }
+
+    @Cacheable("cards")
+    public Map<Long, CardDto> getCards() {
+        return deckRepository.getCards()
+                .stream()
+                .collect(Collectors.toMap(
+                        CardDto::id,
+                        Function.identity()
+                ));
     }
 
     public List<DeckResponseDto> getDecks(long userId){

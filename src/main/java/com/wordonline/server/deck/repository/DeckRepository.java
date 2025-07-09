@@ -61,6 +61,11 @@ public class DeckRepository {
            WHERE id = :id;
            """;
 
+    private static final String GET_CARDS = """
+           SELECT id, name, card_type
+           FROM cards
+           """;
+
     private static final String SAVE_DECK = """
             INSERT INTO decks(name, user_id)
             VALUES
@@ -121,6 +126,16 @@ public class DeckRepository {
             """;
 
     private final JdbcClient jdbcClient;
+
+    public List<CardDto> getCards() {
+        return jdbcClient.sql(GET_CARDS)
+            .query((rs, num) ->
+                new CardDto(
+                    rs.getLong("id"),
+                    CardType.valueOf(rs.getString("name"))
+                ))
+            .list();
+    }
 
     public long saveDeck(long userId, String name){
         KeyHolder keyHolder = new GeneratedKeyHolder();
