@@ -12,7 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class Mob extends Component implements Damageable {
+    @Getter
     protected int hp;
+    @Getter
     protected int maxHp;
     @Getter @Setter
     protected float speed;
