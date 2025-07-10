@@ -32,6 +32,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
         log.trace(e.getMessage());
 
-        return ResponseEntity.badRequest().body("Request is not validate");
+        return ResponseEntity.badRequest().body("Request validation failed");
     }
 }
