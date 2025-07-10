@@ -27,29 +27,28 @@ public class GameLoop implements Runnable {
     private int _frameNum = 0;
     public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
-
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
+    public final GameSessionData gameSessionData;
+    public final Physics physics;
+    public final CollisionSystem collisionSystem = new BruteCollisionSystem();
+    public final InputHandler inputHandler = new InputHandler(this);
+
+    public float deltaTime = 1f / FPS;
     public void close() {
         _running = false;
     }
 
-    public final GameSessionData gameSessionData = new GameSessionData();
-
     public GameLoop(SessionObject sessionObject){
         this.sessionObject = sessionObject;
-         resultChecker = new ResultChecker(sessionObject);
-
-         new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
+        gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
+        resultChecker = new ResultChecker(sessionObject);
+        new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
         new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
+
+        physics = new SimplePhysics(gameSessionData.gameObjects);
     }
-
-    public final Physics physics = new SimplePhysics(gameSessionData.gameObjects);
-    public final CollisionSystem collisionSystem = new BruteCollisionSystem();
-    public final InputHandler inputHandler = new InputHandler(this);
-
-    public float deltaTime = 1/FPS;
 
     @Override
     public void run() {
