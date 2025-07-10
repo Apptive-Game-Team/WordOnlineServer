@@ -31,13 +31,13 @@ public class UserController {
 
     @GetMapping("/mine")
     public ResponseEntity<KakaoUser> getUser(@AuthenticationPrincipal PrincipalDetails principalDetails, HttpServletRequest request) throws AuthenticationException {
-        if (principalDetails == null) {
+//        if (principalDetails == null) {
 
             KakaoUser kakaoUser = new KakaoUser(
                     atomicInteger.getAndIncrement(),
-                    "mock email",
-                    "demo-user",
-                    "mock user"
+                    "mock email " + atomicInteger.get(),
+                    "demo-user-" + atomicInteger.get(),
+                    "mock user " + atomicInteger.get()
             );
 
             userService.loginOrRegisterUser(kakaoUser);
@@ -59,9 +59,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(kakaoUser);
 
 //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+//        }
 
 
-        return ResponseEntity.ok(principalDetails.user);
+//        return ResponseEntity.ok(principalDetails.user);
     }
 }

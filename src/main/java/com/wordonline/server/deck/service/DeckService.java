@@ -3,6 +3,7 @@ package com.wordonline.server.deck.service;
 import com.wordonline.server.deck.domain.DeckInfo;
 import com.wordonline.server.deck.dto.*;
 import com.wordonline.server.deck.repository.DeckRepository;
+import com.wordonline.server.game.domain.magic.CardType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -32,11 +33,31 @@ public class DeckService {
         deckRepository.saveCardToUser(userId, 7, 3);
         deckRepository.saveCardToUser(userId, 8, 3);
         deckRepository.saveCardToUser(userId, 9, 3);
+    }
 
-        deckRepository.getCardPool(userId);
+    @Transactional(readOnly = true)
+    public boolean hasSelectedDeck(long userId) {
+        return deckRepository.getSelectedDeckId(userId)
+                .isPresent();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CardType> getSelectedCards(long userId) {
+        List<CardType> cardTypes = new ArrayList<>();
+        deckRepository.getSelectedDeck(userId)
+                .forEach(
+                        cardsDto ->
+                        cardTypes.addAll(
+                                Stream.generate(cardsDto::getName)
+                                        .limit(cardsDto.getCount())
+                                        .toList()
+                        )
+                );
+        return cardTypes;
     }
 
     @Cacheable("cards")
+    @Transactional(readOnly = true)
     public Map<Long, CardDto> getCards() {
         return deckRepository.getCards()
                 .stream()
@@ -46,6 +67,7 @@ public class DeckService {
                 ));
     }
 
+    @Transactional(readOnly = true)
     public List<DeckResponseDto> getDecks(long userId){
         List<DeckResponseDto> responseDtos = new ArrayList<>();
         deckRepository.getDecks(userId)
@@ -119,6 +141,7 @@ public class DeckService {
         deckRepository.setSelectDeck(userId, deckId);
     }
 
+    @Transactional(readOnly = true)
     public DeckResponseDto getDeck(long deckId) {
         List<DeckCardDto> deckCardDtos = deckRepository.getDeck(deckId);
         DeckResponseDto responseDto = new DeckResponseDto(
@@ -138,6 +161,7 @@ public class DeckService {
         return responseDto;
     }
 
+    @Transactional(readOnly = true)
     public CardPoolDto getCardPool(long userId) {
         CardPoolDto cardPoolDto = new CardPoolDto(new ArrayList<>());
         deckRepository.getCardPool(userId)

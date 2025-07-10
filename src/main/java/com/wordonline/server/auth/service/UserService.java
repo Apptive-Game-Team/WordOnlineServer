@@ -42,4 +42,8 @@ public class UserService {
 
         throw new AuthenticationException("Can't Login");
     }
+
+    public KakaoUser getUser(long userId) {
+        return userRepository.findUserById(userId).get();
+    }
 }

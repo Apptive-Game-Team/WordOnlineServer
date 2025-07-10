@@ -1,25 +1,31 @@
 package com.wordonline.server.game.domain;
 
+import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.CardDeck;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.util.List;
+
 @Getter
 // this class is used to store the session information
 // it sends the frame information to the client
 public class SessionObject {
-    final String sessionId;
-    final String leftUserId;
-    final String rightUserId;
-    final SimpMessagingTemplate template;
-    final String url;
+    private final String sessionId;
+    private final long leftUserId;
+    private final long rightUserId;
+    private final SimpMessagingTemplate template;
+    private final String url;
+    private final CardDeck leftUserCardDeck;
+    private final CardDeck rightUserCardDeck;
 
-    public Master getUserSide(String userId) {
-        if (userId.equals(leftUserId)) {
+    public Master getUserSide(long userId) {
+        if (userId == leftUserId) {
             return Master.LeftPlayer;
-        } else if (userId.equals(rightUserId)) {
+        } else if (userId == rightUserId) {
             return Master.RightPlayer;
         } else {
             return null;
@@ -29,14 +35,16 @@ public class SessionObject {
     @Setter
     private GameLoop gameLoop;
 
-    public SessionObject(String sessionId, String leftUserId, String rightUserId, SimpMessagingTemplate template){
+    public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards){
         this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
         url = String.format("/game/%s/frameInfos", sessionId);
+        leftUserCardDeck = new CardDeck(leftUserCards);
+        rightUserCardDeck = new CardDeck(rightUserCards);
     }
 
     // this method is used to send the frame information to the client
-    public void sendFrameInfo(String userId, Object data){
-        template.convertAndSend(String.format("%s/%s", url, userId), data);
+    public void sendFrameInfo(long userId, Object data){
+        template.convertAndSend(String.format("%s/%d", url, userId), data);
     }
 }
 

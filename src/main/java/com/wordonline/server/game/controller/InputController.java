@@ -22,7 +22,7 @@ public class InputController {
     private SimpMessagingTemplate template;
 
     @MessageMapping("{sessionId}/{userId}")
-    public void handleInput(@DestinationVariable String sessionId, @DestinationVariable String userId, @Payload InputRequestDto inputRequestDto) {
+    public void handleInput(@DestinationVariable String sessionId, @DestinationVariable long userId, @Payload InputRequestDto inputRequestDto) {
         InputResponseDto responseDto = sessionManager.getSessionObject(sessionId).getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }

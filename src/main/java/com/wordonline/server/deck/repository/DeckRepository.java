@@ -125,7 +125,44 @@ public class DeckRepository {
             WHERE id = :userId
             """;
 
+    private static final String GET_SELECTED_DECK = """
+            SELECT
+              cards.id AS id,
+              cards.name AS name,
+              cards.card_type AS card_type,
+              deck_cards.count AS count
+            FROM
+              users
+            JOIN decks ON decks.id = users.selected_deck_id
+            JOIN deck_cards ON deck_cards.deck_id = decks.id
+            JOIN cards ON cards.id = deck_cards.card_id
+            WHERE users.id = :userId;
+            """;
+
+    private static final String GET_SELECTED_DECK_ID = """
+            SELECT selected_deck_id
+            FROM users
+            WHERE id = :userId;
+            """;
+
     private final JdbcClient jdbcClient;
+
+    public Optional<Long> getSelectedDeckId(long userId) {
+        return jdbcClient.sql(GET_SELECTED_DECK_ID)
+                .param("userId", userId)
+                .query(Long.class)
+                .optional();
+    }
+
+    public List<CardsDto> getSelectedDeck(long userId) {
+        return jdbcClient.sql(GET_SELECTED_DECK)
+                .param("userId", userId)
+                .query((rs, num) ->
+                    new CardsDto(rs.getLong("id"),
+                            CardType.valueOf(rs.getString("name")),
+                            rs.getInt("count"))
+                ).list();
+    }
 
     public List<CardDto> getCards() {
         return jdbcClient.sql(GET_CARDS)
