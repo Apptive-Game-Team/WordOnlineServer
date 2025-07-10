@@ -24,15 +24,17 @@ public class DeckService {
     private final DeckRepository deckRepository;
 
     public void initializeCard(long userId) {
-        deckRepository.saveCardToUser(userId, 1, 3);
-        deckRepository.saveCardToUser(userId, 2, 3);
-        deckRepository.saveCardToUser(userId, 3, 3);
-        deckRepository.saveCardToUser(userId, 4, 3);
-        deckRepository.saveCardToUser(userId, 5, 3);
-        deckRepository.saveCardToUser(userId, 6, 3);
-        deckRepository.saveCardToUser(userId, 7, 3);
-        deckRepository.saveCardToUser(userId, 8, 3);
-        deckRepository.saveCardToUser(userId, 9, 3);
+        for (int i = 1; i <= 9; i++) {
+            deckRepository.saveCardToUser(userId, i, 3);
+        }
+
+        long deckId = deckRepository.saveDeck(userId, "기본 덱");
+
+        for (int i = 1; i <= 9; i++) {
+            deckRepository.saveCardToDeck(deckId, i,
+                    i==6?2:1);
+        }
+        deckRepository.setSelectDeck(userId, deckId);
     }
 
     @Transactional(readOnly = true)
