@@ -27,8 +27,6 @@ public class DeckController {
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         return ResponseEntity.ok(
-                // TODO: THIS IS TEST CODE
-//                deckService.getCardPool(1)
             deckService.getCardPool(principalDetails.getUid())
         );
     }

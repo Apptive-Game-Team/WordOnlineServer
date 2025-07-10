@@ -25,13 +25,13 @@ public class GlobalExceptionHandler {
         log.trace(e.getMessage());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("UnAuthorized");
+                .body("Unauthorized");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
         log.trace(e.getMessage());
 
-        return ResponseEntity.badRequest().body("Request is not validate");
+        return ResponseEntity.badRequest().body("Request validation failed");
     }
 }

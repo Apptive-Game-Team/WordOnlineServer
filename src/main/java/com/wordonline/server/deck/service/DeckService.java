@@ -114,7 +114,7 @@ public class DeckService {
                 () -> new IllegalArgumentException("deck not found")
         );
         if (deckInfo.userId() != userId) {
-            throw new IllegalArgumentException("not authorization");
+            throw new IllegalArgumentException("Not authorized");
         }
 
         deckRepository.deleteCardInDeck(deckId);
