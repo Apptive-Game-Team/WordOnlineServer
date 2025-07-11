@@ -5,7 +5,6 @@ import com.wordonline.server.matching.dto.SimpleMessageDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -18,22 +17,19 @@ public class MatchingController {
     @Autowired
     private SimpMessagingTemplate template;
 
-    // for test echo
-    @MessageMapping("/echo")
-    @SendTo("/topic/echo")
-    public String echo(String message) {
-        log.info("Received message: {}", message);
-        return message;
-    }
-
     // matching queue request
     @MessageMapping("/game/match/queue")
-    public void queueMatching(String userId) {
+    public void queueMatching(long userId) {
         log.info("queued userId: {}", userId);
-        matchingManager.enqueue(userId);
+        String message;
+        if (matchingManager.enqueue(userId)) {
+            message = "Successfully Enqueued";
+        } else {
+            message = "Failed to enqueue user";
+        }
         template.convertAndSend(
                 String.format("/queue/match-status/%s", userId),
-                new SimpleMessageDto("Successfully Enqueued")
+                new SimpleMessageDto(message)
         );
         matchingManager.tryMatchUsers();
     }
