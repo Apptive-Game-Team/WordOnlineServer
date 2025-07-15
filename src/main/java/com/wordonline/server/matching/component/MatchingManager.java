@@ -1,10 +1,13 @@
 package com.wordonline.server.matching.component;
 
+import com.wordonline.server.auth.domain.KakaoUser;
+import com.wordonline.server.auth.service.UserService;
+import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,20 +16,23 @@ import java.util.Queue;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MatchingManager {
 
-    private final Queue<String> matchingQueue = new LinkedList<>();
+    private final Queue<Long> matchingQueue = new LinkedList<>();
     private static int sessionIdCounter = 0;
 
-    @Autowired
-    private SimpMessagingTemplate template;
+    private final DeckService deckService;
+    private final UserService userService;
+    private final SimpMessagingTemplate template;
+    private final SessionManager sessionManager;
 
-    @Autowired
-    private SessionManager sessionManager;
-
-    public void enqueue(String userId) {
-        matchingQueue.add(userId);
-
+    public boolean enqueue(long userId) {
+        if (deckService.hasSelectedDeck(userId)) {
+            matchingQueue.add(userId);
+            return true;
+        }
+        return false;
     }
 
     public boolean tryMatchUsers() {
@@ -35,13 +41,15 @@ public class MatchingManager {
 
         sessionIdCounter++;
 
-        String uid1 = matchingQueue.poll();
-        String uid2 = matchingQueue.poll();
+        long uid1 = matchingQueue.poll();
+        KakaoUser user1 = userService.getUser(uid1);
+        long uid2 = matchingQueue.poll();
+        KakaoUser user2 = userService.getUser(uid2);
         String sessionId = "session-" + sessionIdCounter;
         MatchedInfoDto matchedInfoDto = new MatchedInfoDto(
                 "Successfully Matched",
-                uid1,
-                uid2,
+                user1,
+                user2,
                 sessionId
         );
         template.convertAndSend(
@@ -54,7 +62,13 @@ public class MatchingManager {
         log.info("matched {} and {}", uid1, uid2);
         try {
             Thread.sleep(2000);
-            sessionManager.createSession(new SessionObject(sessionId, uid1, uid2, template));
+            sessionManager.createSession(
+                    new SessionObject(
+                            sessionId,
+                            uid1, uid2,
+                            template,
+                            deckService.getSelectedCards(uid1),
+                            deckService.getSelectedCards(uid2)));
             return true;
         } catch (InterruptedException e) {
             log.error("Error while creating session", e);

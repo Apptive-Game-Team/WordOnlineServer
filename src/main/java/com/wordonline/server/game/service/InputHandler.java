@@ -16,7 +16,7 @@ import java.util.List;
 public class InputHandler {
     private final GameLoop gameLoop;
 
-    public InputResponseDto handleInput(String userId, InputRequestDto inputRequestDto) {
+    public InputResponseDto handleInput(long userId, InputRequestDto inputRequestDto) {
         Master master = gameLoop.sessionObject.getUserSide(userId);
         PlayerData playerData = gameLoop.gameSessionData.getPlayerData(master);
 
