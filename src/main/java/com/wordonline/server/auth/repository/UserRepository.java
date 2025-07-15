@@ -27,7 +27,33 @@ public class UserRepository {
             (:id, :email, :name, :image_url);
             """;
 
+    private static final String GET_MMR = """
+            SELECT mmr
+            FROM users
+            WHERE id = :userId;
+            """;
+
+    private static final String SET_MMR = """
+            UPDATE users
+            SET mmr = :mmr
+            WHERE id = :userId;
+            """;
+
     private final JdbcClient jdbcClient;
+
+    public Optional<Short> getMmr(long userId) {
+        return jdbcClient.sql(GET_MMR)
+                .param("userId", userId)
+                .query(Short.class)
+                .optional();
+    }
+
+    public void setMmr(long userId, short mmr) {
+        jdbcClient.sql(SET_MMR)
+                .param("userId", userId)
+                .param("mmr", mmr)
+                .update();
+    }
 
     public Optional<KakaoUser> findUserByEmail(String email) {
         return jdbcClient.sql(GET_USER_BY_EMAIL)

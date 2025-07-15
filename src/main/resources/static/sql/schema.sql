@@ -4,6 +4,7 @@ CREATE TABLE users (
     name VARCHAR(50) NOT NULL,
     profile_image_url VARCHAR(255) NOT NULL,
     selected_deck_id BIGINT,
+    mmr SMALLINT NOT NULL DEFAULT 1000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
