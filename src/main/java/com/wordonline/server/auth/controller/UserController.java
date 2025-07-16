@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
@@ -28,21 +29,21 @@ public class UserController {
 
     @PostMapping("")
     public ResponseEntity<AuthResponseDto> registerAndLogin(
-            @RequestBody UserRegisterRequestDto userRegisterRequestDto
+            @Validated @RequestBody UserRegisterRequestDto userRegisterRequestDto
             ) throws AuthenticationException {
         return ResponseEntity.ok(authService.registerAndLogin(userRegisterRequestDto));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(
-            @RequestBody UserLoginRequestDto userLoginRequestDto
+            @Validated @RequestBody UserLoginRequestDto userLoginRequestDto
     ) throws AuthenticationException {
         return ResponseEntity.ok(authService.login(userLoginRequestDto));
     }
 
 
     @GetMapping("/mine")
-    public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal PrincipalDetails principalDetails, HttpServletRequest request) throws AuthenticationException {
+    public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) {
              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
