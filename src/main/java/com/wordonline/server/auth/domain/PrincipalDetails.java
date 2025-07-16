@@ -10,11 +10,11 @@ import java.util.Map;
 
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    public final KakaoUser user;
+    public final long userId;
     private Map<String, Object> attributes;
 
-    public PrincipalDetails(KakaoUser user) {
-        this.user = user;
+    public PrincipalDetails(long userId) {
+        this.userId = userId;
     }
 
     @Override
@@ -32,15 +32,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     }
 
     public Long getUid() {
-        return user.id();
-    }
-
-    public String getEmail() {
-        return user.email();
-    }
-
-    public String getImageUrl() {
-        return user.imageUrl();
+        return userId;
     }
 
     @Override
@@ -50,7 +42,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getUsername() {
-        return user.nickname();
+        return "user" + userId;
     }
 
     @Override
@@ -72,6 +64,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getName() {
-        return user.nickname();
+        return getUsername();
     }
 }

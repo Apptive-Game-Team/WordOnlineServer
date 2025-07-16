@@ -1,6 +1,6 @@
 package com.wordonline.server.matching.dto;
 
-import com.wordonline.server.auth.domain.KakaoUser;
+import com.wordonline.server.auth.dto.UserResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class MatchedInfoDto{
     private String message;
-    private KakaoUser leftUser;
-    private KakaoUser rightUser;
+    private UserResponseDto leftUser;
+    private UserResponseDto rightUser;
     private String sessionId;
 }

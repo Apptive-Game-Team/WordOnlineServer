@@ -1,14 +1,13 @@
 package com.wordonline.server.auth.service;
 
-import com.wordonline.server.auth.domain.KakaoUser;
+import com.wordonline.server.auth.domain.User;
+import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.service.DeckService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.naming.AuthenticationException;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -18,32 +17,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final DeckService deckService;
 
-    public void registerUser(KakaoUser kakaoUser) throws AuthenticationException {
-        if (!userRepository.saveUser(kakaoUser)) {
-            throw new AuthenticationException("Can't Register");
+    public User registerUser(User user) {
+        if (!userRepository.saveUser(user)) {
+            throw new AuthorizationDeniedException("Can't Register");
         }
 
-        deckService.initializeCard(kakaoUser.id());
+        User actualUser = userRepository.findUserByEmail(user.getEmail())
+                .orElseThrow(() -> new AuthorizationDeniedException("Can't Register"));
+
+        deckService.initializeCard(actualUser.getId());
+
+        return actualUser;
     }
 
-    public void loginOrRegisterUser(KakaoUser kakaoUser) throws AuthenticationException {
-        Optional<KakaoUser> userOptional = userRepository.findUserById(kakaoUser.id());
-        if (userOptional.isEmpty()) {
-            registerUser(kakaoUser);
-            return;
-        }
-
-        KakaoUser user = userOptional.get();
-
-        if (user.email().equals(kakaoUser.email()) &&
-                user.nickname().equals(kakaoUser.nickname())) {
-            return;
-        }
-
-        throw new AuthenticationException("Can't Login");
-    }
-
-    public KakaoUser getUser(long userId) {
-        return userRepository.findUserById(userId).get();
+    public UserResponseDto getUser(long userId) {
+        return new UserResponseDto(userRepository.findUserById(userId)
+                .orElseThrow(() -> new AuthorizationDeniedException("User not found")));
     }
 }
