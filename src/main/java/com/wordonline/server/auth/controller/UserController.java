@@ -47,7 +47,6 @@ public class UserController {
         if (principalDetails == null) {
              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        log.info("tlqkf");
 
         return ResponseEntity.ok(userService.getUser(principalDetails.userId));
     }

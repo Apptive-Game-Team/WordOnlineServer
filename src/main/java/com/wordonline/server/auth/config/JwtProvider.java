@@ -79,7 +79,7 @@ public class JwtProvider {
                 .collect(Collectors.toList());
 
 
-        PrincipalDetails principal= new PrincipalDetails(userId);
+        PrincipalDetails principal = new PrincipalDetails(userId);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
