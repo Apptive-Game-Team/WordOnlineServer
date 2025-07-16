@@ -7,7 +7,6 @@ import com.wordonline.server.auth.dto.UserRegisterRequestDto;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.AuthService;
 import com.wordonline.server.auth.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
