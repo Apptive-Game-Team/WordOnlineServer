@@ -39,13 +39,7 @@ public class AuthService {
     public AuthResponseDto login(UserLoginRequestDto userLoginRequestDto) throws AuthenticationException {
 
         User user = userRepository.findUserByEmail(userLoginRequestDto.email())
-                .orElse( new User(
-                        (long) atomicInteger.getAndIncrement(),
-                        "mock-email@" + atomicInteger.get(),
-                        "demo-user-" + atomicInteger.get(),
-                        "mock user " + atomicInteger.get()
-                ));
-//                .orElseThrow(() -> new AuthenticationException("Not Found User"));
+                .orElseThrow(() -> new AuthenticationException("Not Found User"));
 
         if (!user.validatePassword(userLoginRequestDto.passwordPlain())) {
             throw new AuthenticationException("Not Found User");
