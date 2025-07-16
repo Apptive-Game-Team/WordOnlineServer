@@ -29,7 +29,8 @@ public class WebSecurityConfig {
                                         "/api/auth/kakao/**",
                                         "/api/users/mine",
                                         "/api/users",
-                                        "/api/users/login").permitAll()
+                                        "/api/users/login",
+                                        "/ws").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable);
