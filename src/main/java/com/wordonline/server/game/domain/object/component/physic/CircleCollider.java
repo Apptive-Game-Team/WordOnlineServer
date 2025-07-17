@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector2;
 import lombok.Getter;
 
 @Getter
@@ -25,5 +26,18 @@ public class CircleCollider extends Collider {
         }
 
         return false;
+    }
+
+    @Override
+    public Vector2 getDisPlacement(Collider collider) {
+        if (collider instanceof CircleCollider circleCollider) {
+            return getPosition().subtract(circleCollider.getPosition());
+        }
+
+        if (collider instanceof EdgeCollider edgeCollider) {
+            return edgeCollider.getDisPlacement(this).multiply(-1);
+        }
+
+        return null;
     }
 }

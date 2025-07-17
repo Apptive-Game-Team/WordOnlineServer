@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.DummyComponent;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
@@ -14,6 +15,7 @@ import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.slime.Slime;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
+import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Effect;
 
@@ -176,6 +178,14 @@ public enum PrefabType {
     Dummy((gameObject) -> {
         gameObject.setElement(ElementType.NONE);
         gameObject.getComponents().add(new DummyComponent(gameObject));
+    }),
+
+    Wall((gameObject)-> {
+        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector2(0, 0), new Vector2(0, GameConfig.HEIGHT)));
+        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector2(GameConfig.WIDTH, GameConfig.HEIGHT), new Vector2(0, GameConfig.HEIGHT)));
+        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector2(GameConfig.WIDTH, GameConfig.HEIGHT), new Vector2(GameConfig.WIDTH, 0)));
+        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector2(0, 0), new Vector2(GameConfig.WIDTH, 0)));
+        gameObject.setElement(ElementType.NONE);
     }),
 
     Player((gameObject)-> {

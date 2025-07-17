@@ -30,9 +30,9 @@ public class GameLoop implements Runnable {
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
+    private final PhysicSystem physicSystem = new PhysicSystem();
     public final GameSessionData gameSessionData;
     public final Physics physics;
-    public final CollisionSystem collisionSystem = new BruteCollisionSystem();
     public final InputHandler inputHandler = new InputHandler(this);
 
     public float deltaTime = 1f / FPS;
@@ -97,7 +97,7 @@ public class GameLoop implements Runnable {
 
         List<GameObject> objects = gameSessionData.gameObjects;
 
-        collisionSystem.checkAndHandleCollisions(objects);
+        physicSystem.checkAndHandleCollisions(objects);
 
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
@@ -125,6 +125,9 @@ public class GameLoop implements Runnable {
                 gameObject.update();
             }
         }
+        physicSystem.handleCollisions(gameSessionData.gameObjects);
+
+        physicSystem.onUpdateEnd(gameSessionData.gameObjects);
 
         gameSessionData.gameObjects.removeAll(toRemove);
         

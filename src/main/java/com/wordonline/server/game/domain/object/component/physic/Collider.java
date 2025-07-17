@@ -18,4 +18,6 @@ public abstract class Collider {
         rigidBody = gameObject.getComponent(RigidBody.class);
         this.gameObject = gameObject;
     }
+
+    public abstract Vector2 getDisPlacement(Collider colliderB);
 }

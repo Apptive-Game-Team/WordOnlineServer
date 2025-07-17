@@ -46,6 +46,19 @@ public class EdgeCollider extends Collider {
         return false;
     }
 
+    @Override
+    public Vector2 getDisPlacement(Collider collider) {
+        if (collider instanceof CircleCollider circleCollider) {
+            Vector2 projection = getProjection(
+                    circleCollider.getPosition(), getPoint1(), getPoint2()
+            );
+
+            return projection.subtract(collider.getPosition());
+        }
+
+        return null;
+    }
+
     private boolean isCircleColliding(CircleCollider circle) {
         Vector2 center = circle.getPosition();
         double radius = circle.getRadius();
@@ -56,18 +69,23 @@ public class EdgeCollider extends Collider {
         return dist <= radius;
     }
 
-    // 점과 선분 사이 최소 거리 계산 함수
-    private double distancePointToSegment(Vector2 p, Vector2 a, Vector2 b) {
-        Vector2 ab = b.subtract(a);
-        Vector2 ap = p.subtract(a);
+    private Vector2 getProjection(Vector2 center, Vector2 point1, Vector2 point2) {
+        Vector2 ab = point2.subtract(point1);
+        Vector2 ap = center.subtract(point1);
 
         double abLengthSquared = ab.dot(ab);
-        if (abLengthSquared == 0) return p.distance(a);
+        if (abLengthSquared == 0) return point1;
 
         double t = ap.dot(ab) / abLengthSquared;
         t = Math.max(0, Math.min(1, t));  // t는 0~1 사이로 제한
 
-        Vector2 projection = a.plus(ab.multiply((float)t));
-        return p.distance(projection);
+        return point1.plus(ab.multiply((float)t));
+    }
+
+    // 점과 선분 사이 최소 거리 계산 함수
+    private double distancePointToSegment(Vector2 center, Vector2 point1, Vector2 point2) {
+        Vector2 projection = getProjection(center, point1, point2);
+
+        return center.distance(projection);
     }
 }
