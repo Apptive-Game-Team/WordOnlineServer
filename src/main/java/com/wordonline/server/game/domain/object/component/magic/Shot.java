@@ -4,8 +4,7 @@ import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Damageable;
-import com.wordonline.server.game.domain.object.component.Collidable;
-import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class Shot extends MagicComponent implements Collidable {
         if (direction == null) {
             return;
         }
-        gameObject.setPosition(gameObject.getPosition().add(direction.multiply(SPEED * gameObject.getGameLoop().deltaTime)));
+        gameObject.setPosition(gameObject.getPosition().plus(direction.multiply(SPEED * gameObject.getGameLoop().deltaTime)));
     }
 
     @Override

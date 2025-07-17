@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.object.component;
+package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.domain.object.GameObject;
 

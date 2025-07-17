@@ -3,8 +3,6 @@ package com.wordonline.server.game.domain.object;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Vector;
-
 @Data
 @AllArgsConstructor
 // This class is used to represent the position of an object in the game
@@ -13,11 +11,20 @@ public class Vector2 {
 
     public static final Vector2 ZERO = new Vector2(0, 0);
 
-    public Vector2 add(float x, float y) {
+    public void clear() {
+        x = 0; y = 0;
+    }
+
+    public void add(Vector2 vector2) {
+        x += vector2.getX();
+        y += vector2.getY();
+    }
+
+    public Vector2 plus(float x, float y) {
         return new Vector2(this.x + x, this.y + y);
     }
 
-    public Vector2 add(Vector2 vector) {
+    public Vector2 plus(Vector2 vector) {
         return new Vector2(this.x + vector.x, this.y + vector.y);
     }
 
@@ -33,7 +40,7 @@ public class Vector2 {
         return new Vector2(this.x * scalar, this.y * scalar);
     }
 
-    public double dot(Vector2 other) {
+    public float dot(Vector2 other) {
         return this.x * other.x + this.y * other.y;
     }
     
