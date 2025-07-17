@@ -102,24 +102,9 @@ public class GameLoop implements Runnable {
 
         List<GameObject> toRemove = new ArrayList<>();
 
-        List<GameObject> objects = gameSessionData.gameObjects;
-
-        // Handle Collision
-        physicSystem.checkAndHandleCollisions(objects);
-
         // Mana
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
-
-        // Send Frame Info To Client
-        sessionObject.sendFrameInfo(
-            sessionObject.getLeftUserId(),
-            leftFrameInfoDto
-        );
-        sessionObject.sendFrameInfo(
-            sessionObject.getRightUserId(),
-            rightFrameInfoDto
-        );
 
         // Check for game over
         if (resultChecker.checkResult()) {
@@ -140,7 +125,22 @@ public class GameLoop implements Runnable {
         }
         physicSystem.handleCollisions(gameSessionData.gameObjects);
 
+        List<GameObject> objects = gameSessionData.gameObjects;
+
+        // Handle Collision
+        physicSystem.checkAndHandleCollisions(objects);
+
         physicSystem.onUpdateEnd(gameSessionData.gameObjects);
+
+        // Send Frame Info To Client
+        sessionObject.sendFrameInfo(
+                sessionObject.getLeftUserId(),
+                leftFrameInfoDto
+        );
+        sessionObject.sendFrameInfo(
+                sessionObject.getRightUserId(),
+                rightFrameInfoDto
+        );
 
         // Apply Destroyed GameObject
         gameSessionData.gameObjects.removeAll(toRemove);

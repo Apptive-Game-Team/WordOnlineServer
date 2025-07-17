@@ -4,7 +4,9 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Component;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 public class RigidBody extends Component {
 
@@ -19,13 +21,20 @@ public class RigidBody extends Component {
     }
 
     public void addVelocity(Vector2 velocity) {
-        velocity.add(velocity);
+        log.trace("added velocity: {}", velocity);
+        this.velocity.add(velocity);
     }
 
     public void applyVelocity() {
+        log.trace("velocity: {}", velocity);
+        log.trace("delta time: {}", gameObject.getGameLoop().deltaTime);
+        log.trace("delta position: {}", velocity.multiply(gameObject.getGameLoop().deltaTime));
+        log.trace("next position: {}", gameObject.getPosition().plus(velocity.multiply(gameObject.getGameLoop().deltaTime)));
         gameObject.setPosition(
                 gameObject.getPosition().plus(velocity.multiply(gameObject.getGameLoop().deltaTime))
         );
+        log.trace("position: {}", gameObject.getPosition());
+
         velocity.clear();
     }
 

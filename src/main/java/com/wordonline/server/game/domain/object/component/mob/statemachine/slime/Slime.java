@@ -111,7 +111,6 @@ public class Slime extends StateMachineMob {
             Vector2 nextPoint = path.get(0);
             Vector2 direction = nextPoint.subtract(currentPosition).normalize();
 
-            float speed = getSpeed();
             Vector2 velocity = direction.multiply(speed);
 
             rigidBody.addVelocity(velocity);

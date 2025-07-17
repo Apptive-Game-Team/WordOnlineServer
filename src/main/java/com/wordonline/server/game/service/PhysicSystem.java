@@ -2,6 +2,8 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.component.physic.Collider;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.util.Pair;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
@@ -9,14 +11,14 @@ import com.wordonline.server.game.util.CollisionChecker;
 import com.wordonline.server.game.util.CollisionSystem;
 import lombok.extern.slf4j.Slf4j;
 
-
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Slf4j
 public class PhysicSystem implements CollisionSystem {
 
-    private Set<Pair<GameObject>> collidedPairs;
+    private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();
 
     public void handleCollisions(List<GameObject> gameObjects) {
         calculateCollisions(gameObjects);
@@ -50,19 +52,19 @@ public class PhysicSystem implements CollisionSystem {
                     RigidBody rigidBodyA = a.getComponent(RigidBody.class);
                     RigidBody rigidBodyB = b.getComponent(RigidBody.class);
 
-                    gameObjectPair.a().getColliders().forEach(
+                    gameObjectPair.a().getColliders().stream().filter(Collider::isNotTrigger).forEach(
                             colliderA -> {
-                                gameObjectPair.b().getColliders().forEach(
+                                gameObjectPair.b().getColliders().stream().filter(Collider::isNotTrigger).forEach(
                                     colliderB -> {
 
-                                        float invMessA = rigidBodyA.getInvMess();
-                                        float invMessB = rigidBodyB.getInvMess();
+                                        float invMessA = colliderA.getInvMess();
+                                        float invMessB = colliderB.getInvMess();
 
                                         Vector2 displacement = colliderA.getDisplacement(colliderB);
                                         if (displacement == null) return;
                                         Vector2 normal = displacement.normalize();
 
-                                        Vector2 relativeVelocity = rigidBodyA.getVelocity().subtract(rigidBodyB.getVelocity());
+                                        Vector2 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
                                         float separatingVelocity = relativeVelocity.dot(normal);
 
                                         // 이미 멀어지는 중이면 무시
@@ -106,6 +108,12 @@ public class PhysicSystem implements CollisionSystem {
     public void checkAndHandleCollisions(List<GameObject> gameObjects) {
         collidedPairs.forEach(
                 gameObjectPair -> {
+
+                    if (gameObjectPair.a().getMaster() == gameObjectPair.b().getMaster() &&
+                            gameObjectPair.b().getMaster() != Master.None) {
+                        return;
+                    }
+
                     gameObjectPair.a().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.b()));
                     gameObjectPair.b().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.a()));
                 }
