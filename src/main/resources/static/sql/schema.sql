@@ -4,6 +4,7 @@ CREATE TABLE users (
     name VARCHAR(50) NOT NULL,
     password_hash CHAR(60) NOT NULL,
     selected_deck_id BIGINT,
+    mmr SMALLINT NOT NULL DEFAULT 1000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

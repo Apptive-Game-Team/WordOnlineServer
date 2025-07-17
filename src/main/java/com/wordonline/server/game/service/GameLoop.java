@@ -27,6 +27,8 @@ public class GameLoop implements Runnable {
     private int _frameNum = 0;
     public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
+    public final MmrService mmrService;
+
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
@@ -36,18 +38,20 @@ public class GameLoop implements Runnable {
     public final InputHandler inputHandler = new InputHandler(this);
 
     public float deltaTime = 1f / FPS;
-    public void close() {
-        _running = false;
-    }
 
-    public GameLoop(SessionObject sessionObject){
+    public GameLoop(SessionObject sessionObject, MmrService mmrService) {
         this.sessionObject = sessionObject;
+        this.mmrService = mmrService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
         new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
 
         physics = new SimplePhysics(gameSessionData.gameObjects);
+    }
+
+    public void close() {
+        _running = false;
     }
 
     @Override
@@ -79,6 +83,7 @@ public class GameLoop implements Runnable {
 
     // this method is called when the game loop is stopped
     private void update() {
+        // Initial DTOs
         CardInfoDto leftCardInfo = new CardInfoDto();
         CardInfoDto rightCardInfo = new CardInfoDto();
 
@@ -87,9 +92,11 @@ public class GameLoop implements Runnable {
         FrameInfoDto leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto, gameSessionData);
         FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameSessionData);
 
+        // Charge Mana
         gameSessionData.manaCharger.chargeMana(gameSessionData.leftPlayerData, leftFrameInfoDto, _frameNum);
         gameSessionData.manaCharger.chargeMana(gameSessionData.rightPlayerData, rightFrameInfoDto, _frameNum);
 
+        // Draw Cards
         gameSessionData.leftCardDeck.drawCard(gameSessionData.leftPlayerData, leftCardInfo);
         gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
 
@@ -97,13 +104,16 @@ public class GameLoop implements Runnable {
 
         List<GameObject> objects = gameSessionData.gameObjects;
 
+        // Handle Collision
         collisionSystem.checkAndHandleCollisions(objects);
 
+        // Mana
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
 
+        // Send Frame Info To Client
         sessionObject.sendFrameInfo(
-            sessionObject.getLeftUserId(),
+             sessionObject.getLeftUserId(),
             leftFrameInfoDto
         );
         sessionObject.sendFrameInfo(
@@ -113,11 +123,14 @@ public class GameLoop implements Runnable {
 
         // Check for game over
         if (resultChecker.checkResult()) {
-            _running = false;
+            close();
         }
 
+        // Apply Created GameObject
         gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
         gameSessionData.gameObjectsToAdd.clear();
+
+        // Run GameObject's Updates
         for (GameObject gameObject : gameSessionData.gameObjects) {
             if (gameObject.getStatus() == Status.Destroyed) {
                 toRemove.add(gameObject);
@@ -126,8 +139,10 @@ public class GameLoop implements Runnable {
             }
         }
 
+        // Apply Destroyed GameObject
         gameSessionData.gameObjects.removeAll(toRemove);
-        
+
+        // Apply Added and Removed Component
         for (GameObject gameObject : gameSessionData.gameObjects)
         {
             gameObject.getComponents().addAll(gameObject.getComponentsToAdd()); 
