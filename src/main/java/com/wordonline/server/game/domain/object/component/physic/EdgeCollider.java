@@ -17,8 +17,8 @@ public class EdgeCollider extends Collider {
     }
 
 
-    public EdgeCollider(GameObject gameObject, Vector2 point1, Vector2 point2) {
-        super(gameObject);
+    public EdgeCollider(GameObject gameObject, Vector2 point1, Vector2 point2, boolean isTrigger) {
+        super(gameObject, isTrigger);
         this.relatedPoint1 = point1;
         this.relatedPoint2 = point2;
     }
