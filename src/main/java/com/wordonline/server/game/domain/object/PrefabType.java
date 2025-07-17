@@ -22,7 +22,6 @@ import com.wordonline.server.game.dto.Effect;
 public enum PrefabType {
     // fire
     FireShot((gameObject -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, 1));
         gameObject.getColliders().add(new CircleCollider(gameObject, 0.5f, true));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
