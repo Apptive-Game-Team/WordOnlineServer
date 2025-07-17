@@ -1,6 +1,6 @@
 package com.wordonline.server.matching.component;
 
-import com.wordonline.server.auth.domain.KakaoUser;
+import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
@@ -42,9 +42,9 @@ public class MatchingManager {
         sessionIdCounter++;
 
         long uid1 = matchingQueue.poll();
-        KakaoUser user1 = userService.getUser(uid1);
+        UserResponseDto user1 = userService.getUser(uid1);
         long uid2 = matchingQueue.poll();
-        KakaoUser user2 = userService.getUser(uid2);
+        UserResponseDto user2 = userService.getUser(uid2);
         String sessionId = "session-" + sessionIdCounter;
         MatchedInfoDto matchedInfoDto = new MatchedInfoDto(
                 "Successfully Matched",
