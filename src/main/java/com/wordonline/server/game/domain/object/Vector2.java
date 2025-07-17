@@ -40,7 +40,7 @@ public class Vector2 {
         return new Vector2(this.x * scalar, this.y * scalar);
     }
 
-    public double dot(Vector2 other) {
+    public float dot(Vector2 other) {
         return this.x * other.x + this.y * other.y;
     }
     
