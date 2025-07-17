@@ -34,8 +34,8 @@ public class SpawnMagicParser implements MagicParser {
             @Override
             public void run(GameLoop gameLoop) {
                 new GameObject(master, prefabType, position, gameLoop);
-                new GameObject(master, prefabType, position.add(0.5f,0), gameLoop);
-                new GameObject(master, prefabType, position.add(-0.5f,0), gameLoop);
+                new GameObject(master, prefabType, position.plus(0.5f,0), gameLoop);
+                new GameObject(master, prefabType, position.plus(-0.5f,0), gameLoop);
             }
         };
     }

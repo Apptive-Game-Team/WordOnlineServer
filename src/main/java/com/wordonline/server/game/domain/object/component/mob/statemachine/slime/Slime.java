@@ -100,7 +100,7 @@ public class Slime extends StateMachineMob {
             float speed = getSpeed();
             Vector2 movement = direction.multiply(speed * gameObject.getGameLoop().deltaTime);
 
-            Vector2 newPosition = currentPosition.add(movement);
+            Vector2 newPosition = currentPosition.plus(movement);
             gameObject.setPosition(newPosition);
 
             // 다음 포인트에 도착했는지 판단
