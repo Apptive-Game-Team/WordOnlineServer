@@ -2,7 +2,6 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
-import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.util.Pair;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
@@ -59,7 +58,7 @@ public class PhysicSystem implements CollisionSystem {
                                         float invMessA = rigidBodyA.getInvMess();
                                         float invMessB = rigidBodyB.getInvMess();
 
-                                        Vector2 displacement = colliderA.getDisPlacement(colliderB);
+                                        Vector2 displacement = colliderA.getDisplacement(colliderB);
                                         if (displacement == null) return;
                                         Vector2 normal = displacement.normalize();
 

@@ -47,7 +47,7 @@ public class EdgeCollider extends Collider {
     }
 
     @Override
-    public Vector2 getDisPlacement(Collider collider) {
+    public Vector2 getDisplacement(Collider collider) {
         if (collider instanceof CircleCollider circleCollider) {
             Vector2 projection = getProjection(
                     circleCollider.getPosition(), getPoint1(), getPoint2()

@@ -29,13 +29,13 @@ public class CircleCollider extends Collider {
     }
 
     @Override
-    public Vector2 getDisPlacement(Collider collider) {
+    public Vector2 getDisplacement(Collider collider) {
         if (collider instanceof CircleCollider circleCollider) {
             return getPosition().subtract(circleCollider.getPosition());
         }
 
         if (collider instanceof EdgeCollider edgeCollider) {
-            return edgeCollider.getDisPlacement(this).multiply(-1);
+            return edgeCollider.getDisplacement(this).multiply(-1);
         }
 
         return null;

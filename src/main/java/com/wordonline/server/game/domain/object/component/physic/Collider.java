@@ -19,5 +19,5 @@ public abstract class Collider {
         this.gameObject = gameObject;
     }
 
-    public abstract Vector2 getDisPlacement(Collider colliderB);
+    public abstract Vector2 getDisplacement(Collider colliderB);
 }
