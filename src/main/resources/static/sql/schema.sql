@@ -1,9 +1,10 @@
 CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
-    email VARCHAR(100) NOT NULL UNIQUE ,
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR(100),
     name VARCHAR(50) NOT NULL,
-    profile_image_url VARCHAR(255) NOT NULL,
+    password_hash CHAR(60) NOT NULL,
     selected_deck_id BIGINT,
+    mmr SMALLINT NOT NULL DEFAULT 1000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

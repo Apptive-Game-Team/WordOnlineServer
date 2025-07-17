@@ -1,6 +1,7 @@
 package com.wordonline.server.auth.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +27,13 @@ public class WebSecurityConfig {
                         authorizeRequests
                                 .requestMatchers(
                                         "/api/auth/kakao/**",
-                                        "/**" ).permitAll()
+                                        "/api/users/mine",
+                                        "/api/users",
+                                        "/api/users/login",
+                                        "/ws").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable());
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
