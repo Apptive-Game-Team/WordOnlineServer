@@ -25,7 +25,6 @@ public class Explode extends MagicComponent {
         if (counter < EXPLODE_DELAY) {
             counter += gameObject.getGameLoop().deltaTime;
         } else {
-            gameObject.setRadius(EXPLODE_RADIUS);
             List<GameObject> gameObjects = gameObject.getGameLoop().physics.overlapCircleAll(gameObject, EXPLODE_RADIUS);
             for (GameObject otherObject : gameObjects) {
                 List<Damageable> attackables = otherObject.getComponents(Damageable.class);

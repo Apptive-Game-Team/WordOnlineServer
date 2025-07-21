@@ -33,9 +33,9 @@ public class GameLoop implements Runnable {
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
+    private final PhysicSystem physicSystem = new PhysicSystem();
     public final GameSessionData gameSessionData;
     public final Physics physics;
-    public final CollisionSystem collisionSystem = new BruteCollisionSystem();
     public final InputHandler inputHandler = new InputHandler(this);
 
     public float deltaTime = 1f / FPS;
@@ -103,24 +103,9 @@ public class GameLoop implements Runnable {
 
         List<GameObject> toRemove = new ArrayList<>();
 
-        List<GameObject> objects = gameSessionData.gameObjects;
-
-        // Handle Collision
-        collisionSystem.checkAndHandleCollisions(objects);
-
         // Mana
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
-
-        // Send Frame Info To Client
-        sessionObject.sendFrameInfo(
-             sessionObject.getLeftUserId(),
-            leftFrameInfoDto
-        );
-        sessionObject.sendFrameInfo(
-            sessionObject.getRightUserId(),
-            rightFrameInfoDto
-        );
 
         // Check for game over
         if (resultChecker.checkResult()) {
@@ -149,6 +134,24 @@ public class GameLoop implements Runnable {
                 gameObject.update();
             }
         }
+        physicSystem.handleCollisions(gameSessionData.gameObjects);
+
+        List<GameObject> objects = gameSessionData.gameObjects;
+
+        // Handle Collision
+        physicSystem.checkAndHandleCollisions(objects);
+
+        physicSystem.onUpdateEnd(gameSessionData.gameObjects);
+
+        // Send Frame Info To Client
+        sessionObject.sendFrameInfo(
+                sessionObject.getLeftUserId(),
+                leftFrameInfoDto
+        );
+        sessionObject.sendFrameInfo(
+                sessionObject.getRightUserId(),
+                rightFrameInfoDto
+        );
 
         // Apply Destroyed GameObject
         gameSessionData.gameObjects.removeAll(toRemove);

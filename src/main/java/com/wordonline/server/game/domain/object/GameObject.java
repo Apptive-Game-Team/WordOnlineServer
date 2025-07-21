@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -23,13 +24,12 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
-    @Setter @Getter
+    @Setter
     private ElementType element;
     private Vector2 position;
-    @Setter
-    private float radius;
 
     private final GameLoop gameLoop;
+    private final List<Collider> colliders = new ArrayList<Collider>();
     private final List<Component> components = new ArrayList<Component>();
     private List<Component> componentsToAdd = new ArrayList<Component>();
     private List<Component> componentsToRemove = new ArrayList<Component>();

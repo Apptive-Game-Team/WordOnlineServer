@@ -3,7 +3,7 @@ package com.wordonline.server.game.domain.object.component.magic;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
-import com.wordonline.server.game.domain.object.component.Collidable;
+import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class Drop extends MagicComponent implements Collidable {
 
     @Override
     public void update() {
-        gameObject.setPosition(gameObject.getPosition().add(0, direction * SPEED * gameObject.getGameLoop().deltaTime));
+        gameObject.setPosition(gameObject.getPosition().plus(0, direction * SPEED * gameObject.getGameLoop().deltaTime));
     }
 
     public Drop(GameObject gameObject, int damage) {

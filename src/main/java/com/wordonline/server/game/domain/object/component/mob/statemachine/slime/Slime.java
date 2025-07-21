@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimplePathFinder;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
+import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Status;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,7 @@ public class Slime extends StateMachineMob {
     PathFinder pathFinder;
     Detector detector;
     GameObject target = null;
+    RigidBody rigidBody;
     int damage;
 
 
@@ -31,6 +33,7 @@ public class Slime extends StateMachineMob {
     @Override
     public void start() {
         setState(new IdleState());
+        rigidBody = gameObject.getComponent(RigidBody.class);
     }
 
     public Slime(GameObject gameObject, int maxHp, float speed, int damage) {
@@ -89,11 +92,23 @@ public class Slime extends StateMachineMob {
                 setState(new IdleState());
                 return;
             }
+
+            Vector2 currentPosition = gameObject.getPosition();
+
+            // 다음 포인트에 도착했는지 판단
+            if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
+                path.remove(0);
+                if (path.isEmpty()) {
+                    setState(new IdleState());
+                    return;
+                }
+            }
+
             if (gameObject.getPosition().distance(target.getPosition()) < 1) {
                 setState(new AttackState());
                 return;
             }
-
+          
             timer += gameObject.getGameLoop().deltaTime;
             if (timer > Detector.DETECTING_INTERVAL) {
                 GameObject newTarget = detector.detect(gameObject);
@@ -104,20 +119,12 @@ public class Slime extends StateMachineMob {
                 timer = 0f;
             }
 
-            Vector2 currentPosition = gameObject.getPosition();
             Vector2 nextPoint = path.get(0);
             Vector2 direction = nextPoint.subtract(currentPosition).normalize();
 
-            float speed = getSpeed();
-            Vector2 movement = direction.multiply(speed * gameObject.getGameLoop().deltaTime);
+            Vector2 velocity = direction.multiply(speed);
 
-            Vector2 newPosition = currentPosition.add(movement);
-            gameObject.setPosition(newPosition);
-
-            // 다음 포인트에 도착했는지 판단
-            if (newPosition.distance(nextPoint) < PathFinder.REACH_THRESHOLD) {
-                path.remove(0);
-            }
+            rigidBody.addVelocity(velocity);
         }
     }
 
