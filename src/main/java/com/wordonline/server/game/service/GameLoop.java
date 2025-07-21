@@ -124,7 +124,6 @@ public class GameLoop implements Runnable {
 
         // Check for game over
         if (resultChecker.checkResult()) {
-            if (resultChecker.checkResult()) {
                 Master loser = resultChecker.getLoser();
 
                 long leftId  = sessionObject.getLeftUserId();
@@ -136,7 +135,6 @@ public class GameLoop implements Runnable {
 
                 // 3) 루프 종료
                 close();
-            }
         }
 
         // Apply Created GameObject
