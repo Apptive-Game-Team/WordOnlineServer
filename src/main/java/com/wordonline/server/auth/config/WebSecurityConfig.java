@@ -27,7 +27,7 @@ public class WebSecurityConfig {
                         authorizeRequests
                                 .requestMatchers(
                                         "/api/auth/kakao/**",
-                                        "/api/users/mine",
+                                        "/api/users/mine/**",
                                         "/api/users",
                                         "/api/users/login",
                                         "/ws").permitAll()
