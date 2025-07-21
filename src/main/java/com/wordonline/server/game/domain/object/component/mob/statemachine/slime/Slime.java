@@ -70,6 +70,7 @@ public class Slime extends StateMachineMob {
     }
 
     public class MoveState extends State {
+        float timer;
         List<Vector2> path;
         @Override
         public void onEnter() {
@@ -106,6 +107,16 @@ public class Slime extends StateMachineMob {
             if (gameObject.getPosition().distance(target.getPosition()) < 1) {
                 setState(new AttackState());
                 return;
+            }
+          
+            timer += gameObject.getGameLoop().deltaTime;
+            if (timer > Detector.DETECTING_INTERVAL) {
+                GameObject newTarget = detector.detect(gameObject);
+                if (newTarget != null && newTarget != target) {
+                    target = newTarget;
+                    path = pathFinder.findPath(gameObject.getPosition(), target.getPosition());
+                }
+                timer = 0f;
             }
 
             Vector2 nextPoint = path.get(0);

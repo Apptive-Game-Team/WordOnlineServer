@@ -4,11 +4,13 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.result.ResultDto;
 import com.wordonline.server.game.dto.result.ResultType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ResultChecker {
     private final SessionObject sessionObject;
+    @Getter
     Master loser = null;
 
     public void setLoser(Master loser) {
