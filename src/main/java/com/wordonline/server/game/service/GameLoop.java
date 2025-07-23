@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
+import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
 
 import lombok.Getter;
@@ -108,7 +109,17 @@ public class GameLoop implements Runnable {
 
         // Check for game over
         if (resultChecker.checkResult()) {
-            close();
+                Master loser = resultChecker.getLoser();
+
+                long leftId  = sessionObject.getLeftUserId();
+                long rightId = sessionObject.getRightUserId();
+                ResultType outcomeLeft = (loser == Master.LeftPlayer)
+                        ? ResultType.Lose
+                        : ResultType.Win;
+                mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
+
+                // 3) 루프 종료
+                close();
         }
 
         // Apply Created GameObject
