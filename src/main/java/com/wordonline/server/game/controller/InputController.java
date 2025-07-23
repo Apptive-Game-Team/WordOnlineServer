@@ -2,8 +2,10 @@ package com.wordonline.server.game.controller;
 
 import com.wordonline.server.auth.domain.PrincipalDetails;
 import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.InputResponseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -13,6 +15,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
+@Slf4j
 @Controller
 @MessageMapping("/game/input")
 public class InputController {
@@ -29,7 +32,15 @@ public class InputController {
             throw new AuthorizationDeniedException("Authorization Denied");
         }
 
-        InputResponseDto responseDto = sessionManager.getSessionObject(sessionId).getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
+        SessionObject sessionObject = sessionManager.getSessionObject(sessionId);
+        log.info("input arrived {}", inputRequestDto.getType());
+        if (sessionObject != null && inputRequestDto.getType().equals("ping")) {
+            log.info("ping arrived {}", userId);
+            sessionObject.getPingChecker().ping(userId);
+            return;
+        }
+
+        InputResponseDto responseDto = sessionObject.getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
 }
