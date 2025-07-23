@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain;
 
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.PingChecker;
 import com.wordonline.server.game.service.CardDeck;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class SessionObject {
     private final String url;
     private final CardDeck leftUserCardDeck;
     private final CardDeck rightUserCardDeck;
+    private final PingChecker pingChecker;
 
     public Master getUserSide(long userId) {
         if (userId == leftUserId) {
@@ -40,6 +42,12 @@ public class SessionObject {
         url = String.format("/game/%s/frameInfos", sessionId);
         leftUserCardDeck = new CardDeck(leftUserCards);
         rightUserCardDeck = new CardDeck(rightUserCards);
+        pingChecker = new PingChecker(leftUserId, rightUserId,
+            userId -> {
+                Master loser = getUserSide(userId);
+                gameLoop.resultChecker.setLoser(loser);
+            }
+        );
     }
 
     // this method is used to send the frame information to the client
