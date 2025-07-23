@@ -1,6 +1,9 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.auth.repository.UserRepository;
+import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.result.ResultDto;
+import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +41,8 @@ public class MmrService {
         return (short) Math.round(updated);
     }
 
-    private short fetchRating(long userId) {
+    @Transactional(readOnly = true)
+    public short fetchRating(long userId) {
         return userRepository
                 .getMmr(userId)                        // Optional<Short>
                 .orElse(DEFAULT_MMR);                   // Short
@@ -50,7 +54,7 @@ public class MmrService {
      * @param userIdB 두 번째 플레이어 ID
      * @param outcomeA 첫 번째 플레이어 결과 (WIN/DRAW/LOSE)
      */
-    public void updateMatchResult(long userIdA, long userIdB, ResultType outcomeA) {
+    ResultMmrDto updateMatchResult(long userIdA, long userIdB, ResultType outcomeA) {
         // 1) 기존 레이팅 가져오기
         short ratingA = fetchRating(userIdA);
         short ratingB = fetchRating(userIdB);
@@ -71,5 +75,7 @@ public class MmrService {
         userRepository.setMmr(userIdA, newA);
         userRepository.setMmr(userIdB, newB);
         log.info("Updated match result for {}: {}, {}: {}", userIdA, newA, userIdB, newB);
+
+        return new ResultMmrDto(ratingA, ratingB, newA, newB);
     }
 }
