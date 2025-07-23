@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
+import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
 
@@ -116,7 +117,9 @@ public class GameLoop implements Runnable {
                 ResultType outcomeLeft = (loser == Master.LeftPlayer)
                         ? ResultType.Lose
                         : ResultType.Win;
-                mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
+
+                ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
+                resultChecker.broadcastResult(mmrDto);
 
                 // 3) 루프 종료
                 close();
