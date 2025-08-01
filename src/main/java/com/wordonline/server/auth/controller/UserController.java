@@ -49,9 +49,4 @@ public class UserController {
 
         return ResponseEntity.ok(userService.getUser(principalDetails.userId));
     }
-
-    @GetMapping("/healthcheck")
-    public String healthcheck() {
-        return "OK";
-    }
 }
