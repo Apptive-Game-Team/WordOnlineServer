@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEn
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.AstarPathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
+import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimplePathFinder;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
@@ -42,8 +43,8 @@ public class Slime extends StateMachineMob {
 
     public Slime(GameObject gameObject, int maxHp, float speed, int damage) {
         super(gameObject, maxHp, speed);
-        //this.pathFinder = new SimplePathFinder();
-        this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
+        this.pathFinder = new SimplePathFinder();
+        //this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
         this.detector = new ClosestEnemyDetector(gameObject.getGameLoop());
         this.damage = damage;
     }
