@@ -15,6 +15,7 @@ import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Status;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -124,6 +125,7 @@ public class Slime extends StateMachineMob {
                     target = newTarget;
                     targetRadius = ((CircleCollider)newTarget.getColliders().getFirst()).getRadius();
                     path = pathFinder.findPath(gameObject.getPosition(), target.getPosition());
+                    if (path.isEmpty()) return;
                 }
                 timer = 0f;
             }
