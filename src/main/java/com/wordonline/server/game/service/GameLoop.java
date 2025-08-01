@@ -159,8 +159,19 @@ public class GameLoop implements Runnable {
         // Apply Added and Removed Component
         for (GameObject gameObject : gameSessionData.gameObjects)
         {
-            gameObject.getComponents().addAll(gameObject.getComponentsToAdd()); 
-            gameObject.getComponents().removeAll(gameObject.getComponentsToRemove()); 
+            gameObject.getComponents().addAll(gameObject.getComponentsToAdd());
+            for (Component component : gameObject.getComponentsToAdd())
+            {
+               component.start();
+            }
+            gameObject.getComponentsToAdd().clear();
+
+            gameObject.getComponents().removeAll(gameObject.getComponentsToRemove());
+            for (Component component : gameObject.getComponentsToRemove())
+            {
+                component.onDestroy();
+            }
+            gameObject.getComponentsToRemove().clear();
         }
     }
 }

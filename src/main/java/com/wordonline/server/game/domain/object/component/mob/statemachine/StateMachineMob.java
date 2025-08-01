@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class StateMachineMob extends Mob {
 
-    private State currentState;
+    protected State currentState;
     private final List<State> states = getStates();
 
     private List<State> getStates() {

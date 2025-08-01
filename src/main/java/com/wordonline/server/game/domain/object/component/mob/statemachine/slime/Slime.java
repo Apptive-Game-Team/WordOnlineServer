@@ -9,8 +9,8 @@ import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEn
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.AstarPathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
-import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimplePathFinder;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Status;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +23,7 @@ public class Slime extends StateMachineMob {
     PathFinder pathFinder;
     Detector detector;
     GameObject target = null;
+    float targetRadius;
     RigidBody rigidBody;
     int damage;
 
@@ -65,6 +66,7 @@ public class Slime extends StateMachineMob {
                 target = detector.detect(gameObject);
                 if (target != null) {
                     setState(new MoveState());
+                    targetRadius = ((CircleCollider)target.getColliders().getFirst()).getRadius();
                     return;
                 }
                 timer = 0;
@@ -96,7 +98,10 @@ public class Slime extends StateMachineMob {
                 return;
             }
 
+            log.info("State : {}",currentState);
             Vector2 currentPosition = gameObject.getPosition();
+            log.info("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
+            log.info("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
 
             // 다음 포인트에 도착했는지 판단
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
@@ -107,7 +112,7 @@ public class Slime extends StateMachineMob {
                 }
             }
 
-            if (gameObject.getPosition().distance(target.getPosition()) < 1) {
+            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= 1) {
                 setState(new AttackState());
                 return;
             }
@@ -117,6 +122,7 @@ public class Slime extends StateMachineMob {
                 GameObject newTarget = detector.detect(gameObject);
                 if (newTarget != null && newTarget != target) {
                     target = newTarget;
+                    targetRadius = ((CircleCollider)newTarget.getColliders().getFirst()).getRadius();
                     path = pathFinder.findPath(gameObject.getPosition(), target.getPosition());
                 }
                 timer = 0f;
@@ -125,7 +131,7 @@ public class Slime extends StateMachineMob {
             Vector2 nextPoint = path.get(0);
             Vector2 direction = nextPoint.subtract(currentPosition).normalize();
 
-            Vector2 velocity = direction.multiply(speed);
+            Vector2 velocity = direction.multiply(speed.getFinalValue());
 
             rigidBody.addVelocity(velocity);
         }
@@ -150,7 +156,7 @@ public class Slime extends StateMachineMob {
                 setState(new IdleState());
             }
             timer += gameObject.getGameLoop().deltaTime;
-            if (gameObject.getPosition().distance(target.getPosition()) > 1) {
+            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > 1) {
                 setState(new MoveState());
             } else if (timer > attackInterval) {
                 timer = 0;
