@@ -7,7 +7,7 @@ import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Effect;
 
 public class SnaredStatusEffect extends BaseStatusEffect {
-    private static final float SLOW_MULTIPLIER = 0.5f;
+    private static final float SLOW_PERCENT = -0.5f;
     private final int removalDamage;
     private float originalSpeed;
 
@@ -21,8 +21,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
     public void start() {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
-            originalSpeed = mob.getSpeed();
-            mob.setSpeed((int)(originalSpeed * SLOW_MULTIPLIER));
+            mob.getSpeed().setModifierPercent(SLOW_PERCENT);
         }
     }
 
@@ -41,7 +40,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
     protected void expire() {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
-            mob.setSpeed(originalSpeed);
+            mob.getSpeed().setModifierPercent(0f);
         }
         super.expire();
     }
