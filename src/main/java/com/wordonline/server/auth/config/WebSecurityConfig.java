@@ -26,6 +26,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(
+                                        "/healthcheck",
                                         "/api/auth/kakao/**",
                                         "/api/users/mine/**",
                                         "/api/users",
