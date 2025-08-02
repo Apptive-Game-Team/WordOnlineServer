@@ -33,7 +33,7 @@ public class PlayerData {
         for (CardType card : cards) {
             totalManaCost += card.getManaCost();
             if (!tempCards.remove(card)) {
-                log.info("temp cards: {}, trying card {}", tempCards, card);
+                log.trace("temp cards: {}, trying card {}", tempCards, card);
                 return false;
             }
         }

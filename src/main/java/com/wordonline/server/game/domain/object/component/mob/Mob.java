@@ -31,7 +31,7 @@ public abstract class Mob extends Component implements Damageable {
     }
 
     public void applyDamage(AttackInfo attackInfo) {
-        log.info("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
+        log.trace("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
         this.hp -= attackInfo.getDamage() * ElementalChart.getMultiplier(attackInfo.getElement(),gameObject.getElement());
         if (this.hp <= 0) {
             onDeath();
