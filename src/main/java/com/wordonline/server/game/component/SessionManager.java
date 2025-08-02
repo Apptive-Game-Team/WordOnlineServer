@@ -4,11 +4,13 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.MmrService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 // this class is used to manage the sessions
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionManager {
@@ -23,6 +25,7 @@ public class SessionManager {
         thread.start();
 
         sessions.put(sessionObject.getSessionId(),sessionObject);
+        log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 
     public void closeSession(SessionObject sessionObject) {
