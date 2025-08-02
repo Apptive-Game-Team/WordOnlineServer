@@ -59,7 +59,7 @@ public class MatchingManager {
                 String.format("/queue/match-status/%s", uid2),
                 matchedInfoDto);
 
-        log.info("matched {} and {}", uid1, uid2);
+        log.trace("matched {} and {}", uid1, uid2);
         try {
             Thread.sleep(2000);
             sessionManager.createSession(

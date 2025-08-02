@@ -22,7 +22,7 @@ public class MatchingController {
     // matching queue request
     @MessageMapping("/game/match/queue")
     public void queueMatching(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        log.info("queued userId: {}", principalDetails.userId);
+        log.trace("queued userId: {}", principalDetails.userId);
         String message;
         if (matchingManager.enqueue(principalDetails.userId)) {
             message = "Successfully Enqueued";

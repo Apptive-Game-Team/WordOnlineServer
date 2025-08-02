@@ -33,9 +33,9 @@ public class InputController {
         }
 
         SessionObject sessionObject = sessionManager.getSessionObject(sessionId);
-        log.info("input arrived {}", inputRequestDto.getType());
+        log.trace("input arrived {}", inputRequestDto.getType());
         if (sessionObject != null && inputRequestDto.getType().equals("ping")) {
-            log.info("ping arrived {}", userId);
+            log.trace("ping arrived {}", userId);
             sessionObject.getPingChecker().ping(userId);
             return;
         }
