@@ -69,7 +69,8 @@ public class DeckRepository {
     private static final String SAVE_DECK = """
             INSERT INTO decks(name, user_id)
             VALUES
-            (:name, :userId);
+            (:name, :userId)
+            RETURNING id;
             """;
 
     private static final String SAVE_CARDS_TO_USER = """
@@ -175,12 +176,12 @@ public class DeckRepository {
     }
 
     public long saveDeck(long userId, String name){
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcClient.sql(SAVE_DECK)
+
+        return jdbcClient.sql(SAVE_DECK)
                 .param("userId", userId)
                 .param("name", name)
-                .update(keyHolder);
-        return keyHolder.getKey().longValue();
+                .query(Long.class)
+                .single();
     }
 
     public void saveCardToUser(long userId, long cardId, int count) {

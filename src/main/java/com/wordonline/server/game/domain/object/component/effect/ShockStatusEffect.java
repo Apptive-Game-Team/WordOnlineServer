@@ -7,7 +7,6 @@ import com.wordonline.server.game.dto.Effect;
 
 public class ShockStatusEffect extends BaseStatusEffect {
     private static final float STUN_DURATION = 0.5f;
-    private float originalSpeed;
 
     public ShockStatusEffect(GameObject owner) {
         super(owner, STUN_DURATION);
@@ -18,8 +17,7 @@ public class ShockStatusEffect extends BaseStatusEffect {
     public void start() {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
-            originalSpeed = mob.getSpeed();
-            mob.setSpeed(0);
+            mob.getSpeed().setModifierPercent(-1f);
         }
     }
 
@@ -33,7 +31,7 @@ public class ShockStatusEffect extends BaseStatusEffect {
     protected void expire() {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
-            mob.setSpeed(originalSpeed);
+            mob.getSpeed().setModifierPercent(0f);
         }
         super.expire();
     }

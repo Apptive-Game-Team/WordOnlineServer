@@ -14,19 +14,19 @@ public class FireEffectReceiver extends CommonEffectReceiver {
         switch (effect) {
             case Wet -> {
                 if (gameObject.getComponent(WetStatusEffect.class) == null) {
-                    gameObject.getComponents().add(new WetStatusEffect(gameObject, 5.0f));
+                    gameObject.addComponent(new WetStatusEffect(gameObject, 5.0f));
                 }
             }
             case Burn ->  {
             }
             case Shock -> {
                 if (gameObject.getComponent(ShockStatusEffect.class) == null) {
-                    gameObject.getComponents().add(new ShockStatusEffect(gameObject));
+                    gameObject.addComponent(new ShockStatusEffect(gameObject));
                 }
             }
             case Snared ->  {
                 if (gameObject.getComponent(SnaredStatusEffect.class) == null) {
-                    gameObject.getComponents().add(new SnaredStatusEffect(gameObject,5.0f,5));
+                    gameObject.addComponent(new SnaredStatusEffect(gameObject,5.0f,5));
                 }
             }
         }

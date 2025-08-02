@@ -77,6 +77,16 @@ public class GameObject {
         return result;
     }
 
+    public void addComponent(Component component)
+    {
+        componentsToAdd.add(component);
+    }
+
+    public void removeComponent(Component component)
+    {
+        componentsToRemove.add(component);
+    }
+
     public void destroy() {
         setStatus(Status.Destroyed);
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);

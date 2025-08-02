@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.component.Damageable;
@@ -25,6 +26,7 @@ public class Spawner extends MagicComponent implements Damageable {
         } else {
             counter = 0;
             new GameObject(gameObject, prefabType);
+            onDamaged(new AttackInfo(1, ElementType.NONE));
         }
     }
 

@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.mob;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.magic.ElementalChart;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
@@ -16,8 +17,8 @@ public abstract class Mob extends Component implements Damageable {
     protected int hp;
     @Getter
     protected int maxHp;
-    @Getter @Setter
-    protected float speed;
+    @Getter
+    protected Stat speed;
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
@@ -43,6 +44,6 @@ public abstract class Mob extends Component implements Damageable {
         super(gameObject);
         this.maxHp = maxHp;
         this.hp = maxHp;
-        this.speed = speed;
+        this.speed = new Stat(speed);
     }
 }

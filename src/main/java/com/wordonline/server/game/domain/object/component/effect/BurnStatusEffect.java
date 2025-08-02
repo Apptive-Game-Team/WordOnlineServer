@@ -9,7 +9,7 @@ import com.wordonline.server.game.dto.Effect;
 
 public class BurnStatusEffect extends BaseStatusEffect {
     private float damageTick = 0f;
-    private static final float DPS = 1.0f;
+    private static final int DPS = 1;
 
     public BurnStatusEffect(GameObject owner, float duration) {
         super(owner, duration);
@@ -27,11 +27,11 @@ public class BurnStatusEffect extends BaseStatusEffect {
         damageTick += dt;
 
         Mob mob = gameObject.getComponent(Mob.class);
-        while (damageTick >= 1.0f) {
+        if (damageTick >= 1.0f) {
             if (mob != null) {
-                mob.onDamaged(new AttackInfo((int)DPS,ElementType.FIRE));
+                mob.applyDamage(new AttackInfo((DPS * (int)damageTick),ElementType.FIRE));
             }
-            damageTick -= 1.0f;
+            damageTick -= (float) Math.floor(damageTick);
         }
 
         super.update();
