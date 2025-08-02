@@ -36,4 +36,8 @@ public class SessionManager {
     public SessionObject getSessionObject(String sessionId) {
         return sessions.get(sessionId);
     }
+
+    public String getHealthLog() {
+        return "Sessions: " + sessions;
+    }
 }

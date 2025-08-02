@@ -77,4 +77,8 @@ public class MatchingManager {
             return false;
         }
     }
+
+    public String getHealthLog() {
+        return "Matching Queue: " + matchingQueue;
+    }
 }
