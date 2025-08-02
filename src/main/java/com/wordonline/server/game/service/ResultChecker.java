@@ -46,6 +46,6 @@ public class ResultChecker {
                 resultDto
         );
 
-        log.info("[Game Result] leftUser: {} {}, rightUer: {} {}", sessionObject.getLeftUserId(), resultDto.getLeftPlayer(), sessionObject.getRightUserId(), resultDto.getRightPlayer());
+        log.info("[Game Result] leftUser: {} {}, rightUser: {} {}", sessionObject.getLeftUserId(), resultDto.getLeftPlayer(), sessionObject.getRightUserId(), resultDto.getRightPlayer());
     }
 }
