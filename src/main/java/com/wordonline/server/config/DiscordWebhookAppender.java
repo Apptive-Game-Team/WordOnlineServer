@@ -12,7 +12,6 @@ import java.net.URL;
 public class DiscordWebhookAppender extends AppenderBase<ILoggingEvent> {
 
     @Setter
-    @Value("${logging.discord-webhook-url}")
     private String webhookUrl;
 
     @Override
