@@ -11,13 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ApplicationLogger {
-import java.util.concurrent.TimeUnit;
-
-@Slf4j
-@Component
-@RequiredArgsConstructor
-public class ApplicationLogger {
-    private final long LOGGING_INTERVAL = TimeUnit.MINUTES.toMillis(30); // 30 min
+    private final long LOGGING_INTERVAL = 1000 * 60 * 30;// ms // 30 min
 
     private final MatchingManager matchingManager;
     private final SessionManager sessionManager;
