@@ -2,4 +2,4 @@
 *.bat text eol=crlf
 *.jar binary
 
-src/main/resources/logback-spring.xml
+logback-spring.xml
