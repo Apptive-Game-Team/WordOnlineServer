@@ -4,6 +4,7 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -33,7 +34,7 @@ public class DiscordWebhookAppender extends AppenderBase<ILoggingEvent> {
             }
 
             int responseCode = conn.getResponseCode();
-            if (responseCode != HTTP_NO_CONTENT) {
+            if (responseCode != 204) {
                 System.err.println("Discord Webhook Error: HTTP " + responseCode);
             }
 
