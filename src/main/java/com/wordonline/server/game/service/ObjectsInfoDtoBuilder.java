@@ -23,7 +23,7 @@ public class ObjectsInfoDtoBuilder {
     public ObjectsInfoDto getObjectsInfoDto () {
         ObjectsInfoDto result = new ObjectsInfoDto(createdObjectDtos, updatedObjectDtos);
         if (!createdObjectDtos.isEmpty() || !updatedObjectDtos.isEmpty())
-            log.info("ObjectsInfoDto: {}", result);
+            log.trace("ObjectsInfoDto: {}", result);
         createdObjectDtos = new ArrayList<>();
         updatedObjectDtos = new ArrayList<>();
         return result;
@@ -33,7 +33,7 @@ public class ObjectsInfoDtoBuilder {
         gameLoop.gameSessionData.gameObjectsToAdd.add(gameObject);
         CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster());
         createdObjectDtos.add(createdObjectDto);
-        log.info("CreatedObjectDto: {}", createdObjectDto);
+        log.trace("CreatedObjectDto: {}", createdObjectDto);
         gameObject.start();
     }
 
@@ -51,7 +51,7 @@ public class ObjectsInfoDtoBuilder {
             updatedObjectDto.setPosition(gameObject.getPosition());
             updatedObjectDtos.add(updatedObjectDto);
         }
-        log.info("UpdatedObjectDto: {}", updatedObjectDto);
+        log.trace("UpdatedObjectDto: {}", updatedObjectDto);
     }
 }
 

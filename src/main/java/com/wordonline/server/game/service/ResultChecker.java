@@ -7,7 +7,9 @@ import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ResultChecker {
     private final SessionObject sessionObject;
@@ -43,5 +45,7 @@ public class ResultChecker {
                 sessionObject.getLeftUserId(),
                 resultDto
         );
+
+        log.info("[Game Result] leftUser: {} {}, rightUser: {} {}", sessionObject.getLeftUserId(), resultDto.getLeftPlayer(), sessionObject.getRightUserId(), resultDto.getRightPlayer());
     }
 }

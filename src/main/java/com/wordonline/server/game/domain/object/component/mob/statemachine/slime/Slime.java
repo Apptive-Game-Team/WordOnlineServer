@@ -100,10 +100,10 @@ public class Slime extends StateMachineMob {
                 return;
             }
 
-            log.info("State : {}",currentState);
+            log.trace("State : {}", currentState);
             Vector2 currentPosition = gameObject.getPosition();
-            log.info("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
-            log.info("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
+            log.trace("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
+            log.trace("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
 
             // 다음 포인트에 도착했는지 판단
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {

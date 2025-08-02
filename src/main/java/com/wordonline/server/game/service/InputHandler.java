@@ -24,10 +24,10 @@ public class InputHandler {
         Magic magic = gameLoop.magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()), master, inputRequestDto.getPosition());
 
         if (magic == null) {
-            log.info("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
+            log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
         } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > magic.magicType.getRange()) {
-            log.info("{}: {} is not valid : too far", master, inputRequestDto.getCards());
+            log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
         }
 
@@ -35,7 +35,7 @@ public class InputHandler {
         boolean valid = playerData.useCards(inputRequestDto.getCards());
 
         if (!valid) {
-            log.info("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
+            log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
         }
 

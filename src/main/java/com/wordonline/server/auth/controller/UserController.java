@@ -9,6 +9,7 @@ import com.wordonline.server.auth.service.AuthService;
 import com.wordonline.server.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.juli.logging.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +31,7 @@ public class UserController {
     public ResponseEntity<AuthResponseDto> registerAndLogin(
             @Validated @RequestBody UserRegisterRequestDto userRegisterRequestDto
             ) throws AuthenticationException {
+        log.info("[Login] User register; userEmail: {}", userRegisterRequestDto.email());
         return ResponseEntity.ok(authService.registerAndLogin(userRegisterRequestDto));
     }
 
@@ -37,7 +39,9 @@ public class UserController {
     public ResponseEntity<AuthResponseDto> login(
             @Validated @RequestBody UserLoginRequestDto userLoginRequestDto
     ) throws AuthenticationException {
-        return ResponseEntity.ok(authService.login(userLoginRequestDto));
+        AuthResponseDto authResponseDto = authService.login(userLoginRequestDto);
+        log.info("[Login] User login; userEmail: {}", userLoginRequestDto.email());
+        return ResponseEntity.ok(authResponseDto);
     }
 
 

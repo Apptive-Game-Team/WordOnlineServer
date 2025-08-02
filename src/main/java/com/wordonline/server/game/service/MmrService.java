@@ -74,7 +74,7 @@ public class MmrService {
         // 4) DB에 저장
         userRepository.setMmr(userIdA, newA);
         userRepository.setMmr(userIdB, newB);
-        log.info("Updated match result for {}: {}, {}: {}", userIdA, newA, userIdB, newB);
+        log.trace("Updated match result for {}: {}, {}: {}", userIdA, newA, userIdB, newB);
 
         return new ResultMmrDto(ratingA, ratingB, newA, newB);
     }
