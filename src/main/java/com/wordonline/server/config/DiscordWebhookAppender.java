@@ -33,7 +33,7 @@ public class DiscordWebhookAppender extends AppenderBase<ILoggingEvent> {
             }
 
             int responseCode = conn.getResponseCode();
-            if (responseCode != 204) {
+            if (responseCode != HTTP_NO_CONTENT) {
                 System.err.println("Discord Webhook Error: HTTP " + responseCode);
             }
 
