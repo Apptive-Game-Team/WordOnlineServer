@@ -13,19 +13,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.naming.AuthenticationException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-    private static AtomicInteger atomicInteger = new AtomicInteger(123);
 
     private final UserRepository userRepository;
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
     public AuthResponseDto registerAndLogin(UserRegisterRequestDto userRegisterRequestDto) throws AuthenticationException {
+
+        if (userRepository.findUserByEmail(userRegisterRequestDto.email()).isPresent()) {
+            throw new IllegalArgumentException("Email is Redundant");
+        }
 
         User user = User.createWithPasswordPlain(
                 userRegisterRequestDto.email(), userRegisterRequestDto.name(), userRegisterRequestDto.passwordPlain()
