@@ -40,3 +40,6 @@ CREATE TABLE deck_cards (
     count INT NOT NULL DEFAULT 1,
     UNIQUE (card_id, deck_id)
 );
+
+ALTER TABLE users
+    ADD CONSTRAINT uq_users_email UNIQUE (email);
