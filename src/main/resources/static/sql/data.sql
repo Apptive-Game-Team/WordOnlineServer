@@ -28,7 +28,7 @@ VALUES
     (5, 'mess'),
     (6, 'duration');
 
-INSERT INTO parameter_values
+INSERT INTO parameter_values(game_object_id, parameter_id, value)
 VALUES
     (1, 3, 0.5),
     (2, 3, 0.5),
