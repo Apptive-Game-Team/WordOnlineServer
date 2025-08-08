@@ -1,5 +1,7 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.auth.domain.User;
+import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.magic.parser.BasicMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
@@ -30,6 +32,7 @@ public class GameLoop implements Runnable {
     public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
     public final MmrService mmrService;
+    private final UserService userService;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -42,9 +45,10 @@ public class GameLoop implements Runnable {
 
     public float deltaTime = 1f / FPS;
 
-    public GameLoop(SessionObject sessionObject, MmrService mmrService, Parameters parameters) {
+    public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters) {
         this.sessionObject = sessionObject;
         this.mmrService = mmrService;
+        this.userService   = userService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
@@ -122,6 +126,8 @@ public class GameLoop implements Runnable {
 
                 ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
                 resultChecker.broadcastResult(mmrDto);
+                userService.markOnline(leftId);
+                userService.markOnline(rightId);
 
                 // 3) 루프 종료
                 close();

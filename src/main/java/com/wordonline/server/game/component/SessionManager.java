@@ -1,5 +1,6 @@
 package com.wordonline.server.game.component;
 
+import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
@@ -19,10 +20,11 @@ public class SessionManager {
 
     private static Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
     private final MmrService mmrService;
+    private final UserService userService;
     private final Parameters parameters;
 
     public void createSession(SessionObject sessionObject) {
-        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, parameters);
+        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, userService, parameters);
         sessionObject.setGameLoop(gameLoop);
         Thread thread = new Thread(gameLoop);
         thread.start();

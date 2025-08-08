@@ -68,3 +68,12 @@ CREATE TABLE parameters(
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(31) UNIQUE
 );
+
+CREATE TYPE user_status AS ENUM (
+  'Online',
+  'OnMatching',
+  'OnPlaying'
+);
+
+ALTER TABLE users
+    ADD COLUMN status user_status NOT NULL DEFAULT 'Online';

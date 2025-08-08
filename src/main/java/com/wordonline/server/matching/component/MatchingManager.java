@@ -28,11 +28,28 @@ public class MatchingManager {
     private final SessionManager sessionManager;
 
     public boolean enqueue(long userId) {
-        if (deckService.hasSelectedDeck(userId)) {
-            matchingQueue.add(userId);
-            return true;
+        // 0) OnMatching이라면 이전 세션 구독
+        if (userService.getStatus(userId) == UserStatus.OnMatching)
+        matchingQueue.add(userId);
+        return true;
+        // 1) 상태 체크 & OnMatching 으로 전환
+        try {
+            userService.markMatching(userId);
+        } catch (IllegalStateException ex) {
+            log.warn("매칭 불가 상태: {} -> {}", userId, ex.getMessage());
+            return false;
         }
-        return false;
+
+        // 2) 덱 선택 여부 체크
+        if (!deckService.hasSelectedDeck(userId)) {
+            // 상태 롤백
+            userService.markOnline(userId);
+            return false;
+        }
+
+        // 3) 큐에 집어넣기
+        matchingQueue.add(userId);
+        return true;
     }
 
     public boolean tryMatchUsers() {
@@ -45,6 +62,17 @@ public class MatchingManager {
         UserResponseDto user1 = userService.getUser(uid1);
         long uid2 = matchingQueue.poll();
         UserResponseDto user2 = userService.getUser(uid2);
+
+//        try {
+            userService.markPlaying(uid1);
+            userService.markPlaying(uid2);
+//        } catch (IllegalStateException ex) {
+//            log.warn("매칭 시작 실패: 상태가 올바르지 않습니다. {}", ex.getMessage());
+//            userService.markOnline(uid1);
+//            userService.markOnline(uid2);
+//            return false;
+//        }
+
         String sessionId = "session-" + sessionIdCounter;
         MatchedInfoDto matchedInfoDto = new MatchedInfoDto(
                 "Successfully Matched",
