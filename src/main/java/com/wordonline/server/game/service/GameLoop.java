@@ -38,10 +38,11 @@ public class GameLoop implements Runnable {
     public final GameSessionData gameSessionData;
     public final Physics physics;
     public final InputHandler inputHandler = new InputHandler(this);
+    public final Parameters parameters;
 
     public float deltaTime = 1f / FPS;
 
-    public GameLoop(SessionObject sessionObject, MmrService mmrService) {
+    public GameLoop(SessionObject sessionObject, MmrService mmrService, Parameters parameters) {
         this.sessionObject = sessionObject;
         this.mmrService = mmrService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
@@ -49,6 +50,7 @@ public class GameLoop implements Runnable {
         new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
         new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
 
+        this.parameters = parameters;
         physics = new SimplePhysics(gameSessionData.gameObjects);
     }
 
