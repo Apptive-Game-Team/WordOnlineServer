@@ -43,3 +43,28 @@ CREATE TABLE deck_cards (
 
 ALTER TABLE users
     ADD CONSTRAINT uq_users_email UNIQUE (email);
+
+CREATE TABLE game_objects (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(31) UNIQUE
+);
+
+CREATE TABLE parameter_values(
+    id BIGSERIAL PRIMARY KEY,
+    parameter_id BIGINT,
+    game_object_id BIGINT,
+    value DOUBLE PRECISION,
+    CONSTRAINT fk_game_object
+        FOREIGN KEY (game_object_id)
+        REFERENCES game_objects(id),
+    CONSTRAINT fk_parameter
+        FOREIGN KEY (parameter_id)
+        REFERENCES parameters(id),
+    CONSTRAINT uq_parameter_game_object
+        UNIQUE (parameter_id, game_object_id)
+);
+
+CREATE TABLE parameters(
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(31) UNIQUE
+);

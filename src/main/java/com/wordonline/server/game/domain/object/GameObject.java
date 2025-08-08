@@ -114,7 +114,7 @@ public class GameObject {
     }
 
     public void start() {
-        type.initialize(this);
+        type.initialize(this, gameLoop.parameters);
         for (Component component : components)
             component.start();
     }
