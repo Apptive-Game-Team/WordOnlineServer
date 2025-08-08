@@ -17,6 +17,10 @@ public class ParameterService {
 
     private Map<String, Map<String, Double>> parameterCaches = new ConcurrentHashMap<>();
 
+    public void invalidateCache() {
+        parameterCaches.clear();
+    }
+
     public double getValue(String gameObject, String parameterName) {
 
         Map<String, Double> objectParameters = parameterCaches.get(gameObject);
