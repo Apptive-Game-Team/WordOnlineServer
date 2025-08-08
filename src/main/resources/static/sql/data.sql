@@ -9,3 +9,42 @@ VALUES
     (7, 'Summon', 'Magic'),
     (8, 'Spawn', 'Magic'),
     (9, 'Explode', 'Magic');
+
+INSERT INTO game_objects
+VALUES
+    (1, 'slime'),
+    (2, 'shoot'),
+    (3, 'explode'),
+    (4, 'spawn'),
+    (5, 'summon'),
+    (6, 'field');
+
+INSERT INTO parameters
+VALUES
+    (1, 'speed'),
+    (2, 'damage'),
+    (3, 'radius'),
+    (4, 'hp'),
+    (5, 'mess'),
+    (6, 'duration');
+
+INSERT INTO parameter_values
+VALUES
+    (1, 3, 0.5),
+    (2, 3, 0.5),
+    (3, 3, 0.5),
+    (5, 3, 0.5),
+    (6, 3, 0.5),
+
+    (1, 2, 3),
+    (2, 2, 10),
+    (3, 2, 8),
+
+    (1, 4, 8),
+    (5, 4, 5),
+
+    (1, 1, 0.8),
+
+    (1, 5, 1),
+
+    (6, 6, 3);
