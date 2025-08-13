@@ -31,7 +31,11 @@ public class ApplicationLogger {
     }
 
     private String getCpuLog() {
-        double cpuLoad = operatingSystemMXBean.getCpuLoad() * 100;
+        double cpuLoadRaw = operatingSystemMXBean.getCpuLoad();
+        if (cpuLoadRaw < 0) {
+            return "CPU Usage: N/A";
+        }
+        double cpuLoad = cpuLoadRaw * 100;
         return String.format("CPU Usage: %.2f", cpuLoad);
     }
 
