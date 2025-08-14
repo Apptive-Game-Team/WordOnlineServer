@@ -3,9 +3,6 @@ package com.wordonline.server.config;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
