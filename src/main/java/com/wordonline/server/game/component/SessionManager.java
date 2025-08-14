@@ -41,6 +41,6 @@ public class SessionManager {
     }
 
     public String getHealthLog() {
-        return "Sessions: " + sessions;
+        return "Sessions: " + sessions.toString();
     }
 }
