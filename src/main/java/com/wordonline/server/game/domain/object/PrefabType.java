@@ -41,7 +41,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }),
     FireSlime((gameObject, parameters)  -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mess")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
@@ -75,7 +75,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }),
     WaterSlime((gameObject, parameters)  -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mess")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));
@@ -101,7 +101,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
     }),
     RockSlime((gameObject, parameters)  -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mess")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));
         gameObject.setElement(ElementType.ROCK);
@@ -127,7 +127,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
     }),
     ElectricSlime((gameObject, parameters)  -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mess")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));
@@ -161,7 +161,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }),
     LeafSlime((gameObject, parameters)  -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mess")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));

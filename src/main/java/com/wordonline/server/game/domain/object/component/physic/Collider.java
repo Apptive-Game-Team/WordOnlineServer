@@ -19,11 +19,11 @@ public abstract class Collider {
         return gameObject.getPosition();
     }
 
-    public float getInvMess() {
+    public float getInvMass() {
         if (rigidBody == null) {
             return 0;
         }
-        return rigidBody.getInvMess();
+        return rigidBody.getInvMass();
     }
 
     public Vector2 getVelocity() {
