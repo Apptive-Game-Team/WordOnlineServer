@@ -77,3 +77,12 @@ CREATE TYPE user_status AS ENUM (
 
 ALTER TABLE users
     ADD COLUMN status user_status NOT NULL DEFAULT 'Online';
+-- game_objects 테이블의 시퀀스 재설정
+-- 'game_objects_id_seq' 시퀀스 이름은 PostgeSQL의 명명 규칙에 따라 다를 수 있음
+SELECT setval('game_objects_id_seq', (SELECT MAX(id) FROM game_objects), true);
+
+-- parameters 테이블의 시퀀스 재설정
+SELECT setval('parameters_id_seq', (SELECT MAX(id) FROM parameters), true);
+
+-- parameter_values 테이블의 시퀀스 재설정
+SELECT setval('parameter_values_id_seq', (SELECT MAX(id) FROM parameter_values), true);

@@ -25,7 +25,7 @@ VALUES
     (2, 'damage'),
     (3, 'radius'),
     (4, 'hp'),
-    (5, 'mess'),
+    (5, 'mass'),
     (6, 'duration');
 
 INSERT INTO parameter_values(game_object_id, parameter_id, value)

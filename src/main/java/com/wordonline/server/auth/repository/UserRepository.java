@@ -13,12 +13,14 @@ import java.util.Optional;
 public class UserRepository {
 
     private static final String GET_USER_BY_EMAIL = """
-            SELECT id, email, name, password_hash, status
+            SELECT id, email, name, password_hash, status, selected_deck_id
+
             FROM users
             WHERE email = :email;
             """;
     private static final String GET_USER_BY_ID = """
-            SELECT id, email, name, password_hash, status
+            SELECT id, email, name, password_hash, status, selected_deck_id
+
             FROM users
             WHERE id = :id;
             """;
@@ -77,7 +79,8 @@ public class UserRepository {
                                 rs.getString("email"),
                                 rs.getString("name"),
                                 rs.getString("password_hash"),
-                                UserStatus.valueOf(rs.getString("status"))
+                                UserStatus.valueOf(rs.getString("status")),
+                                rs.getLong("selected_deck_id")
                         ))
                 .optional();
     }
@@ -91,7 +94,8 @@ public class UserRepository {
                                 rs.getString("email"),
                                 rs.getString("name"),
                                 rs.getString("password_hash"),
-                                UserStatus.valueOf(rs.getString("status"))
+                                UserStatus.valueOf(rs.getString("status")),
+                                rs.getLong("selected_deck_id")
                         ))
                 .optional();
     }

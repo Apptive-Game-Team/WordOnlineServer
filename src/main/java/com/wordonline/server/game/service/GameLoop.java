@@ -25,6 +25,7 @@ import java.util.List;
 // GameLoop is the main class that runs the game loop
 @Slf4j
 public class GameLoop implements Runnable {
+    @Getter
     private boolean _running = true;
     public static final int FPS = 10;
     public final SessionObject sessionObject;
@@ -75,7 +76,11 @@ public class GameLoop implements Runnable {
             _frameNum++;
             long startTime = System.currentTimeMillis();
 
-            update();
+            try {
+                update();
+            } catch (Exception e) {
+                log.error("[ERROR] {}", e.getMessage());
+            }
 
             long endTime = System.currentTimeMillis();
             long sleepTime = frameDuration - (endTime - startTime);

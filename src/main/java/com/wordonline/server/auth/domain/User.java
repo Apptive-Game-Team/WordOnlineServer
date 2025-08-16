@@ -2,6 +2,7 @@ package com.wordonline.server.auth.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @Getter
@@ -12,9 +13,11 @@ public class User {
     private String name;
     private String passwordHash;
     private UserStatus status;
+    @Setter
+    private Long selectedDeckId;
 
     public static User createWithPasswordPlain(String email, String name, String password) {
-        return new User(null, email, name, BCrypt.hashpw(password, BCrypt.gensalt()), UserStatus.Online);
+        return new User(null, email, name, BCrypt.hashpw(password, BCrypt.gensalt()), null);
     }
 
     public boolean validatePassword(String password) {

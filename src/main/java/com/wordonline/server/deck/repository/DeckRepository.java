@@ -66,6 +66,12 @@ public class DeckRepository {
            FROM cards
            """;
 
+    private static final String SET_DECK_NAME = """
+            UPDATE decks
+            SET name = :name
+            WHERE id = :deckId;
+            """;
+
     private static final String SAVE_DECK = """
             INSERT INTO decks(name, user_id)
             VALUES
@@ -147,6 +153,13 @@ public class DeckRepository {
             """;
 
     private final JdbcClient jdbcClient;
+
+    public void setDeckName(long deckId, String deckName) {
+        jdbcClient.sql(SET_DECK_NAME)
+                .param("deckId", deckId)
+                .param("name", deckName)
+                .update();
+    }
 
     public Optional<Long> getSelectedDeckId(long userId) {
         return jdbcClient.sql(GET_SELECTED_DECK_ID)

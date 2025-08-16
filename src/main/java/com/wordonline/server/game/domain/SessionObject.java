@@ -54,5 +54,15 @@ public class SessionObject {
     public void sendFrameInfo(long userId, Object data){
         template.convertAndSend(String.format("%s/%d", url, userId), data);
     }
+
+    @Override
+    public String toString() {
+        double fps = gameLoop.deltaTime > 0 ? 1 / gameLoop.deltaTime : 0.0;
+        return String.format("Session(users: [%d, %d], isRunning: %s, currentFps: %.2f)",
+                leftUserId,
+                rightUserId,
+                gameLoop.is_running(),
+                fps);
+    }
 }
 

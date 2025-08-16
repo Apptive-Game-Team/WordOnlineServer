@@ -11,13 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
-    private final int mess;
+    private final int mass;
 
-    public float getInvMess() {
-        if (mess == -1) {
+    public float getInvMass() {
+        if (mass == -1) {
             return 0;
         }
-        return 1f / mess;
+        return 1f / mass;
     }
 
     public void addVelocity(Vector2 velocity) {
@@ -53,8 +53,8 @@ public class RigidBody extends Component {
 
     }
 
-    public RigidBody(GameObject gameObject, int mess) {
+    public RigidBody(GameObject gameObject, int mass) {
         super(gameObject);
-        this.mess = mess;
+        this.mass = mass;
     }
 }

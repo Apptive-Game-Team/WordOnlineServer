@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -23,16 +24,19 @@ public class WebSecurityConfig {
                         headers
                                 .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                 )
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers(
-                                        "/healthcheck",
-                                        "/api/auth/kakao/**",
-                                        "/api/users/mine/**",
-                                        "/api/users",
-                                        "/api/users/login",
-                                        "/ws").permitAll()
-                                .anyRequest().authenticated()
+                .authorizeHttpRequests(authorizeRequests -> {
+                            authorizeRequests
+                                    .requestMatchers(
+                                            "/healthcheck",
+                                            "/api/admin/invalidate",
+                                            "/api/auth/kakao/**",
+                                            "/api/users/mine/**",
+                                            "/api/users",
+                                            "/api/users/login",
+                                            "/ws").permitAll()
+                                    .anyRequest().authenticated();
+                        }
+
                 )
                 .csrf(AbstractHttpConfigurer::disable);
 

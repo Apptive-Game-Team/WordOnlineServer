@@ -57,8 +57,8 @@ public class PhysicSystem implements CollisionSystem {
                                 gameObjectPair.b().getColliders().stream().filter(Collider::isNotTrigger).forEach(
                                     colliderB -> {
 
-                                        float invMessA = colliderA.getInvMess();
-                                        float invMessB = colliderB.getInvMess();
+                                        float invMassA = colliderA.getInvMass();
+                                        float invMassB = colliderB.getInvMass();
 
                                         Vector2 displacement = colliderA.getDisplacement(colliderB);
                                         if (displacement == null) return;
@@ -73,14 +73,14 @@ public class PhysicSystem implements CollisionSystem {
                                         // 반사량 계산
                                         float restitution = 1.0f; // 탄성 계수
                                         float impulseMag = - (1 + restitution) * separatingVelocity /
-                                              (invMessA + invMessB);
+                                              (invMassA + invMassB);
 
                                         Vector2 impulse = normal.multiply(impulseMag);
-                                        if (invMessA > 0) {
-                                          rigidBodyA.addVelocity(impulse.multiply(invMessA));
+                                        if (invMassA > 0) {
+                                          rigidBodyA.addVelocity(impulse.multiply(invMassA));
                                         }
-                                        if (invMessB > 0) {
-                                          rigidBodyB.addVelocity(impulse.multiply(-invMessB));
+                                        if (invMassB > 0) {
+                                          rigidBodyB.addVelocity(impulse.multiply(-invMassB));
                                         }
                                     }
                                 );

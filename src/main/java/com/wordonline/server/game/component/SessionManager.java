@@ -43,6 +43,8 @@ public class SessionManager {
     }
 
     public String getHealthLog() {
-        return "Sessions: " + sessions;
+        return "Sessions: " + String.join("\n", sessions.values()
+                .stream()
+                .map(Object::toString).toList());
     }
 }
