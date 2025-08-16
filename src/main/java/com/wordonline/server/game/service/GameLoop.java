@@ -72,7 +72,11 @@ public class GameLoop implements Runnable {
             _frameNum++;
             long startTime = System.currentTimeMillis();
 
-            update();
+            try {
+                update();
+            } catch (Exception e) {
+                log.error("[ERROR] {}", e.getMessage());
+            }
 
             long endTime = System.currentTimeMillis();
             long sleepTime = frameDuration - (endTime - startTime);
