@@ -30,7 +30,7 @@ public class UserController {
     @PostMapping("")
     public ResponseEntity<AuthResponseDto> registerAndLogin(
             @Validated @RequestBody UserRegisterRequestDto userRegisterRequestDto
-            ) throws AuthenticationException {
+            ) {
         log.info("[Login] User register; userEmail: {}", userRegisterRequestDto.email());
         return ResponseEntity.ok(authService.registerAndLogin(userRegisterRequestDto));
     }
@@ -38,7 +38,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(
             @Validated @RequestBody UserLoginRequestDto userLoginRequestDto
-    ) throws AuthenticationException {
+    ) {
         AuthResponseDto authResponseDto = authService.login(userLoginRequestDto);
         log.info("[Login] User login; userEmail: {}", userLoginRequestDto.email());
         return ResponseEntity.ok(authResponseDto);
