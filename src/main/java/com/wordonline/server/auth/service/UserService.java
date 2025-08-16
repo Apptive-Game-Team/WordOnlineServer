@@ -25,8 +25,8 @@ public class UserService {
         User actualUser = userRepository.findUserByEmail(user.getEmail())
                 .orElseThrow(() -> new AuthorizationDeniedException("Can't Register"));
 
-        deckService.initializeCard(actualUser.getId());
-
+        long defaultDeckId = deckService.initializeCard(actualUser.getId());
+        actualUser.setSelectedDeckId(defaultDeckId);
         return actualUser;
     }
 
