@@ -12,20 +12,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import javax.naming.AuthenticationException;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private final static String LOGIN_FAIL_MESSAGE = "이메일 또는 비밀번호가 잘못됐습니다.";
+    private final static String EMAIL_REDUNDANT = "사용 중인 Email입니다.";
 
     private final UserRepository userRepository;
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    public AuthResponseDto registerAndLogin(UserRegisterRequestDto userRegisterRequestDto) throws AuthenticationException {
+    public AuthResponseDto registerAndLogin(UserRegisterRequestDto userRegisterRequestDto) {
 
         if (userRepository.findUserByEmail(userRegisterRequestDto.email()).isPresent()) {
-            throw new IllegalArgumentException("Email is Redundant");
+            throw new IllegalArgumentException(EMAIL_REDUNDANT);
         }
 
         User user = User.createWithPasswordPlain(
@@ -37,13 +37,13 @@ public class AuthService {
         return login(new UserLoginRequestDto(userRegisterRequestDto.email(), userRegisterRequestDto.passwordPlain()));
     }
 
-    public AuthResponseDto login(UserLoginRequestDto userLoginRequestDto) throws AuthenticationException {
+    public AuthResponseDto login(UserLoginRequestDto userLoginRequestDto) {
 
         User user = userRepository.findUserByEmail(userLoginRequestDto.email())
-                .orElseThrow(() -> new AuthenticationException("Not Found User"));
+                .orElseThrow(() -> new IllegalArgumentException(LOGIN_FAIL_MESSAGE));
 
         if (!user.validatePassword(userLoginRequestDto.passwordPlain())) {
-            throw new AuthenticationException("Not Found User");
+            throw new IllegalArgumentException(LOGIN_FAIL_MESSAGE);
         }
 
         PrincipalDetails principal = new PrincipalDetails(user.getId());
