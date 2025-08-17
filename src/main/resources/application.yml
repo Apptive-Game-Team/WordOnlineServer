@@ -1,0 +1,25 @@
+server:
+  port: ${PORT:7777}
+
+spring:
+  application:
+    name: word-online-server
+  sql:
+    init:
+      schema-locations: classpath:static/sql/schema.sql
+      data-locations: classpath:static/sql/data.sql
+      mode: embedded
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PW}
+
+logging:
+  discord-webhook-url: ${DISCORD_WEBHOOK_URL}
+  level:
+    org.springframework.web.socket: WARN
+    org.springframework.messaging: WARN
+
+jwt:
+  secret: ${JWT_SECRET}
