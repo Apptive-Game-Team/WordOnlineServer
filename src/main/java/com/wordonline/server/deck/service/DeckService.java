@@ -23,7 +23,7 @@ public class DeckService {
 
     private final DeckRepository deckRepository;
 
-    public void initializeCard(long userId) {
+    public long initializeCard(long userId) {
         for (int i = 1; i <= 9; i++) {
             deckRepository.saveCardToUser(userId, i, 3);
         }
@@ -35,6 +35,8 @@ public class DeckService {
                     i==6?2:1);
         }
         deckRepository.setSelectDeck(userId, deckId);
+
+        return deckId;
     }
 
     @Transactional(readOnly = true)
@@ -118,6 +120,7 @@ public class DeckService {
         }
 
         deckRepository.deleteCardInDeck(deckId);
+        deckRepository.setDeckName(deckId, deckRequestDto.name());
         deckRequestDto.cardIds().stream()
                 .collect(Collectors.groupingBy(
                         Long::longValue,

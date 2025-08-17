@@ -24,7 +24,7 @@ public class ApplicationLogger {
     @Scheduled(fixedRate = LOGGING_INTERVAL)
     public void logApplicationHealth() {
 
-        log.info("[Health Check] {} | {} | {} | {}",
+        log.info("[Health Check]\n{}\n{}\n{}\n{}",
                 getCpuLog(), getMemoryLog(),
                 matchingManager.getHealthLog(),
                 sessionManager.getHealthLog());
@@ -40,12 +40,13 @@ public class ApplicationLogger {
     }
 
     private String getMemoryLog() {
-        long totalPhysicalMemory = operatingSystemMXBean.getTotalMemorySize();
-        long freePhysicalMemory = operatingSystemMXBean.getFreeMemorySize();
-        long usedPhysicalMemory = totalPhysicalMemory - freePhysicalMemory;
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        long usedMemory = totalMemory - freeMemory;
 
         return String.format("Used Memory: %.2f GB / %.2f GB",
-                usedPhysicalMemory / 1024.0 / 1024.0 / 1024.0,
-                totalPhysicalMemory / 1024.0 / 1024.0 / 1024.0);
+                usedMemory / 1024.0 / 1024.0 / 1024.0,
+                totalMemory / 1024.0 / 1024.0 / 1024.0);
     }
 }

@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private final static String INVALID_REQUEST_MESSAGE = "요청이 잘못됐습니다.";
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
         log.trace(e.getMessage());
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(e.getMessage());
     }
@@ -23,7 +23,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<String> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
         log.trace(e.getMessage());
-
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Unauthorized");
     }
@@ -31,7 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
         log.trace(e.getMessage());
+        return ResponseEntity.badRequest().body(INVALID_REQUEST_MESSAGE);
+    }
 
-        return ResponseEntity.badRequest().body("Request validation failed");
+    @ExceptionHandler(Exception.class)
+    public void handleException(Exception e) {
+        log.error("[ERROR] {}", e.getMessage());
     }
 }
