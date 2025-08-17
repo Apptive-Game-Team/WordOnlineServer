@@ -6,8 +6,7 @@ on:
       - main
   push:
     branches:
-      - main  # main 브랜치에 push 될 때만 실행
-      - feature/73
+      - main
 
 jobs:
   deploy:
