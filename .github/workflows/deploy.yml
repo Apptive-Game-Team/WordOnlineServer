@@ -30,6 +30,11 @@ jobs:
 
       - name: Run deploy script
         env:
+          DATABASE_PW: ${{ secrets.DATABASE_PW }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DEPLOY_SERVER: ${{ secrets.GAME_SERVER_HOST }}
           DEPLOY_USER: ${{ secrets.GAME_SERVER_USER }}
         run: bash remote-deploy.sh
