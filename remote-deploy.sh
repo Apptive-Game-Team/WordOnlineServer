@@ -11,10 +11,10 @@ BUILD_PATH=$(ls $PROJECT_ROOT/build/libs/*.jar)
 JAR_NAME=$(basename $BUILD_PATH)
 
 # Copy To Server
-scp $BUILD_PATH monolong:$DEPLOY_PATH
+scp $BUILD_PATH $DEPLOY_SERVER@$DEPLOY_USER:$DEPLOY_PATH
 
 # Run Application
-ssh monolong << EOF
+ssh $DEPLOY_SERVER@$DEPLOY_USER << EOF
 CURRENT_PID=\$(pgrep -f $JAR_NAME)
 
 if [ -z "\$CURRENT_PID" ]

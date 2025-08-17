@@ -1,0 +1,35 @@
+name: CI/CD Deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main  # main 브랜치에 push 될 때만 실행
+      - feature/73
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Grant SSH key
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SERVER_SSH_KEY }}
+
+      - name: Run deploy script
+        env:
+          DEPLOY_SERVER: ${{ secrets.GAME_SERVER_HOST }}
+          DEPLOY_USER: ${{ secrets.GAME_SERVER_USER }}
+        run: bash remote-deploy.sh
