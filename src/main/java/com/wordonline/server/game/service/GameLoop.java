@@ -55,7 +55,7 @@ public class GameLoop implements Runnable {
     private SnapshotResponseDto buildSnapshot() {
         var list = new ArrayList<SnapshotObjectDto>(gameSessionData.gameObjects.size());
         for (var g : gameSessionData.gameObjects) {
-//            list.add(SnapshotMapper.toDto(g));
+            list.add(SnapshotMapper.toDto(g));
         }
         return new SnapshotResponseDto(_frameNum, list);
     }
@@ -203,6 +203,8 @@ public class GameLoop implements Runnable {
             }
             gameObject.getComponentsToRemove().clear();
         }
+        lastSnapshot = buildSnapshot();
     }
+
 }
 

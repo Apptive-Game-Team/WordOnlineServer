@@ -14,6 +14,12 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 
 @Slf4j
 @Controller
@@ -42,5 +48,26 @@ public class InputController {
 
         InputResponseDto responseDto = sessionObject.getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
+    }
+    @GetMapping("/game/{sessionId}/snapshot")
+    @ResponseBody
+    public ResponseEntity<SnapshotResponseDto> getSnapshot(@PathVariable String sessionId,
+                                                           @AuthenticationPrincipal PrincipalDetails principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        SessionObject session = sessionManager.getSessionObject(sessionId);
+        if (session == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 세션 없음
+        }
+        long uid = principal.getUid();
+        if (session.getLeftUserId() != uid && session.getRightUserId() != uid) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 참가자 아님
+        }
+        var loop = session.getGameLoop();
+        if (loop == null) {
+            return ResponseEntity.status(HttpStatus.GONE).build(); // 게임 종료됨
+        }
+        return ResponseEntity.ok(loop.getLastSnapshot()); // 프레임 캐시 리턴
     }
 }
