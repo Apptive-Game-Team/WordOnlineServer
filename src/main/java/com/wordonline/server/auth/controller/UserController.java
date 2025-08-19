@@ -56,7 +56,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(principalDetails.userId));
     }
 
-    @GetMapping("/me/status")
+    @GetMapping("/mine/status")
     public ResponseEntity<Map<String, String>> getMyStatus(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
