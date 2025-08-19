@@ -1,5 +1,6 @@
 package com.wordonline.server.matching.component;
 
+import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
@@ -29,9 +30,7 @@ public class MatchingManager {
 
     public boolean enqueue(long userId) {
         // 0) OnMatching이라면 이전 세션 구독
-        if (userService.getStatus(userId) == UserStatus.OnMatching)
-        matchingQueue.add(userId);
-        return true;
+        if (userService.getStatus(userId) == UserStatus.OnMatching) matchingQueue.add(userId);
         // 1) 상태 체크 & OnMatching 으로 전환
         try {
             userService.markMatching(userId);

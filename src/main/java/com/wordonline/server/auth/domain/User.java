@@ -1,5 +1,6 @@
 package com.wordonline.server.auth.domain;
 
+import com.wordonline.server.deck.service.DeckService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ public class User {
     private Long selectedDeckId;
 
     public static User createWithPasswordPlain(String email, String name, String password) {
-        return new User(null, email, name, BCrypt.hashpw(password, BCrypt.gensalt()), null);
+        return new User(null, email, name, BCrypt.hashpw(password, BCrypt.gensalt()), UserStatus.Online,null);
     }
 
     public boolean validatePassword(String password) {

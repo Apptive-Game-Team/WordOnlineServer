@@ -1,6 +1,7 @@
 package com.wordonline.server.auth.service;
 
 import com.wordonline.server.auth.domain.User;
+import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.service.DeckService;
@@ -59,6 +60,8 @@ public class UserService {
     }
 
     public UserStatus getStatus(long userId) {
-        return userRepository.getStatus(userId);
+        return userRepository.findUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId))
+                .getStatus();
     }
 }

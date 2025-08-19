@@ -12,6 +12,8 @@ import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
+import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
+import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
@@ -45,6 +47,18 @@ public class GameLoop implements Runnable {
     public final Parameters parameters;
 
     public float deltaTime = 1f / FPS;
+
+    @Getter
+    private volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of());
+
+    // 2) 스냅샷 빌더
+    private SnapshotResponseDto buildSnapshot() {
+        var list = new ArrayList<SnapshotObjectDto>(gameSessionData.gameObjects.size());
+        for (var g : gameSessionData.gameObjects) {
+//            list.add(SnapshotMapper.toDto(g));
+        }
+        return new SnapshotResponseDto(_frameNum, list);
+    }
 
     public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters) {
         this.sessionObject = sessionObject;
