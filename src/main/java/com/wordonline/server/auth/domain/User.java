@@ -26,8 +26,6 @@ public class User {
     }
     // 상태 전환 편의 메서드
     public void markMatching() {
-        if (status != UserStatus.Online)
-            throw new IllegalStateException("잘못된 상태에서 매칭 시도");
         this.status = UserStatus.OnMatching;
     }
 

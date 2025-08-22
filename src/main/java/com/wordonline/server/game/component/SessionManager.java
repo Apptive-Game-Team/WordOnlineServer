@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 // this class is used to manage the sessions
@@ -46,5 +47,11 @@ public class SessionManager {
         return "Sessions: " + String.join("\n", sessions.values()
                 .stream()
                 .map(Object::toString).toList());
+    }
+
+    public Optional<SessionObject> findByUserId(long userId) {
+        return sessions.values().stream()
+                .filter(s -> s.getLeftUserId() == userId || s.getRightUserId() == userId)
+                .findFirst();
     }
 }

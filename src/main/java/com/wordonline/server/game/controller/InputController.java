@@ -49,25 +49,4 @@ public class InputController {
         InputResponseDto responseDto = sessionObject.getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
-    @GetMapping("/game/{sessionId}/snapshot")
-    @ResponseBody
-    public ResponseEntity<SnapshotResponseDto> getSnapshot(@PathVariable String sessionId,
-                                                           @AuthenticationPrincipal PrincipalDetails principal) {
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        SessionObject session = sessionManager.getSessionObject(sessionId);
-        if (session == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 세션 없음
-        }
-        long uid = principal.getUid();
-        if (session.getLeftUserId() != uid && session.getRightUserId() != uid) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 참가자 아님
-        }
-        var loop = session.getGameLoop();
-        if (loop == null) {
-            return ResponseEntity.status(HttpStatus.GONE).build(); // 게임 종료됨
-        }
-        return ResponseEntity.ok(loop.getLastSnapshot()); // 프레임 캐시 리턴
-    }
 }
