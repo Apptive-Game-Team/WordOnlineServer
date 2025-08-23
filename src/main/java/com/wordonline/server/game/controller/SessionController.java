@@ -20,25 +20,21 @@ public class SessionController {
     private final SessionManager sessionManager;
     private final UserService userService;
 
+    public record SessionIdDto(String sessionId) {}
+
     @GetMapping("/mine")
-    public ResponseEntity<?> getMySession(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        UserResponseDto user = userService.getUser(principalDetails.userId);
+    public ResponseEntity<SessionIdDto> getMySessionId(
+            @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        return sessionManager.findByUserId(user.id())
-                .<ResponseEntity<?>>map(s -> ResponseEntity.ok(new SessionDto(
-                        s.getSessionId(),
-                        s.getLeftUserId(),
-                        s.getRightUserId()
-                )))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("NO_SESSION"));
+        if (principalDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return sessionManager.findByUserId(principalDetails.userId)
+                .map(s -> ResponseEntity.ok(new SessionIdDto(s.getSessionId())))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @lombok.Value
-    static class SessionDto {
-        String sessionId;
-        long leftUserId;
-        long rightUserId;
-    }
 
     @GetMapping("/{sessionId}/snapshot")
     @ResponseBody
