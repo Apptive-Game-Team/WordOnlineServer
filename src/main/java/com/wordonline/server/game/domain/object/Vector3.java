@@ -42,7 +42,7 @@ public class Vector3 {
     }
 
     public Vector3 multiply(float scalar) {
-        return new Vector3(this.x * scalar, this.y * scalar, this.x * scalar);
+        return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
     }
 
     public float dot(Vector3 other) {
