@@ -12,7 +12,7 @@ public class Vector3 {
     public static final Vector3 ZERO = new Vector3(0, 0, 0);
 
     public void clear() {
-        x = 0; y = 0;
+        x = 0; y = 0; z = 0;
     }
 
     public void add(Vector3 vector3) {
