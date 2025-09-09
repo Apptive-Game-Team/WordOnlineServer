@@ -25,6 +25,10 @@ public class Vector3 {
         return new Vector3(this.x + x, this.y + y, this.z + z);
     }
 
+    public Vector3 plus(Vector2 vector) {
+        return plus(vector.getX(), vector.getY(), 0);
+    }
+
     public Vector3 plus(Vector3 vector) {
         return plus(vector.x, vector.y, vector.z);
     }
@@ -55,5 +59,14 @@ public class Vector3 {
 
     public double distance(Vector3 other) {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2) + Math.pow(this.z - other.z, 2));
+    }
+
+    // Vector3의 차원을 낮춰서 적용
+    public double distance(Vector2 other) {
+        return Math.sqrt(Math.pow(this.x - other.getX(), 2) + Math.pow(this.y - other.getY(), 2));
+    }
+
+    public Vector2 toVector2() {
+        return new Vector2(this);
     }
 }

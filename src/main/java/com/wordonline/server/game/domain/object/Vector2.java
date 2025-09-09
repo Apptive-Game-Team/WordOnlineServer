@@ -55,4 +55,12 @@ public class Vector2 {
     public double distance(Vector2 other) {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
+
+    public Vector2(Vector3 vector3) {
+        this(vector3.getX(), vector3.getY());
+    }
+
+    public Vector3 toVector3() {
+        return new Vector3(x, y, 0);
+    }
 }

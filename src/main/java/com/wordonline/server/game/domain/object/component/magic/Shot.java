@@ -21,7 +21,7 @@ public class Shot extends MagicComponent implements Collidable {
     }
 
     public void setTarget(Vector2 targetPosition) {
-        direction = (targetPosition.subtract(gameObject.getPosition()));
+        direction = (targetPosition.subtract(gameObject.getPosition().toVector2()));
     }
 
     @Override

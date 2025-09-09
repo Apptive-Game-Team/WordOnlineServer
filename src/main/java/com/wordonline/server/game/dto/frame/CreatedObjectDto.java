@@ -1,7 +1,7 @@
 package com.wordonline.server.game.dto.frame;
 
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,6 @@ import lombok.RequiredArgsConstructor;
 public class CreatedObjectDto {
     private final int id;
     private final PrefabType type;
-    private final Vector2 position;
+    private final Vector3 position;
     private final Master master;
 }

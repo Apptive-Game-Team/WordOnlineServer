@@ -2,6 +2,7 @@ package com.wordonline.server.game.config;
 
 import com.wordonline.server.game.domain.object.CircleObstacle;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 
 import java.util.Collections;
@@ -19,9 +20,9 @@ public class GameConfig {
     public static final int WIDTH = 18;
     public static final int HEIGHT = 10;
 
-    public static final Vector2 LEFT_PLAYER_POSITION = new Vector2(1, 5);
-    public static final Vector2 RIGHT_PLAYER_POSITION = new Vector2(18, 5);
-    public static final Dictionary<Master, Vector2> PLAYER_POSITION = new Hashtable<>() {{
+    public static final Vector3 LEFT_PLAYER_POSITION = new Vector3(1, 5, 0);
+    public static final Vector3 RIGHT_PLAYER_POSITION = new Vector3(18, 5, 0);
+    public static final Dictionary<Master, Vector3> PLAYER_POSITION = new Hashtable<>() {{
         put(Master.LeftPlayer, LEFT_PLAYER_POSITION);
         put(Master.RightPlayer, RIGHT_PLAYER_POSITION);
     }};

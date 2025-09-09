@@ -1,7 +1,7 @@
 package com.wordonline.server.game.dto;
 
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +17,7 @@ public class UpdatedObjectDto {
     private final int hp;
     private Status status;
     private Effect effect;
-    private Vector2 position;
+    private Vector3 position;
 
     public UpdatedObjectDto(GameObject gameObject) {
         this.id = gameObject.getId();

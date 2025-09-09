@@ -32,7 +32,7 @@ public class ExplodeMagicParser implements MagicParser {
         return new Magic(CardType.Explode) {
             @Override
             public void run(GameLoop gameLoop) {
-                new GameObject(master, prefabType, position, gameLoop);
+                new GameObject(master, prefabType, position.toVector3(), gameLoop);
             }
         };
     }

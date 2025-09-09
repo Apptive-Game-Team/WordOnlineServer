@@ -20,10 +20,10 @@ public class DummyComponent extends Component {
 
     @Override
     public void update() {
-        Vector2 position = gameObject.getPosition();
+        Vector2 position = gameObject.getPosition().toVector2();
         position.setX(position.getX() + speed * gameObject.getGameLoop().deltaTime);
         position.setY(position.getY() + speed * gameObject.getGameLoop().deltaTime);
-        gameObject.setPosition(position);
+        gameObject.setPosition(position.toVector3());
     }
 
     @Override

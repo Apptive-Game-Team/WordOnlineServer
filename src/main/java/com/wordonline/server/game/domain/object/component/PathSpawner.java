@@ -15,7 +15,7 @@ public class PathSpawner extends Component {
         super(gameObject);
         this.prefabType = prefabType;
         this.interval = interval;
-        this.lastSpawnPosition = gameObject.getPosition();
+        this.lastSpawnPosition = gameObject.getPosition().toVector2();
     }
 
     @Override
@@ -25,7 +25,7 @@ public class PathSpawner extends Component {
     public void update() {
         double distance = gameObject.getPosition().distance(lastSpawnPosition);
         if (distance >= interval) {
-            lastSpawnPosition = gameObject.getPosition();
+            lastSpawnPosition = gameObject.getPosition().toVector2();
             GameObject newObject = new GameObject(gameObject, Master.None, prefabType);
             gameObject.getGameLoop().getObjectsInfoDtoBuilder().createGameObject(newObject);
         }

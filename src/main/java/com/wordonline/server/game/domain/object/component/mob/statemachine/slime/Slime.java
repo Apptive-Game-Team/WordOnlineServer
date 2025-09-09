@@ -85,7 +85,7 @@ public class Slime extends StateMachineMob {
                 setState(new IdleState());
                 return;
             }
-            path = pathFinder.findPath(gameObject.getPosition(), target.getPosition());
+            path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
         }
 
         @Override
@@ -101,7 +101,7 @@ public class Slime extends StateMachineMob {
             }
 
             log.trace("State : {}", currentState);
-            Vector2 currentPosition = gameObject.getPosition();
+            Vector2 currentPosition = gameObject.getPosition().toVector2();
             log.trace("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
             log.trace("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
 
@@ -125,7 +125,7 @@ public class Slime extends StateMachineMob {
                 if (newTarget != null && newTarget != target) {
                     target = newTarget;
                     targetRadius = ((CircleCollider)newTarget.getColliders().getFirst()).getRadius();
-                    path = pathFinder.findPath(gameObject.getPosition(), target.getPosition());
+                    path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
                     if (path.isEmpty()) return;
                 }
                 timer = 0f;
