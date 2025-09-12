@@ -94,7 +94,7 @@ public class GameLoop implements Runnable {
             try {
                 update();
             } catch (Exception e) {
-                log.error("[ERROR] {}", e.getMessage());
+                log.error("[ERROR] {}", e.getMessage(), e);
             }
 
             long endTime = System.currentTimeMillis();

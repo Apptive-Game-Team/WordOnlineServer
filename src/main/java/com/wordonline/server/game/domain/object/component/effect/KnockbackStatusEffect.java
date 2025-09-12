@@ -44,7 +44,11 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
             return;
         }
 
-        gameObject.getComponent(RigidBody.class).addVelocity(knockbackDir.multiply(step));
+        RigidBody rb = gameObject.getComponent(RigidBody.class);
+        if(rb != null)
+        {
+            rb.addVelocity(knockbackDir.multiply(step));
+        }
         moved += step;
 
         super.update();
