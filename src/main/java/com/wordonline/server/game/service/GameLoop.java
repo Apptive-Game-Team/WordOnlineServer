@@ -2,6 +2,7 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.service.UserService;
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.magic.parser.BasicMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
@@ -66,8 +67,8 @@ public class GameLoop implements Runnable {
         this.userService   = userService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         resultChecker = new ResultChecker(sessionObject);
-        new GameObject(Master.LeftPlayer, PrefabType.Player, new Vector2(1, 5), this);
-        new GameObject(Master.RightPlayer, PrefabType.Player, new Vector2(18, 5), this);
+        new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
+        new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
 
         this.parameters = parameters;
         physics = new SimplePhysics(gameSessionData.gameObjects);

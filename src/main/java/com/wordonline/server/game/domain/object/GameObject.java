@@ -26,7 +26,7 @@ public class GameObject {
     private Effect effect;
     @Setter
     private ElementType element;
-    private Vector2 position;
+    private Vector3 position;
 
     private final GameLoop gameLoop;
     private final List<Collider> colliders = new ArrayList<Collider>();
@@ -48,7 +48,7 @@ public class GameObject {
         this(parent, parent.getMaster(), type);
     }
 
-    public GameObject(Master master, PrefabType type, Vector2 position, GameLoop gameLoop) {
+    public GameObject(Master master, PrefabType type, Vector3 position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
         this.type = type;
@@ -93,7 +93,7 @@ public class GameObject {
         onDestroy();
     }
 
-    public void setPosition(Vector2 position) {
+    public void setPosition(Vector3 position) {
         this.position = position;
         if (Math.abs(position.getX() - GameConfig.X_MID) > GameConfig.X_BOUND || Math.abs(position.getY() - GameConfig.Y_MID) > GameConfig.Y_BOUND) {
             destroy();

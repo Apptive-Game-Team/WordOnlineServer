@@ -11,9 +11,9 @@ public enum CardType {
     Shoot(Type.Magic, 25, GameConfig.WIDTH),
     @Deprecated
     Drop(Type.Magic, 35, GameConfig.WIDTH * 3f / 4),
-    Summon(Type.Magic, 15, GameConfig.WIDTH / 3f),
-    Spawn(Type.Magic, 15, GameConfig.WIDTH / 3f),
-    Explode(Type.Magic, 40, GameConfig.WIDTH / 2f),
+    Summon(Type.Magic, 40, GameConfig.WIDTH / 3f),
+    Spawn(Type.Magic, 30, GameConfig.WIDTH / 3f),
+    Explode(Type.Magic, 20, GameConfig.WIDTH / 2f),
 
     Fire(Type.Type, 0, GameConfig.WIDTH / 4f),
     Water(Type.Type, 0, GameConfig.WIDTH / 4f),

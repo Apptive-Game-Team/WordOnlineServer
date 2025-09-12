@@ -17,7 +17,7 @@ public class Drop extends MagicComponent implements Collidable {
 
     @Override
     public void update() {
-        gameObject.setPosition(gameObject.getPosition().plus(0, direction * SPEED * gameObject.getGameLoop().deltaTime));
+        gameObject.setPosition(gameObject.getPosition().plus(0, direction * SPEED * gameObject.getGameLoop().deltaTime, 0));
     }
 
     public Drop(GameObject gameObject, int damage) {

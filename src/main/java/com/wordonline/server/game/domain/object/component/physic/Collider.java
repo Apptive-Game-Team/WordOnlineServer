@@ -16,7 +16,7 @@ public abstract class Collider {
     }
 
     public Vector2 getPosition() {
-        return gameObject.getPosition();
+        return gameObject.getPosition().toVector2();
     }
 
     public float getInvMass() {

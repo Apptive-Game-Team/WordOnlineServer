@@ -33,9 +33,9 @@ public class SpawnMagicParser implements MagicParser {
         return new Magic(CardType.Spawn) {
             @Override
             public void run(GameLoop gameLoop) {
-                new GameObject(master, prefabType, position, gameLoop);
-                new GameObject(master, prefabType, position.plus(0.5f,0), gameLoop);
-                new GameObject(master, prefabType, position.plus(-0.5f,0), gameLoop);
+                new GameObject(master, prefabType, position.toVector3(), gameLoop);
+                new GameObject(master, prefabType, position.plus(0.5f,0).toVector3(), gameLoop);
+                new GameObject(master, prefabType, position.plus(-0.5f,0).toVector3(), gameLoop);
             }
         };
     }

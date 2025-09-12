@@ -30,7 +30,7 @@ public class SimplePhysics implements Physics {
 
     @Override
     public GameObject raycast(GameObject object, Vector2 direction, float distance) {
-        Vector2 origin = object.getPosition();
+        Vector2 origin = object.getPosition().toVector2();
         Vector2 dirNorm = direction.normalize();
 
         GameObject closest = null;
@@ -39,7 +39,7 @@ public class SimplePhysics implements Physics {
         for (GameObject other : gameObjects) {
             if (other == object) continue;
 
-            Vector2 toOther = other.getPosition().subtract(origin);
+            Vector2 toOther = other.getPosition().toVector2().subtract(origin);
             double projection = toOther.dot(dirNorm);
 
             if (projection < 0 || projection > distance) continue;

@@ -33,7 +33,7 @@ public class SummonMagicParser implements MagicParser {
         return new Magic(CardType.Summon) {
             @Override
             public void run(GameLoop gameLoop) {
-                new GameObject(master, prefabType, position, gameLoop);
+                new GameObject(master, prefabType, position.toVector3(), gameLoop);
             }
         };
     }

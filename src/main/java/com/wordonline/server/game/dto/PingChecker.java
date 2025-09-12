@@ -30,7 +30,7 @@ public class PingChecker {
         ScheduledFuture<?> task = scheduler.schedule(() -> {
             log.trace("{}초 동안 핑이 없음: userId: {}", PING_TIMEOUT_THRESHOLD, userId);
             pingTasks.remove(userId);
-//            onNonPing.accept(userId);
+            onNonPing.accept(userId);
         }, PING_TIMEOUT_THRESHOLD, TimeUnit.SECONDS);
 
         pingTasks.put(userId, task);
