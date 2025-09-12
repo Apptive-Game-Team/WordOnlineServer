@@ -176,13 +176,13 @@ public enum PrefabType {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
-        gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("shoot", "damage")));
+        gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("wind_shoot", "damage")));
     }),
     WindExplode((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
-        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
+        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("wind_shoot", "damage")));
     }),
     WindSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));

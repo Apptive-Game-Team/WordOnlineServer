@@ -19,7 +19,7 @@ public class KnockbackEffectProvider extends EffectProvider {
         }
         else if(gameObject.getComponent(Explode.class) != null)
         {
-            return this.gameObject.getPosition().subtract(otherObject.getPosition()).normalize().toVector2();
+            return otherObject.getPosition().subtract(this.gameObject.getPosition()).normalize().toVector2();
         }
 
         return Vector2.ZERO;
