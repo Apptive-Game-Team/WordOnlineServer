@@ -29,6 +29,8 @@ public class ShootMagicParser implements MagicParser {
             prefabType = PrefabType.LeafShot;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockShot;
+        } else if (cards.contains(CardType.Wind)) {
+            prefabType = PrefabType.WindShot;
         } else {
             return null;
         }

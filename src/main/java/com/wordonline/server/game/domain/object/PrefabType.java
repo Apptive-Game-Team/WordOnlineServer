@@ -174,6 +174,31 @@ public enum PrefabType {
         gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.LeafSlime));
     }),
+    // wind
+    WindShot((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Knockback));
+        gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("shoot", "damage")));
+    }),
+    WindExplode((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Knockback));
+        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
+    }),
+    WindSlime((gameObject, parameters)  -> {
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
+        gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+    }),
+    WindSummon((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.WindSlime));
+    }),
 
 
     Wall((gameObject, parameters) -> {

@@ -26,6 +26,8 @@ public class SummonMagicParser implements MagicParser {
             prefabType = PrefabType.LeafSummon;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockSummon;
+        } else if (cards.contains(CardType.Wind)) {
+            prefabType = PrefabType.WindSummon;
         } else {
             return null;
         }

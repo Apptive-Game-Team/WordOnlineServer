@@ -19,7 +19,8 @@ public enum CardType {
     Water(Type.Type, 10, GameConfig.WIDTH / 4f),
     Lightning(Type.Type, 10, GameConfig.WIDTH / 4f),
     Rock(Type.Type, 10, GameConfig.WIDTH / 4f),
-    Leaf(Type.Type, 10, GameConfig.WIDTH / 4f);
+    Leaf(Type.Type, 10, GameConfig.WIDTH / 4f),
+    Wind(Type.Type, 10, GameConfig.WIDTH / 4f);
 
     public enum Type {
         Magic,
