@@ -7,11 +7,13 @@ import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/sessions")
 @RequiredArgsConstructor
@@ -49,6 +51,7 @@ public class SessionController {
         }
         long uid = principal.getUid();
         if (session.getLeftUserId() != uid && session.getRightUserId() != uid) {
+            log.info("Session Control : "+session.getSessionId() + " " + session.getLeftUserId() + " " + session.getRightUserId() + " " + uid);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 참가자 아님
         }
         var loop = session.getGameLoop();
