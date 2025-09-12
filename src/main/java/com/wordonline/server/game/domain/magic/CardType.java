@@ -8,18 +8,18 @@ public enum CardType {
     Dummy(Type.Magic, 10, GameConfig.WIDTH),
 
     // Card types
-    Shoot(Type.Magic, 25, GameConfig.WIDTH),
+    Shoot(Type.Magic, 15, GameConfig.WIDTH),
     @Deprecated
-    Drop(Type.Magic, 35, GameConfig.WIDTH * 3f / 4),
-    Summon(Type.Magic, 40, GameConfig.WIDTH / 3f),
-    Spawn(Type.Magic, 30, GameConfig.WIDTH / 3f),
-    Explode(Type.Magic, 20, GameConfig.WIDTH / 2f),
+    Drop(Type.Magic, 25, GameConfig.WIDTH * 3f / 4),
+    Summon(Type.Magic, 30, GameConfig.WIDTH / 3f),
+    Spawn(Type.Magic, 20, GameConfig.WIDTH / 3f),
+    Explode(Type.Magic, 10, GameConfig.WIDTH / 2f),
 
-    Fire(Type.Type, 0, GameConfig.WIDTH / 4f),
-    Water(Type.Type, 0, GameConfig.WIDTH / 4f),
-    Lightning(Type.Type, 0, GameConfig.WIDTH / 4f),
-    Rock(Type.Type, 0, GameConfig.WIDTH / 4f),
-    Leaf(Type.Type, 0, GameConfig.WIDTH / 4f);
+    Fire(Type.Type, 10, GameConfig.WIDTH / 4f),
+    Water(Type.Type, 10, GameConfig.WIDTH / 4f),
+    Lightning(Type.Type, 10, GameConfig.WIDTH / 4f),
+    Rock(Type.Type, 10, GameConfig.WIDTH / 4f),
+    Leaf(Type.Type, 10, GameConfig.WIDTH / 4f);
 
     public enum Type {
         Magic,
