@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum CardType {
     // Card types
     Shoot(Type.Magic),
-    Summon(Type.Magic),
+    Build(Type.Magic),
     Spawn(Type.Magic),
     Explode(Type.Magic),
 
@@ -14,7 +14,8 @@ public enum CardType {
     Water(Type.Type),
     Lightning(Type.Type),
     Rock(Type.Type),
-    Leaf(Type.Type);
+    Nature(Type.Type),
+    Wind(Type.Type);
 
     public enum Type {
         Magic,

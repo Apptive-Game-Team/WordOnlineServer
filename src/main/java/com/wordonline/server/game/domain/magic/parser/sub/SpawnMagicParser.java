@@ -22,7 +22,7 @@ public class SpawnMagicParser implements MagicParser {
             prefabType = PrefabType.WaterSlime;
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricSlime;
-        } else if (cards.contains(CardType.Leaf)) {
+        } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafSlime;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockSlime;

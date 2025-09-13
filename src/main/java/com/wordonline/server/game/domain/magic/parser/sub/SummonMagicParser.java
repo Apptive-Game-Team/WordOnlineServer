@@ -22,7 +22,7 @@ public class SummonMagicParser implements MagicParser {
             prefabType = PrefabType.WaterSummon;
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricSummon;
-        } else if (cards.contains(CardType.Leaf)) {
+        } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafSummon;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockSummon;
@@ -30,7 +30,7 @@ public class SummonMagicParser implements MagicParser {
             return null;
         }
 
-        return new Magic(CardType.Summon) {
+        return new Magic(CardType.Build) {
             @Override
             public void run(GameLoop gameLoop) {
                 new GameObject(master, prefabType, position.toVector3(), gameLoop);

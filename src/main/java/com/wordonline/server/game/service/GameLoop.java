@@ -29,7 +29,6 @@ public class GameLoop implements Runnable {
     public static final int FPS = 10;
     public final SessionObject sessionObject;
     private int _frameNum = 0;
-    public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
     public final MmrService mmrService;
 
@@ -39,7 +38,7 @@ public class GameLoop implements Runnable {
     private final PhysicSystem physicSystem = new PhysicSystem();
     public final GameSessionData gameSessionData;
     public final Physics physics;
-    public final InputHandler inputHandler = new InputHandler(this);
+    public final MagicInputHandler magicInputHandler = new MagicInputHandler(this);
     public final Parameters parameters;
 
     public float deltaTime = 1f / FPS;

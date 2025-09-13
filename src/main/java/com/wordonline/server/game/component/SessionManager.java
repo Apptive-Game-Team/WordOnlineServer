@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class SessionManager {
 
-    private static Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
+    private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
     private final MmrService mmrService;
     private final Parameters parameters;
 

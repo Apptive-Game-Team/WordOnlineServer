@@ -22,7 +22,7 @@ public class ExplodeMagicParser implements MagicParser {
             prefabType = PrefabType.WaterExplode;
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricExplode;
-        } else if (cards.contains(CardType.Leaf)) {
+        } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafExplode;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockExplode;

@@ -36,7 +36,7 @@ public class PlayerData {
         int totalManaCost = 0;
         List<CardType> tempCards = new ArrayList<>(this.cards);
         for (CardType card : cards) {
-            totalManaCost += parameters.getValue(card.name().toLowerCase(), "mana_cost");
+            totalManaCost += (int) parameters.getValue(card.name().toLowerCase(), "mana_cost");
             if (!tempCards.remove(card)) {
                 log.trace("temp cards: {}, trying card {}", tempCards, card);
                 return false;
@@ -48,7 +48,7 @@ public class PlayerData {
 
         for (CardType card : cards) {
             this.cards.remove(card);
-            mana -= parameters.getValue(card.name().toLowerCase(), "mana_cost");
+            mana -= (int) parameters.getValue(card.name().toLowerCase(), "mana_cost");
         }
 
         return true;
