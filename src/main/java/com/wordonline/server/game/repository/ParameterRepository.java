@@ -23,9 +23,9 @@ public class ParameterRepository {
             """;
 
     public Double getParameterValue(String gameObject, String parameter) {
-        log.info("[Database] get parameter gameobject: {} | parameter: {}", gameObject, parameter);
+        log.info("[Database] get parameter gameobject: {} | parameter: {}", gameObject.toLowerCase(), parameter);
         return jdbcClient.sql(GET_PARAMETER_VALUE)
-                .param("gameObject", gameObject)
+                .param("gameObject", gameObject.toLowerCase())
                 .param("parameter", parameter)
                 .query(Double.class)
                 .single();
