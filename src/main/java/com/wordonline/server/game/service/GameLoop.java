@@ -2,11 +2,8 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.parser.BasicMagicParser;
-import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
