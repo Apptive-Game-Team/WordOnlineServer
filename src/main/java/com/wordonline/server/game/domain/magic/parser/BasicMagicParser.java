@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicMagicParser implements MagicParser {
+
     private final ExplodeMagicParser explodeMagicParser = new ExplodeMagicParser();
     private final ShootMagicParser shootMagicParser = new ShootMagicParser();
     private final SummonMagicParser summonMagicParser = new SummonMagicParser();

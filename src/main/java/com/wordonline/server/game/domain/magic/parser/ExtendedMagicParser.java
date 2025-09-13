@@ -10,7 +10,7 @@ import com.wordonline.server.game.dto.Master;
 public class ExtendedMagicParser implements MagicParser {
 
     private final MagicParser basicMagicParser = new BasicMagicParser();
-    private final MagicParser hashMapMagicParser = new HashMapMagicParser();
+    private final MagicParser hashMapMagicParser = new MapMagicParser();
 
     @Override
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
