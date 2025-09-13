@@ -47,7 +47,7 @@ public class GameLoop implements Runnable {
     public GameLoop(SessionObject sessionObject, MmrService mmrService, Parameters parameters) {
         this.sessionObject = sessionObject;
         this.mmrService = mmrService;
-        gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
+        gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);

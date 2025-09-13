@@ -7,7 +7,7 @@ public record CardDto(
         CardType name,
         CardType.Type type
 ) {
-    public CardDto(long id,CardType cardType) {
+    public CardDto(long id, CardType cardType) {
         this(id, cardType, cardType.getType());
     }
 }

@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 // this class is used to store the game session data
-@RequiredArgsConstructor
 public class GameSessionData {
-    public final PlayerData leftPlayerData = new PlayerData();
-    public final PlayerData rightPlayerData = new PlayerData();
+    public final PlayerData leftPlayerData;
+    public final PlayerData rightPlayerData;
     public final List<GameObject> gameObjects = new ArrayList<>();
     public final List<GameObject> gameObjectsToAdd = new ArrayList<>();
 
@@ -39,5 +38,13 @@ public class GameSessionData {
         } else {
             return null;
         }
+    }
+
+    public GameSessionData(CardDeck leftCardDeck, CardDeck rightCardDeck, Parameters parameters) {
+        this.leftCardDeck = leftCardDeck;
+        this.rightCardDeck = rightCardDeck;
+
+        leftPlayerData = new PlayerData(parameters);
+        rightPlayerData = new PlayerData(parameters);
     }
 }
