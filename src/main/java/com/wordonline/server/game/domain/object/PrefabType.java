@@ -5,10 +5,7 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
-import com.wordonline.server.game.domain.object.component.effect.CommonEffectReceiver;
-import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
-import com.wordonline.server.game.domain.object.component.effect.FireEffectReceiver;
-import com.wordonline.server.game.domain.object.component.effect.LeafFieldEffectReceiver;
+import com.wordonline.server.game.domain.object.component.effect.*;
 import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
@@ -173,6 +170,31 @@ public enum PrefabType {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
         gameObject.setElement(ElementType.LEAF);
         gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.LeafSlime));
+    }),
+    // wind
+    WindShot((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
+        gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("wind_shoot", "damage")));
+    }),
+    WindExplode((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
+        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("wind_shoot", "damage")));
+    }),
+    WindSlime((gameObject, parameters)  -> {
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
+        gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+    }),
+    WindSummon((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.setElement(ElementType.WIND);
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.WindSlime));
     }),
 
 

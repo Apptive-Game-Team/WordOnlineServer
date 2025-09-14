@@ -1,5 +1,6 @@
 package com.wordonline.server.game.component;
 
+import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 // this class is used to manage the sessions
@@ -19,10 +21,11 @@ public class SessionManager {
 
     private static Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
     private final MmrService mmrService;
+    private final UserService userService;
     private final Parameters parameters;
 
     public void createSession(SessionObject sessionObject) {
-        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, parameters);
+        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, userService, parameters);
         sessionObject.setGameLoop(gameLoop);
         Thread thread = new Thread(gameLoop);
         thread.start();
@@ -44,5 +47,11 @@ public class SessionManager {
         return "Sessions: " + String.join("\n", sessions.values()
                 .stream()
                 .map(Object::toString).toList());
+    }
+
+    public Optional<SessionObject> findByUserId(long userId) {
+        return sessions.values().stream()
+                .filter(s -> s.getLeftUserId() == userId || s.getRightUserId() == userId)
+                .findFirst();
     }
 }

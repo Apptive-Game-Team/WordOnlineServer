@@ -7,7 +7,7 @@ import com.wordonline.server.game.dto.Effect;
 
 public class EffectProvider extends Component implements Collidable {
 
-    private final Effect effect;
+    protected final Effect effect;
 
     @Override
     public void onCollision(GameObject otherObject) {

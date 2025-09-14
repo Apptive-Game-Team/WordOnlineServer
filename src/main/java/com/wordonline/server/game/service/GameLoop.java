@@ -1,5 +1,7 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.auth.domain.User;
+import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.magic.parser.BasicMagicParser;
@@ -11,6 +13,8 @@ import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
+import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
+import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
@@ -32,6 +36,7 @@ public class GameLoop implements Runnable {
     public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
     public final MmrService mmrService;
+    private final UserService userService;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -44,7 +49,19 @@ public class GameLoop implements Runnable {
 
     public float deltaTime = 1f / FPS;
 
-    public GameLoop(SessionObject sessionObject, MmrService mmrService, Parameters parameters) {
+    @Getter
+    private volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of());
+
+    // 2) 스냅샷 빌더
+    private SnapshotResponseDto buildSnapshot() {
+        var list = new ArrayList<SnapshotObjectDto>(gameSessionData.gameObjects.size());
+        for (var g : gameSessionData.gameObjects) {
+            list.add(SnapshotMapper.toDto(g));
+        }
+        return new SnapshotResponseDto(_frameNum, list);
+    }
+
+    public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters) {
         this.sessionObject = sessionObject;
         this.mmrService = mmrService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
@@ -76,7 +93,7 @@ public class GameLoop implements Runnable {
             try {
                 update();
             } catch (Exception e) {
-                log.error("[ERROR] {}", e.getMessage());
+                log.error("[ERROR] {}", e.getMessage(), e);
             }
 
             long endTime = System.currentTimeMillis();
@@ -128,6 +145,8 @@ public class GameLoop implements Runnable {
 
                 ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
                 resultChecker.broadcastResult(mmrDto);
+                userService.markOnline(leftId);
+                userService.markOnline(rightId);
 
                 // 3) 루프 종료
                 close();
@@ -184,6 +203,8 @@ public class GameLoop implements Runnable {
             }
             gameObject.getComponentsToRemove().clear();
         }
+        lastSnapshot = buildSnapshot();
     }
+
 }
 

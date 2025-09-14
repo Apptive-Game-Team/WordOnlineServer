@@ -17,6 +17,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RequestMapping("/api/users")
 @Slf4j
@@ -52,5 +54,16 @@ public class UserController {
         }
 
         return ResponseEntity.ok(userService.getUser(principalDetails.userId));
+    }
+
+    @GetMapping("/mine/status")
+    public ResponseEntity<Map<String, String>> getMyStatus(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        if (principalDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        var status = userService.getStatus(principalDetails.userId);
+        return ResponseEntity.ok(Map.of("status", status.name()));
     }
 }

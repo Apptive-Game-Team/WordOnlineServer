@@ -1,6 +1,7 @@
 package com.wordonline.server.auth.repository;
 
 import com.wordonline.server.auth.domain.User;
+import com.wordonline.server.auth.domain.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -12,12 +13,14 @@ import java.util.Optional;
 public class UserRepository {
 
     private static final String GET_USER_BY_EMAIL = """
-            SELECT id, email, name, password_hash, selected_deck_id
+            SELECT id, email, name, password_hash, status, selected_deck_id
+
             FROM users
             WHERE email = :email;
             """;
     private static final String GET_USER_BY_ID = """
-            SELECT id, email, name, password_hash, selected_deck_id
+            SELECT id, email, name, password_hash, status, selected_deck_id
+
             FROM users
             WHERE id = :id;
             """;
@@ -26,6 +29,18 @@ public class UserRepository {
             VALUES
             (:email, :name, :passwordHash);
             """;
+
+    private static final String UPDATE_STATUS = """
+        UPDATE users
+           SET status = CAST(:status AS user_status)
+         WHERE id = :id;
+        """;
+
+    private static final String GET_STATUS = """
+        SELECT status
+          FROM users
+         WHERE id = :id;
+        """;
 
     private static final String GET_MMR = """
             SELECT mmr
@@ -64,6 +79,7 @@ public class UserRepository {
                                 rs.getString("email"),
                                 rs.getString("name"),
                                 rs.getString("password_hash"),
+                                UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))
                 .optional();
@@ -78,6 +94,7 @@ public class UserRepository {
                                 rs.getString("email"),
                                 rs.getString("name"),
                                 rs.getString("password_hash"),
+                                UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))
                 .optional();
@@ -89,5 +106,21 @@ public class UserRepository {
                 .param("name", user.getName())
                 .param("passwordHash", user.getPasswordHash())
                 .update() == 1;
+    }
+
+    public void updateStatus(long userId, UserStatus status) {
+        jdbcClient.sql(UPDATE_STATUS)
+                .param("id", userId)
+                .param("status", status.name())
+                .update();
+    }
+
+    public UserStatus getStatus(long userId) {
+        return jdbcClient.sql(GET_STATUS)
+                .param("id", userId)
+                .query((rs, rowNum) ->
+                        UserStatus.valueOf(rs.getString("status"))
+                )
+                .single();
     }
 }

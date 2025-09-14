@@ -33,8 +33,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(INVALID_REQUEST_MESSAGE);
     }
 
-    @ExceptionHandler(Exception.class)
-    public void handleException(Exception e) {
-        log.error("[ERROR] {}", e.getMessage());
-    }
+//    @ExceptionHandler(Exception.class)
+//    public void handleException(Exception e) {
+//        log.error("[ERROR] {}", e.getMessage());
+//    }
 }
