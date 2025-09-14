@@ -1,17 +1,22 @@
 package com.wordonline.server.game.domain;
 
 import com.wordonline.server.game.domain.magic.CardType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 // This class is used to store player data
+@Slf4j
+@RequiredArgsConstructor
 public class PlayerData {
     public final static int MAX_CARD_NUM = 6;
     public final static int MAX_HP = 100;
+
+    private final Parameters parameters;
 
     public int mana = 0;
     public int hp = MAX_HP;
@@ -31,7 +36,7 @@ public class PlayerData {
         int totalManaCost = 0;
         List<CardType> tempCards = new ArrayList<>(this.cards);
         for (CardType card : cards) {
-            totalManaCost += card.getManaCost();
+            totalManaCost += parameters.getValue(card.name().toLowerCase(), "mana_cost");
             if (!tempCards.remove(card)) {
                 log.trace("temp cards: {}, trying card {}", tempCards, card);
                 return false;
@@ -43,11 +48,9 @@ public class PlayerData {
 
         for (CardType card : cards) {
             this.cards.remove(card);
-            mana -= card.getManaCost();
+            mana -= parameters.getValue(card.name().toLowerCase(), "mana_cost");
         }
 
         return true;
     }
-
-    private static final Logger log = LoggerFactory.getLogger(PlayerData.class);
 }
