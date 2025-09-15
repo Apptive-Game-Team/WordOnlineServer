@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 public class Cannon extends Mob {
 
     private final float DETECT_INTERVAL = 5;
+    private final float ATTACK_RANGE = 5;
 
     private float timer = 0;
     private final AttackInfo attackInfo;
@@ -37,10 +38,14 @@ public class Cannon extends Mob {
 
             GameObject target = detector.detect(gameObject);
 
-            target.getComponents(Damageable.class)
-                    .forEach(
-                            damageable -> damageable.onDamaged(attackInfo)
-                    );
+            double distance = target.getPosition().distance(gameObject.getPosition());
+
+            if (distance < ATTACK_RANGE) {
+                target.getComponents(Damageable.class)
+                        .forEach(
+                                damageable -> damageable.onDamaged(attackInfo)
+                        );
+            }
 
             timer = 0;
         }

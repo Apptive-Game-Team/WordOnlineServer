@@ -12,6 +12,9 @@ import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameLoop;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MapMagicParser implements MagicParser {
 
     private static final Map<List<CardType>, BiFunction<Master, Vector2, Magic>> magicHashMap;
@@ -94,6 +97,13 @@ public class MapMagicParser implements MagicParser {
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
         List<CardType> key = List.copyOf(cards.stream().sorted().toList());
         BiFunction<Master, Vector2, Magic> factory = magicHashMap.get(key);
+
+        if (factory == null) {
+            log.info("cards: {}, keys: {}", cards, key);
+
+            return null;
+        }
+
         return factory.apply(master, position);
     }
 }

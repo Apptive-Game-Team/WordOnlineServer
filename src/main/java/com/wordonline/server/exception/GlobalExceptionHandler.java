@@ -35,6 +35,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public void handleException(Exception e) {
-        log.error("[ERROR] {}", e.getMessage());
+        log.error("[ERROR] {}", e.getMessage(), e);
     }
 }

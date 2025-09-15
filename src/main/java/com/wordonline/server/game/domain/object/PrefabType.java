@@ -51,9 +51,9 @@ public enum PrefabType {
         gameObject.getComponents().add(new FireEffectReceiver(gameObject));
     }),
     FireSummon((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.FireSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.FireSlime));
     }),
 
     // water
@@ -85,9 +85,9 @@ public enum PrefabType {
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     WaterSummon((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.WATER);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.WaterSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.WaterSlime));
     }),
 
     // rock
@@ -109,9 +109,9 @@ public enum PrefabType {
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     RockSummon((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.RockSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.RockSlime));
     }),
 
     // electric
@@ -136,27 +136,27 @@ public enum PrefabType {
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     ElectricSummon((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.LIGHTING);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), ElectricSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), ElectricSlime));
     }),
 
     // leaf
     LeafShot((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
-        gameObject.setElement(ElementType.LEAF);
+        gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("shoot", "damage")));
     }),
     LeafExplode((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
-        gameObject.setElement(ElementType.LEAF);
+        gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
     }),
     LeafField((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
-        gameObject.setElement(ElementType.LEAF);
+        gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new LeafFieldEffectReceiver(gameObject));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
@@ -167,13 +167,13 @@ public enum PrefabType {
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new Slime(gameObject, (int) parameters.getValue("slime", "hp"), (float) parameters.getValue("slime", "speed"), (int) parameters.getValue("slime", "damage")));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
-        gameObject.setElement(ElementType.LEAF);
+        gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     LeafSummon((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
-        gameObject.setElement(ElementType.LEAF);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.LeafSlime));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
+        gameObject.setElement(ElementType.NATURE);
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.LeafSlime));
     }),
 
     // 상위 마법
