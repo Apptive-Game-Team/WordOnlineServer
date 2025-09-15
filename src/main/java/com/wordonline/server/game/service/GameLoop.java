@@ -64,7 +64,7 @@ public class GameLoop implements Runnable {
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
-
+        this.userService = userService;
         this.parameters = parameters;
         physics = new SimplePhysics(gameSessionData.gameObjects);
     }
