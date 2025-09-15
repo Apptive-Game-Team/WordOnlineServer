@@ -16,7 +16,7 @@ VALUES
     (2, 'shoot'),
     (3, 'explode'),
     (4, 'spawn'),
-    (5, 'summon'),
+    (5, 'build'),
     (6, 'field');
 
 INSERT INTO parameters

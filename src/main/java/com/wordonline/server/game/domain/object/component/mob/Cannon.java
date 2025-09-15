@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.dto.Status;
 
 public class Cannon extends Mob {
 
@@ -23,7 +24,7 @@ public class Cannon extends Mob {
 
     @Override
     public void onDeath() {
-
+        gameObject.destroy();
     }
 
     @Override
@@ -45,6 +46,7 @@ public class Cannon extends Mob {
                         .forEach(
                                 damageable -> damageable.onDamaged(attackInfo)
                         );
+                gameObject.setStatus(Status.Attack);
             }
 
             timer = 0;
