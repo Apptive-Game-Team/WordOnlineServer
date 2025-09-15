@@ -8,7 +8,6 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
-import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameLoop;
 
@@ -29,7 +28,7 @@ public class ShootMagicParser implements MagicParser {
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricShot;
             magicMaster = master;
-        } else if (cards.contains(CardType.Leaf)) {
+        } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafShot;
             magicMaster = master;
         } else if (cards.contains(CardType.Rock)) {

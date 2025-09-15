@@ -13,16 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicMagicParser implements MagicParser {
-    ExplodeMagicParser explodeMagicParser = new ExplodeMagicParser();
-    ShootMagicParser shootMagicParser = new ShootMagicParser();
-    SummonMagicParser summonMagicParser = new SummonMagicParser();
-    SpawnMagicParser spawnMagicParser = new SpawnMagicParser();
+
+    private final ExplodeMagicParser explodeMagicParser = new ExplodeMagicParser();
+    private final ShootMagicParser shootMagicParser = new ShootMagicParser();
+    private final SummonMagicParser summonMagicParser = new SummonMagicParser();
+    private final SpawnMagicParser spawnMagicParser = new SpawnMagicParser();
 
     @Override
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
         List<CardType> mutableCards = new ArrayList<>(cards);
-        if (mutableCards.contains(CardType.Summon)) {
-            mutableCards.remove(CardType.Summon);
+        if (mutableCards.contains(CardType.Build)) {
+            mutableCards.remove(CardType.Build);
             return summonMagicParser.parseMagic(mutableCards, master, position);
         } else if (mutableCards.contains(CardType.Explode)) {
             mutableCards.remove(CardType.Explode);

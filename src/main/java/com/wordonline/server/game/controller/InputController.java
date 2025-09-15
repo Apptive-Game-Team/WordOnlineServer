@@ -46,7 +46,7 @@ public class InputController {
             return;
         }
 
-        InputResponseDto responseDto = sessionObject.getGameLoop().inputHandler.handleInput(userId, inputRequestDto);
+        InputResponseDto responseDto = sessionObject.getGameLoop().magicInputHandler.handleInput(userId, inputRequestDto);
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
 }

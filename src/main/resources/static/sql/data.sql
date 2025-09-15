@@ -4,9 +4,9 @@ VALUES
     (2, 'Water', 'Type'),
     (3, 'Lightning', 'Type'),
     (4, 'Rock', 'Type'),
-    (5, 'Leaf', 'Type'),
+    (5, 'Nature', 'Type'),
     (6, 'Shoot', 'Magic'),
-    (7, 'Summon', 'Magic'),
+    (7, 'Build', 'Magic'),
     (8, 'Spawn', 'Magic'),
     (9, 'Explode', 'Magic'),
     (10, 'Wind', 'Type');
@@ -17,7 +17,7 @@ VALUES
     (2, 'shoot'),
     (3, 'explode'),
     (4, 'spawn'),
-    (5, 'summon'),
+    (5, 'build'),
     (6, 'field');
 
 INSERT INTO parameters

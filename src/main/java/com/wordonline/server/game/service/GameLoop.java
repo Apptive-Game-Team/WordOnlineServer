@@ -4,11 +4,8 @@ import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.parser.BasicMagicParser;
-import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
@@ -33,7 +30,6 @@ public class GameLoop implements Runnable {
     public static final int FPS = 10;
     public final SessionObject sessionObject;
     private int _frameNum = 0;
-    public final MagicParser magicParser = new BasicMagicParser();
     public final ResultChecker resultChecker;
     public final MmrService mmrService;
     private final UserService userService;
@@ -44,7 +40,7 @@ public class GameLoop implements Runnable {
     private final PhysicSystem physicSystem = new PhysicSystem();
     public final GameSessionData gameSessionData;
     public final Physics physics;
-    public final InputHandler inputHandler = new InputHandler(this);
+    public final MagicInputHandler magicInputHandler = new MagicInputHandler(this);
     public final Parameters parameters;
 
     public float deltaTime = 1f / FPS;
@@ -68,7 +64,7 @@ public class GameLoop implements Runnable {
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
-
+        this.userService = userService;
         this.parameters = parameters;
         physics = new SimplePhysics(gameSessionData.gameObjects);
     }

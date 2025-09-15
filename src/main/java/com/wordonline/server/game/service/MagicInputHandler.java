@@ -3,6 +3,8 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.magic.parser.ExtendedMagicParser;
+import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.InputResponseDto;
 import com.wordonline.server.game.dto.Master;
@@ -13,15 +15,16 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class InputHandler {
+public class MagicInputHandler {
     private final GameLoop gameLoop;
+    private final MagicParser magicParser = new ExtendedMagicParser();
 
     public InputResponseDto handleInput(long userId, InputRequestDto inputRequestDto) {
         Master master = gameLoop.sessionObject.getUserSide(userId);
         PlayerData playerData = gameLoop.gameSessionData.getPlayerData(master);
 
         // Parse the magic from the input request
-        Magic magic = gameLoop.magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()), master, inputRequestDto.getPosition());
+        Magic magic = magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()), master, inputRequestDto.getPosition());
 
         if (magic == null) {
             log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());

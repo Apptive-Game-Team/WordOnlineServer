@@ -26,7 +26,7 @@ public class ExplodeMagicParser implements MagicParser {
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricExplode;
             magicMaster = master;
-        } else if (cards.contains(CardType.Leaf)) {
+        } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafExplode;
             magicMaster = master;
         } else if (cards.contains(CardType.Rock)) {
