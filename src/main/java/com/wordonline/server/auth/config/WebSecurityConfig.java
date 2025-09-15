@@ -33,6 +33,7 @@ public class WebSecurityConfig {
                                             "/api/users/mine/**",
                                             "/api/users",
                                             "/api/users/login",
+                                            "/sessions/**",
                                             "/ws").permitAll()
                                     .anyRequest().authenticated();
                         }

@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum CardType {
-    // Card types
     Shoot(Type.Magic),
     Build(Type.Magic),
     Spawn(Type.Magic),

@@ -24,13 +24,13 @@ public class DeckService {
     private final DeckRepository deckRepository;
 
     public long initializeCard(long userId) {
-        for (int i = 1; i <= 9; i++) {
+        for (int i = 1; i <= 10; i++) {
             deckRepository.saveCardToUser(userId, i, 3);
         }
 
         long deckId = deckRepository.saveDeck(userId, "기본 덱");
 
-        for (int i = 1; i <= 9; i++) {
+        for (int i = 1; i <= 10; i++) {
             deckRepository.saveCardToDeck(deckId, i,
                     i==6?2:1);
         }

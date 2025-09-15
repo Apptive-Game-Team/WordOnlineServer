@@ -8,7 +8,8 @@ VALUES
     (6, 'Shoot', 'Magic'),
     (7, 'Build', 'Magic'),
     (8, 'Spawn', 'Magic'),
-    (9, 'Explode', 'Magic');
+    (9, 'Explode', 'Magic'),
+    (10, 'Wind', 'Type');
 
 INSERT INTO game_objects
 VALUES

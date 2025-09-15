@@ -18,16 +18,25 @@ public class ShootMagicParser implements MagicParser {
     @Override
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
         PrefabType prefabType;
+        Master magicMaster;
         if (cards.contains(CardType.Fire)) {
             prefabType = PrefabType.FireShot;
+            magicMaster = master;
         } else if (cards.contains(CardType.Water)) {
             prefabType = PrefabType.WaterShot;
+            magicMaster = master;
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricShot;
+            magicMaster = master;
         } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafShot;
+            magicMaster = master;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockShot;
+            magicMaster = master;
+        } else if (cards.contains(CardType.Wind)) {
+            prefabType = PrefabType.WindShot;
+            magicMaster = Master.None;
         } else {
             return null;
         }
@@ -35,7 +44,7 @@ public class ShootMagicParser implements MagicParser {
             @Override
             public void run(GameLoop gameLoop) {
                 GameObject gameObject = new GameObject(
-                        master,
+                        magicMaster,
                         prefabType,
                         GameConfig.PLAYER_POSITION.get(master),
                         gameLoop);

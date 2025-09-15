@@ -6,12 +6,14 @@ import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.dto.Status;
+import lombok.Getter;
 
 import java.util.List;
 
 public class Shot extends MagicComponent implements Collidable {
     public static final int SPEED = 2;
 
+    @Getter
     private Vector2 direction;
     private final int damage;
 
