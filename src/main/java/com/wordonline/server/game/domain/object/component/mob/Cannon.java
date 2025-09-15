@@ -36,20 +36,25 @@ public class Cannon extends Mob {
     public void update() {
         timer += gameObject.getGameLoop().deltaTime;
         if (timer >= DETECT_INTERVAL) {
+            timer = 0;
 
             GameObject target = detector.detect(gameObject);
 
-            double distance = target.getPosition().distance(gameObject.getPosition());
-
-            if (distance < ATTACK_RANGE) {
-                target.getComponents(Damageable.class)
-                        .forEach(
-                                damageable -> damageable.onDamaged(attackInfo)
-                        );
-                gameObject.setStatus(Status.Attack);
+            if (target == null) {
+                return;
             }
 
-            timer = 0;
+            double distance = target.getPosition().distance(gameObject.getPosition());
+
+            if (distance > ATTACK_RANGE) {
+                return;
+            }
+
+            target.getComponents(Damageable.class)
+                    .forEach(
+                            damageable -> damageable.onDamaged(attackInfo)
+                    );
+            gameObject.setStatus(Status.Attack);
         }
     }
 
