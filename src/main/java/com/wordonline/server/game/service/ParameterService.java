@@ -28,14 +28,14 @@ public class ParameterService {
             return objectParameters.get(parameterName);
         }
 
-        Double valueFromDb = parameterRepository.getParameterValue(gameObject, parameterName);
-        if (valueFromDb != null) {
-            parameterCaches
-                    .computeIfAbsent(gameObject, k -> new ConcurrentHashMap<>())
-                    .put(parameterName, valueFromDb);
-            return valueFromDb;
-        }
 
-        throw new IllegalArgumentException("Parameter not found: " + gameObject + ", " + parameterName);
+        Double valueFromDb = parameterRepository.getParameterValue(gameObject, parameterName)
+                .orElseThrow(() -> new IllegalArgumentException("Parameter not found: " + gameObject + ", " + parameterName));
+
+
+        parameterCaches
+                .computeIfAbsent(gameObject, k -> new ConcurrentHashMap<>())
+                .put(parameterName, valueFromDb);
+        return valueFromDb;
     }
 }
