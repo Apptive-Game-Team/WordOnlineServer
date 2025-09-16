@@ -1,7 +1,9 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
+    private float normalForce;
     private final int mass;
 
     public float getInvMass() {
@@ -36,6 +39,17 @@ public class RigidBody extends Component {
         log.trace("position: {}", gameObject.getPosition());
 
         velocity.clear();
+    }
+
+    public void addNormalForce(float force) {
+        normalForce += force;
+    }
+
+    public void applyZForce() {
+        final float dt = gameObject.getGameLoop().deltaTime;
+        final Vector3 pos = gameObject.getPosition();
+        final float newZ = Math.max(0f, pos.getZ() - (normalForce - GameConfig.GLOBAL_GRAVITY) * dt);
+        gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
     }
 
     @Override

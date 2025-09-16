@@ -10,6 +10,12 @@ public class Vector3 {
     private float x, y, z;
 
     public static final Vector3 ZERO = new Vector3(0, 0, 0);
+    public static final Vector3 RIGHT = new Vector3(1, 0, 0);
+    public static final Vector3 LEFT = new Vector3(-1, 0, 0);
+    public static final Vector3 FORWARD = new Vector3(0, 1, 0);
+    public static final Vector3 BACK = new Vector3(0, -1, 0);
+    public static final Vector3 UP = new Vector3(0, 0, 1);
+    public static final Vector3 DOWN = new Vector3(0, 0, -1);
 
     public void clear() {
         x = 0; y = 0; z = 0;
