@@ -12,15 +12,19 @@ import com.wordonline.server.game.dto.Effect;
 public class KnockbackStatusEffect extends BaseStatusEffect {
     private static final float KNOCKBACK_DURATION = 0.5f;
     private static final float KNOCKBACK_POWER    = 2f;
+    private static final float KNOCKBACK_POWER_Z  = 10f;
+    private static final float PROX_MIN           = 0.2f;
     private final Vector2 knockbackDir;
+    private final float proximity;
 
     // 누적 이동 거리
     private float moved = 0f;
 
-    public KnockbackStatusEffect(GameObject owner, Vector2 dir) {
+    public KnockbackStatusEffect(GameObject owner, Vector2 dir, float prox) {
         super(owner, KNOCKBACK_DURATION);
         gameObject.setEffect(Effect.Knockback);
         this.knockbackDir = dir;
+        this.proximity = Math.max(prox, PROX_MIN);
     }
 
     @Override
@@ -28,13 +32,17 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
             mob.getSpeed().setModifierPercent(-1f);
+            RigidBody rb = gameObject.getComponent(RigidBody.class);
+            if (rb != null) {
+                rb.addNormalForce(KNOCKBACK_POWER_Z * proximity);
+            }
         }
     }
 
     @Override
     public void update() {
         float dt = gameObject.getGameLoop().deltaTime;
-        float speed = KNOCKBACK_POWER / KNOCKBACK_DURATION; // 초당 이동 거리
+        float speed = KNOCKBACK_POWER / KNOCKBACK_DURATION;
         float step  = speed * dt;
 
         float remain = KNOCKBACK_POWER - moved;
@@ -47,7 +55,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
         RigidBody rb = gameObject.getComponent(RigidBody.class);
         if(rb != null)
         {
-            rb.addVelocity(knockbackDir.multiply(step));
+            rb.addVelocity(knockbackDir.multiply(step).multiply(proximity));
         }
         moved += step;
 
@@ -62,6 +70,10 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
             mob.getSpeed().setModifierPercent(0f);
+            RigidBody rb = gameObject.getComponent(RigidBody.class);
+            if (rb != null) {
+                rb.addNormalForce(-KNOCKBACK_POWER_Z * proximity);
+            }
         }
         super.expire();
     }
