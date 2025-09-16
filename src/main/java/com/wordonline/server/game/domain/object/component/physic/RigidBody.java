@@ -14,6 +14,7 @@ public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
     private float normalForce = GameConfig.GLOBAL_GRAVITY;
+    private float originalZPos;
     private final int mass;
 
     public float getInvMass() {
@@ -49,7 +50,7 @@ public class RigidBody extends Component {
         final float dt = gameObject.getGameLoop().deltaTime;
         final Vector3 pos = gameObject.getPosition();
         final float normalVelocity = (normalForce - GameConfig.GLOBAL_GRAVITY) * dt;
-        final float newZ = Math.max(0f, pos.getZ() + normalVelocity);
+        final float newZ = Math.max(originalZPos, pos.getZ() + normalVelocity);
         log.info("newZ: {}", newZ);
         gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
         normalForce = Math.max(0f,normalForce - GameConfig.GLOBAL_GRAVITY);
@@ -74,4 +75,10 @@ public class RigidBody extends Component {
         super(gameObject);
         this.mass = mass;
     }
+    public RigidBody(GameObject gameObject, int mass, float ZPos) {
+        super(gameObject);
+        this.mass = mass;
+        this.originalZPos = ZPos;
+    }
+
 }
