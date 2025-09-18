@@ -193,9 +193,9 @@ public enum PrefabType {
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     WindSummon((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("summon", "radius"), true));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.WIND);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("summon", "hp"), PrefabType.WindSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.WindSlime));
     }),
 
     // 상위 마법

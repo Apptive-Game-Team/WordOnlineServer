@@ -51,7 +51,6 @@ public class RigidBody extends Component {
         final Vector3 pos = gameObject.getPosition();
         final float normalVelocity = (normalForce - GameConfig.GLOBAL_GRAVITY) * dt;
         final float newZ = Math.max(originalZPos, pos.getZ() + normalVelocity);
-        log.info("newZ: {}", newZ);
         gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
         normalForce = Math.max(0f,normalForce - GameConfig.GLOBAL_GRAVITY);
     }
