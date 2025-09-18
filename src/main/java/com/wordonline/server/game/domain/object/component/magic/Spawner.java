@@ -5,15 +5,19 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.component.Damageable;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 
-public class Spawner extends MagicComponent implements Damageable {
+public class Spawner extends Mob {
     public static final int SPAWN_INTERNAL = 2;
 
     private float counter = 0;
     private boolean isRunning = false;
     private PrefabType prefabType;
-    private int hp = 0;
-    private int maxHp = 0;
+
+    @Override
+    public void start() {
+
+    }
 
     @Override
     public void update() {
@@ -30,8 +34,13 @@ public class Spawner extends MagicComponent implements Damageable {
         }
     }
 
+    @Override
+    public void onDestroy() {
+
+    }
+
     public Spawner(GameObject gameObject, int maxHp, PrefabType prefabType) {
-        super(gameObject);
+        super(gameObject, maxHp, 0);
         this.prefabType = prefabType;
         isRunning = true;
         this.maxHp = maxHp;
@@ -41,8 +50,14 @@ public class Spawner extends MagicComponent implements Damageable {
     @Override
     public void onDamaged(AttackInfo attackInfo) {
         hp -= attackInfo.getDamage();
+        gameObject.getGameLoop().getObjectsInfoDtoBuilder().updateGameObject(gameObject);
         if (hp <= 0) {
             gameObject.destroy();
         }
+    }
+
+    @Override
+    public void onDeath() {
+
     }
 }
