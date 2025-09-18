@@ -148,6 +148,13 @@ public class GameLoop implements Runnable {
                 close();
         }
 
+
+        //Apply Idle Status to Non-Idle Object
+        gameSessionData.gameObjects
+                .stream()
+                .filter(gameObject -> gameObject.getStatus() != Status.Idle)
+                .forEach(gameObject -> gameObject.setStatus(Status.Idle));
+
         // Apply Created GameObject
         gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
         gameSessionData.gameObjectsToAdd.clear();
@@ -179,8 +186,11 @@ public class GameLoop implements Runnable {
                 rightFrameInfoDto
         );
 
+
+
         // Apply Destroyed GameObject
         gameSessionData.gameObjects.removeAll(toRemove);
+
 
         // Apply Added and Removed Component
         for (GameObject gameObject : gameSessionData.gameObjects)

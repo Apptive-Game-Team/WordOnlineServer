@@ -99,6 +99,7 @@ public class PhysicSystem implements CollisionSystem {
                          return;
                      }
                      rigidBody.applyVelocity();
+                     rigidBody.applyZForce();
                 }
         );
         collidedPairs.clear();
