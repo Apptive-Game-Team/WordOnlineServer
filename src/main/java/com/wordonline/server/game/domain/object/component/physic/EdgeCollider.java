@@ -9,11 +9,11 @@ public class EdgeCollider extends Collider {
     private final Vector2 relatedPoint1, relatedPoint2;
 
     public Vector2 getPoint1() {
-        return relatedPoint1.plus(getPosition());
+        return relatedPoint1.plus(getPosition().toVector2());
     }
 
     public Vector2 getPoint2() {
-        return relatedPoint2.plus(getPosition());
+        return relatedPoint2.plus(getPosition().toVector2());
     }
 
 
@@ -50,17 +50,17 @@ public class EdgeCollider extends Collider {
     public Vector2 getDisplacement(Collider collider) {
         if (collider instanceof CircleCollider circleCollider) {
             Vector2 projection = getProjection(
-                    circleCollider.getPosition(), getPoint1(), getPoint2()
+                    circleCollider.getPosition().toVector2(), getPoint1(), getPoint2()
             );
 
-            return projection.subtract(collider.getPosition());
+            return projection.subtract(collider.getPosition().toVector2());
         }
 
         return null;
     }
 
     private boolean isCircleColliding(CircleCollider circle) {
-        Vector2 center = circle.getPosition();
+        Vector2 center = circle.getPosition().toVector2();
         double radius = circle.getRadius();
 
         // 선분과 원 중심 사이 최소 거리 구하기

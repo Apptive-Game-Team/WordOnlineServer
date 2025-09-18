@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 
 public abstract class Collider {
     protected final RigidBody rigidBody;
@@ -15,8 +16,8 @@ public abstract class Collider {
         return !isTrigger;
     }
 
-    public Vector2 getPosition() {
-        return gameObject.getPosition().toVector2();
+    public Vector3 getPosition() {
+        return gameObject.getPosition();
     }
 
     public float getInvMass() {
