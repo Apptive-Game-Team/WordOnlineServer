@@ -2,5 +2,5 @@ package com.wordonline.server.game.dto;
 
 public enum Status {
     Idle,
-    Move, Attack, Destroyed, Damaged
+    Move, Attack, Destroyed, Damaged, Hindered
 }
