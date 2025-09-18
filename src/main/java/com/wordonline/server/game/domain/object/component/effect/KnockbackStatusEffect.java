@@ -1,10 +1,8 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
-import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
-import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Effect;
@@ -34,7 +32,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
             mob.getSpeed().setModifierPercent(-1f);
             RigidBody rb = gameObject.getComponent(RigidBody.class);
             if (rb != null) {
-                rb.addNormalForce(KNOCKBACK_POWER_Z * proximity);
+                rb.addNormalVelocity(KNOCKBACK_POWER_Z * proximity);
             }
         }
     }
@@ -72,7 +70,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
             mob.getSpeed().setModifierPercent(0f);
             RigidBody rb = gameObject.getComponent(RigidBody.class);
             if (rb != null) {
-                rb.addNormalForce(-KNOCKBACK_POWER_Z * proximity);
+                rb.addNormalVelocity(-KNOCKBACK_POWER_Z * proximity);
             }
         }
         super.expire();

@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
-    private float normalForce = GameConfig.GLOBAL_GRAVITY;
+    private float normalVelocity;
     private float originalZPos;
     private final int mass;
 
@@ -42,17 +42,20 @@ public class RigidBody extends Component {
         velocity.clear();
     }
 
-    public void addNormalForce(float force) {
-        normalForce += force;
+    public void addNormalVelocity(float force) {
+        normalVelocity += force;
     }
 
     public void applyZForce() {
         final float dt = gameObject.getGameLoop().deltaTime;
         final Vector3 pos = gameObject.getPosition();
-        final float normalVelocity = (normalForce - GameConfig.GLOBAL_GRAVITY) * dt;
-        final float newZ = Math.max(originalZPos, pos.getZ() + normalVelocity);
+        final float curZDelta = normalVelocity * dt;
+        final float newZ;
+        if(pos.getZ() + curZDelta < 0)
+        {
+            normalVelocity = 0;
+        }
         gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
-        normalForce = Math.max(0f,normalForce - GameConfig.GLOBAL_GRAVITY);
     }
 
     @Override
