@@ -2,9 +2,9 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 
 import com.wordonline.server.game.domain.object.GameObject;
 
-public class RangeAttacker extends Attacker {
+public class RangeAttackMob extends AttackMob {
 
-    public RangeAttacker(GameObject gameObject, int maxHp, float speed, int damage, float attackInterval, float attackRange) {
+    public RangeAttackMob(GameObject gameObject, int maxHp, float speed, int damage, float attackInterval, float attackRange) {
         super(gameObject, maxHp, speed, damage, attackInterval, attackRange);
     }
 }
