@@ -1,0 +1,38 @@
+package com.wordonline.server.game.domain.object.component.mob;
+
+import com.wordonline.server.game.domain.object.GameObject;
+
+public class ManaWellMob extends Mob {
+
+    public ManaWellMob(GameObject gameObject, int maxHp) {
+        super(gameObject, maxHp, 0);
+    }
+
+    @Override
+    public void onDeath() {
+        gameObject.getGameLoop()
+                .gameSessionData
+                .getPlayerData(gameObject.getMaster())
+                .manaCharger
+                .updateManaCharge(-1);
+    }
+
+    @Override
+    public void start() {
+        gameObject.getGameLoop()
+                .gameSessionData
+                .getPlayerData(gameObject.getMaster())
+                .manaCharger
+                .updateManaCharge(1);
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void onDestroy() {
+
+    }
+}

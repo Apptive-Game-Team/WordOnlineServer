@@ -2,6 +2,8 @@ server:
   port: ${PORT:7777}
 
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: word-online-server
   sql:

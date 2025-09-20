@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain;
 
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.service.ManaCharger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 public class PlayerData {
     public final static int MAX_CARD_NUM = 6;
     public final static int MAX_HP = 100;
+
+    public final ManaCharger manaCharger = new ManaCharger();
 
     private final Parameters parameters;
 

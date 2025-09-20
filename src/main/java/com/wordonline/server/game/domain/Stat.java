@@ -8,9 +8,17 @@ public class Stat {
     @Getter @Setter
     private float modifierPercent = 0f;
 
+    public void addPercent(float deltaPercent) {
+        modifierPercent += deltaPercent;
+    }
+
+    public int getFloorValue() {
+        return (int) getFinalValue();
+    }
+
     public float getFinalValue()
     {
-        return originalStat * (1+modifierPercent);
+        return originalStat * (1 + modifierPercent);
     }
 
     public Stat(float originalStat)

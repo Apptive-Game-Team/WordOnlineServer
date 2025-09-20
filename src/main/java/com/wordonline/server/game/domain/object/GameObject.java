@@ -59,22 +59,18 @@ public class GameObject {
     }
 
     public <T> T getComponent(Class<T> clazz) {
-        for (Component component : components) {
-            if (clazz.isInstance(component)) {
-                return (T) component;
-            }
-        }
-        return null;
+        return components.stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .findFirst()
+                .orElse(null);
     }
 
     public <T> List<T> getComponents(Class<T> clazz) {
-        List<T> result = new ArrayList<>();
-        for (Component component : components) {
-            if (clazz.isInstance(component)) {
-                result.add((T) component);
-            }
-        }
-        return result;
+        return components.stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .toList();
     }
 
     public void addComponent(Component component)

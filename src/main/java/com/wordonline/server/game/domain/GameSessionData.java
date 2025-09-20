@@ -18,7 +18,7 @@ public class GameSessionData {
 
     public final CardDeck leftCardDeck;
     public final CardDeck rightCardDeck;
-    public final ManaCharger manaCharger = new ManaCharger();
+
 
     public PlayerData getPlayerData(Master master){
         if (master == Master.LeftPlayer) {
