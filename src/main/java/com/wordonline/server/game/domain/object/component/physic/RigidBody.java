@@ -48,11 +48,23 @@ public class RigidBody extends Component {
 
     public void applyZForce() {
         final float dt = gameObject.getGameLoop().deltaTime;
-        final Vector3 pos = gameObject.getPosition();
-        final float normalVelocity = (normalForce - GameConfig.GLOBAL_GRAVITY) * dt;
-        final float newZ = Math.max(originalZPos, pos.getZ() + normalVelocity);
-        gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
-        normalForce = Math.max(0f,normalForce - GameConfig.GLOBAL_GRAVITY);
+        final float g  = GameConfig.GRAVITY_ACCEL;
+
+        normalVelocity -= g * dt;
+
+        Vector3 p = gameObject.getPosition();
+        float z = p.getZ() + normalVelocity * dt;
+
+        if (z < originalZPos) {
+            z = originalZPos;
+            if (normalVelocity < 0f && Math.abs(p.getZ() - originalZPos) > 0.01f) {
+                int fallDamage = (int) Math.floor(Math.abs(normalVelocity) / GameConfig.FALL_THRESHOLD_VELOCITY);
+                gameObject.getComponent(Mob.class).applyDamage(new AttackInfo(fallDamage, ElementType.NONE));
+            }
+            normalVelocity = 0f;
+        }
+        log.info("{}", normalVelocity);
+        gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
     }
 
     @Override
