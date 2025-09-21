@@ -15,6 +15,7 @@ public class ManaWellMob extends Mob {
                 .getPlayerData(gameObject.getMaster())
                 .manaCharger
                 .updateManaCharge(-1);
+        gameObject.destroy();
     }
 
     @Override
