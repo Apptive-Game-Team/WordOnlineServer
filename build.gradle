@@ -40,7 +40,7 @@ dependencies {
 
     // database
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    runtimeOnly 'org.postgresql:postgresql:42.6.0'
+    runtimeOnly 'org.postgresql:postgresql:42.7.7'
 
     // web socket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
