@@ -1,10 +1,13 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,8 +60,12 @@ public class RigidBody extends Component {
 
         if (z < originalZPos) {
             z = originalZPos;
-            if (normalVelocity < 0f) normalVelocity = 0f; 
-            // 여기서 착지 이벤트 콜백 등 처리 가능
+            if (normalVelocity < 0f) {
+                log.info("{}", normalVelocity);
+                int fallDamage = (int) Math.floor(Math.abs(normalVelocity) / GameConfig.FALL_THRESHOLD_VELOCITY);
+                gameObject.getComponent(Mob.class).applyDamage(new AttackInfo(fallDamage, ElementType.NONE));
+                normalVelocity = 0f;
+            }
         }
 
         gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
