@@ -48,14 +48,20 @@ public class RigidBody extends Component {
 
     public void applyZForce() {
         final float dt = gameObject.getGameLoop().deltaTime;
-        final Vector3 pos = gameObject.getPosition();
-        final float curZDelta = normalVelocity * dt;
-        final float newZ;
-        if(pos.getZ() + curZDelta < 0)
-        {
-            normalVelocity = 0;
+        final float g  = GameConfig.GRAVITY_ACCEL;
+
+        normalVelocity -= g * dt;
+
+        Vector3 p = gameObject.getPosition();
+        float z = p.getZ() + normalVelocity * dt;
+
+        if (z < originalZPos) {
+            z = originalZPos;
+            if (normalVelocity < 0f) normalVelocity = 0f; 
+            // 여기서 착지 이벤트 콜백 등 처리 가능
         }
-        gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
+
+        gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
     }
 
     @Override
