@@ -234,68 +234,10 @@ public enum PrefabType {
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
-    ManaWell((gameObject, parameters) -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("mana_well", "radius"), false));
-        gameObject.getComponents().add(new ManaWellMob(gameObject,
-                (int) parameters.getValue("mana_well", "hp")
-        ));
-        gameObject.setElement(ElementType.NATURE);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
-    }),
-    AquaArcher((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("aqua_archer", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("aqua_archer", "radius"), false));
-        gameObject.getComponents().add(new RangeAttackMob(gameObject,
-                (int) parameters.getValue("aqua_archer", "hp"),
-                (float) parameters.getValue("aqua_archer", "speed"),
-                (int) parameters.getValue("aqua_archer", "damage"),
-                (float) parameters.getValue("aqua_archer", "attack_interval"),
-                (float) parameters.getValue("aqua_archer", "attack_range")
-        ));
-        gameObject.setElement(ElementType.WATER);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
-    }),
-    RockGolem((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_golem", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("rock_golem", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
-                (int) parameters.getValue("rock_golem", "hp"),
-                (float) parameters.getValue("rock_golem", "speed"),
-                (int) parameters.getValue("rock_golem", "damage"),
-                (float) parameters.getValue("rock_golem", "attack_interval")
-        ));
-        gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
-    }),
-    StormRider((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
-                (int) parameters.getValue("storm_rider", "hp"),
-                (float) parameters.getValue("storm_rider", "speed"),
-                (int) parameters.getValue("storm_rider", "damage"),
-                (float) parameters.getValue("storm_rider", "attack_interval")
-        ));
-        gameObject.setElement(ElementType.LIGHTING);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
-    }),
-    FireSpirit((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
-        gameObject.getComponents().add(new SummonerMob(gameObject,
-                (int) parameters.getValue("fire_spirit", "hp"),
-                (float) parameters.getValue("fire_spirit", "speed"),
-                (float) parameters.getValue("fire_spirit", "attack_interval"),
-                (float) parameters.getValue("fire_spirit", "attack_range"),
-                PrefabType.FireField
-        ));
-        gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
-    }),
     GroundTower((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_cannon", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_cannon", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_cannon", "hp"), (int) parameters.getValue("ground_cannon", "damage")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_tower", "mass")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_tower", "radius"), false));
+        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_tower", "hp"), (int) parameters.getValue("ground_tower", "damage")));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
@@ -360,7 +302,13 @@ public enum PrefabType {
     ThunderSpirit((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("thunder_spirit", "hp"), (int) parameters.getValue("thunder_spirit", "damage")));
+        gameObject.getComponents().add(new RangeAttackMob(gameObject,
+                (int) parameters.getValue("thunder_spirit", "hp"),
+                (float) parameters.getValue("thunder_spirit", "speed"),
+                (int) parameters.getValue("thunder_spirit", "damage"),
+                (float) parameters.getValue("thunder_spirit", "attack_interval"),
+                (float) parameters.getValue("thunder_spirit", "attack_range")
+        ));
         gameObject.setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),

@@ -26,7 +26,7 @@ public class MapMagicParser implements MagicParser {
                         (master, position) -> new Magic(CardType.Build) {
                             @Override
                             public void run(GameLoop gameLoop) {
-
+                                new GameObject(master, PrefabType.GroundTower, position.toVector3(), gameLoop);
                             }}),
                 // 지대지 대포
                 createMagicEntry(List.of(CardType.Build, CardType.Shoot, CardType.Rock),
@@ -68,7 +68,7 @@ public class MapMagicParser implements MagicParser {
                         (master, position) -> new Magic(CardType.Spawn) {
                             @Override
                             public void run(GameLoop gameLoop) {
-
+                                new GameObject(master, PrefabType.ThunderSpirit, position.toVector3(), gameLoop);
                             }}),
                 // 불의 정령
                 createMagicEntry(List.of(CardType.Spawn, CardType.Wind, CardType.Fire),
@@ -100,7 +100,6 @@ public class MapMagicParser implements MagicParser {
 
         if (factory == null) {
             log.info("cards: {}, keys: {}", cards, key);
-
             return null;
         }
 
