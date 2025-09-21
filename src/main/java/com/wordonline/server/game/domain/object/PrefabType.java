@@ -12,6 +12,7 @@ import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
 import com.wordonline.server.game.domain.object.component.mob.Cannon;
 import com.wordonline.server.game.domain.object.component.mob.ManaWellMob;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.RangeAttackMob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.SummonerMob;
@@ -49,6 +50,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
@@ -86,6 +88,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
@@ -115,6 +118,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.setElement(ElementType.ROCK);
@@ -146,6 +150,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.setElement(ElementType.LIGHTING);
@@ -184,6 +189,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
@@ -215,6 +221,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.setElement(ElementType.WIND);
@@ -230,14 +237,14 @@ public enum PrefabType {
     GroundCannon((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_cannon", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_cannon", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_cannon", "hp"), (int) parameters.getValue("ground_cannon", "damage")));
+        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_cannon", "hp"), (int) parameters.getValue("ground_cannon", "damage"), TargetMask.GROUND.bit));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     GroundTower((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_tower", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_tower", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_tower", "hp"), (int) parameters.getValue("ground_tower", "damage")));
+        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_tower", "hp"), (int) parameters.getValue("ground_tower", "damage"), TargetMask.AIR.bit));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
@@ -255,6 +262,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new RangeAttackMob(gameObject,
                 (int) parameters.getValue("aqua_archer", "hp"),
                 (float) parameters.getValue("aqua_archer", "speed"),
+                TargetMask.ANY.bit,
                 (int) parameters.getValue("aqua_archer", "damage"),
                 (float) parameters.getValue("aqua_archer", "attack_interval"),
                 (float) parameters.getValue("aqua_archer", "attack_range")
@@ -268,6 +276,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("rock_golem", "hp"),
                 (float) parameters.getValue("rock_golem", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("rock_golem", "damage"),
                 (float) parameters.getValue("rock_golem", "attack_interval")
         ));
@@ -280,6 +289,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("storm_rider", "hp"),
                 (float) parameters.getValue("storm_rider", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("storm_rider", "damage"),
                 (float) parameters.getValue("storm_rider", "attack_interval")
         ));
@@ -292,6 +302,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new SummonerMob(gameObject,
                 (int) parameters.getValue("fire_spirit", "hp"),
                 (float) parameters.getValue("fire_spirit", "speed"),
+                TargetMask.GROUND.bit,
                 (float) parameters.getValue("fire_spirit", "attack_interval"),
                 (float) parameters.getValue("fire_spirit", "attack_range"),
                 PrefabType.FireField
@@ -305,6 +316,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new RangeAttackMob(gameObject,
                 (int) parameters.getValue("thunder_spirit", "hp"),
                 (float) parameters.getValue("thunder_spirit", "speed"),
+                TargetMask.GROUND.bit,
                 (int) parameters.getValue("thunder_spirit", "damage"),
                 (float) parameters.getValue("thunder_spirit", "attack_interval"),
                 (float) parameters.getValue("thunder_spirit", "attack_range")

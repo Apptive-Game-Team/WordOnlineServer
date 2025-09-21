@@ -57,7 +57,7 @@ public class RigidBody extends Component {
 
         if (z < originalZPos) {
             z = originalZPos;
-            if (normalVelocity < 0f && Math.abs(p.getZ() - originalZPos) > 0.01f) {
+            if (normalVelocity < 0f && Math.abs(p.getZ() - originalZPos) > GameConfig.FALL_THRESHOLD) {
                 int fallDamage = (int) Math.floor(Math.abs(normalVelocity) / GameConfig.FALL_THRESHOLD_VELOCITY);
                 Mob mob = gameObject.getComponent(Mob.class);
                 if(mob != null){
