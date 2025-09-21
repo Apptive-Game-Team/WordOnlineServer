@@ -206,6 +206,20 @@ public enum PrefabType {
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
+    GroundTower((gameObject, parameters) -> {
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_cannon", "mass")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_cannon", "radius"), false));
+        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_cannon", "hp"), (int) parameters.getValue("ground_cannon", "damage")));
+        gameObject.setElement(ElementType.ROCK);
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+    }),
+    ThunderSpirit((gameObject, parameters) -> {
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
+        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("thunder_spirit", "hp"), (int) parameters.getValue("thunder_spirit", "damage")));
+        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+    }),
 
     Wall((gameObject, parameters) -> {
         gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector2(0, 0), new Vector2(0, GameConfig.HEIGHT), false));

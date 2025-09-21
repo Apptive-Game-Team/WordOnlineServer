@@ -60,14 +60,13 @@ public class RigidBody extends Component {
 
         if (z < originalZPos) {
             z = originalZPos;
-            if (normalVelocity < 0f) {
-                log.info("{}", normalVelocity);
+            if (normalVelocity < 0f && Math.abs(p.getZ() - originalZPos) > 0.01f) {
                 int fallDamage = (int) Math.floor(Math.abs(normalVelocity) / GameConfig.FALL_THRESHOLD_VELOCITY);
                 gameObject.getComponent(Mob.class).applyDamage(new AttackInfo(fallDamage, ElementType.NONE));
-                normalVelocity = 0f;
             }
+            normalVelocity = 0f;
         }
-
+        log.info("{}", normalVelocity);
         gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
     }
 
