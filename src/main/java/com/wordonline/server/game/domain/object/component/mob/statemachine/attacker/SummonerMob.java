@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.dto.Master;
 
 public class SummonerMob extends BehaviorMob {
 
@@ -13,7 +14,7 @@ public class SummonerMob extends BehaviorMob {
             float attackRange,
             PrefabType prefabType) {
         super(gameObject, maxHp, speed, attackInterval, attackRange, (target) -> {
-            new GameObject(gameObject, prefabType);
+            new GameObject(target, Master.None, prefabType);
             return true;
         });
     }
