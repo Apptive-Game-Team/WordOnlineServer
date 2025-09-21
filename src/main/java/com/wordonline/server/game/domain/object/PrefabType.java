@@ -234,6 +234,13 @@ public enum PrefabType {
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
+    GroundTower((gameObject, parameters) -> {
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_tower", "mass")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_tower", "radius"), false));
+        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_tower", "hp"), (int) parameters.getValue("ground_tower", "damage")));
+        gameObject.setElement(ElementType.ROCK);
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+    }),
     ManaWell((gameObject, parameters) -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("mana_well", "radius"), false));
         gameObject.getComponents().add(new ManaWellMob(gameObject,
@@ -292,17 +299,16 @@ public enum PrefabType {
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
-    GroundTower((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_cannon", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_cannon", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_cannon", "hp"), (int) parameters.getValue("ground_cannon", "damage")));
-        gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
-    }),
     ThunderSpirit((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("thunder_spirit", "hp"), (int) parameters.getValue("thunder_spirit", "damage")));
+        gameObject.getComponents().add(new RangeAttackMob(gameObject,
+                (int) parameters.getValue("thunder_spirit", "hp"),
+                (float) parameters.getValue("thunder_spirit", "speed"),
+                (int) parameters.getValue("thunder_spirit", "damage"),
+                (float) parameters.getValue("thunder_spirit", "attack_interval"),
+                (float) parameters.getValue("thunder_spirit", "attack_range")
+        ));
         gameObject.setElement(ElementType.LIGHTING);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
