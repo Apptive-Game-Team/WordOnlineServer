@@ -1,13 +1,9 @@
-package com.wordonline.server.game.domain.object.component.mob.statemachine.slime;
+package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
-import com.wordonline.server.game.config.GameConfig;
-import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
-import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
-import com.wordonline.server.game.domain.object.component.mob.pathfinder.AstarPathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimplePathFinder;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
@@ -16,19 +12,20 @@ import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Status;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 @Slf4j
-public class Slime extends StateMachineMob {
+public class BehaviorMob extends StateMachineMob {
 
     PathFinder pathFinder;
     Detector detector;
     GameObject target = null;
     float targetRadius;
     RigidBody rigidBody;
-    int damage;
-
+    float attackInterval;
+    float attackRange;
+    Predicate<GameObject> behavior = null;
 
     @Override
     public void onDeath() {
@@ -41,12 +38,14 @@ public class Slime extends StateMachineMob {
         rigidBody = gameObject.getComponent(RigidBody.class);
     }
 
-    public Slime(GameObject gameObject, int maxHp, float speed, int damage) {
+    public BehaviorMob(GameObject gameObject, int maxHp, float speed, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
         //this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
         this.detector = new ClosestEnemyDetector(gameObject.getGameLoop());
-        this.damage = damage;
+        this.attackInterval = attackInterval;
+        this.attackRange = attackRange;
+        this.behavior = behavior;
     }
 
 
@@ -68,7 +67,7 @@ public class Slime extends StateMachineMob {
                 target = detector.detect(gameObject);
                 if (target != null) {
                     setState(new MoveState());
-                    targetRadius = ((CircleCollider)target.getColliders().getFirst()).getRadius();
+                    targetRadius = ((CircleCollider) target.getColliders().getFirst()).getRadius();
                     return;
                 }
                 timer = 0;
@@ -114,7 +113,7 @@ public class Slime extends StateMachineMob {
                 }
             }
 
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= 1) {
+            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange) {
                 setState(new AttackState());
                 return;
             }
@@ -141,7 +140,6 @@ public class Slime extends StateMachineMob {
     }
 
     public class AttackState extends State {
-        private final float attackInterval = 1;
         private float timer = 0;
         @Override
         public void onEnter() {
@@ -159,21 +157,15 @@ public class Slime extends StateMachineMob {
                 setState(new IdleState());
             }
             timer += gameObject.getGameLoop().deltaTime;
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > 1) {
+            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
                 setState(new MoveState());
             } else if (timer > attackInterval) {
                 timer = 0;
-                Damageable attackable = ((Damageable) target.getComponents().stream()
-                        .filter(component -> component instanceof Damageable)
-                        .findFirst()
-                        .orElse(null));
-                if (attackable == null) {
+
+                if (!behavior.test(target)) {
                     setState(new IdleState());
                     return;
                 }
-
-                attackable.onDamaged(new AttackInfo(damage, gameObject.getElement()));
-                gameObject.setStatus(Status.Attack);
             }
         }
     }

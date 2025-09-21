@@ -116,8 +116,8 @@ public class GameLoop implements Runnable {
         FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameSessionData);
 
         // Charge Mana
-        gameSessionData.manaCharger.chargeMana(gameSessionData.leftPlayerData, leftFrameInfoDto, _frameNum);
-        gameSessionData.manaCharger.chargeMana(gameSessionData.rightPlayerData, rightFrameInfoDto, _frameNum);
+        gameSessionData.leftPlayerData.manaCharger.chargeMana(gameSessionData.leftPlayerData, leftFrameInfoDto, _frameNum);
+        gameSessionData.rightPlayerData.manaCharger.chargeMana(gameSessionData.rightPlayerData, rightFrameInfoDto, _frameNum);
 
         // Draw Cards
         gameSessionData.leftCardDeck.drawCard(gameSessionData.leftPlayerData, leftCardInfo);
