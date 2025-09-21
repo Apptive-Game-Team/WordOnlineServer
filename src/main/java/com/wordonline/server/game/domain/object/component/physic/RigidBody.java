@@ -1,10 +1,13 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
-    private float normalForce = GameConfig.GLOBAL_GRAVITY;
+    private float normalVelocity;
     private float originalZPos;
     private final int mass;
 
@@ -42,8 +45,8 @@ public class RigidBody extends Component {
         velocity.clear();
     }
 
-    public void addNormalForce(float force) {
-        normalForce += force;
+    public void addNormalVelocity(float force) {
+        normalVelocity += force;
     }
 
     public void applyZForce() {
