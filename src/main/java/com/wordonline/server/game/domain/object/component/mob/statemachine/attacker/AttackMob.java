@@ -8,8 +8,8 @@ import com.wordonline.server.game.dto.Status;
 public class AttackMob extends BehaviorMob {
 
     public AttackMob(GameObject gameObject, int maxHp,
-            float speed, int damage, float attackInterval, float attackRange) {
-        super(gameObject, maxHp, speed, attackInterval, attackRange, (target) -> {
+            float speed, int targetMask, int damage, float attackInterval, float attackRange) {
+        super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, (target) -> {
             Damageable attackable = target.getComponent(Damageable.class);
 
             if (attackable == null) {

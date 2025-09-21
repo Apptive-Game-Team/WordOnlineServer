@@ -20,8 +20,10 @@ public class GameConfig {
     public static final int WIDTH = 18;
     public static final int HEIGHT = 10;
     public static final float GRAVITY_ACCEL = 4f;
-    public static final float AERIAL_HEIGHT = 2f;
+    public static final float AERIAL_STANDARD_HEIGHT = 2f;
+    public static final float AERIAL_MOB_INIT_HEIGHT = 3f;
     public static final float FALL_THRESHOLD_VELOCITY = 4f;
+    public static final float FALL_THRESHOLD = 0.01f;
 
     public static final Vector3 LEFT_PLAYER_POSITION = new Vector3(1, 5, 0);
     public static final Vector3 RIGHT_PLAYER_POSITION = new Vector3(18, 5, 0);

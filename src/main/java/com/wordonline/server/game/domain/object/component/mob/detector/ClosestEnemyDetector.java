@@ -6,9 +6,11 @@ import com.wordonline.server.game.service.GameLoop;
 
 public class ClosestEnemyDetector implements Detector {
     private final GameLoop gameLoop;
+    private final int targetMask;
 
-    public ClosestEnemyDetector(GameLoop gameLoop) {
+    public ClosestEnemyDetector(GameLoop gameLoop, int targetMask) {
         this.gameLoop = gameLoop;
+        this.targetMask = targetMask;
     }
 
     @Override
@@ -18,6 +20,8 @@ public class ClosestEnemyDetector implements Detector {
 
         for (GameObject target : gameLoop.gameSessionData.gameObjects) {
             if (target.getMaster() == self.getMaster() || target.getComponents().stream().noneMatch(component -> component instanceof Damageable)) continue;
+
+            if((TargetMask.of(target) & targetMask) == 0) continue;
 
             double distance = self.getPosition().distance(target.getPosition());
             if (distance < closestDistance) {

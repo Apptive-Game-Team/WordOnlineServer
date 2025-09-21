@@ -38,11 +38,11 @@ public class BehaviorMob extends StateMachineMob {
         rigidBody = gameObject.getComponent(RigidBody.class);
     }
 
-    public BehaviorMob(GameObject gameObject, int maxHp, float speed, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
+    public BehaviorMob(GameObject gameObject, int maxHp, float speed, int targetMask, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
         //this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
-        this.detector = new ClosestEnemyDetector(gameObject.getGameLoop());
+        this.detector = new ClosestEnemyDetector(gameObject.getGameLoop(), targetMask);
         this.attackInterval = attackInterval;
         this.attackRange = attackRange;
         this.behavior = behavior;
