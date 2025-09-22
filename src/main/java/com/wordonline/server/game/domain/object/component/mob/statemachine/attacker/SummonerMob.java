@@ -10,10 +10,11 @@ public class SummonerMob extends BehaviorMob {
             GameObject gameObject,
             int maxHp,
             float speed,
+            int targetMask,
             float attackInterval,
             float attackRange,
             PrefabType prefabType) {
-        super(gameObject, maxHp, speed, attackInterval, attackRange, (target) -> {
+        super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, (target) -> {
             new GameObject(target, Master.None, prefabType);
             return true;
         });

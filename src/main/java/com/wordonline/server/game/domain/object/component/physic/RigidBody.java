@@ -1,10 +1,13 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
-    private float normalForce = GameConfig.GLOBAL_GRAVITY;
+    private float normalVelocity;
     private float originalZPos;
     private final int mass;
 
@@ -42,17 +45,32 @@ public class RigidBody extends Component {
         velocity.clear();
     }
 
-    public void addNormalForce(float force) {
-        normalForce += force;
+    public void addNormalVelocity(float force) {
+        normalVelocity += force;
     }
 
     public void applyZForce() {
         final float dt = gameObject.getGameLoop().deltaTime;
-        final Vector3 pos = gameObject.getPosition();
-        final float normalVelocity = (normalForce - GameConfig.GLOBAL_GRAVITY) * dt;
-        final float newZ = Math.max(originalZPos, pos.getZ() + normalVelocity);
-        gameObject.setPosition(new Vector3(pos.getX(), pos.getY(), newZ));
-        normalForce = Math.max(0f,normalForce - GameConfig.GLOBAL_GRAVITY);
+        final float g  = GameConfig.GRAVITY_ACCEL;
+
+        normalVelocity -= g * dt;
+
+        Vector3 p = gameObject.getPosition();
+        float z = p.getZ() + normalVelocity * dt;
+
+        if (z < originalZPos) {
+            z = originalZPos;
+            if (normalVelocity < 0f && Math.abs(p.getZ() - originalZPos) > GameConfig.FALL_THRESHOLD) {
+                int fallDamage = (int) Math.floor(Math.abs(normalVelocity) / GameConfig.FALL_THRESHOLD_VELOCITY);
+                Mob mob = gameObject.getComponent(Mob.class);
+                if(mob != null){
+                    mob.applyDamage(new AttackInfo(fallDamage, ElementType.NONE));
+                }
+            }
+            normalVelocity = 0f;
+        }
+        log.info("{}", normalVelocity);
+        gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
     }
 
     @Override
