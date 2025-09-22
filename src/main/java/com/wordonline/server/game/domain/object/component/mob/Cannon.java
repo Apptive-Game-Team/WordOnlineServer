@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.dto.Status;
 
 public class Cannon extends Mob {
@@ -15,11 +16,13 @@ public class Cannon extends Mob {
 
     private float timer = 0;
     private final AttackInfo attackInfo;
+    private final int targetMask;
     private Detector detector;
 
-    public Cannon(GameObject gameObject, int maxHp, int damage) {
+    public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask) {
         super(gameObject, maxHp, 0);
         attackInfo = new AttackInfo(damage, ElementType.ROCK);
+        this.targetMask = targetMask;
     }
 
     @Override
@@ -29,7 +32,7 @@ public class Cannon extends Mob {
 
     @Override
     public void start() {
-        this.detector = new ClosestEnemyDetector(gameObject.getGameLoop());
+        this.detector = new ClosestEnemyDetector(gameObject.getGameLoop(), targetMask);
     }
 
     @Override
