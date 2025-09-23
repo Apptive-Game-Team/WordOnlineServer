@@ -21,6 +21,8 @@ import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Effect;
 
+import java.util.EnumSet;
+
 public enum PrefabType {
 
     // fire ========================================================
@@ -133,13 +135,13 @@ public enum PrefabType {
     // electric ========================================================
     ElectricShot((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
-        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("shoot", "damage")));
     }),
     ElectricExplode((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
-        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
     }),
@@ -153,12 +155,12 @@ public enum PrefabType {
                 TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
-        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     ElectricSummon((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
-        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), ElectricSlime));
     }),
 
@@ -253,7 +255,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new ManaWellMob(gameObject,
                 (int) parameters.getValue("mana_well", "hp")
         ));
-        gameObject.setElement(ElementType.NATURE);
+        gameObject.setElement(EnumSet.of(ElementType.LIGHTNING, ElementType.NATURE));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     AquaArcher((gameObject, parameters) -> {
@@ -293,7 +295,7 @@ public enum PrefabType {
                 (int) parameters.getValue("storm_rider", "damage"),
                 (float) parameters.getValue("storm_rider", "attack_interval")
         ));
-        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WATER));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     FireSpirit((gameObject, parameters) -> {
@@ -307,7 +309,7 @@ public enum PrefabType {
                 (float) parameters.getValue("fire_spirit", "attack_range"),
                 PrefabType.FireField
         ));
-        gameObject.setElement(ElementType.FIRE);
+        gameObject.setElement(EnumSet.of(ElementType.FIRE,ElementType.WIND));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     ThunderSpirit((gameObject, parameters) -> {
@@ -321,7 +323,7 @@ public enum PrefabType {
                 (float) parameters.getValue("thunder_spirit", "attack_interval"),
                 (float) parameters.getValue("thunder_spirit", "attack_range")
         ));
-        gameObject.setElement(ElementType.LIGHTING);
+        gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WIND));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
 

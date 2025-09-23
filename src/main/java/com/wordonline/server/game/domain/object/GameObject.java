@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 // This class is used to store the game object data
 @Getter
@@ -24,8 +25,7 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
-    @Setter
-    private ElementType element;
+    private Set<ElementType> element;
     private Vector3 position;
 
     private final GameLoop gameLoop;
@@ -107,6 +107,13 @@ public class GameObject {
     public void setEffect(Effect effect) {
         this.effect = effect;
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+    }
+
+    public void setElement(ElementType element) {
+        this.element.add(element);
+    }
+    public void setElement(Set<ElementType> elementSet) {
+        this.element =  elementSet;
     }
 
     public void start() {
