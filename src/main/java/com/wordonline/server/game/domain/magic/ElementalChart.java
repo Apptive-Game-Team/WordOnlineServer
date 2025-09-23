@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.magic;
 
 import java.util.Collection;
+import java.util.List;
 
 public abstract class ElementalChart {
     // row: ATK, col: DEF
@@ -25,9 +26,9 @@ public abstract class ElementalChart {
             Collection<ElementType> defElements
     ) {
         if (atkElements == null || atkElements.isEmpty())
-            atkElements = java.util.List.of(ElementType.NONE);
+            atkElements = List.of(ElementType.NONE);
         if (defElements == null || defElements.isEmpty())
-            defElements = java.util.List.of(ElementType.NONE);
+            defElements = List.of(ElementType.NONE);
 
         float product = 1f;
         for (ElementType atk : atkElements) {
