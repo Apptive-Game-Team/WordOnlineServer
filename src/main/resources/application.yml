@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: word-online-server
+  config:
+    import: optional:file:.env[.properties]
   sql:
     init:
       schema-locations: classpath:static/sql/schema.sql
