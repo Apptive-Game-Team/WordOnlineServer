@@ -16,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RigidBody extends Component {
 
     private Vector2 velocity = new Vector2(0, 0);
-    private float normalVelocity;
-    private float originalZPos;
     private final int mass;
 
     public float getInvMass() {
@@ -45,34 +43,6 @@ public class RigidBody extends Component {
         velocity.clear();
     }
 
-    public void addNormalVelocity(float force) {
-        normalVelocity += force;
-    }
-
-    public void applyZForce() {
-        final float dt = gameObject.getGameLoop().deltaTime;
-        final float g  = GameConfig.GRAVITY_ACCEL;
-
-        normalVelocity -= g * dt;
-
-        Vector3 p = gameObject.getPosition();
-        float z = p.getZ() + normalVelocity * dt;
-
-        if (z < originalZPos) {
-            z = originalZPos;
-            if (normalVelocity < 0f && Math.abs(p.getZ() - originalZPos) > GameConfig.FALL_THRESHOLD) {
-                int fallDamage = (int) Math.floor(Math.abs(normalVelocity) / GameConfig.FALL_THRESHOLD_VELOCITY);
-                Mob mob = gameObject.getComponent(Mob.class);
-                if(mob != null){
-                    mob.applyDamage(new AttackInfo(fallDamage, ElementType.NONE));
-                }
-            }
-            normalVelocity = 0f;
-        }
-        log.info("{}", normalVelocity);
-        gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
-    }
-
     @Override
     public void start() {
 
@@ -91,11 +61,6 @@ public class RigidBody extends Component {
     public RigidBody(GameObject gameObject, int mass) {
         super(gameObject);
         this.mass = mass;
-    }
-    public RigidBody(GameObject gameObject, int mass, float ZPos) {
-        super(gameObject);
-        this.mass = mass;
-        this.originalZPos = ZPos;
     }
 
 }
