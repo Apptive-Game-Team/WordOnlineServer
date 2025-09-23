@@ -19,6 +19,7 @@ import com.wordonline.server.game.domain.object.component.mob.statemachine.attac
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Effect;
 
 import java.util.EnumSet;
@@ -46,6 +47,7 @@ public enum PrefabType {
     }),
     FireSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
@@ -85,6 +87,7 @@ public enum PrefabType {
     }),
     WaterSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
@@ -116,6 +119,7 @@ public enum PrefabType {
     }),
     RockSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
@@ -147,6 +151,7 @@ public enum PrefabType {
     }),
     ElectricSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
@@ -186,6 +191,7 @@ public enum PrefabType {
     }),
     LeafSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
@@ -219,6 +225,7 @@ public enum PrefabType {
     }),
     WindSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
@@ -260,6 +267,7 @@ public enum PrefabType {
     }),
     AquaArcher((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("aqua_archer", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("aqua_archer", "radius"), false));
         gameObject.getComponents().add(new RangeAttackMob(gameObject,
                 (int) parameters.getValue("aqua_archer", "hp"),
@@ -274,6 +282,7 @@ public enum PrefabType {
     }),
     RockGolem((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_golem", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("rock_golem", "radius"), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("rock_golem", "hp"),
@@ -287,6 +296,7 @@ public enum PrefabType {
     }),
     StormRider((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("storm_rider", "hp"),
@@ -300,6 +310,7 @@ public enum PrefabType {
     }),
     FireSpirit((gameObject, parameters) -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
         gameObject.getComponents().add(new SummonerMob(gameObject,
                 (int) parameters.getValue("fire_spirit", "hp"),
@@ -313,7 +324,8 @@ public enum PrefabType {
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     ThunderSpirit((gameObject, parameters) -> {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass"), GameConfig.AERIAL_MOB_INIT_HEIGHT));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
         gameObject.getComponents().add(new RangeAttackMob(gameObject,
                 (int) parameters.getValue("thunder_spirit", "hp"),

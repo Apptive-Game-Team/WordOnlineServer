@@ -3,6 +3,7 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
+import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.util.Pair;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
@@ -98,8 +99,12 @@ public class PhysicSystem implements CollisionSystem {
                      if (rigidBody == null) {
                          return;
                      }
+                    ZPhysics zPhysics = gameObject.getComponent(ZPhysics.class);
+                     if (zPhysics == null) {
+                         return;
+                     }
                      rigidBody.applyVelocity();
-                     rigidBody.applyZForce();
+                     zPhysics.applyZForce();
                 }
         );
         collidedPairs.clear();

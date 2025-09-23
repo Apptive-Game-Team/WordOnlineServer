@@ -19,16 +19,12 @@ public class ShockStatusEffect extends BaseStatusEffect {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
             mob.getSpeed().setModifierPercent(-1f);
-        RigidBody rb = gameObject.getComponent(RigidBody.class);
-        if(rb != null) {
-            rb.addNormalVelocity(-10f);
-        }
         }
     }
 
 
     @Override
-    public void handleAttack(ElementType attackType) {
+    public void onAttacked(ElementType attackType) {
 
     }
 

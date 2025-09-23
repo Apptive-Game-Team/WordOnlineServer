@@ -28,8 +28,7 @@ public abstract class BaseStatusEffect extends Component {
         }
     }
 
-    //특정 속성 공격 맞았을떄
-    public abstract void handleAttack(ElementType attackType);
+    public abstract void onAttacked(ElementType attackType);
 
     protected void expire() {
         gameObject.setEffect(Effect.None);

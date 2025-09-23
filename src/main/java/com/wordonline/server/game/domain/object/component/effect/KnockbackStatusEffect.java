@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Effect;
 
 public class KnockbackStatusEffect extends BaseStatusEffect {
@@ -30,9 +31,9 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
             mob.getSpeed().setModifierPercent(-1f);
-            RigidBody rb = gameObject.getComponent(RigidBody.class);
-            if (rb != null) {
-                rb.addNormalVelocity(KNOCKBACK_POWER_Z * proximity);
+            ZPhysics zP = gameObject.getComponent(ZPhysics.class);
+            if(zP != null) {
+                zP.addImpulseZ(KNOCKBACK_POWER_Z * proximity);
             }
         }
     }
@@ -61,16 +62,16 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     }
 
     @Override
-    public void handleAttack(ElementType attackType) { }
+    public void onAttacked(ElementType attackType) { }
 
     @Override
     protected void expire() {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob != null) {
             mob.getSpeed().setModifierPercent(0f);
-            RigidBody rb = gameObject.getComponent(RigidBody.class);
-            if (rb != null) {
-                rb.addNormalVelocity(-KNOCKBACK_POWER_Z * proximity);
+            ZPhysics zP = gameObject.getComponent(ZPhysics.class);
+            if(zP != null) {
+                zP.addImpulseZ(-KNOCKBACK_POWER_Z * proximity);
             }
         }
         super.expire();

@@ -9,7 +9,7 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
-import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
-    private Set<ElementType> element;
+    private Element element;
     private Vector3 position;
 
     private final GameLoop gameLoop;
@@ -110,10 +110,17 @@ public class GameObject {
     }
 
     public void setElement(ElementType element) {
-        this.element.add(element);
+        this.element.addNative(element);
     }
     public void setElement(Set<ElementType> elementSet) {
-        this.element =  elementSet;
+        elementSet.forEach(this::setElement);
+    }
+
+    public void addTempElement(ElementType element, Object source) {
+        this.element.addBonus(element, source);
+    }
+    public void removeTempElement(ElementType element, Object source) {
+        this.element.removeBonus(element, source);
     }
 
     public void start() {
