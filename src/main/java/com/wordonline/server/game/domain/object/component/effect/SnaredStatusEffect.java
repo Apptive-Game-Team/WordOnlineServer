@@ -26,7 +26,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
     }
 
     @Override
-    public void handleAttack(ElementType attackType) {
+    public void onAttacked(ElementType attackType) {
         if (attackType == ElementType.FIRE) {
             Mob mob = gameObject.getComponent(Mob.class);
             if (mob != null) {

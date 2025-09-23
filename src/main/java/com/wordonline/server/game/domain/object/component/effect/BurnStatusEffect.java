@@ -18,7 +18,12 @@ public class BurnStatusEffect extends BaseStatusEffect {
 
     @Override
     public void start() {
-
+        WetStatusEffect wetSE = gameObject.getComponent(WetStatusEffect.class);
+        if(wetSE != null)
+        {
+            wetSE.expire();
+            expire();
+        }
     }
 
     @Override
@@ -38,9 +43,6 @@ public class BurnStatusEffect extends BaseStatusEffect {
     }
 
     @Override
-    public void handleAttack(ElementType attackType) {
-        if (attackType == ElementType.WATER) {
-            expire();
-        }
-    }
+    public void onAttacked(ElementType attackType) {}
+
 }

@@ -47,7 +47,7 @@ public class Shot extends MagicComponent implements Collidable {
         direction = Vector2.ZERO;
         gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
-        attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage, gameObject.getElement())));
+        attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage, gameObject.getElement().total())));
 
         gameObject.destroy();
     }

@@ -16,7 +16,7 @@ public class AttackMob extends BehaviorMob {
                 return false;
             }
 
-            attackable.onDamaged(new AttackInfo(damage, gameObject.getElement()));
+            attackable.onDamaged(new AttackInfo(damage, gameObject.getElement().total()));
             gameObject.setStatus(Status.Attack);
             return true;
         });
