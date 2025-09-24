@@ -17,13 +17,9 @@ public class ShockStatusEffect extends BaseStatusEffect {
 
     @Override
     public void start() {
-        Mob mob = gameObject.getComponent(Mob.class);
         ZPhysics zp = gameObject.getComponent(ZPhysics.class);
         BehaviorMob behavior = gameObject.getComponent(BehaviorMob.class);
 
-        if (mob != null) {
-            mob.getSpeed().setModifierPercent(-1f);
-        }
         if (zp != null) {
             zp.LockHover(this);
         }
@@ -40,10 +36,6 @@ public class ShockStatusEffect extends BaseStatusEffect {
 
     @Override
     protected void expire() {
-        Mob mob = gameObject.getComponent(Mob.class);
-        if (mob != null) {
-            mob.getSpeed().setModifierPercent(0f);
-        }
         ZPhysics zp = gameObject.getComponent(ZPhysics.class);
         if (zp != null) {
             zp.UnlockHover(this);
