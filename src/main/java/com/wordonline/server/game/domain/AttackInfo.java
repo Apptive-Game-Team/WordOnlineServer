@@ -4,12 +4,13 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.dto.Effect;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
 public class AttackInfo {
     private int damage;
-    private Set<ElementType> element;
+    private Set<ElementType> element = new HashSet<>();
     private Effect effect;
     
     public AttackInfo(int damage, ElementType element) {
