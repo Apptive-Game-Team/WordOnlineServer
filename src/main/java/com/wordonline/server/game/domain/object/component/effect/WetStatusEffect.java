@@ -8,9 +8,13 @@ import com.wordonline.server.game.dto.Effect;
 
 public class WetStatusEffect extends BaseStatusEffect {
 
+    public final DOTStatusEffect dotHeal;
+    private static final float TOTAL_HEAL = 5;
+
     public WetStatusEffect(GameObject owner, float duration) {
         super(owner, duration);
         gameObject.setEffect(Effect.Wet);
+        dotHeal = new DOTStatusEffect(owner, duration, -TOTAL_HEAL, ElementType.NONE);
     }
 
     @Override
@@ -19,6 +23,7 @@ public class WetStatusEffect extends BaseStatusEffect {
     @Override
     public void start() {
         gameObject.addTempElement(ElementType.WATER, this);
+        gameObject.addComponent(dotHeal);
 
         BurnStatusEffect burnSE = gameObject.getComponent(BurnStatusEffect.class);
         if(burnSE != null)
@@ -36,6 +41,7 @@ public class WetStatusEffect extends BaseStatusEffect {
     @Override
     public void expire() {
         gameObject.removeTempElement(ElementType.WATER, this);
+        if(gameObject.getComponents().contains(dotHeal)) gameObject.removeComponent(dotHeal);
         super.expire();
     }
 }

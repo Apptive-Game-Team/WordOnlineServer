@@ -104,7 +104,7 @@ public class PhysicSystem implements CollisionSystem {
                          return;
                      }
                      rigidBody.applyVelocity();
-                     if(zPhysics.isHover()) zPhysics.applyHover();
+                     if(zPhysics.canHover()) zPhysics.applyHover();
                      else zPhysics.applyZForce();
                 }
         );

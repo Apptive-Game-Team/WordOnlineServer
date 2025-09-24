@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
 
 public abstract class BaseStatusEffect extends Component {
-    private final float initialDuration;
+    protected final float initialDuration;
     private float remaining;
 
     public BaseStatusEffect(GameObject owner, float duration) {

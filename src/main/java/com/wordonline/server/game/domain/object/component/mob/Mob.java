@@ -34,6 +34,9 @@ public abstract class Mob extends Component implements Damageable {
         if (this.hp <= 0) {
             onDeath();
         }
+        else if (this.hp > maxHp) {
+            this.hp = maxHp;
+        }
     }
 
     public abstract void onDeath();
