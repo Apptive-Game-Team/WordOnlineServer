@@ -11,7 +11,11 @@ import com.wordonline.server.game.domain.object.component.mob.Mob;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.IdentityHashMap;
+import java.util.Set;
 import java.util.function.Supplier;
+
+import static java.util.Collections.newSetFromMap;
 
 public class ZPhysics extends Component {
 
@@ -22,9 +26,9 @@ public class ZPhysics extends Component {
     private float gravity = GameConfig.GRAVITY_ACCEL;
 
     private float hoverZ;
-    @Getter
     private boolean isHover;
-
+    private final Set<Object> hoverLocks =
+            newSetFromMap(new IdentityHashMap<>());
     @Setter
     private float fallThreshold = GameConfig.FALL_THRESHOLD;
     @Setter
@@ -42,6 +46,13 @@ public class ZPhysics extends Component {
     public void addImpulseZ(float force) {
         zVelocity += force;
     }
+
+    public boolean canHover(){
+        return isHover && hoverLocks.isEmpty();
+    }
+
+    public void LockHover(Object obj){ hoverLocks.add(obj); }
+    public void UnlockHover(Object obj){ hoverLocks.remove(obj); }
 
     public void applyHover()
     {
