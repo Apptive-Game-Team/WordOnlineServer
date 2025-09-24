@@ -2,7 +2,6 @@ package com.wordonline.server.game.domain.object.component.effect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Effect;

@@ -19,7 +19,7 @@ public class ManaCharger {
     // this method is called every frame to charge mana
     public void chargeMana(PlayerData player, FrameInfoDto frameInfoDto, int frameNum) {
         if (frameNum % ((int) (GameLoop.FPS * MANA_CHARGE_INTERVAL)) == 0)
-            player.mana = Math.min((int) manaChangeValue.getFinalValue() + player.mana, MAX_MANA);
+            player.mana = Math.min((int) manaChangeValue.total() + player.mana, MAX_MANA);
 
         frameInfoDto.setUpdatedMana(player.mana);
     }

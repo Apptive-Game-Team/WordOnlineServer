@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
+import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
@@ -10,6 +11,8 @@ import com.wordonline.server.game.domain.object.component.mob.statemachine.State
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Status;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -23,7 +26,7 @@ public class BehaviorMob extends StateMachineMob {
     GameObject target = null;
     float targetRadius;
     RigidBody rigidBody;
-    float attackInterval;
+    @Getter Stat attackInterval;
     float attackRange;
     Predicate<GameObject> behavior = null;
 
@@ -43,7 +46,7 @@ public class BehaviorMob extends StateMachineMob {
         this.pathFinder = new SimplePathFinder();
         //this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
         this.detector = new ClosestEnemyDetector(gameObject.getGameLoop(), targetMask);
-        this.attackInterval = attackInterval;
+        this.attackInterval = new Stat(attackInterval);
         this.attackRange = attackRange;
         this.behavior = behavior;
     }
@@ -170,7 +173,7 @@ public class BehaviorMob extends StateMachineMob {
             Vector2 nextPoint = path.get(0);
             Vector2 direction = nextPoint.subtract(currentPosition).normalize();
 
-            Vector2 velocity = direction.multiply(speed.getFinalValue());
+            Vector2 velocity = direction.multiply(speed.total());
 
             rigidBody.addVelocity(velocity);
         }
@@ -196,7 +199,7 @@ public class BehaviorMob extends StateMachineMob {
             timer += gameObject.getGameLoop().deltaTime;
             if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
                 setState(new MoveState());
-            } else if (timer > attackInterval) {
+            } else if (timer > attackInterval.total()) {
                 timer = 0;
 
                 if (!behavior.test(target)) {
