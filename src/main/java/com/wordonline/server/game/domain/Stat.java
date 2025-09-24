@@ -13,10 +13,10 @@ public class Stat {
     }
 
     public int getFloorValue() {
-        return (int) getFinalValue();
+        return (int) total();
     }
 
-    public float getFinalValue()
+    public float total()
     {
         return originalStat * (1 + modifierPercent);
     }
