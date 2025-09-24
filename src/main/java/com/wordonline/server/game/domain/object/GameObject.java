@@ -25,7 +25,7 @@ public class GameObject {
     private Status status;
 
     private Effect effect;
-    private Element element;
+    private Element element = new Element();
     private Vector3 position;
 
     private final GameLoop gameLoop;

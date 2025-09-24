@@ -4,9 +4,11 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.function.Supplier;
@@ -19,6 +21,9 @@ public class ZPhysics extends Component {
     @Setter
     private float gravity = GameConfig.GRAVITY_ACCEL;
 
+    private float hoverZ;
+    @Getter
+    private boolean isHover;
 
     @Setter
     private float fallThreshold = GameConfig.FALL_THRESHOLD;
@@ -28,9 +33,21 @@ public class ZPhysics extends Component {
     public ZPhysics(GameObject go) {
         super(go);
     }
+    public ZPhysics(GameObject go, float hoverZ) {
+        super(go);
+        this.hoverZ = hoverZ;
+        this.isHover = true;
+    }
 
     public void addImpulseZ(float force) {
         zVelocity += force;
+    }
+
+    public void applyHover()
+    {
+        Vector3 p = gameObject.getPosition();
+        float curZ = p.getZ();
+        if(curZ != hoverZ) gameObject.setPosition(new Vector3(p.getX(), p.getY(), hoverZ));
     }
 
     public void applyZForce() {
@@ -39,6 +56,7 @@ public class ZPhysics extends Component {
         zVelocity -= gravity * dt;
 
         Vector3 p = gameObject.getPosition();
+        final float curZ = p.getZ();
         float z = p.getZ() + zVelocity * dt;
 
         if (z < groundZ) {
@@ -52,7 +70,7 @@ public class ZPhysics extends Component {
             }
             zVelocity = 0f;
         }
-        gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
+        if(curZ != z) gameObject.setPosition(new Vector3(p.getX(), p.getY(), z));
     }
 
     @Override
