@@ -48,6 +48,43 @@ public class BehaviorMob extends StateMachineMob {
         this.behavior = behavior;
     }
 
+    public void setStun(float duration)
+    {
+        setState(new StunState(duration));
+    }
+    public void setIdle()
+    {
+        setState(new IdleState());
+    }
+
+
+    public class StunState extends State {
+        private final float duration;
+        float timer;
+        public StunState(float duration) {
+            this.duration = duration;
+        }
+        @Override
+        public void onEnter() {
+
+        }
+
+        @Override
+        public void onExit() {
+
+        }
+
+        @Override
+        public void onUpdate() {
+            timer += gameObject.getGameLoop().deltaTime;
+            if (timer > duration) {
+                setState(new IdleState());
+            }
+
+        }
+    }
+
+
 
     public class IdleState extends State {
         float timer;
