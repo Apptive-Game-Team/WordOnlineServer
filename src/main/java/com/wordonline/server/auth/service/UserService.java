@@ -36,6 +36,10 @@ public class UserService {
                 .orElseThrow(() -> new AuthorizationDeniedException("User not found")));
     }
 
+    public boolean deleteUser(long userId) {
+        return userRepository.deleteById(userId);
+    }
+
     private User findUserDomain(long userId) {
         return userRepository.findUserById(userId)
                 .orElseThrow(() -> new AuthorizationDeniedException("User not found"));
