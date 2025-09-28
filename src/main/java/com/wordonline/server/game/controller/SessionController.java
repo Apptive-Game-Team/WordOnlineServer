@@ -58,6 +58,8 @@ public class SessionController {
         if (loop == null) {
             return ResponseEntity.status(HttpStatus.GONE).build(); // 게임 종료됨
         }
+
+        log.info(loop.getLastSnapshot().toString());
         return ResponseEntity.ok(loop.getLastSnapshot()); // 프레임 캐시 리턴
     }
 }
