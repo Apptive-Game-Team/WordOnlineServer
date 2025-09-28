@@ -32,7 +32,7 @@ public class JwtProvider {
         Long userId = jwt.getClaim("memberId");
 
         Collection<GrantedAuthority> authorities = Arrays.stream(auths.split(" "))
-                .map(value -> (GrantedAuthority) () -> value )
+                .map(value -> (GrantedAuthority) () -> value)
                 .collect(Collectors.toList());
 
         PrincipalDetails principal = new PrincipalDetails(userId);

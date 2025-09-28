@@ -25,7 +25,6 @@ public class JwtAuthenticationFilter implements Filter {
         String token = resolveToken((HttpServletRequest) servletRequest);
 
         if (token != null) {
-
             try {
                 Authentication authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -42,6 +41,7 @@ public class JwtAuthenticationFilter implements Filter {
 
     private String resolveToken(HttpServletRequest request) {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         return token.replace(JwtProvider.JWT_PREFIX, "");
     }
 }

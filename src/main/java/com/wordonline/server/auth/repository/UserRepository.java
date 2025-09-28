@@ -4,9 +4,12 @@ import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.domain.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,9 +31,9 @@ public class UserRepository {
             WHERE id = :id;
             """;
     private static final String SAVE_USER = """
-            INSERT INTO users(name)
+            INSERT INTO users(id, email, name, password_hash)
             VALUES
-            (:name);
+            (:id, :email, :name, :passwordHash);
             """;
 
     private static final String UPDATE_STATUS = """
@@ -105,10 +108,17 @@ public class UserRepository {
                 .optional();
     }
 
-    public boolean saveUser(User user) {
-        return jdbcClient.sql(SAVE_USER)
-                .param("name", user.getName())
-                .update() == 1;
+    public long saveUser(long userId) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String uniqueEmail = "user_" + System.currentTimeMillis() + UUID.randomUUID() + "@example.com";
+        String name = "user_" + System.currentTimeMillis();
+        jdbcClient.sql(SAVE_USER)
+                .param("id", userId)
+                .param("email", uniqueEmail)
+                .param("name", name)
+                .param("passwordHash", "")
+                .update(keyHolder);
+        return (Long) keyHolder.getKey();
     }
 
     public void updateStatus(long userId, UserStatus status) {

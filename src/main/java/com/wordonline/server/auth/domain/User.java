@@ -29,4 +29,8 @@ public class User {
     public void markOnline() {
         this.status = UserStatus.Online;
     }
+
+    public User(String name) {
+        this(null, name, UserStatus.Online, null);
+    }
 }
