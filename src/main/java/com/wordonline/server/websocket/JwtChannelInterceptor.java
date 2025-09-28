@@ -27,10 +27,10 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                 throw new IllegalArgumentException("Invalid Token");
             }
             token = token.substring(JwtProvider.JWT_PREFIX.length());
-            if (jwtProvider.validateToken(token)) {
+            try {
                 PrincipalDetails principal = (PrincipalDetails) jwtProvider.getAuthentication(token).getPrincipal();
                 accessor.setUser(principal);
-            } else {
+            } catch (Exception e) {
                 throw new IllegalArgumentException("Invalid Token");
             }
         }
