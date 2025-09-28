@@ -17,21 +17,20 @@ public class UserRepository {
             WHERE id = :id;
             """;
     private static final String GET_USER_BY_EMAIL = """
-            SELECT id, email, name, password_hash, status, selected_deck_id
+            SELECT id, name, status, selected_deck_id
 
             FROM users
             WHERE email = :email;
             """;
     private static final String GET_USER_BY_ID = """
-            SELECT id, email, name, password_hash, status, selected_deck_id
-
+            SELECT id, name, status, selected_deck_id
             FROM users
             WHERE id = :id;
             """;
     private static final String SAVE_USER = """
-            INSERT INTO users(email, name, password_hash)
+            INSERT INTO users(name)
             VALUES
-            (:email, :name, :passwordHash);
+            (:name);
             """;
 
     private static final String UPDATE_STATUS = """
@@ -86,9 +85,7 @@ public class UserRepository {
                 .query((rs, num) ->
                         new User(
                                 rs.getLong("id"),
-                                rs.getString("email"),
                                 rs.getString("name"),
-                                rs.getString("password_hash"),
                                 UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))
@@ -101,9 +98,7 @@ public class UserRepository {
                 .query((rs, num) ->
                         new User(
                                 rs.getLong("id"),
-                                rs.getString("email"),
                                 rs.getString("name"),
-                                rs.getString("password_hash"),
                                 UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))
@@ -112,9 +107,7 @@ public class UserRepository {
 
     public boolean saveUser(User user) {
         return jdbcClient.sql(SAVE_USER)
-                .param("email", user.getEmail())
                 .param("name", user.getName())
-                .param("passwordHash", user.getPasswordHash())
                 .update() == 1;
     }
 
