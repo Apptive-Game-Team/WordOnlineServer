@@ -25,7 +25,8 @@ public class SessionManager {
     private final Parameters parameters;
 
     public void createSession(SessionObject sessionObject) {
-        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, userService, parameters);
+        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, userService, parameters,
+                () -> onLoopTerminated(sessionObject));
         sessionObject.setGameLoop(gameLoop);
         Thread thread = new Thread(gameLoop);
         thread.start();
@@ -34,9 +35,9 @@ public class SessionManager {
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 
-    public void closeSession(SessionObject sessionObject) {
-        sessionObject.getGameLoop().close();
-        sessions.remove(sessionObject.getSessionId());
+    private void onLoopTerminated(SessionObject s) {
+        sessions.remove(s.getSessionId());
+        log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 
     public SessionObject getSessionObject(String sessionId) {
