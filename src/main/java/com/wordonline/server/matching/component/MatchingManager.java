@@ -1,10 +1,10 @@
 package com.wordonline.server.matching.component;
 
-import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +14,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class MatchingManager {
 
+    private final ReentrantLock lock = new ReentrantLock();
     private final Queue<Long> matchingQueue = new LinkedList<>();
     private static int sessionIdCounter = 0;
 
@@ -27,6 +29,7 @@ public class MatchingManager {
     private final UserService userService;
     private final SimpMessagingTemplate template;
     private final SessionManager sessionManager;
+    private final Parameters parameters;
 
     public boolean enqueue(long userId) {
         // 1) 상태 체크 & OnMatching 으로 전환
@@ -51,14 +54,32 @@ public class MatchingManager {
     }
 
     public boolean tryMatchUsers() {
-        if (matchingQueue.size() < 2)
-            return false;
+        Long uid1;
+        Long uid2;
 
-        sessionIdCounter++;
+        lock.lock();
+        try {
+            if (matchingQueue.size() < 2) {
+                return false;
+            }
 
-        long uid1 = matchingQueue.poll();
+            if (sessionManager.getActiveSessions() >= parameters.getValue("game", "count")) {
+                return false;
+            }
+
+            sessionIdCounter++;
+
+            uid1 = matchingQueue.poll();
+            uid2 = matchingQueue.poll();
+            if (uid1 == null || uid2 == null) {
+                return false;
+            }
+        } finally {
+            lock.unlock();
+        }
+
+
         UserResponseDto user1 = userService.getUser(uid1);
-        long uid2 = matchingQueue.poll();
         UserResponseDto user2 = userService.getUser(uid2);
 
         try {
