@@ -46,7 +46,7 @@ public class GameLoop implements Runnable {
     public float deltaTime = 1f / FPS;
 
     @Getter
-    private volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of());
+    private volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of(), new ArrayList<>());
 
     // 2) 스냅샷 빌더
     private SnapshotResponseDto buildSnapshot() {
@@ -54,7 +54,7 @@ public class GameLoop implements Runnable {
         for (var g : gameSessionData.gameObjects) {
             list.add(SnapshotMapper.toDto(g));
         }
-        return new SnapshotResponseDto(_frameNum, list);
+        return new SnapshotResponseDto(_frameNum, list, gameSessionData.leftPlayerData.cards);
     }
 
     public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters) {
