@@ -44,8 +44,13 @@ public class SessionManager {
         return sessions.get(sessionId);
     }
 
+    public long getActiveSessions() {
+        return sessions.values().stream().filter(sessionObject -> sessionObject.getGameLoop().is_running()).count();
+    }
+
     public String getHealthLog() {
-        return "Sessions: " + String.join("\n", sessions.values()
+        long numOfActiveSessions = getActiveSessions();
+        return "Sessions: num :" + numOfActiveSessions + " | " + String.join("\n", sessions.values()
                 .stream()
                 .map(Object::toString).toList());
     }
