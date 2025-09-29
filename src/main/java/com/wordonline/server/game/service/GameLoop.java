@@ -29,6 +29,7 @@ public class GameLoop implements Runnable {
     private boolean _running = true;
     public static final int FPS = 10;
     public final SessionObject sessionObject;
+    private final Runnable onTerminated;
     private int _frameNum = 0;
     public final ResultChecker resultChecker;
     public final MmrService mmrService;
@@ -57,8 +58,9 @@ public class GameLoop implements Runnable {
         return new SnapshotResponseDto(_frameNum, list, gameSessionData.leftPlayerData.cards);
     }
 
-    public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters) {
+    public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters, Runnable onTerminated) {
         this.sessionObject = sessionObject;
+        this.onTerminated = onTerminated;
         this.mmrService = mmrService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
         resultChecker = new ResultChecker(sessionObject);
@@ -131,21 +133,25 @@ public class GameLoop implements Runnable {
 
         // Check for game over
         if (resultChecker.checkResult()) {
-                Master loser = resultChecker.getLoser();
+            Master loser = resultChecker.getLoser();
 
-                long leftId  = sessionObject.getLeftUserId();
-                long rightId = sessionObject.getRightUserId();
-                ResultType outcomeLeft = (loser == Master.LeftPlayer)
-                        ? ResultType.Lose
-                        : ResultType.Win;
+            long leftId  = sessionObject.getLeftUserId();
+            long rightId = sessionObject.getRightUserId();
+            ResultType outcomeLeft = (loser == Master.LeftPlayer)
+                    ? ResultType.Lose
+                    : ResultType.Win;
 
-                ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
-                resultChecker.broadcastResult(mmrDto);
-                userService.markOnline(leftId);
-                userService.markOnline(rightId);
+            ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
+            resultChecker.broadcastResult(mmrDto);
+            userService.markOnline(leftId);
+            userService.markOnline(rightId);
 
-                // 3) 루프 종료
-                close();
+
+            // 3) 루프 종료
+            close();
+            if (onTerminated != null) {
+                try { onTerminated.run(); } catch (Exception e) { log.warn("onTerminated failed", e); }
+            }
         }
 
 
