@@ -15,6 +15,7 @@ import com.wordonline.server.game.domain.object.component.mob.ManaWellMob;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.RangeAttackMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.Slime;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.SummonerMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
@@ -40,17 +41,17 @@ public enum PrefabType {
         gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
     }),
     FireField((gameObject, parameters)  -> {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field_short", "radius"), true));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field_short", "duration")));
     }),
     FireSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,
@@ -82,13 +83,14 @@ public enum PrefabType {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
+        gameObject.getComponents().add(new WaterFieldEffectReceiver(gameObject));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }),
     WaterSlime((gameObject, parameters)  -> {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,
@@ -119,7 +121,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,
@@ -151,7 +153,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,
@@ -165,7 +167,12 @@ public enum PrefabType {
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), ElectricSlime));
     }),
-
+    ElectricField((gameObject, parameters)  -> {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field_short", "radius"), true));
+        gameObject.setElement(ElementType.LIGHTNING);
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field_short", "duration")));
+    }),
     // leaf ========================================================
     LeafShot((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
@@ -183,6 +190,7 @@ public enum PrefabType {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
         gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.LeafFieldHeal));
         gameObject.getComponents().add(new LeafFieldEffectReceiver(gameObject));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }),
@@ -190,7 +198,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,
@@ -223,7 +231,7 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,

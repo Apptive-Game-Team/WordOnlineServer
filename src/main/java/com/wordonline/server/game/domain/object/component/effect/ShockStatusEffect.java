@@ -10,7 +10,7 @@ public class ShockStatusEffect extends BaseStatusEffect {
     private static final float STUN_DURATION = 1f;
 
     public ShockStatusEffect(GameObject owner) {
-        super(owner, STUN_DURATION);
+        super(owner, STUN_DURATION, "Shock");
         gameObject.setEffect(Effect.Shock);
     }
 
@@ -23,7 +23,7 @@ public class ShockStatusEffect extends BaseStatusEffect {
             zp.LockHover(this);
         }
         if(behavior != null) {
-            behavior.setStun(1f);
+            behavior.setStun(STUN_DURATION);
         }
     }
 
