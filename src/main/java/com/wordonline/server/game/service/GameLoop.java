@@ -104,6 +104,10 @@ public class GameLoop implements Runnable {
             }
             deltaTime = (System.currentTimeMillis() - startTime) / 1000.0f;
         }
+
+        if (onTerminated != null) {
+            try { onTerminated.run(); } catch (Exception e) { log.warn("onTerminated failed", e); }
+        }
     }
 
     // this method is called when the game loop is stopped
@@ -149,9 +153,6 @@ public class GameLoop implements Runnable {
 
             // 3) 루프 종료
             close();
-            if (onTerminated != null) {
-                try { onTerminated.run(); } catch (Exception e) { log.warn("onTerminated failed", e); }
-            }
         }
 
 
