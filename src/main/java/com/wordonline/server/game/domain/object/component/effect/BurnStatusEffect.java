@@ -12,7 +12,7 @@ public class BurnStatusEffect extends BaseStatusEffect {
     private static final int DPS = 1;
 
     public BurnStatusEffect(GameObject owner, float duration) {
-        super(owner, duration);
+        super(owner, duration, "Burn");
         gameObject.setEffect(Effect.Burn);
     }
 

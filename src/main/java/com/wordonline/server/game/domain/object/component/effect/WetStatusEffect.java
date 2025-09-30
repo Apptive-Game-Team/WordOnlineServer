@@ -1,9 +1,7 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
-import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Effect;
 
 public class WetStatusEffect extends BaseStatusEffect {
@@ -12,9 +10,9 @@ public class WetStatusEffect extends BaseStatusEffect {
     private static final int TOTAL_HEAL = 5;
 
     public WetStatusEffect(GameObject owner, float duration) {
-        super(owner, duration);
+        super(owner, duration, "Wet");
         gameObject.setEffect(Effect.Wet);
-        dotHeal = new DOTStatusEffect(owner, duration, -TOTAL_HEAL, ElementType.NONE);
+        dotHeal = new DOTStatusEffect(owner, duration, -TOTAL_HEAL, ElementType.NONE, "WetNatureTypeHeal");
     }
 
     @Override

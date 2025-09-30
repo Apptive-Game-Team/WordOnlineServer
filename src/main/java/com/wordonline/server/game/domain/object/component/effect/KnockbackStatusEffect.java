@@ -20,7 +20,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     private float moved = 0f;
 
     public KnockbackStatusEffect(GameObject owner, Vector2 dir, float prox) {
-        super(owner, KNOCKBACK_DURATION);
+        super(owner, KNOCKBACK_DURATION, "Knockback");
         gameObject.setEffect(Effect.Knockback);
         this.knockbackDir = dir;
         this.proximity = Math.max(prox, PROX_MIN);

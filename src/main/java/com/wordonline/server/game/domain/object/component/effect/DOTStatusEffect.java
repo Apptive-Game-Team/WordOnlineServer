@@ -11,8 +11,8 @@ public class DOTStatusEffect extends BaseStatusEffect {
     private final int unit;             // +1 = dmg, -1 = heal
     private final ElementType elementType;
 
-    public DOTStatusEffect(GameObject owner, float duration, int totalAmount, ElementType elementType) {
-        super(owner, duration);
+    public DOTStatusEffect(GameObject owner, float duration, int totalAmount, ElementType elementType, String key) {
+        super(owner, duration, key);
         this.elementType = elementType;
 
         int totalUnits = Math.abs(totalAmount); // 적용 횟수

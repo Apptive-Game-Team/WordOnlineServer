@@ -17,19 +17,24 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
                     gameObject.addComponent(new WetStatusEffect(gameObject, 5.0f));
                 }
             }
-            case Burn ->  {
-                if (gameObject.getComponent(BurnStatusEffect.class) == null&& !gameObject.getElement().has(ElementType.FIRE)) {
+            case Burn -> {
+                if (gameObject.getComponent(BurnStatusEffect.class) == null && !gameObject.getElement().has(ElementType.FIRE)) {
                     gameObject.addComponent(new BurnStatusEffect(gameObject, 5.0f));
                 }
             }
             case Shock -> {
-                if (gameObject.getComponent(ShockStatusEffect.class) == null&& !gameObject.getElement().has(ElementType.LIGHTNING)) {
+                if (gameObject.getComponent(ShockStatusEffect.class) == null && !gameObject.getElement().has(ElementType.LIGHTNING)) {
                     gameObject.addComponent(new ShockStatusEffect(gameObject));
                 }
             }
-            case Snared ->  {
-                if (gameObject.getComponent(SnaredStatusEffect.class) == null&& !gameObject.getElement().has(ElementType.NATURE)) {
-                    gameObject.addComponent(new SnaredStatusEffect(gameObject,5.0f,5));
+            case Snared -> {
+                if (gameObject.getComponent(SnaredStatusEffect.class) == null && !gameObject.getElement().has(ElementType.NATURE)) {
+                    gameObject.addComponent(new SnaredStatusEffect(gameObject, 5.0f, 5));
+                }
+            }
+            case LeafFieldHeal -> {
+                if (gameObject.getComponent(DOTStatusEffect.class) == null) {
+                    gameObject.addComponent(new DOTStatusEffect(gameObject, 3f, -1, ElementType.NONE, "LeafFieldHeal"));
                 }
             }
         }

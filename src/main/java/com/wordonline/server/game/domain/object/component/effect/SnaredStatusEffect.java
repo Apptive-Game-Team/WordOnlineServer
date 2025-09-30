@@ -14,7 +14,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
     private float originalSpeed;
 
     public SnaredStatusEffect(GameObject owner, float duration, int removalDamage) {
-        super(owner, duration);
+        super(owner, duration, "Snared");
         this.removalDamage = removalDamage;
         gameObject.setEffect(Effect.Snared);
     }
