@@ -1,16 +1,18 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Effect;
 
 public class ShockStatusEffect extends BaseStatusEffect {
-    private static final float STUN_DURATION = 1f;
+    private final float duration;
 
-    public ShockStatusEffect(GameObject owner) {
-        super(owner, STUN_DURATION, "Shock");
+    public ShockStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
+        super(owner, duration, key);
+        this.duration = duration;
         gameObject.setEffect(Effect.Shock);
     }
 
@@ -23,7 +25,7 @@ public class ShockStatusEffect extends BaseStatusEffect {
             zp.LockHover(this);
         }
         if(behavior != null) {
-            behavior.setStun(STUN_DURATION);
+            behavior.setStun(duration);
         }
     }
 

@@ -1,18 +1,15 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.dto.Effect;
 
 public class WetStatusEffect extends BaseStatusEffect {
 
-    public final DOTStatusEffect dotHeal;
-    private static final int TOTAL_HEAL = 5;
-
-    public WetStatusEffect(GameObject owner, float duration) {
-        super(owner, duration, "Wet");
+    public WetStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
+        super(owner, duration, key);
         gameObject.setEffect(Effect.Wet);
-        dotHeal = new DOTStatusEffect(owner, duration, -TOTAL_HEAL, ElementType.NONE, "WetNatureTypeHeal");
     }
 
     @Override
@@ -21,10 +18,6 @@ public class WetStatusEffect extends BaseStatusEffect {
     @Override
     public void start() {
         gameObject.addTempElement(ElementType.WATER, this);
-
-        if(gameObject.getElement().has(ElementType.NATURE)){
-            gameObject.addComponent(dotHeal);
-        }
         BurnStatusEffect burnSE = gameObject.getComponent(BurnStatusEffect.class);
         if(burnSE != null)
         {
@@ -41,7 +34,6 @@ public class WetStatusEffect extends BaseStatusEffect {
     @Override
     public void expire() {
         gameObject.removeTempElement(ElementType.WATER, this);
-        if(gameObject.getComponents().contains(dotHeal)) gameObject.removeComponent(dotHeal);
         super.expire();
     }
 }

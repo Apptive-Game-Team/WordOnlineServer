@@ -1,8 +1,9 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 
 public class DOTStatusEffect extends BaseStatusEffect {
@@ -11,7 +12,7 @@ public class DOTStatusEffect extends BaseStatusEffect {
     private final int unit;             // +1 = dmg, -1 = heal
     private final ElementType elementType;
 
-    public DOTStatusEffect(GameObject owner, float duration, int totalAmount, ElementType elementType, String key) {
+    public DOTStatusEffect(GameObject owner, float duration, int totalAmount, ElementType elementType, StatusEffectKey key) {
         super(owner, duration, key);
         this.elementType = elementType;
 
@@ -37,5 +38,7 @@ public class DOTStatusEffect extends BaseStatusEffect {
     }
 
     @Override public void onAttacked(ElementType attackType) {}
-    @Override public void expire() {}
+    @Override public void expire() {
+        super.expire();
+    }
 }
