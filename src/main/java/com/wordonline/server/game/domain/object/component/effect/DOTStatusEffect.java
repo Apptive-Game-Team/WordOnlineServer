@@ -4,48 +4,38 @@ import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
-import com.wordonline.server.game.dto.Effect;
-
 
 public class DOTStatusEffect extends BaseStatusEffect {
-    private float damageTick = 0f;
-    private final float applyTick; // duration / damage -> 1데미지 주는데 걸린 시간
-    private final float totalDamage;
+    private float curTick = 0f;
+    private final float tickInterval;   // > 0
+    private final int unit;             // +1 = dmg, -1 = heal
     private final ElementType elementType;
-    private static final int UNIT_DAMAGE = 1; // 단위 데미지
 
-    public DOTStatusEffect(GameObject owner, float duration, float totalDamage, ElementType elementType) {
+    public DOTStatusEffect(GameObject owner, float duration, int totalAmount, ElementType elementType) {
         super(owner, duration);
-        this.totalDamage = totalDamage;
-        applyTick = (initialDuration / totalDamage) * UNIT_DAMAGE;
         this.elementType = elementType;
+
+        int totalUnits = Math.abs(totalAmount); // 적용 횟수
+        this.tickInterval = initialDuration / totalUnits;
+        this.unit = (totalAmount >= 0f) ? +1 : -1;
     }
 
-    @Override
-    public void start() {}
+    @Override public void start() {}
 
     @Override
     public void update() {
-        float dt = gameObject.getGameLoop().deltaTime;
-        damageTick += dt;
+        curTick += gameObject.getGameLoop().deltaTime;
+        int ticks = (int)Math.floor(curTick / tickInterval);
+        if (ticks <= 0) return;
+        curTick -= ticks * tickInterval;
 
         Mob mob = gameObject.getComponent(Mob.class);
-        if (damageTick >= applyTick) {
-            if (mob != null) {
-                mob.applyDamage(new AttackInfo((UNIT_DAMAGE * (int)damageTick),elementType));
-            }
-            damageTick -= applyTick;
-        }
+        if (mob == null) return;
+        mob.applyDamage(new AttackInfo(unit * ticks, elementType));
 
         super.update();
     }
 
-    @Override
-    public void onAttacked(ElementType attackType) {}
-
-    @Override
-    public void expire()
-    {
-
-    }
+    @Override public void onAttacked(ElementType attackType) {}
+    @Override public void expire() {}
 }
