@@ -58,7 +58,7 @@ public enum PrefabType {
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.FireField, 1f));
-        gameObject.getComponents().add(new FireEffectReceiver(gameObject));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }),
     FireSummon((gameObject, parameters)  -> {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));

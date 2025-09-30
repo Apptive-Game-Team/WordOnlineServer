@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.Component;
@@ -12,22 +13,22 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
     public void onReceive(Effect effect) {
         switch (effect) {
             case Wet -> {
-                if (gameObject.getComponent(WetStatusEffect.class) == null) {
+                if (gameObject.getComponent(WetStatusEffect.class) == null && !gameObject.getElement().has(ElementType.WATER)) {
                     gameObject.addComponent(new WetStatusEffect(gameObject, 5.0f));
                 }
             }
             case Burn ->  {
-                if (gameObject.getComponent(BurnStatusEffect.class) == null) {
+                if (gameObject.getComponent(BurnStatusEffect.class) == null&& !gameObject.getElement().has(ElementType.FIRE)) {
                     gameObject.addComponent(new BurnStatusEffect(gameObject, 5.0f));
                 }
             }
             case Shock -> {
-                if (gameObject.getComponent(ShockStatusEffect.class) == null) {
+                if (gameObject.getComponent(ShockStatusEffect.class) == null&& !gameObject.getElement().has(ElementType.LIGHTNING)) {
                     gameObject.addComponent(new ShockStatusEffect(gameObject));
                 }
             }
             case Snared ->  {
-                if (gameObject.getComponent(SnaredStatusEffect.class) == null) {
+                if (gameObject.getComponent(SnaredStatusEffect.class) == null&& !gameObject.getElement().has(ElementType.NATURE)) {
                     gameObject.addComponent(new SnaredStatusEffect(gameObject,5.0f,5));
                 }
             }
