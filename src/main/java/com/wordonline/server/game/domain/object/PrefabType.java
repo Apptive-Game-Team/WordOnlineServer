@@ -50,7 +50,6 @@ public enum PrefabType {
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
@@ -89,7 +88,6 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
@@ -153,7 +151,6 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
@@ -193,7 +190,6 @@ public enum PrefabType {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
