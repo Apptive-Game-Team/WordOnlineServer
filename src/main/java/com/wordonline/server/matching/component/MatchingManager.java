@@ -14,16 +14,20 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Flow;
+import java.util.concurrent.Flow.Subscription;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MatchingManager {
+public class MatchingManager implements Flow.Subscriber<Long> {
 
     private final ReentrantLock lock = new ReentrantLock();
     private final Queue<Long> matchingQueue = new LinkedList<>();
     private static int sessionIdCounter = 0;
+
+    private Subscription subscription;
 
     private final DeckService deckService;
     private final UserService userService;
@@ -32,6 +36,7 @@ public class MatchingManager {
     private final Parameters parameters;
 
     public boolean enqueue(long userId) {
+        subscribe();
         // 1) 상태 체크 & OnMatching 으로 전환
         try {
             userService.markMatching(userId);
@@ -127,5 +132,33 @@ public class MatchingManager {
 
     public String getHealthLog() {
         return "Matching Queue: " + matchingQueue;
+    }
+
+    private void subscribe() {
+        if (subscription == null) {
+            sessionManager.numOfSessionsFlow.subscribe(this);
+        }
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        this.subscription = subscription;
+        subscription.request(1);
+    }
+
+    @Override
+    public void onNext(Long item) {
+        tryMatchUsers();
+        subscription.request(1);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
     }
 }

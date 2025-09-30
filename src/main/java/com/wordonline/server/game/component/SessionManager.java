@@ -5,13 +5,16 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.MmrService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SubmissionPublisher;
 
 // this class is used to manage the sessions
 @Slf4j
@@ -20,6 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SessionManager {
 
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
+
+    public final SubmissionPublisher<Long> numOfSessionsFlow = new SubmissionPublisher<>();
+
     private final MmrService mmrService;
     private final UserService userService;
     private final Parameters parameters;
@@ -37,6 +43,7 @@ public class SessionManager {
 
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
+        numOfSessionsFlow.submit(getActiveSessions());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 
@@ -59,5 +66,9 @@ public class SessionManager {
         return sessions.values().stream()
                 .filter(s -> s.getLeftUserId() == userId || s.getRightUserId() == userId)
                 .findFirst();
+    }
+
+    public void clearSessions() {
+        sessions.clear();
     }
 }
