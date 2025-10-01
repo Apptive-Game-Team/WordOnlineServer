@@ -5,7 +5,9 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DOTStatusEffect extends BaseStatusEffect {
     private float curTick = 0f;
     private final float tickInterval;   // > 0
@@ -25,6 +27,7 @@ public class DOTStatusEffect extends BaseStatusEffect {
 
     @Override
     public void update() {
+        super.update();
         curTick += gameObject.getGameLoop().deltaTime;
         int ticks = (int)Math.floor(curTick / tickInterval);
         if (ticks <= 0) return;
@@ -33,8 +36,6 @@ public class DOTStatusEffect extends BaseStatusEffect {
         Mob mob = gameObject.getComponent(Mob.class);
         if (mob == null) return;
         mob.applyDamage(new AttackInfo(unit * ticks, elementType));
-
-        super.update();
     }
 
     @Override public void onAttacked(ElementType attackType) {}

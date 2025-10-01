@@ -14,9 +14,10 @@ import java.util.function.Supplier;
 public class CommonEffectReceiver extends Component implements EffectReceiver {
 
     public <T extends BaseStatusEffect> T getEffectByKey(StatusEffectKey key) {
-        for (Component c : gameObject.getComponents()) {
+        for (Component c : gameObject.getComponents())
             if (c instanceof BaseStatusEffect se && key.equals(se.getKey())) return (T) se;
-        }
+        for (Component c : gameObject.getComponentsToAdd())
+            if (c instanceof BaseStatusEffect se && key.equals(se.getKey())) return (T) se;
         return null;
     }
 
