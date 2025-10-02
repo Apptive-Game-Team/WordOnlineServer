@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -26,7 +27,7 @@ public class WebSecurityConfig {
     private RSAPublicKey rsaPublicKey;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .headers(headers ->
                         headers
@@ -37,8 +38,6 @@ public class WebSecurityConfig {
                                     .requestMatchers(
                                             "/healthcheck",
                                             "/api/admin/invalidate",
-                                            "/api/auth/kakao/**",
-                                            "/api/users/mine/**",
                                             "/api/users",
                                             "/api/users/login",
                                             "/sessions/**",
@@ -48,9 +47,11 @@ public class WebSecurityConfig {
 
                 )
                 .csrf(AbstractHttpConfigurer::disable);
-
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+
 
     @Bean
     public JwtDecoder jwtDecoder() {
