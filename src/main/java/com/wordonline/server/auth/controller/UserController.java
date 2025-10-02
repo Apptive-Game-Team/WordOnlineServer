@@ -6,7 +6,6 @@ import com.wordonline.server.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,9 +29,6 @@ public class UserController {
 
     @DeleteMapping("/mine")
     public ResponseEntity<String> deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        if (principalDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         if (userService.deleteUser(principalDetails.userId)) {
             return ResponseEntity.ok("successfully delete");
@@ -45,9 +41,6 @@ public class UserController {
     public ResponseEntity<Map<String, String>> getMyStatus(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        if (principalDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
         var status = userService.getStatus(principalDetails.userId);
         return ResponseEntity.ok(Map.of("status", status.name()));
     }
