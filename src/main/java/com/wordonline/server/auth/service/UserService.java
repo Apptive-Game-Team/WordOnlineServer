@@ -37,20 +37,20 @@ public class UserService {
         return actualUser;
     }
 
-    public UserResponseDto getUser(long userId, long memberId) {
+    public UserResponseDto getUser(long memberId) {
         User user;
-        if (userId != -1) {
-            user = findUserDomain(userId);
-        } else {
+        try {
+            user = findUserDomain(memberId);
+        } catch (AuthorizationDeniedException e) {
             user = initialUser(memberId);
         }
         return new UserResponseDto(user);
     }
 
-    public UserDetailResponseDto getUserDetail(long userId) {
-        AccountMemberResponseDto accountMemberResponseDto = accountClient.getMember(userId);
+    public UserDetailResponseDto getUserDetail(long memberId) {
+        AccountMemberResponseDto accountMemberResponseDto = accountClient.getMember(memberId);
 
-        return new UserDetailResponseDto(userId, accountMemberResponseDto);
+        return new UserDetailResponseDto(memberId, accountMemberResponseDto);
     }
 
     public boolean deleteUser(long userId) {

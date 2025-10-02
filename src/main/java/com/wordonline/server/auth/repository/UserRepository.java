@@ -19,20 +19,15 @@ public class UserRepository {
             DELETE FROM users
             WHERE id = :id;
             """;
-    private static final String GET_USER_BY_MEMBER_ID = """
-            SELECT id, name, status, selected_deck_id
-            FROM users
-            WHERE member_id = :memberId;
-            """;
     private static final String GET_USER_BY_ID = """
             SELECT id, name, status, selected_deck_id
             FROM users
             WHERE id = :id;
             """;
     private static final String SAVE_USER = """
-            INSERT INTO users(member_id, email, name, password_hash)
+            INSERT INTO users(id, email, name, password_hash)
             VALUES
-            (:memberId, :email, :name, :passwordHash)
+            (:id, :email, :name, :passwordHash)
             RETURNING id;
             """;
 
@@ -82,19 +77,6 @@ public class UserRepository {
                 .update();
     }
 
-    public Optional<User> findUserByMemberId(long memberId) {
-        return jdbcClient.sql(GET_USER_BY_MEMBER_ID)
-                .param("memberId", memberId)
-                .query((rs, num) ->
-                        new User(
-                                rs.getLong("id"),
-                                rs.getString("name"),
-                                UserStatus.valueOf(rs.getString("status")),
-                                rs.getLong("selected_deck_id")
-                        ))
-                .optional();
-    }
-
     public Optional<User> findUserById(long id) {
         return jdbcClient.sql(GET_USER_BY_ID)
                 .param("id", id)
@@ -115,7 +97,7 @@ public class UserRepository {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcClient.sql(SAVE_USER)
-                .param("memberId", memberId)
+                .param("id", memberId)
                 .param("email", uniqueEmail)
                 .param("name", name)
                 .param("passwordHash", "")

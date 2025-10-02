@@ -37,7 +37,7 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return sessionManager.findByUserId(principalDetails.userId)
+        return sessionManager.findByUserId(principalDetails.memberId)
                 .map(s -> {
                     var leftUser = userService.getUserDetail(s.getLeftUserId());   // UserResponseDto
                     var rightUser = userService.getUserDetail(s.getRightUserId()); // UserResponseDto

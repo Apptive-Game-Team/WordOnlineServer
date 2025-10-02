@@ -103,3 +103,4 @@ ALTER TABLE deck_cards
         FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE;
 
 ALTER TABLE users ADD COLUMN member_id BIGINT UNIQUE;
+ALTER TABLE users DROP COLUMN member_id;

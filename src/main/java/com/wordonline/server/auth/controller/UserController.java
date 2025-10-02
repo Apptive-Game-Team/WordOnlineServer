@@ -24,13 +24,13 @@ public class UserController {
 
     @GetMapping("/mine")
     public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ResponseEntity.ok(userService.getUser(principalDetails.userId, principalDetails.memberId));
+        return ResponseEntity.ok(userService.getUser(principalDetails.memberId));
     }
 
     @DeleteMapping("/mine")
     public ResponseEntity<String> deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        if (userService.deleteUser(principalDetails.userId)) {
+        if (userService.deleteUser(principalDetails.memberId)) {
             return ResponseEntity.ok("successfully delete");
         }
 
@@ -41,7 +41,7 @@ public class UserController {
     public ResponseEntity<Map<String, String>> getMyStatus(
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        var status = userService.getStatus(principalDetails.userId);
+        var status = userService.getStatus(principalDetails.memberId);
         return ResponseEntity.ok(Map.of("status", status.name()));
     }
 }
