@@ -42,6 +42,10 @@ public class JwtAuthenticationFilter implements Filter {
     private String resolveToken(HttpServletRequest request) {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+        if (token == null) {
+            return null;
+        }
+
         return token.replace(JwtProvider.JWT_PREFIX, "");
     }
 }
