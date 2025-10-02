@@ -133,8 +133,8 @@ class MatchingManagerTest {
         long user1Id = 1L;
         long user2Id = 2L;
 
-        UserResponseDto user1Dto = new UserResponseDto(user1Id, "user1@test.com", "user1", 1L);
-        UserResponseDto user2Dto = new UserResponseDto(user2Id, "user2@test.com", "user2", 2L);
+        UserResponseDto user1Dto = new UserResponseDto(user1Id, 1L);
+        UserResponseDto user2Dto = new UserResponseDto(user2Id, 2L);
 
         matchingQueue.add(user1Id);
         matchingQueue.add(user2Id);
@@ -195,8 +195,8 @@ class MatchingManagerTest {
         matchingManager.enqueue(user1Id);
         matchingManager.enqueue(user2Id);
 
-        UserResponseDto user1Dto = new UserResponseDto(user1Id, "user1@test.com", "user1", 1L);
-        UserResponseDto user2Dto = new UserResponseDto(user2Id, "user2@test.com", "user2", 2L);
+        UserResponseDto user1Dto = new UserResponseDto(user1Id, 1L);
+        UserResponseDto user2Dto = new UserResponseDto(user2Id, 2L);
         given(userService.getUser(user1Id)).willReturn(user1Dto);
         given(userService.getUser(user2Id)).willReturn(user2Dto);
         doNothing().when(userService).markPlaying(anyLong());

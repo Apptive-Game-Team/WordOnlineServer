@@ -9,8 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
@@ -28,13 +28,13 @@ class SessionManagerTest {
     private SessionManager sessionManager;
 
     // SessionManager가 의존하는 빈들을 Mock으로 생성
-    @MockBean
+    @MockitoBean
     private MmrService mmrService;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @AfterEach
