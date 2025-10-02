@@ -25,8 +25,8 @@ public class UserService {
     private final DeckService deckService;
     private final AccountClient accountClient;
 
-    public User initialUser(long userId) {
-        userRepository.saveUser(userId);
+    public User initialUser(long memberId) {
+        Long userId = userRepository.saveUser(memberId);
 
         User actualUser = userRepository.findUserById(userId)
                 .orElseThrow(() -> new AuthorizationDeniedException("Can't Register"));
@@ -37,12 +37,12 @@ public class UserService {
         return actualUser;
     }
 
-    public UserResponseDto getUser(long userId) {
+    public UserResponseDto getUser(long userId, long memberId) {
         User user;
-        try {
+        if (userId != -1) {
             user = findUserDomain(userId);
-        } catch (AuthorizationDeniedException e) {
-            user = initialUser(userId);
+        } else {
+            user = initialUser(memberId);
         }
         return new UserResponseDto(user);
     }

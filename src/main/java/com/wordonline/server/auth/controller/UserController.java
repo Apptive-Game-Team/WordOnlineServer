@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping("/mine")
     public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        return ResponseEntity.ok(userService.getUser(principalDetails.userId));
+        return ResponseEntity.ok(userService.getUser(principalDetails.userId, principalDetails.memberId));
     }
 
     @DeleteMapping("/mine")

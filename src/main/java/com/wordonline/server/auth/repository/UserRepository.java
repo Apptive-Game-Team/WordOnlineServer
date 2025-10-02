@@ -30,9 +30,10 @@ public class UserRepository {
             WHERE id = :id;
             """;
     private static final String SAVE_USER = """
-            INSERT INTO users(id, email, name, password_hash)
+            INSERT INTO users(member_id, email, name, password_hash)
             VALUES
-            (:id, :email, :name, :passwordHash);
+            (:memberId, :email, :name, :passwordHash)
+            RETURNING id;
             """;
 
     private static final String UPDATE_STATUS = """
@@ -107,15 +108,20 @@ public class UserRepository {
                 .optional();
     }
 
-    public void saveUser(long userId) {
+    public Long saveUser(long memberId) {
         String uniqueEmail = "user_" + System.currentTimeMillis() + UUID.randomUUID() + "@example.com";
         String name = "user_" + System.currentTimeMillis();
+
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
         jdbcClient.sql(SAVE_USER)
-                .param("id", userId)
+                .param("memberId", memberId)
                 .param("email", uniqueEmail)
                 .param("name", name)
                 .param("passwordHash", "")
-                .update();
+                .update(keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
     public void updateStatus(long userId, UserStatus status) {

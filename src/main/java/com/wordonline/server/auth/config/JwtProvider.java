@@ -34,9 +34,9 @@ public class JwtProvider {
 
         Long memberId = jwt.getClaim("memberId");
 
-        Long userId = userRepository.findUserByMemberId(memberId)
+        long userId = userRepository.findUserByMemberId(memberId)
                 .map(User::getId)
-                .orElseThrow(() -> new AuthorizationDeniedException("User Not Found"));
+                .orElse(-1L);
 
         Collection<GrantedAuthority> authorities = Arrays.stream(auths.split(" "))
                 .map(value -> (GrantedAuthority) () -> value)
