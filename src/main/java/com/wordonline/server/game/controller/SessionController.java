@@ -1,6 +1,7 @@
 package com.wordonline.server.game.controller;
 
 import com.wordonline.server.auth.domain.PrincipalDetails;
+import com.wordonline.server.auth.dto.UserDetailResponseDto;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.component.SessionManager;
@@ -24,8 +25,8 @@ public class SessionController {
 
     public record MySessionDto(
             String sessionId,
-            UserResponseDto leftUser,
-            UserResponseDto rightUser
+            UserDetailResponseDto leftUser,
+            UserDetailResponseDto rightUser
     ) {}
 
     @GetMapping("/mine")
@@ -38,8 +39,8 @@ public class SessionController {
 
         return sessionManager.findByUserId(principalDetails.userId)
                 .map(s -> {
-                    var leftUser = userService.getUser(s.getLeftUserId());   // UserResponseDto
-                    var rightUser = userService.getUser(s.getRightUserId()); // UserResponseDto
+                    var leftUser = userService.getUserDetail(s.getLeftUserId());   // UserResponseDto
+                    var rightUser = userService.getUserDetail(s.getRightUserId()); // UserResponseDto
 
                     return ResponseEntity.ok(new MySessionDto(
                             s.getSessionId(),
