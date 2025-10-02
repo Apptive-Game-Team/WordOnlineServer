@@ -12,6 +12,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserRepository {
 
+    private static final String DELETE_USER_BY_ID = """
+            DELETE FROM users
+            WHERE id = :id;
+            """;
     private static final String GET_USER_BY_EMAIL = """
             SELECT id, email, name, password_hash, status, selected_deck_id
 
@@ -55,6 +59,12 @@ public class UserRepository {
             """;
 
     private final JdbcClient jdbcClient;
+
+    public boolean deleteById(long userId) {
+        return jdbcClient.sql(DELETE_USER_BY_ID)
+                .param("id", userId)
+                .update() >= 1;
+    }
 
     public Optional<Short> getMmr(long userId) {
         return jdbcClient.sql(GET_MMR)

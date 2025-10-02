@@ -17,7 +17,9 @@ public class CorsConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "https://apptive-game-team.github.io",
-                "https://word-online.vercel.app"));
+                "https://word-online.vercel.app",
+                "https://word-online.apps.tossmini.com",
+                "https://word-online.private-apps.tossmini.com"));
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);

@@ -86,3 +86,19 @@ SELECT setval('parameters_id_seq', (SELECT MAX(id) FROM parameters), true);
 
 -- parameter_values 테이블의 시퀀스 재설정
 SELECT setval('parameter_values_id_seq', (SELECT MAX(id) FROM parameter_values), true);
+
+ALTER TABLE user_cards
+    DROP CONSTRAINT user_cards_user_id_fkey,
+    ADD CONSTRAINT user_cards_user_id_fkey
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE decks
+    DROP CONSTRAINT decks_user_id_fkey,
+    ADD CONSTRAINT decks_user_id_fkey
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE deck_cards
+    DROP CONSTRAINT deck_cards_deck_id_fkey,
+    ADD CONSTRAINT deck_cards_deck_id_fkey
+        FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE;
+

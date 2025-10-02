@@ -22,10 +22,14 @@ public class SessionController {
     private final SessionManager sessionManager;
     private final UserService userService;
 
-    public record SessionIdDto(String sessionId) {}
+    public record MySessionDto(
+            String sessionId,
+            UserResponseDto leftUser,
+            UserResponseDto rightUser
+    ) {}
 
     @GetMapping("/mine")
-    public ResponseEntity<SessionIdDto> getMySessionId(
+    public ResponseEntity<MySessionDto> getMySession(
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         if (principalDetails == null) {
@@ -33,10 +37,18 @@ public class SessionController {
         }
 
         return sessionManager.findByUserId(principalDetails.userId)
-                .map(s -> ResponseEntity.ok(new SessionIdDto(s.getSessionId())))
+                .map(s -> {
+                    var leftUser = userService.getUser(s.getLeftUserId());   // UserResponseDto
+                    var rightUser = userService.getUser(s.getRightUserId()); // UserResponseDto
+
+                    return ResponseEntity.ok(new MySessionDto(
+                            s.getSessionId(),
+                            leftUser,
+                            rightUser
+                    ));
+                })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
-
 
     @GetMapping("/{sessionId}/snapshot")
     @ResponseBody
@@ -58,6 +70,8 @@ public class SessionController {
         if (loop == null) {
             return ResponseEntity.status(HttpStatus.GONE).build(); // 게임 종료됨
         }
+
+        log.info(loop.getLastSnapshot().toString());
         return ResponseEntity.ok(loop.getLastSnapshot()); // 프레임 캐시 리턴
     }
 }

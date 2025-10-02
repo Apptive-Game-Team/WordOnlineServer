@@ -46,7 +46,6 @@ public class UserController {
         return ResponseEntity.ok(authResponseDto);
     }
 
-
     @GetMapping("/mine")
     public ResponseEntity<UserResponseDto> getUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (principalDetails == null) {
@@ -54,6 +53,19 @@ public class UserController {
         }
 
         return ResponseEntity.ok(userService.getUser(principalDetails.userId));
+    }
+
+    @DeleteMapping("/mine")
+    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (principalDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (userService.deleteUser(principalDetails.userId)) {
+            return ResponseEntity.ok("successfully delete");
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/mine/status")
