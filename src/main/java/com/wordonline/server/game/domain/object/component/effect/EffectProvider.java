@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;

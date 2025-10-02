@@ -1,8 +1,9 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -13,8 +14,8 @@ public class SnaredStatusEffect extends BaseStatusEffect {
     private final int removalDamage;
     private float originalSpeed;
 
-    public SnaredStatusEffect(GameObject owner, float duration, int removalDamage) {
-        super(owner, duration);
+    public SnaredStatusEffect(GameObject owner, float duration, int removalDamage, StatusEffectKey key) {
+        super(owner, duration, key);
         this.removalDamage = removalDamage;
         gameObject.setEffect(Effect.Snared);
     }

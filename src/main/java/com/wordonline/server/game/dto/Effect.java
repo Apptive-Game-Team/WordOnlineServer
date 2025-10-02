@@ -1,5 +1,5 @@
 package com.wordonline.server.game.dto;
 
 public enum Effect {
-    None, Burn, Wet, Shock, Snared, Knockback
+    None, Burn, Wet, Shock, Snared, Knockback, LeafFieldHeal
 }

@@ -200,21 +200,25 @@ public class GameLoop implements Runnable {
 
 
         // Apply Added and Removed Component
-        for (GameObject gameObject : gameSessionData.gameObjects)
-        {
-            gameObject.getComponents().addAll(gameObject.getComponentsToAdd());
-            for (Component component : gameObject.getComponentsToAdd())
-            {
-               component.start();
-            }
-            gameObject.getComponentsToAdd().clear();
+        for (GameObject go : gameSessionData.gameObjects) {
 
-            gameObject.getComponents().removeAll(gameObject.getComponentsToRemove());
-            for (Component component : gameObject.getComponentsToRemove())
-            {
-                component.onDestroy();
+            if (!go.getComponentsToAdd().isEmpty()) {
+                List<Component> toAdd = new ArrayList<>(go.getComponentsToAdd());
+                go.getComponentsToAdd().clear();
+                go.getComponents().addAll(toAdd);
+                for (Component c : toAdd) {
+                    c.start();
+                }
             }
-            gameObject.getComponentsToRemove().clear();
+
+            if (!go.getComponentsToRemove().isEmpty()) {
+                List<Component> toRem = new ArrayList<>(go.getComponentsToRemove());
+                go.getComponentsToRemove().clear();
+                for (Component c : toRem) {
+                    c.onDestroy();
+                }
+                go.getComponents().removeAll(toRem);
+            }
         }
         lastSnapshot = buildSnapshot();
     }
