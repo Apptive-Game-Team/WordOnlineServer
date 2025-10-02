@@ -4,9 +4,12 @@ import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.domain.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,21 +20,20 @@ public class UserRepository {
             WHERE id = :id;
             """;
     private static final String GET_USER_BY_EMAIL = """
-            SELECT id, email, name, password_hash, status, selected_deck_id
+            SELECT id, name, status, selected_deck_id
 
             FROM users
             WHERE email = :email;
             """;
     private static final String GET_USER_BY_ID = """
-            SELECT id, email, name, password_hash, status, selected_deck_id
-
+            SELECT id, name, status, selected_deck_id
             FROM users
             WHERE id = :id;
             """;
     private static final String SAVE_USER = """
-            INSERT INTO users(email, name, password_hash)
+            INSERT INTO users(id, email, name, password_hash)
             VALUES
-            (:email, :name, :passwordHash);
+            (:id, :email, :name, :passwordHash);
             """;
 
     private static final String UPDATE_STATUS = """
@@ -86,9 +88,7 @@ public class UserRepository {
                 .query((rs, num) ->
                         new User(
                                 rs.getLong("id"),
-                                rs.getString("email"),
                                 rs.getString("name"),
-                                rs.getString("password_hash"),
                                 UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))
@@ -101,21 +101,24 @@ public class UserRepository {
                 .query((rs, num) ->
                         new User(
                                 rs.getLong("id"),
-                                rs.getString("email"),
                                 rs.getString("name"),
-                                rs.getString("password_hash"),
                                 UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))
                 .optional();
     }
 
-    public boolean saveUser(User user) {
-        return jdbcClient.sql(SAVE_USER)
-                .param("email", user.getEmail())
-                .param("name", user.getName())
-                .param("passwordHash", user.getPasswordHash())
-                .update() == 1;
+    public long saveUser(long userId) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String uniqueEmail = "user_" + System.currentTimeMillis() + UUID.randomUUID() + "@example.com";
+        String name = "user_" + System.currentTimeMillis();
+        jdbcClient.sql(SAVE_USER)
+                .param("id", userId)
+                .param("email", uniqueEmail)
+                .param("name", name)
+                .param("passwordHash", "")
+                .update(keyHolder);
+        return (Long) keyHolder.getKey();
     }
 
     public void updateStatus(long userId, UserStatus status) {

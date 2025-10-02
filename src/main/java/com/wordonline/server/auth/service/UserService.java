@@ -1,5 +1,7 @@
 package com.wordonline.server.auth.service;
 
+import java.lang.reflect.Member;
+
 import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
@@ -18,12 +20,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final DeckService deckService;
 
-    public User registerUser(User user) {
-        if (!userRepository.saveUser(user)) {
-            throw new AuthorizationDeniedException("Can't Register");
-        }
+    public User initialUser(long userId) {
+        userRepository.saveUser(userId);
 
-        User actualUser = userRepository.findUserByEmail(user.getEmail())
+        User actualUser = userRepository.findUserById(userId)
                 .orElseThrow(() -> new AuthorizationDeniedException("Can't Register"));
 
         long defaultDeckId = deckService.initializeCard(actualUser.getId());
@@ -32,8 +32,13 @@ public class UserService {
     }
 
     public UserResponseDto getUser(long userId) {
-        return new UserResponseDto(userRepository.findUserById(userId)
-                .orElseThrow(() -> new AuthorizationDeniedException("User not found")));
+        User user;
+        try {
+            user = findUserDomain(userId);
+        } catch (AuthorizationDeniedException e) {
+            user = initialUser(userId);
+        }
+        return new UserResponseDto(user);
     }
 
     public boolean deleteUser(long userId) {

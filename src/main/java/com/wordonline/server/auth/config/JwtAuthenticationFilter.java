@@ -4,8 +4,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements Filter {
 
@@ -24,13 +25,14 @@ public class JwtAuthenticationFilter implements Filter {
         String token = resolveToken((HttpServletRequest) servletRequest);
 
         if (token != null) {
-            if (jwtProvider.validateToken(token)) {
+            try {
                 Authentication authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
+            } catch (Exception e) {
                 // Not Valid Token
                 HttpServletResponse res = (HttpServletResponse) servletResponse;
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+                log.error("Jwt Provier", e);
                 return;
             }
         }
@@ -38,12 +40,8 @@ public class JwtAuthenticationFilter implements Filter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+        return token.replace(JwtProvider.JWT_PREFIX, "");
+    }
 }

@@ -1,8 +1,6 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.auth.repository.UserRepository;
-import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.dto.result.ResultDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import lombok.RequiredArgsConstructor;

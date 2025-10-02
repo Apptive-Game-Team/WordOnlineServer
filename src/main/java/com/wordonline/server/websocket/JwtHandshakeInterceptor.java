@@ -25,7 +25,12 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             return false;
         }
 
-        return jwtProvider.validateToken(jwtToken);
+        try {
+            jwtProvider.getAuthentication(jwtToken);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
