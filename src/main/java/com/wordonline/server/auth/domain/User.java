@@ -21,8 +21,6 @@ public class User {
     }
 
     public void markPlaying() {
-        if (status != UserStatus.OnMatching)
-            throw new IllegalStateException("잘못된 상태에서 플레이 시작");
         this.status = UserStatus.OnPlaying;
     }
 

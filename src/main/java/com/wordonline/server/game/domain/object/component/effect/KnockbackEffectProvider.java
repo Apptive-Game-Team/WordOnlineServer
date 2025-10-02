@@ -3,10 +3,10 @@ package com.wordonline.server.game.domain.object.component.effect;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.dto.Effect;
-import com.wordonline.server.game.service.GameLoop;
 
 public class KnockbackEffectProvider extends EffectProvider {
 

@@ -22,6 +22,9 @@ public class Element {
         var src = bonusSources.get(e);
         return src != null && !src.isEmpty();
     }
+    public boolean nativeHas(ElementType e) {
+        return nativeSet.contains(e);
+    }
 
     public void addNative(ElementType e) { nativeSet.add(e); }
     public void removeNative(ElementType e) { nativeSet.remove(e); }

@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.magic.ElementalChart;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Component;
-import com.wordonline.server.game.domain.object.component.effect.BaseStatusEffect;
+import com.wordonline.server.game.domain.object.component.effect.statuseffect.BaseStatusEffect;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +33,9 @@ public abstract class Mob extends Component implements Damageable {
         this.hp -= attackInfo.getDamage() * ElementalChart.computePairwiseProductMultiplier(attackInfo.getElement(),gameObject.getElement().total());
         if (this.hp <= 0) {
             onDeath();
+        }
+        else if (this.hp > maxHp) {
+            this.hp = maxHp;
         }
     }
 

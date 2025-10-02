@@ -1,18 +1,17 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Effect;
 
 
 public class BurnStatusEffect extends BaseStatusEffect {
-    private float damageTick = 0f;
-    private static final int DPS = 1;
 
-    public BurnStatusEffect(GameObject owner, float duration) {
-        super(owner, duration);
+    public BurnStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
+        super(owner, duration, key);
         gameObject.setEffect(Effect.Burn);
     }
 
@@ -24,22 +23,6 @@ public class BurnStatusEffect extends BaseStatusEffect {
             wetSE.expire();
             expire();
         }
-    }
-
-    @Override
-    public void update() {
-        float dt = gameObject.getGameLoop().deltaTime;
-        damageTick += dt;
-
-        Mob mob = gameObject.getComponent(Mob.class);
-        if (damageTick >= 1.0f) {
-            if (mob != null) {
-                mob.applyDamage(new AttackInfo((DPS * (int)damageTick),ElementType.FIRE));
-            }
-            damageTick -= (float) Math.floor(damageTick);
-        }
-
-        super.update();
     }
 
     @Override

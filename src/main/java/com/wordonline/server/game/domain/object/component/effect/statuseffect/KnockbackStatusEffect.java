@@ -1,9 +1,11 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Effect;
@@ -19,8 +21,8 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     // 누적 이동 거리
     private float moved = 0f;
 
-    public KnockbackStatusEffect(GameObject owner, Vector2 dir, float prox) {
-        super(owner, KNOCKBACK_DURATION);
+    public KnockbackStatusEffect(GameObject owner, Vector2 dir, float prox, StatusEffectKey key) {
+        super(owner, KNOCKBACK_DURATION, key);
         gameObject.setEffect(Effect.Knockback);
         this.knockbackDir = dir;
         this.proximity = Math.max(prox, PROX_MIN);
@@ -28,14 +30,11 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
 
     @Override
     public void start() {
-        Mob mob = gameObject.getComponent(Mob.class);
-        if (mob != null) {
-            mob.getSpeed().setModifierPercent(-1f);
-            ZPhysics zP = gameObject.getComponent(ZPhysics.class);
-            if(zP != null) {
-                zP.addImpulseZ(KNOCKBACK_POWER_Z * proximity);
-            }
-        }
+        ZPhysics zP = gameObject.getComponent(ZPhysics.class);
+        if(zP != null) zP.addImpulseZ(KNOCKBACK_POWER_Z * proximity);
+
+        BehaviorMob behavior = gameObject.getComponent(BehaviorMob.class);
+        if (behavior != null) behavior.setStun(KNOCKBACK_DURATION);
     }
 
     @Override
@@ -57,8 +56,6 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
             rb.addVelocity(knockbackDir.multiply(step).multiply(proximity));
         }
         moved += step;
-
-        super.update();
     }
 
     @Override

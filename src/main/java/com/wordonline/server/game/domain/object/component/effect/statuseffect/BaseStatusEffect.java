@@ -1,18 +1,24 @@
-package com.wordonline.server.game.domain.object.component.effect;
+package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.dto.Effect;
+import lombok.Getter;
+
 
 public abstract class BaseStatusEffect extends Component {
-    private final float initialDuration;
-    private float remaining;
+    protected float initialDuration;
+    protected float remaining;
+    @Getter
+    protected final StatusEffectKey key;
 
-    public BaseStatusEffect(GameObject owner, float duration) {
+    public BaseStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
         super(owner);
         this.initialDuration = duration;
         this.remaining = duration;
+        this.key = key;
     }
 
     public void resetDuration() {
@@ -33,6 +39,18 @@ public abstract class BaseStatusEffect extends Component {
     protected void expire() {
         gameObject.setEffect(Effect.None);
         gameObject.removeComponent(this);
+    }
+
+    public void refresh(float duration)
+    {
+        this.initialDuration = duration;
+        this.remaining = duration;
+        start();
+    }
+
+    public void extend(float duration)
+    {
+        this.remaining += duration;
     }
 
     @Override

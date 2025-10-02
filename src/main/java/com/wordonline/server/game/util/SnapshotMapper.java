@@ -9,7 +9,8 @@ public final class SnapshotMapper {
         return new SnapshotObjectDto(
                 g.getId(),
                 g.getType().name(),
-                p.getX(), p.getY(),
+                p.getX(), p.getY(), p.getZ(),
+                g.getMaster().toString(),
                 g.getStatus() == null ? null : g.getStatus().name(),
                 g.getEffect() == null ? null : g.getEffect().name()
         );
