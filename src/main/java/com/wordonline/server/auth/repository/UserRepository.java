@@ -19,11 +19,10 @@ public class UserRepository {
             DELETE FROM users
             WHERE id = :id;
             """;
-    private static final String GET_USER_BY_EMAIL = """
+    private static final String GET_USER_BY_MEMBER_ID = """
             SELECT id, name, status, selected_deck_id
-
             FROM users
-            WHERE email = :email;
+            WHERE member_id = :memberId;
             """;
     private static final String GET_USER_BY_ID = """
             SELECT id, name, status, selected_deck_id
@@ -82,9 +81,9 @@ public class UserRepository {
                 .update();
     }
 
-    public Optional<User> findUserByEmail(String email) {
-        return jdbcClient.sql(GET_USER_BY_EMAIL)
-                .param("email", email)
+    public Optional<User> findUserByMemberId(long memberId) {
+        return jdbcClient.sql(GET_USER_BY_MEMBER_ID)
+                .param("memberId", memberId)
                 .query((rs, num) ->
                         new User(
                                 rs.getLong("id"),

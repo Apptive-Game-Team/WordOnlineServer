@@ -11,10 +11,12 @@ import java.util.Map;
 
 public class PrincipalDetails implements UserDetails, OAuth2User, Principal {
 
+    public final long memberId;
     public final long userId;
     private Map<String, Object> attributes;
 
-    public PrincipalDetails(long userId) {
+    public PrincipalDetails(long memberId, long userId) {
+        this.memberId = memberId;
         this.userId = userId;
     }
 
