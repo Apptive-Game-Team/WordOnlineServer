@@ -108,8 +108,7 @@ public class UserRepository {
                 .optional();
     }
 
-    public long saveUser(long userId) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+    public void saveUser(long userId) {
         String uniqueEmail = "user_" + System.currentTimeMillis() + UUID.randomUUID() + "@example.com";
         String name = "user_" + System.currentTimeMillis();
         jdbcClient.sql(SAVE_USER)
@@ -117,8 +116,7 @@ public class UserRepository {
                 .param("email", uniqueEmail)
                 .param("name", name)
                 .param("passwordHash", "")
-                .update(keyHolder);
-        return (Long) keyHolder.getKey();
+                .update();
     }
 
     public void updateStatus(long userId, UserStatus status) {

@@ -31,8 +31,7 @@ public class DeckService {
         long deckId = deckRepository.saveDeck(userId, "기본 덱");
 
         for (int i = 1; i <= 10; i++) {
-            deckRepository.saveCardToDeck(deckId, i,
-                    i==6?2:1);
+            deckRepository.saveCardToDeck(deckId, i, 1);
         }
         deckRepository.setSelectDeck(userId, deckId);
 
