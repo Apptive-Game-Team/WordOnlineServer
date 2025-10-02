@@ -35,6 +35,10 @@ public class MatchingManager implements Flow.Subscriber<Long> {
     private final SessionManager sessionManager;
     private final Parameters parameters;
 
+    public int getQueueLength() {
+        return matchingQueue.size();
+    }
+
     public boolean enqueue(long userId) {
         subscribe();
         // 1) 상태 체크 & OnMatching 으로 전환
