@@ -33,5 +33,7 @@ export DATABASE_USER=$DATABASE_USER
 export JWT_SECRET=$JWT_SECRET
 export DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL
 
-nohup java -jar $DEPLOY_PATH/$JAR_NAME > $DEPLOY_PATH/app.log 2>&1 &
+cd $DEPLOY_PATH
+
+nohup java -jar ./$JAR_NAME > ./app.log 2>&1 &
 EOF
