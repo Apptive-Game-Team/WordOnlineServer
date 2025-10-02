@@ -139,8 +139,8 @@ class MatchingManagerTest {
         matchingQueue.add(user1Id);
         matchingQueue.add(user2Id);
 
-        given(userService.getUser(user1Id)).willReturn(user1Dto);
-        given(userService.getUser(user2Id)).willReturn(user2Dto);
+        given(userService.getUser(user1Id, -1)).willReturn(user1Dto);
+        given(userService.getUser(user2Id, -1)).willReturn(user2Dto);
         doNothing().when(userService).markPlaying(anyLong());
         given(parameters.getValue("game", "count")).willReturn(10.0); // 세션 수 제한에 걸리지 않도록 설정
 
@@ -197,8 +197,8 @@ class MatchingManagerTest {
 
         UserResponseDto user1Dto = new UserResponseDto(user1Id, 1L);
         UserResponseDto user2Dto = new UserResponseDto(user2Id, 2L);
-        given(userService.getUser(user1Id)).willReturn(user1Dto);
-        given(userService.getUser(user2Id)).willReturn(user2Dto);
+        given(userService.getUser(user1Id, -1)).willReturn(user1Dto);
+        given(userService.getUser(user2Id, -1)).willReturn(user2Dto);
         doNothing().when(userService).markPlaying(anyLong());
 
         // 3. tryMatchUsers가 처음 호출되면 실패하도록 설정 (세션이 꽉 찼으므로)
