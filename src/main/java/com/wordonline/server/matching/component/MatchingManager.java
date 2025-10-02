@@ -1,6 +1,6 @@
 package com.wordonline.server.matching.component;
 
-import com.wordonline.server.auth.dto.UserResponseDto;
+import com.wordonline.server.auth.dto.UserDetailResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
@@ -84,8 +84,8 @@ public class MatchingManager implements Flow.Subscriber<Long> {
         }
 
 
-        UserResponseDto user1 = userService.getUser(uid1);
-        UserResponseDto user2 = userService.getUser(uid2);
+        UserDetailResponseDto user1 = userService.getUserDetail(uid1);
+        UserDetailResponseDto user2 = userService.getUserDetail(uid2);
 
         try {
             userService.markPlaying(uid1);

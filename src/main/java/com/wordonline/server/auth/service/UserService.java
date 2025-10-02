@@ -4,9 +4,13 @@ import java.lang.reflect.Member;
 
 import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.domain.UserStatus;
+import com.wordonline.server.auth.dto.UserDetailResponseDto;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.service.DeckService;
+import com.wordonline.server.matching.client.AccountClient;
+import com.wordonline.server.matching.dto.AccountMemberResponseDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final DeckService deckService;
+    private final AccountClient accountClient;
 
     public User initialUser(long userId) {
         userRepository.saveUser(userId);
@@ -28,6 +33,7 @@ public class UserService {
 
         long defaultDeckId = deckService.initializeCard(actualUser.getId());
         actualUser.setSelectedDeckId(defaultDeckId);
+
         return actualUser;
     }
 
@@ -39,6 +45,12 @@ public class UserService {
             user = initialUser(userId);
         }
         return new UserResponseDto(user);
+    }
+
+    public UserDetailResponseDto getUserDetail(long userId) {
+        AccountMemberResponseDto accountMemberResponseDto = accountClient.getMember(userId);
+
+        return new UserDetailResponseDto(userId, accountMemberResponseDto);
     }
 
     public boolean deleteUser(long userId) {
