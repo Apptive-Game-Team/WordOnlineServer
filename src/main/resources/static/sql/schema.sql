@@ -102,3 +102,4 @@ ALTER TABLE deck_cards
     ADD CONSTRAINT deck_cards_deck_id_fkey
         FOREIGN KEY (deck_id) REFERENCES decks(id) ON DELETE CASCADE;
 
+ALTER TABLE users ADD COLUMN member_id BIGINT UNIQUE;
