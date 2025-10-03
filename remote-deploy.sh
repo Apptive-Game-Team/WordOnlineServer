@@ -2,7 +2,7 @@
 set -e
 
 # build
-./gradlew clean build -x test
+./gradlew clean build
 
 DEPLOY_PATH=deploy/word-online-server
 

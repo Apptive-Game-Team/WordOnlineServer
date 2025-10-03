@@ -41,6 +41,7 @@ dependencies {
     // database
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     runtimeOnly 'org.postgresql:postgresql:42.6.0'
+    testImplementation 'com.h2database:h2'
 
     // web socket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'

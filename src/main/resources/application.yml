@@ -23,6 +23,11 @@ logging:
     org.springframework.web.socket: WARN
     org.springframework.messaging: WARN
 
+team6515:
+  server:
+    account:
+      url: ${ACCOUNT_SERVER_URL}
+
 jwt:
   public:
     key: ${JWT_PUBLIC_KEY}

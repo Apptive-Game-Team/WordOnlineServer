@@ -4,9 +4,13 @@ import java.lang.reflect.Member;
 
 import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.domain.UserStatus;
+import com.wordonline.server.auth.dto.UserDetailResponseDto;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.service.DeckService;
+import com.wordonline.server.matching.client.AccountClient;
+import com.wordonline.server.matching.dto.AccountMemberResponseDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
@@ -19,26 +23,34 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final DeckService deckService;
+    private final AccountClient accountClient;
 
-    public User initialUser(long userId) {
-        userRepository.saveUser(userId);
+    public User initialUser(long memberId) {
+        Long userId = userRepository.saveUser(memberId);
 
         User actualUser = userRepository.findUserById(userId)
                 .orElseThrow(() -> new AuthorizationDeniedException("Can't Register"));
 
         long defaultDeckId = deckService.initializeCard(actualUser.getId());
         actualUser.setSelectedDeckId(defaultDeckId);
+
         return actualUser;
     }
 
-    public UserResponseDto getUser(long userId) {
+    public UserResponseDto getUser(long memberId) {
         User user;
         try {
-            user = findUserDomain(userId);
+            user = findUserDomain(memberId);
         } catch (AuthorizationDeniedException e) {
-            user = initialUser(userId);
+            user = initialUser(memberId);
         }
         return new UserResponseDto(user);
+    }
+
+    public UserDetailResponseDto getUserDetail(long memberId) {
+        AccountMemberResponseDto accountMemberResponseDto = accountClient.getMember(memberId);
+
+        return new UserDetailResponseDto(memberId, accountMemberResponseDto);
     }
 
     public boolean deleteUser(long userId) {

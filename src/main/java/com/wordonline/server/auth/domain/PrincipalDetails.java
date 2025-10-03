@@ -11,11 +11,11 @@ import java.util.Map;
 
 public class PrincipalDetails implements UserDetails, OAuth2User, Principal {
 
-    public final long userId;
+    public final long memberId;
     private Map<String, Object> attributes;
 
-    public PrincipalDetails(long userId) {
-        this.userId = userId;
+    public PrincipalDetails(long memberId) {
+        this.memberId = memberId;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User, Principal {
     }
 
     public Long getUid() {
-        return userId;
+        return memberId;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User, Principal {
 
     @Override
     public String getUsername() {
-        return "user" + userId;
+        return "user" + memberId;
     }
 
     @Override

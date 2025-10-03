@@ -19,12 +19,6 @@ public class UserRepository {
             DELETE FROM users
             WHERE id = :id;
             """;
-    private static final String GET_USER_BY_EMAIL = """
-            SELECT id, name, status, selected_deck_id
-
-            FROM users
-            WHERE email = :email;
-            """;
     private static final String GET_USER_BY_ID = """
             SELECT id, name, status, selected_deck_id
             FROM users
@@ -33,7 +27,8 @@ public class UserRepository {
     private static final String SAVE_USER = """
             INSERT INTO users(id, email, name, password_hash)
             VALUES
-            (:id, :email, :name, :passwordHash);
+            (:id, :email, :name, :passwordHash)
+            RETURNING id;
             """;
 
     private static final String UPDATE_STATUS = """
@@ -82,19 +77,6 @@ public class UserRepository {
                 .update();
     }
 
-    public Optional<User> findUserByEmail(String email) {
-        return jdbcClient.sql(GET_USER_BY_EMAIL)
-                .param("email", email)
-                .query((rs, num) ->
-                        new User(
-                                rs.getLong("id"),
-                                rs.getString("name"),
-                                UserStatus.valueOf(rs.getString("status")),
-                                rs.getLong("selected_deck_id")
-                        ))
-                .optional();
-    }
-
     public Optional<User> findUserById(long id) {
         return jdbcClient.sql(GET_USER_BY_ID)
                 .param("id", id)
@@ -108,15 +90,20 @@ public class UserRepository {
                 .optional();
     }
 
-    public void saveUser(long userId) {
+    public Long saveUser(long memberId) {
         String uniqueEmail = "user_" + System.currentTimeMillis() + UUID.randomUUID() + "@example.com";
         String name = "user_" + System.currentTimeMillis();
+
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
         jdbcClient.sql(SAVE_USER)
-                .param("id", userId)
+                .param("id", memberId)
                 .param("email", uniqueEmail)
                 .param("name", name)
                 .param("passwordHash", "")
-                .update();
+                .update(keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 
     public void updateStatus(long userId, UserStatus status) {
