@@ -16,7 +16,7 @@ public class RequestLoggingFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         if (servletRequest instanceof HttpServletRequest httpRequest) {
             long startTime = System.currentTimeMillis();
-            log.info("[Request Start] method={}, uri={}, ip={}, userAgent={}",
+            log.debug("[Request Start] method={}, uri={}, ip={}, userAgent={}",
                     httpRequest.getMethod(),
                     httpRequest.getRequestURI(),
                     httpRequest.getRemoteAddr(),
@@ -27,7 +27,7 @@ public class RequestLoggingFilter implements Filter {
             } finally {
                 long duration = System.currentTimeMillis() - startTime;
 
-                log.info("[Request End] method={}, uri={}, duration={}ms",
+                log.debug("[Request End] method={}, uri={}, duration={}ms",
                         httpRequest.getMethod(),
                         httpRequest.getRequestURI(),
                         duration
