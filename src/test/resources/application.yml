@@ -17,5 +17,3 @@ team6515:
   server:
     account:
       url: http://localhost:8081
-logging:
-  discord-webhook-url: http://localhost:webhook

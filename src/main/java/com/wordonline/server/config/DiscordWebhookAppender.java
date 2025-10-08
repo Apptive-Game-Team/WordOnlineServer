@@ -14,6 +14,7 @@ public class DiscordWebhookAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     protected void append(ILoggingEvent eventObject) {
+        if (webhookUrl == null || webhookUrl.isEmpty()) return;
         try {
             String message = eventObject.getFormattedMessage();
 
