@@ -22,27 +22,40 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
 // GameLoop is the main class that runs the game loop
 @Slf4j
+@Scope("prototype")
+@Service
 public class GameLoop implements Runnable {
     @Getter
     private boolean _running = true;
     public static final int FPS = 10;
-    public final SessionObject sessionObject;
-    private final Runnable onTerminated;
+    public SessionObject sessionObject;
+    private Runnable onTerminated;
     private int _frameNum = 0;
-    public final ResultChecker resultChecker;
-    public final MmrService mmrService;
-    private final UserService userService;
+    public ResultChecker resultChecker;
+
+    @Autowired
+    public MmrService mmrService;
+    @Autowired
+    private UserService userService;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
     private final PhysicSystem physicSystem = new PhysicSystem();
-    public final GameSessionData gameSessionData;
-    public final Physics physics;
-    public final MagicInputHandler magicInputHandler = new MagicInputHandler(this);
-    public final Parameters parameters;
+    public GameSessionData gameSessionData;
+    public Physics physics;
+
+    @Autowired
+    public MagicInputHandler magicInputHandler;
+
+    @Autowired
+    public Parameters parameters;
 
     public float deltaTime = 1f / FPS;
 
@@ -58,16 +71,13 @@ public class GameLoop implements Runnable {
         return new SnapshotResponseDto(_frameNum, list, gameSessionData.leftPlayerData.cards);
     }
 
-    public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters, Runnable onTerminated) {
+    public void init(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
-        this.mmrService = mmrService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
-        this.userService = userService;
-        this.parameters = parameters;
         physics = new SimplePhysics(gameSessionData.gameObjects);
     }
 

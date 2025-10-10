@@ -13,13 +13,16 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class MagicInputHandler {
-    private final GameLoop gameLoop;
-    private final MagicParser magicParser = new ExtendedMagicParser();
 
-    public InputResponseDto handleInput(long userId, InputRequestDto inputRequestDto) {
+    private static final MagicParser magicParser = new ExtendedMagicParser();
+
+    public InputResponseDto handleInput(GameLoop gameLoop, long userId, InputRequestDto inputRequestDto) {
         Master master = gameLoop.sessionObject.getUserSide(userId);
         PlayerData playerData = gameLoop.gameSessionData.getPlayerData(master);
 

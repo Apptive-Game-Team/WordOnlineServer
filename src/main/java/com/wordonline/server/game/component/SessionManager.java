@@ -1,14 +1,12 @@
 package com.wordonline.server.game.component;
 
-import com.wordonline.server.auth.service.UserService;
-import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
-import com.wordonline.server.game.service.MmrService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -26,13 +24,11 @@ public class SessionManager {
 
     public final SubmissionPublisher<Long> numOfSessionsFlow = new SubmissionPublisher<>();
 
-    private final MmrService mmrService;
-    private final UserService userService;
-    private final Parameters parameters;
+    private final ObjectProvider<GameLoop> gameLoopProvider;
 
     public void createSession(SessionObject sessionObject) {
-        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, userService, parameters,
-                () -> onLoopTerminated(sessionObject));
+        GameLoop gameLoop = gameLoopProvider.getObject();
+        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
         sessionObject.setGameLoop(gameLoop);
         Thread thread = new Thread(gameLoop);
         thread.start();
