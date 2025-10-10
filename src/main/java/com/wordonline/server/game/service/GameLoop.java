@@ -1,6 +1,5 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
@@ -17,6 +16,7 @@ import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Scope("prototype")
 @Service
+@RequiredArgsConstructor
 public class GameLoop implements Runnable {
     @Getter
     private boolean _running = true;
@@ -39,10 +40,9 @@ public class GameLoop implements Runnable {
     private int _frameNum = 0;
     public ResultChecker resultChecker;
 
-    @Autowired
-    public MmrService mmrService;
-    @Autowired
-    private UserService userService;
+
+    public final MmrService mmrService;
+    private final UserService userService;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -51,11 +51,9 @@ public class GameLoop implements Runnable {
     public GameSessionData gameSessionData;
     public Physics physics;
 
-    @Autowired
-    public MagicInputHandler magicInputHandler;
+    public final MagicInputHandler magicInputHandler;
 
-    @Autowired
-    public Parameters parameters;
+    public final Parameters parameters;
 
     public float deltaTime = 1f / FPS;
 
