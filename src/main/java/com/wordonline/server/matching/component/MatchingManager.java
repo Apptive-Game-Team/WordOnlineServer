@@ -39,9 +39,18 @@ public class MatchingManager implements Flow.Subscriber<Long> {
         return matchingQueue.size();
     }
 
+    public boolean isInQueue(long userId) {
+        return matchingQueue.contains(userId);
+    }
+
     public boolean enqueue(long userId) {
         subscribe();
         // 1) 상태 체크 & OnMatching 으로 전환
+
+        if (isInQueue(userId)) {
+            return true;
+        }
+
         try {
             userService.markMatching(userId);
         } catch (IllegalStateException ex) {
