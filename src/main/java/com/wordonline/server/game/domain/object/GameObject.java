@@ -24,6 +24,10 @@ public class GameObject {
     private PrefabType type;
     private Status status;
 
+    public boolean isDestroyed() {
+        return status == Status.Destroyed;
+    }
+
     private Effect effect;
     private Element element = new Element();
     private Vector3 position;
