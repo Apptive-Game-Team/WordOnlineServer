@@ -63,10 +63,10 @@ public class StatisticRepository {
     private void saveMagic(long gameId, List<StatisticMagicDto> magicDtos) {
         magicDtos.forEach(magicDto -> {
             jdbcClient.sql(SAVE_MAGIC)
-                    .param("userId", magicDto.userId())
+                    .param("userId", magicDto.getUserId())
                     .param("gameId", gameId)
-                    .param("magicId", magicDto.magicId())
-                    .param("count", magicDto.count())
+                    .param("magicId", magicDto.getMagicId())
+                    .param("count", magicDto.getCount())
                     .update();
         });
     }
