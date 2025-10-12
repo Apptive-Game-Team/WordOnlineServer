@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 public record GameResultDto(
         long winUserId,
@@ -20,6 +21,7 @@ public record GameResultDto(
 
     }
 
+    @Getter
     @AllArgsConstructor
     public static class StatisticMagicDto {
         long magicId;
