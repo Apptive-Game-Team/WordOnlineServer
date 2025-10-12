@@ -49,3 +49,42 @@ VALUES
     (1, 5, 1),
 
     (6, 6, 3);
+
+INSERT INTO magics(id, name)
+VALUES
+    (1, 'fire_slime_swarm'),
+    (2, 'water_slime_swarm'),
+    (3, 'lightning_slime_swarm'),
+    (4, 'nature_slime_swarm'),
+    (5, 'rock_slime_swarm'),
+    (6, 'wind_slime_swarm'),
+
+    (7, 'fire_shot'),
+    (8, 'water_shot'),
+    (9, 'lightning_shot'),
+    (10, 'nature_shot'),
+    (11, 'rock_shot'),
+    (12, 'wind_shot'),
+
+    (13, 'fire_slime_nest'),
+    (14, 'water_slime_nest'),
+    (15, 'lightning_slime_nest'),
+    (16, 'nature_slime_nest'),
+    (17, 'rock_slime_nest'),
+    (18, 'wind_slime_nest'),
+
+    (19, 'fire_explosion'),
+    (20, 'water_explosion'),
+    (21, 'lightning_explosion'),
+    (22, 'nature_explosion'),
+    (23, 'rock_explosion'),
+    (24, 'wind_explosion'),
+
+    (25, 'cannon'),
+    (26, 'tower'),
+    (27, 'mana_well'),
+    (28, 'aqua_archer'),
+    (29, 'rock_golem'),
+    (30, 'storm_rider'),
+    (31, 'thunder_spirit'),
+    (32, 'fire_spirit');
