@@ -23,56 +23,56 @@ public class MapMagicParser implements MagicParser {
         magicHashMap = Map.ofEntries(
                 // 지대공 포탑
                 createMagicEntry(List.of(CardType.Build, CardType.Explode, CardType.Rock),
-                        (master, position) -> new Magic(CardType.Build) {
+                        (master, position) -> new Magic(26, CardType.Build) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.GroundTower, position.toVector3(), gameLoop);
                             }}),
                 // 지대지 대포
                 createMagicEntry(List.of(CardType.Build, CardType.Shoot, CardType.Rock),
-                        (master, position) -> new Magic(CardType.Build) {
+                        (master, position) -> new Magic(25, CardType.Build) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.GroundCannon, position.toVector3(), gameLoop);
                             }}),
                 // 마나 회복 건물
                 createMagicEntry(List.of(CardType.Build, CardType.Nature, CardType.Lightning),
-                        (master, position) -> new Magic(CardType.Build) {
+                        (master, position) -> new Magic(27, CardType.Build) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.ManaWell, position.toVector3(), gameLoop);
                             }}),
                 // 물 원거리 유닛
                 createMagicEntry(List.of(CardType.Spawn, CardType.Shoot, CardType.Water),
-                        (master, position) -> new Magic(CardType.Spawn) {
+                        (master, position) -> new Magic(28, CardType.Spawn) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.AquaArcher, position.toVector3(), gameLoop);
                             }}),
                 // 바위 골램
                 createMagicEntry(List.of(CardType.Spawn, CardType.Rock, CardType.Rock),
-                        (master, position) -> new Magic(CardType.Spawn) {
+                        (master, position) -> new Magic(29, CardType.Spawn) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.RockGolem, position.toVector3(), gameLoop);
                             }}),
                 // 번개 돌격병
                 createMagicEntry(List.of(CardType.Spawn, CardType.Water, CardType.Lightning),
-                        (master, position) -> new Magic(CardType.Spawn) {
+                        (master, position) -> new Magic(30, CardType.Spawn) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.StormRider, position.toVector3(), gameLoop);
                             }}),
                 // 공중 번개 정령
                 createMagicEntry(List.of(CardType.Spawn, CardType.Wind, CardType.Lightning),
-                        (master, position) -> new Magic(CardType.Spawn) {
+                        (master, position) -> new Magic(31, CardType.Spawn) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.ThunderSpirit, position.toVector3(), gameLoop);
                             }}),
                 // 불의 정령
                 createMagicEntry(List.of(CardType.Spawn, CardType.Wind, CardType.Fire),
-                        (master, position) -> new Magic(CardType.Spawn) {
+                        (master, position) -> new Magic(32, CardType.Spawn) {
                             @Override
                             public void run(GameLoop gameLoop) {
                                 new GameObject(master, PrefabType.FireSpirit, position.toVector3(), gameLoop);
