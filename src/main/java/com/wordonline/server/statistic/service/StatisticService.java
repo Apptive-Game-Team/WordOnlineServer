@@ -40,7 +40,7 @@ public class StatisticService {
         gameResultBuilderMap.put(gameLoop, builder);
     }
 
-    private void saveMagic(GameLoop gameLoop, long userId, long magicId) {
+    public void saveMagic(GameLoop gameLoop, long userId, long magicId) {
         gameResultBuilderMap.get(gameLoop)
                 .recordMagic(userId, magicId);
     }
@@ -52,8 +52,8 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
-    public void saveGameResult(GameLoop gameLoop, Master winner) {
+    public void saveGameResult(GameLoop gameLoop, Master loser) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameLoop);
-        statisticRepository.saveGameResultDto(builder.build(winner));
+        statisticRepository.saveGameResultDto(builder.build(loser));
     }
 }

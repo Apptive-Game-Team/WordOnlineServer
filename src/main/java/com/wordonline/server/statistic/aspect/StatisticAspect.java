@@ -1,0 +1,45 @@
+package com.wordonline.server.statistic.aspect;
+
+import java.util.Arrays;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+import com.wordonline.server.game.dto.InputResponseDto;
+import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.statistic.service.StatisticService;
+
+import lombok.RequiredArgsConstructor;
+
+@Aspect
+@Component
+@RequiredArgsConstructor
+public class StatisticAspect {
+
+    private final StatisticService statisticService;
+
+    @AfterReturning(
+            value = "execution(com.wordonline.server.game.dto.InputResponseDto com.wordonline.server.game.service.MagicInputHandler.handleInput(..))",
+            returning = "response"
+    )
+    public void afterHandleInput(JoinPoint joinPoint, InputResponseDto response) {
+        if (!response.isValid() || response.getMagicId() == -1) {
+            return;
+        }
+
+        GameLoop gameLoop = findArg(joinPoint.getArgs(), GameLoop.class);
+        Long userId = findArg(joinPoint.getArgs(), Long.class);
+
+        statisticService.saveMagic(gameLoop, userId, response.getMagicId());
+    }
+
+    private <T> T findArg(Object[] args, Class<T> clazz) {
+        return Arrays.stream(args)
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(clazz.getSimpleName() + " Not Found"));
+    }
+}

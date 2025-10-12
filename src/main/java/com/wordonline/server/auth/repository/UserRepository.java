@@ -25,7 +25,7 @@ public class UserRepository {
             WHERE id = :id;
             """;
     private static final String GET_SELECTED_DECK_ID_BY_ID = """
-            SELECT id, name, status, selected_deck_id
+            SELECT selected_deck_id
             FROM users
             WHERE id = :userId;
             """;

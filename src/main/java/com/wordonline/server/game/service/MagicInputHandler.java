@@ -31,10 +31,10 @@ public class MagicInputHandler {
 
         if (magic == null) {
             log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
+            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
         } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameLoop.parameters.getValue(magic.magicType.name(), "range")) {
             log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
+            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
         }
 
         // Check if the player has enough mana and card
@@ -42,7 +42,7 @@ public class MagicInputHandler {
 
         if (!valid) {
             log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId());
+            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
         }
 
         // use the magic
@@ -51,6 +51,6 @@ public class MagicInputHandler {
         // Add the magic to the deck data
         gameLoop.gameSessionData.getCardDeck(master).cards.addAll(inputRequestDto.getCards());
 
-        return new InputResponseDto(true, playerData.mana, inputRequestDto.getId());
+        return new InputResponseDto(true, playerData.mana, inputRequestDto.getId(), magic.id);
     }
 }

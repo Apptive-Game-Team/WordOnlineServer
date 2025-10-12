@@ -22,7 +22,7 @@ public class StatisticRepository {
 
     private final static String SAVE_GAME_RESULT = """
             INSERT INTO statistic_games(win_user_id, loss_user_id, duration)
-            VALUES(:winUserId, :lossUserId, :duration);
+            VALUES(:winUserId, :lossUserId, :duration) RETURNING id;
             """;
     private final static String SAVE_CARD = """
             INSERT INTO statistic_game_cards(user_id, statistic_game_id, card_id, count)
@@ -44,7 +44,7 @@ public class StatisticRepository {
         jdbcClient.sql(SAVE_GAME_RESULT)
                 .param("winUserId", winUserId)
                 .param("lossUserId", lossUserId)
-                .param("duration", duration)
+                .param("duration", duration.toSeconds())
                 .update(keyHolder);
         return keyHolder.getKey().longValue();
     }

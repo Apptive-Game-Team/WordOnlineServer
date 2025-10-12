@@ -58,16 +58,16 @@ public class GameResultBuilder {
                 );
     }
 
-    public GameResultDto build(Master winner) {
+    public GameResultDto build(Master loser) {
 
         Duration duration = Duration.between(startTime, LocalDateTime.now());
 
         long winId;
         long lossId;
-        if (winner == Master.LeftPlayer) {
+        if (loser == Master.RightPlayer) {
             winId = leftUserId;
             lossId = rightUserId;
-        } else if (winner == Master.RightPlayer) {
+        } else if (loser == Master.LeftPlayer) {
             winId = rightUserId;
             lossId = leftUserId;
         } else {
