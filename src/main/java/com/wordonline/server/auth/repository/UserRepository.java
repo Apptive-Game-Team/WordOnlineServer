@@ -24,6 +24,11 @@ public class UserRepository {
             FROM users
             WHERE id = :id;
             """;
+    private static final String GET_SELECTED_DECK_ID_BY_ID = """
+            SELECT id, name, status, selected_deck_id
+            FROM users
+            WHERE id = :userId;
+            """;
     private static final String SAVE_USER = """
             INSERT INTO users(id, email, name, password_hash)
             VALUES
@@ -61,6 +66,13 @@ public class UserRepository {
         return jdbcClient.sql(DELETE_USER_BY_ID)
                 .param("id", userId)
                 .update() >= 1;
+    }
+
+    public Optional<Long> getSelectedDeckId(long userId) {
+        return jdbcClient.sql(GET_SELECTED_DECK_ID_BY_ID)
+                .param("userId", userId)
+                .query(Long.class)
+                .optional();
     }
 
     public Optional<Short> getMmr(long userId) {
