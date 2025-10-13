@@ -4,6 +4,8 @@ import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.MmrService;
+import com.wordonline.server.game.service.ResultChecker;
+import com.wordonline.server.statistic.service.StatisticService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,9 @@ class SessionManagerTest {
 
     @MockitoBean
     private SimpMessagingTemplate simpMessagingTemplate;
+
+    @MockitoBean
+    private StatisticService statisticService;
 
     @AfterEach
     void tearDown() {
@@ -106,7 +111,10 @@ class SessionManagerTest {
 
         // GameLoop를 모킹하여 즉시 종료된 것처럼 만듭니다.
         GameLoop mockGameLoop = mock(GameLoop.class);
+        ResultChecker mockResultChecker = mock(ResultChecker.class);
+
         when(mockGameLoop.is_running()).thenReturn(false);
+        mockGameLoop.resultChecker = mockResultChecker;
         sessionObject.setGameLoop(mockGameLoop);
 
         // 세션 맵에 직접 추가

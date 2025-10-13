@@ -5,18 +5,18 @@ import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.statistic.service.StatisticService;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +47,9 @@ public class MatchingManagerSessionManagerIntegrationTest {
 
     @MockitoBean
     private Parameters parameters;
+
+    @MockitoBean
+    private StatisticService statisticService;
 
     @BeforeEach
     void setUp() {

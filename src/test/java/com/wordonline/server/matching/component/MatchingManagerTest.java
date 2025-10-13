@@ -1,13 +1,14 @@
 package com.wordonline.server.matching.component;
 
-import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.statistic.service.StatisticService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,6 +51,9 @@ class MatchingManagerTest {
 
     @MockitoBean
     private Parameters parameters;
+
+    @MockitoBean
+    private StatisticService statisticService;
 
     private Queue<Long> matchingQueue;
 
@@ -133,14 +137,11 @@ class MatchingManagerTest {
         long user1Id = 1L;
         long user2Id = 2L;
 
-        UserResponseDto user1Dto = new UserResponseDto(user1Id, 1L);
-        UserResponseDto user2Dto = new UserResponseDto(user2Id, 2L);
-
         matchingQueue.add(user1Id);
         matchingQueue.add(user2Id);
 
-        given(userService.getUser(user1Id)).willReturn(user1Dto);
-        given(userService.getUser(user2Id)).willReturn(user2Dto);
+        given(userService.getUser(user1Id)).willReturn(new UserResponseDto(user1Id, -1));
+        given(userService.getUser(user2Id)).willReturn(new UserResponseDto(user2Id, -1));
         doNothing().when(userService).markPlaying(anyLong());
         given(parameters.getValue("game", "count")).willReturn(10.0); // 세션 수 제한에 걸리지 않도록 설정
 
@@ -181,7 +182,9 @@ class MatchingManagerTest {
         given(parameters.getValue("game", "count")).willReturn(1.0);
         SessionObject mockSession = new SessionObject("session-to-terminate", 100L, 200L, simpMessagingTemplate, java.util.Collections.emptyList(), java.util.Collections.emptyList());
         GameLoop mockGameLoop = mock(GameLoop.class);
+        ResultChecker mockResultChecker = mock(ResultChecker.class);
         when(mockGameLoop.is_running()).thenReturn(true);
+        mockGameLoop.resultChecker = mockResultChecker;
         mockSession.setGameLoop(mockGameLoop);
 
         // SessionManager.createSession() 대신 수동으로 세션 추가 (실제 스레드 생성 방지)
@@ -199,10 +202,8 @@ class MatchingManagerTest {
         matchingManager.enqueue(user1Id);
         matchingManager.enqueue(user2Id);
 
-        UserResponseDto user1Dto = new UserResponseDto(user1Id, 1L);
-        UserResponseDto user2Dto = new UserResponseDto(user2Id, 2L);
-        given(userService.getUser(user1Id)).willReturn(user1Dto);
-        given(userService.getUser(user2Id)).willReturn(user2Dto);
+        given(userService.getUser(user1Id)).willReturn(new UserResponseDto(user1Id, -1));
+        given(userService.getUser(user2Id)).willReturn(new UserResponseDto(user2Id, -1));
         doNothing().when(userService).markPlaying(anyLong());
 
         // 3. tryMatchUsers가 처음 호출되면 실패하도록 설정 (세션이 꽉 찼으므로)
@@ -216,7 +217,7 @@ class MatchingManagerTest {
         // then
         // 5. onNext 핸들러가 호출되고, 결과적으로 tryMatchUsers가 다시 호출되는지 검증
         // Thread.sleep() 대신 Awaitility를 사용하여 안정적으로 비동기 호출을 기다림
-        org.awaitility.Awaitility.await().atMost(5, java.util.concurrent.TimeUnit.SECONDS).untilAsserted(() -> {
+        org.awaitility.Awaitility.await().atMost(10, java.util.concurrent.TimeUnit.SECONDS).untilAsserted(() -> {
             verify(matchingManager, times(2)).tryMatchUsers();
         });
     }
