@@ -1,6 +1,5 @@
 package com.wordonline.server.matching.component;
 
-import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class MatchingManagerTest {
 
@@ -63,18 +64,18 @@ class MatchingManagerTest {
 
     @AfterEach
     void tearDown() {
-        // 각 테스트 후 세션 맵을 비웁니다.
+        // 기존 세션 종료 로직
         Map<String, SessionObject> sessions = (Map<String, SessionObject>) ReflectionTestUtils.getField(sessionManager, "sessions");
         if (sessions != null) {
-            // 남아있는 모든 세션의 게임 루프를 종료시킵니다.
-            // toList()를 사용하여 ConcurrentModificationException 방지
-            for (SessionObject session : sessions.values().stream().toList()) {
-                if (session.getGameLoop() != null && session.getGameLoop().is_running()) {
-                    ReflectionTestUtils.invokeMethod(sessionManager, "onLoopTerminated", session);
-                }
-            }
-            sessions.clear();
+            sessions.clear(); // 세션 완전 제거
         }
+
+        // matchingManager 상태 초기화
+        ReflectionTestUtils.setField(matchingManager, "matchingQueue", new LinkedList<>());
+        ReflectionTestUtils.setField(matchingManager, "sessionIdCounter", 0);
+
+        // Mockito Spy 호출 기록 초기화
+        clearInvocations(matchingManager);
     }
 
     @Test
@@ -175,7 +176,7 @@ class MatchingManagerTest {
 
     @Test
     @DisplayName("게임 세션이 종료되면, 대기열에 유저가 있을 경우 새로운 매칭을 시도한다.")
-    void tryMatchUsers_isTriggered_whenSessionEnds() throws InterruptedException {
+    void tryMatchUsers_isTriggered_whenSessionEnds() {
         // given
         // 1. 세션이 꽉 찬 상태로 설정
         given(parameters.getValue("game", "count")).willReturn(1.0);
@@ -183,9 +184,13 @@ class MatchingManagerTest {
         GameLoop mockGameLoop = mock(GameLoop.class);
         when(mockGameLoop.is_running()).thenReturn(true);
         mockSession.setGameLoop(mockGameLoop);
+
+        // SessionManager.createSession() 대신 수동으로 세션 추가 (실제 스레드 생성 방지)
         sessionManager.clearSessions();
-        sessionManager.createSession(mockSession);
+        Map<String, SessionObject> sessions = (Map<String, SessionObject>) ReflectionTestUtils.getField(sessionManager, "sessions");
+        sessions.put(mockSession.getSessionId(), mockSession);
         assertThat(sessionManager.getActiveSessions()).isEqualTo(1);
+
 
         // 2. 매칭 대기열에 2명 추가 및 Mock 설정
         long user1Id = 1L;
@@ -204,14 +209,16 @@ class MatchingManagerTest {
         // 3. tryMatchUsers가 처음 호출되면 실패하도록 설정 (세션이 꽉 찼으므로)
         assertThat(matchingManager.tryMatchUsers()).isFalse();
 
+        verify(matchingManager, times(1)).tryMatchUsers();
         // when
         // 4. 게임 세션 종료를 시뮬레이션
         ReflectionTestUtils.invokeMethod(sessionManager, "onLoopTerminated", mockSession);
 
-        Thread.sleep(1000L);
-
         // then
         // 5. onNext 핸들러가 호출되고, 결과적으로 tryMatchUsers가 다시 호출되는지 검증
-        verify(matchingManager, times(2)).tryMatchUsers();
+        // Thread.sleep() 대신 Awaitility를 사용하여 안정적으로 비동기 호출을 기다림
+        org.awaitility.Awaitility.await().atMost(10, java.util.concurrent.TimeUnit.SECONDS).untilAsserted(() -> {
+            verify(matchingManager, times(2)).tryMatchUsers();
+        });
     }
 }

@@ -40,13 +40,16 @@ public class InputController {
 
         SessionObject sessionObject = sessionManager.getSessionObject(sessionId);
         log.trace("input arrived {}", inputRequestDto.getType());
+
         if (sessionObject != null && inputRequestDto.getType().equals("ping")) {
             log.trace("ping arrived {}", userId);
             sessionObject.getPingChecker().ping(userId);
             return;
         }
 
-        InputResponseDto responseDto = sessionObject.getGameLoop().magicInputHandler.handleInput(userId, inputRequestDto);
+        InputResponseDto responseDto = sessionObject.getGameLoop().magicInputHandler.handleInput(
+                sessionObject.getGameLoop(), userId, inputRequestDto
+        );
         template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
 }

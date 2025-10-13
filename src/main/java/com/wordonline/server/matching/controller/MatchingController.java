@@ -23,7 +23,6 @@ public class MatchingController {
 
     private final MatchingManager matchingManager;
     private final SimpMessagingTemplate template;
-    private final UserRepository userRepository;
 
     // matching queue request
     @MessageMapping("/game/match/queue")

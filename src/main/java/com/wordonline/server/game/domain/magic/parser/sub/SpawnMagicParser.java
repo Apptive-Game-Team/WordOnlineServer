@@ -16,23 +16,31 @@ public class SpawnMagicParser implements MagicParser {
     @Override
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
         PrefabType prefabType;
+        long id;
+
         if (cards.contains(CardType.Fire)) {
             prefabType = PrefabType.FireSlime;
+            id = 1;
         } else if (cards.contains(CardType.Water)) {
             prefabType = PrefabType.WaterSlime;
+            id = 2;
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricSlime;
+            id = 3;
         } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafSlime;
+            id = 4;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockSlime;
+            id = 5;
         } else if (cards.contains(CardType.Wind)) {
             prefabType = PrefabType.WindSlime;
+            id = 6;
         } else {
             return null;
         }
 
-        return new Magic(CardType.Spawn) {
+        return new Magic(id, CardType.Spawn) {
             @Override
             public void run(GameLoop gameLoop) {
                 new GameObject(master, prefabType, position.toVector3(), gameLoop);

@@ -1,14 +1,13 @@
 package com.wordonline.server.game.component;
 
-import com.wordonline.server.auth.service.UserService;
-import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
-import com.wordonline.server.game.service.MmrService;
+import com.wordonline.server.statistic.service.StatisticService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -25,15 +24,16 @@ public class SessionManager {
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
 
     public final SubmissionPublisher<Long> numOfSessionsFlow = new SubmissionPublisher<>();
-
-    private final MmrService mmrService;
-    private final UserService userService;
-    private final Parameters parameters;
+    private final ObjectProvider<GameLoop> gameLoopProvider;
+    private final StatisticService statisticService;
 
     public void createSession(SessionObject sessionObject) {
-        GameLoop gameLoop = new GameLoop(sessionObject, mmrService, userService, parameters,
-                () -> onLoopTerminated(sessionObject));
+        GameLoop gameLoop = gameLoopProvider.getObject();
+        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
         sessionObject.setGameLoop(gameLoop);
+
+        statisticService.createBuilder(gameLoop);
+
         Thread thread = new Thread(gameLoop);
         thread.start();
 
@@ -44,6 +44,7 @@ public class SessionManager {
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
         numOfSessionsFlow.submit(getActiveSessions());
+        statisticService.saveGameResult(s.getGameLoop(), s.getGameLoop().resultChecker.getLoser());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 
