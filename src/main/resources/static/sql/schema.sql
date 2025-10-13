@@ -104,3 +104,44 @@ ALTER TABLE deck_cards
 
 ALTER TABLE users ADD COLUMN member_id BIGINT UNIQUE;
 ALTER TABLE users DROP COLUMN member_id;
+
+
+-- Statistic tables
+CREATE TABLE magics (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+CREATE TABLE statistic_games (
+    id BIGSERIAL PRIMARY KEY,
+    win_user_id BIGINT NOT NULL,
+    loss_user_id BIGINT NOT NULL,
+    duration INTERVAL NOT NULL,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+CREATE TABLE statistic_game_cards (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    statistic_game_id BIGINT NOT NULL REFERENCES statistic_games(id) ON DELETE CASCADE,
+    card_id BIGINT NOT NULL REFERENCES cards(id),
+    count INT
+);
+
+CREATE INDEX idx_statistic_game_card_user_id_statistic_game_id
+    ON statistic_game_cards(user_id, statistic_game_id);
+
+CREATE TABLE statistic_game_magics (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE CASCADE,
+    magic_id BIGINT NOT NULL REFERENCES magics(id),
+    count INT
+);
+
+CREATE INDEX idx_statistic_game_magic_user_id_statistic_game_id
+    ON statistic_game_magics(user_id, statistic_game_id);
+
+ALTER TABLE statistic_games
+    ALTER COLUMN duration TYPE BIGINT
+        USING EXTRACT(EPOCH FROM duration);

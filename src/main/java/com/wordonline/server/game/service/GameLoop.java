@@ -1,6 +1,5 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.auth.domain.User;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
@@ -17,21 +16,31 @@ import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
 // GameLoop is the main class that runs the game loop
 @Slf4j
+@Scope("prototype")
+@Service
+@RequiredArgsConstructor
 public class GameLoop implements Runnable {
     @Getter
     private boolean _running = true;
     public static final int FPS = 10;
-    public final SessionObject sessionObject;
-    private final Runnable onTerminated;
+    public SessionObject sessionObject;
+    private Runnable onTerminated;
     private int _frameNum = 0;
-    public final ResultChecker resultChecker;
+    public ResultChecker resultChecker;
+
+
     public final MmrService mmrService;
     private final UserService userService;
 
@@ -39,9 +48,11 @@ public class GameLoop implements Runnable {
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
 
     private final PhysicSystem physicSystem = new PhysicSystem();
-    public final GameSessionData gameSessionData;
-    public final Physics physics;
-    public final MagicInputHandler magicInputHandler = new MagicInputHandler(this);
+    public GameSessionData gameSessionData;
+    public Physics physics;
+
+    public final MagicInputHandler magicInputHandler;
+
     public final Parameters parameters;
 
     public float deltaTime = 1f / FPS;
@@ -58,16 +69,13 @@ public class GameLoop implements Runnable {
         return new SnapshotResponseDto(_frameNum, list, gameSessionData.leftPlayerData.cards);
     }
 
-    public GameLoop(SessionObject sessionObject, MmrService mmrService, UserService userService, Parameters parameters, Runnable onTerminated) {
+    public void init(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
-        this.mmrService = mmrService;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
         resultChecker = new ResultChecker(sessionObject);
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
-        this.userService = userService;
-        this.parameters = parameters;
         physics = new SimplePhysics(gameSessionData.gameObjects);
     }
 

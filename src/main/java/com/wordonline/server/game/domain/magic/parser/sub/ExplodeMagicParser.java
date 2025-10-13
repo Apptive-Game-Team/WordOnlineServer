@@ -17,28 +17,35 @@ public class ExplodeMagicParser implements MagicParser {
     public Magic parseMagic(List<CardType> cards, Master master, Vector2 position) {
         PrefabType prefabType;
         Master magicMaster;
+        long id;
         if (cards.contains(CardType.Fire)) {
             prefabType = PrefabType.FireExplode;
             magicMaster = master;
+            id = 19;
         } else if (cards.contains(CardType.Water)) {
             prefabType = PrefabType.WaterExplode;
             magicMaster = master;
+            id = 20;
         } else if (cards.contains(CardType.Lightning)) {
             prefabType = PrefabType.ElectricExplode;
             magicMaster = master;
+            id = 21;
         } else if (cards.contains(CardType.Nature)) {
             prefabType = PrefabType.LeafExplode;
             magicMaster = master;
+            id = 22;
         } else if (cards.contains(CardType.Rock)) {
             prefabType = PrefabType.RockExplode;
             magicMaster = master;
+            id = 23;
         } else if (cards.contains(CardType.Wind)) {
             prefabType = PrefabType.WindExplode;
             magicMaster = Master.None;
+            id = 24;
         } else {
             return null;
         }
-        return new Magic(CardType.Explode) {
+        return new Magic(id, CardType.Explode) {
             @Override
             public void run(GameLoop gameLoop) {
                 new GameObject(magicMaster, prefabType, position.toVector3(), gameLoop);

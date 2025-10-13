@@ -8,4 +8,5 @@ public class InputResponseDto {
     private final boolean valid;
     private final int updatedMana;
     private final int id;
+    private final long magicId;
 }
