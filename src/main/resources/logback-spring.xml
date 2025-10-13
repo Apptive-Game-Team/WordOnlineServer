@@ -21,7 +21,9 @@
   </logger>
 
   <root level="INFO">
-    <appender-ref ref="AsyncDiscordAppender"/>
+    <springProfile name="!test">
+      <appender-ref ref="AsyncDiscordAppender"/>
+    </springProfile>
     <appender-ref ref="ConsoleAppender"/>
   </root>
 </configuration>

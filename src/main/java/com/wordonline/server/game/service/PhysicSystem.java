@@ -121,6 +121,10 @@ public class PhysicSystem implements CollisionSystem {
                         return;
                     }
 
+                    if (gameObjectPair.a().isDestroyed() || gameObjectPair.b().isDestroyed()) {
+                        return;
+                    }
+
                     gameObjectPair.a().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.b()));
                     gameObjectPair.b().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.a()));
                 }
