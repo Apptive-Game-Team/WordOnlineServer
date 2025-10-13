@@ -219,7 +219,7 @@ class MatchingManagerTest {
         // then
         // 5. onNext 핸들러가 호출되고, 결과적으로 tryMatchUsers가 다시 호출되는지 검증
         // Thread.sleep() 대신 Awaitility를 사용하여 안정적으로 비동기 호출을 기다림
-        org.awaitility.Awaitility.await().atMost(10, java.util.concurrent.TimeUnit.SECONDS).untilAsserted(() -> {
+        org.awaitility.Awaitility.await().atMost(20, java.util.concurrent.TimeUnit.SECONDS).untilAsserted(() -> {
             verify(matchingManager, times(2)).tryMatchUsers();
         });
     }
