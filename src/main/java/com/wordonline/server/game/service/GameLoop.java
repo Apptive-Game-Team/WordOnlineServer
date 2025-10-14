@@ -153,12 +153,15 @@ public class GameLoop implements Runnable {
                     ? ResultType.Lose
                     : ResultType.Win;
 
-
+            short leftMmr = mmrService.fetchRating(leftId);
+            short rightMmr = mmrService.fetchRating(rightId);
+            ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr,leftMmr, rightMmr);
+            
             if(sessionObject.getSessionType() == SessionType.PVP)
             {
-                ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
-                resultChecker.broadcastResult(mmrDto);
+                mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
             }
+            resultChecker.broadcastResult(mmrDto);
 
             userService.markOnline(leftId);
             userService.markOnline(rightId);
