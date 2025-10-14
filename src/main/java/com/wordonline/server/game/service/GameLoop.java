@@ -3,6 +3,7 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
+import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
 import com.wordonline.server.game.domain.object.component.Component;
@@ -22,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +43,8 @@ public class GameLoop implements Runnable {
 
     public final MmrService mmrService;
     private final UserService userService;
+
+    private BotAgent botAgent;
 
     @Getter
     private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -77,6 +79,10 @@ public class GameLoop implements Runnable {
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
         physics = new SimplePhysics(gameSessionData.gameObjects);
+        if(sessionObject.getSessionType() == SessionType.Practice)
+        {
+            botAgent = new BotAgent(sessionObject);
+        }
     }
 
     public void close() {
@@ -143,6 +149,12 @@ public class GameLoop implements Runnable {
         leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
         rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
 
+        //bot tick
+        if(botAgent != null)
+        {
+            botAgent.onTick(rightFrameInfoDto);
+        }
+
         // Check for game over
         if (resultChecker.checkResult()) {
             Master loser = resultChecker.getLoser();
@@ -156,7 +168,7 @@ public class GameLoop implements Runnable {
             short leftMmr = mmrService.fetchRating(leftId);
             short rightMmr = mmrService.fetchRating(rightId);
             ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr,leftMmr, rightMmr);
-            
+
             if(sessionObject.getSessionType() == SessionType.PVP)
             {
                 mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
