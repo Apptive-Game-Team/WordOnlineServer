@@ -153,12 +153,15 @@ public class GameLoop implements Runnable {
                     ? ResultType.Lose
                     : ResultType.Win;
 
-            ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
-            resultChecker.broadcastResult(mmrDto);
+
+            if(sessionObject.getSessionType() == SessionType.PVP)
+            {
+                ResultMmrDto mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
+                resultChecker.broadcastResult(mmrDto);
+            }
+
             userService.markOnline(leftId);
             userService.markOnline(rightId);
-
-
             // 3) 루프 종료
             close();
         }

@@ -6,6 +6,7 @@ import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -135,6 +136,49 @@ public class MatchingManager implements Flow.Subscriber<Long> {
                             template,
                             deckService.getSelectedCards(uid1),
                             deckService.getSelectedCards(uid2)));
+            return true;
+        } catch (InterruptedException e) {
+            log.error("Error while creating session", e);
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+    public boolean matchPractice(long id) {
+
+        UserDetailResponseDto user = userService.getUserDetail(id);
+        UserDetailResponseDto botDetail = new UserDetailResponseDto(-1, "bot", null);
+
+
+        try {
+            userService.markPlaying(id);
+        } catch (IllegalStateException ex) {
+            log.warn("매칭 시작 실패: 상태가 올바르지 않습니다. {}", ex.getMessage());
+            userService.markOnline(id);
+            return false;
+        }
+
+        String sessionId = "session-" + sessionIdCounter;
+        MatchedInfoDto matchedInfoDto = new MatchedInfoDto(
+                "Successfully Matched",
+                user,
+                botDetail,
+                sessionId
+        );
+        template.convertAndSend(
+                String.format("/queue/match-status/%s", id),
+                matchedInfoDto);
+        log.info("[Practice] Users matched");
+
+        try {
+            Thread.sleep(2000);
+            sessionManager.createSession(
+                    new SessionObject(
+                            sessionId,
+                            id, botDetail.id(),
+                            template,
+                            deckService.getSelectedCards(id),
+                            deckService.getSelectedCards(id),
+                            SessionType.Practice));
             return true;
         } catch (InterruptedException e) {
             log.error("Error while creating session", e);
