@@ -30,8 +30,8 @@ public class SessionManager {
 
     public void createSession(SessionObject sessionObject) {
         GameLoop gameLoop = gameLoopProvider.getObject();
-        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
         sessionObject.setGameLoop(gameLoop);
+        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
         statisticService.createBuilder(gameLoop);
 
