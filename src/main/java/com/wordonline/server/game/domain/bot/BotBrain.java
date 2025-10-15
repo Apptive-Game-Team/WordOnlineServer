@@ -9,6 +9,7 @@ import com.wordonline.server.game.service.GameLoop;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class BotBrain {
 
@@ -59,6 +60,24 @@ public class BotBrain {
                 return new InputDecision(inputCardList, target);
             }
         }
+        List<CardType> spawnOrBuild = cardList.stream()
+                .filter(c -> c == CardType.Build || c == CardType.Spawn)
+                .toList();
+
+        if(!spawnOrBuild.isEmpty())
+        {
+            CardType useMagic = spawnOrBuild.getFirst();
+            CardType useType = cardList.stream()
+                    .filter(card -> card.getType() == CardType.Type.Type)
+                    .toList().getFirst();
+            double range = loop.parameters.getValue(useMagic.name(), "range");
+            var inputCardList = new ArrayList<CardType>();
+            inputCardList.add(useMagic);
+            inputCardList.add(useType);
+
+            var target = randomPosInRange(GameConfig.RIGHT_PLAYER_POSITION, range);
+            return new InputDecision(inputCardList, target);
+        }
 
         return null;
     }
@@ -70,6 +89,16 @@ public class BotBrain {
             if (d < bestD) { bestD = d; best = e; }
         }
         return best;
+    }
+
+    private static Vector3 randomPosInRange(Vector3 center, double range) {
+        double u = ThreadLocalRandom.current().nextDouble();
+        double r = Math.sqrt(u) * range;
+        double theta = ThreadLocalRandom.current().nextDouble(0, Math.PI);
+
+        double dx = r * Math.cos(theta);
+        double dy = r * Math.sin(theta);
+        return new Vector3((float)(center.getX() + dx), (float)(center.getY() + dy), center.getZ());
     }
 
 }
