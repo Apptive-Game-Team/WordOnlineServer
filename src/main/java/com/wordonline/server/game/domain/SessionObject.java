@@ -23,6 +23,7 @@ public class SessionObject {
     private final CardDeck leftUserCardDeck;
     private final CardDeck rightUserCardDeck;
     private final PingChecker pingChecker;
+    private final SessionType sessionType;
 
     public Master getUserSide(long userId) {
         if (userId == leftUserId) {
@@ -37,7 +38,7 @@ public class SessionObject {
     @Setter
     private GameLoop gameLoop;
 
-    public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards){
+    public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards, SessionType sessionType){
         this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
         url = String.format("/game/%s/frameInfos", sessionId);
         leftUserCardDeck = new CardDeck(leftUserCards);
@@ -48,6 +49,10 @@ public class SessionObject {
                 gameLoop.resultChecker.setLoser(loser);
             }
         );
+        this.sessionType = sessionType;
+    }
+    public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards) {
+         this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, SessionType.PVP);
     }
 
     // this method is used to send the frame information to the client
