@@ -3,10 +3,13 @@ package com.wordonline.server.statistic.dto;
 import java.time.Duration;
 import java.util.List;
 
+import com.wordonline.server.game.domain.SessionType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 public record GameResultDto(
+        SessionType sessionType,
         long winUserId,
         long lossUserId,
         Duration duration,

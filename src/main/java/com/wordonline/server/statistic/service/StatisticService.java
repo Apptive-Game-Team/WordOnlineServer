@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.deck.service.DeckService;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
@@ -52,8 +53,8 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
-    public void saveGameResult(GameLoop gameLoop, Master loser) {
+    public void saveGameResult(GameLoop gameLoop, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameLoop);
-        statisticRepository.saveGameResultDto(builder.build(loser));
+        statisticRepository.saveGameResultDto(builder.build(loser, sessionType));
     }
 }

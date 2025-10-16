@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticMagicDto;
@@ -21,8 +22,8 @@ public class StatisticRepository {
     private final JdbcClient jdbcClient;
 
     private final static String SAVE_GAME_RESULT = """
-            INSERT INTO statistic_games(win_user_id, loss_user_id, duration)
-            VALUES(:winUserId, :lossUserId, :duration) RETURNING id;
+            INSERT INTO statistic_games(win_user_id, loss_user_id, duration, game_type)
+            VALUES(:winUserId, :lossUserId, :duration, :gameType::game_type) RETURNING id;
             """;
     private final static String SAVE_CARD = """
             INSERT INTO statistic_game_cards(user_id, statistic_game_id, card_id, count)
@@ -34,14 +35,15 @@ public class StatisticRepository {
             """;
 
     public void saveGameResultDto(GameResultDto gameResultDto) {
-        long gameId = saveGame(gameResultDto.winUserId(), gameResultDto.lossUserId(), gameResultDto.duration());
+        long gameId = saveGame(gameResultDto.sessionType(), gameResultDto.winUserId(), gameResultDto.lossUserId(), gameResultDto.duration());
         saveCard(gameId, gameResultDto.cards());
         saveMagic(gameId, gameResultDto.magics());
     }
 
-    private long saveGame(long winUserId, long lossUserId, Duration duration) {
+    private long saveGame(SessionType sessionType, long winUserId, long lossUserId, Duration duration) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient.sql(SAVE_GAME_RESULT)
+                .param("gameType", sessionType.name())
                 .param("winUserId", winUserId)
                 .param("lossUserId", lossUserId)
                 .param("duration", duration.toSeconds())
