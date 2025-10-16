@@ -22,6 +22,8 @@ public class PingChecker {
     }
 
     public void ping(long userId) {
+        if(userId < 0) return;
+
         ScheduledFuture<?> existing = pingTasks.get(userId);
         if (existing != null && !existing.isDone()) {
             existing.cancel(false);

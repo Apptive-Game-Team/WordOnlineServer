@@ -145,3 +145,7 @@ CREATE INDEX idx_statistic_game_magic_user_id_statistic_game_id
 ALTER TABLE statistic_games
     ALTER COLUMN duration TYPE BIGINT
         USING EXTRACT(EPOCH FROM duration);
+
+CREATE TYPE game_type AS ENUM ('PVP', 'Practice');
+
+ALTER TABLE statistic_games ADD COLUMN game_type game_type NOT NULL DEFAULT 'PVP';

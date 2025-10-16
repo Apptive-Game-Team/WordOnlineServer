@@ -1,6 +1,7 @@
 package com.wordonline.server.game.component;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.statistic.service.StatisticService;
 
@@ -29,8 +30,8 @@ public class SessionManager {
 
     public void createSession(SessionObject sessionObject) {
         GameLoop gameLoop = gameLoopProvider.getObject();
-        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
         sessionObject.setGameLoop(gameLoop);
+        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
         statisticService.createBuilder(gameLoop);
 
@@ -44,7 +45,7 @@ public class SessionManager {
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
         numOfSessionsFlow.submit(getActiveSessions());
-        statisticService.saveGameResult(s.getGameLoop(), s.getGameLoop().resultChecker.getLoser());
+        statisticService.saveGameResult(s.getGameLoop(), s.getGameLoop().resultChecker.getLoser(), s.getSessionType());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 

@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.wordonline.server.deck.dto.CardDto;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
@@ -58,7 +59,7 @@ public class GameResultBuilder {
                 );
     }
 
-    public GameResultDto build(Master loser) {
+    public GameResultDto build(Master loser, SessionType sessionType) {
 
         Duration duration = Duration.between(startTime, LocalDateTime.now());
 
@@ -75,6 +76,7 @@ public class GameResultBuilder {
         }
 
         return new GameResultDto(
+                sessionType,
                 winId,
                 lossId,
                 duration,
