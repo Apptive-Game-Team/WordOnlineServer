@@ -14,9 +14,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscription;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
@@ -35,6 +39,8 @@ public class MatchingManager implements Flow.Subscriber<Long> {
     private final SimpMessagingTemplate template;
     private final SessionManager sessionManager;
     private final Parameters parameters;
+
+    private final ScheduledExecutorService botFallbackScheduler = Executors.newSingleThreadScheduledExecutor();
 
     public int getQueueLength() {
         return matchingQueue.size();
@@ -69,6 +75,32 @@ public class MatchingManager implements Flow.Subscriber<Long> {
 
         // 3) 큐에 집어넣기
         matchingQueue.add(userId);
+
+        botFallbackScheduler.schedule(() -> {
+            lock.lock();
+            try {
+                // 아직 큐가 비어있지 않고, userId가 헤드일 때만 봇 전환
+                if (!matchingQueue.isEmpty()
+                        && Objects.equals(matchingQueue.peek(), userId)) {
+
+                    // 세션 한도도 간단 체크 (가득 차면 아무 것도 안 함)
+                    if (sessionManager.getActiveSessions() < parameters.getValue("game", "count")) {
+                        matchingQueue.poll(); // 큐에서 제거
+                    } else {
+                        return; // 한도 초과면 그냥 대기 계속
+                    }
+                } else {
+                    return; // 헤드가 아니면 스킵 (이미 처리됐거나 위치 바뀐 케이스)
+                }
+            } finally {
+                lock.unlock();
+            }
+
+            // 락 밖에서 실제 작업 (메시징/DB 부하 분리)
+            matchPractice(userId);
+
+        }, 15, TimeUnit.SECONDS);
+
         return true;
     }
 
