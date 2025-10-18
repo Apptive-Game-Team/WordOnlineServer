@@ -30,12 +30,18 @@ public class DatabaseMagicParser implements MagicParser {
     private void init() {
         magicRepository.getAllMagic()
                 .parallelStream()
-                .forEach(magicInfoDto ->
-                        magicHashMap.put(
-                                convertToKey(magicInfoDto.cards()),
-                                applicationContext.getBean(magicInfoDto.name(), Magic.class)
-                        )
-                );
+                .forEach(magicInfoDto -> {
+                    Magic magic = applicationContext.getBean(magicInfoDto.name(), Magic.class);
+                    magic.id = magicInfoDto.id();
+                    magicHashMap.put(
+                            convertToKey(magicInfoDto.cards()),
+                            magic
+                    );
+                });
+    }
+
+    public void invalidateCache() {
+        magicHashMap.clear();
     }
 
     private List<CardType> convertToKey(List<CardType> cards) {
@@ -48,6 +54,10 @@ public class DatabaseMagicParser implements MagicParser {
 
     @Override
     public Magic parseMagic(List<CardType> cards) {
+        if (magicHashMap.isEmpty()) {
+            init();
+        }
+
         List<CardType> key = List.copyOf(cards.stream().sorted().toList());
         Magic magic = magicHashMap.get(key);
 
