@@ -149,3 +149,9 @@ ALTER TABLE statistic_games
 CREATE TYPE game_type AS ENUM ('PVP', 'Practice');
 
 ALTER TABLE statistic_games ADD COLUMN game_type game_type NOT NULL DEFAULT 'PVP';
+
+CREATE TABLE magic_cards (
+    id BIGSERIAL PRIMARY KEY,
+    magic_id BIGINT REFERENCES magics(id),
+    card_id BIGINT REFERENCES cards(id)
+);

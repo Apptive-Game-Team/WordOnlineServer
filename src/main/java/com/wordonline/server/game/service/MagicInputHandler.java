@@ -3,8 +3,7 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.parser.ExtendedMagicParser;
-import com.wordonline.server.game.domain.magic.parser.MagicParser;
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.InputResponseDto;
 import com.wordonline.server.game.dto.Master;
@@ -20,14 +19,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class MagicInputHandler {
 
-    private static final MagicParser magicParser = new ExtendedMagicParser();
+    private final DatabaseMagicParser magicParser;
 
     public InputResponseDto handleInput(GameLoop gameLoop, long userId, InputRequestDto inputRequestDto) {
         Master master = gameLoop.sessionObject.getUserSide(userId);
         PlayerData playerData = gameLoop.gameSessionData.getPlayerData(master);
 
         // Parse the magic from the input request
-        Magic magic = magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()), master, inputRequestDto.getPosition());
+        Magic magic = magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()));
 
         if (magic == null) {
             log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
@@ -46,7 +45,7 @@ public class MagicInputHandler {
         }
 
         // use the magic
-        magic.run(gameLoop);
+        magic.run(gameLoop, master, inputRequestDto.getPosition().toVector3());
 
         // Add the magic to the deck data
         gameLoop.gameSessionData.getCardDeck(master).cards.addAll(inputRequestDto.getCards());
