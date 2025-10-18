@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.object.PrefabType;
 import org.springframework.stereotype.Component;
 
 @Component("aqua_archer")
-public class AquaArcherMagic extends AbstractSummonMagic {
+public class AquaArcherMagic extends AbstractSingleSpawnMagic {
     public AquaArcherMagic() {
         super(PrefabType.AquaArcher);
     }

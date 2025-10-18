@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.magic.implement.shoot;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.PrefabType;
@@ -14,6 +15,7 @@ public abstract class AbstractShotMagic extends Magic {
     private final PrefabType prefabType;
 
     public AbstractShotMagic(PrefabType prefabType) {
+        super(CardType.Shoot);
         this.prefabType = prefabType;
     }
 

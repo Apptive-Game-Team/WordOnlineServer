@@ -4,7 +4,7 @@ import com.wordonline.server.game.domain.object.PrefabType;
 import org.springframework.stereotype.Component;
 
 @Component("water_slime_swarm")
-public class WaterSlimeSwarmMagic extends AbstractSpawnMagic {
+public class WaterSlimeSwarmMagic extends AbstractSwarmSpawnMagic {
     public WaterSlimeSwarmMagic() {
         super(PrefabType.WaterSlime);
     }

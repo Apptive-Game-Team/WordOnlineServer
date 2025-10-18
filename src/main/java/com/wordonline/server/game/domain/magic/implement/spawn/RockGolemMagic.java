@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.object.PrefabType;
 import org.springframework.stereotype.Component;
 
 @Component("rock_golem")
-public class RockGolemMagic extends AbstractSummonMagic {
+public class RockGolemMagic extends AbstractSingleSpawnMagic {
     public RockGolemMagic() {
         super(PrefabType.RockGolem);
     }

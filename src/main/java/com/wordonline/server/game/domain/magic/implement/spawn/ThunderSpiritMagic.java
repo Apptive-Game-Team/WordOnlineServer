@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.object.PrefabType;
 import org.springframework.stereotype.Component;
 
 @Component("thunder_spirit")
-public class ThunderSpiritMagic extends AbstractSummonMagic {
+public class ThunderSpiritMagic extends AbstractSingleSpawnMagic {
     public ThunderSpiritMagic() {
         super(PrefabType.ThunderSpirit);
     }

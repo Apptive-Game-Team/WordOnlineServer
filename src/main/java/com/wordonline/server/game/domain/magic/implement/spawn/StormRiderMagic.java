@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.object.PrefabType;
 import org.springframework.stereotype.Component;
 
 @Component("storm_rider")
-public class StormRiderMagic extends AbstractSummonMagic {
+public class StormRiderMagic extends AbstractSingleSpawnMagic {
     public StormRiderMagic() {
         super(PrefabType.StormRider);
     }
