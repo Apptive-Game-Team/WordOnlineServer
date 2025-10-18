@@ -5,6 +5,7 @@ import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.statistic.service.StatisticService;
 
 import org.junit.jupiter.api.AfterEach;
@@ -52,6 +53,9 @@ public class MatchingManagerSessionManagerIntegrationTest {
 
     @MockitoBean
     private StatisticService statisticService;
+
+    @MockitoBean
+    private DatabaseMagicParser magicParser;
 
     @BeforeEach
     void setUp() {

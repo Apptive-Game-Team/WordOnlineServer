@@ -2,6 +2,7 @@ package com.wordonline.server.game.component;
 
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.MmrService;
 import com.wordonline.server.game.service.ResultChecker;
@@ -34,6 +35,9 @@ class SessionManagerTest {
     // SessionManager가 의존하는 빈들을 Mock으로 생성
     @MockitoBean
     private MmrService mmrService;
+
+    @MockitoBean
+    private DatabaseMagicParser magicParser;
 
     @MockitoBean
     private UserService userService;

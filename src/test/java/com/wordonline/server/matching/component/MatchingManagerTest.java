@@ -4,6 +4,7 @@ import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.matching.dto.MatchedInfoDto;
 import com.wordonline.server.game.domain.Parameters;
@@ -56,6 +57,9 @@ class MatchingManagerTest {
 
     @MockitoBean
     private StatisticService statisticService;
+
+    @MockitoBean
+    private DatabaseMagicParser magicParser;
 
     private Queue<Long> matchingQueue;
 
