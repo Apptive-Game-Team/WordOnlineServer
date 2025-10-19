@@ -39,7 +39,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
 
     @Override
     public void update() {
-        float dt = gameObject.getGameLoop().deltaTime;
+        float dt = getGameContext().getDeltaTime();
         float speed = KNOCKBACK_POWER / KNOCKBACK_DURATION;
         float step  = speed * dt;
 

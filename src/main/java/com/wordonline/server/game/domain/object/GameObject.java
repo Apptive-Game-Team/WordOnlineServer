@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 
@@ -34,28 +35,28 @@ public class GameObject {
     private Element element = new Element();
     private Vector3 position;
 
-    private final GameLoop gameLoop;
+    private final GameContext gameContext;
     private final List<Collider> colliders = new ArrayList<Collider>();
     private final List<Component> components = new ArrayList<Component>();
     private List<Component> componentsToAdd = new ArrayList<Component>();
     private List<Component> componentsToRemove = new ArrayList<Component>();
 
     public GameObject(GameObject parent, Master master, PrefabType prefabType) {
-        this(master, prefabType, parent.getPosition(), parent.getGameLoop());
+        this(master, prefabType, parent.getPosition(), parent.gameContext);
     }
 
     public GameObject(GameObject parent, PrefabType prefabType) {
         this(parent, parent.getMaster(), prefabType);
     }
 
-    public GameObject(Master master, PrefabType prefabType, Vector3 position, GameLoop gameLoop) {
+    public GameObject(Master master, PrefabType prefabType, Vector3 position, GameContext gameContext) {
         this.id = idCounter++;
         this.master = master;
         this.type = prefabType;
         this.position = position;
-        this.gameLoop = gameLoop;
+        this.gameContext = gameContext;
         this.status = Status.Idle;
-        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+        gameContext.createGameObject(this);
     }
 
     public <T> T getComponent(Class<T> clazz) {
@@ -85,7 +86,7 @@ public class GameObject {
 
     public void destroy() {
         setStatus(Status.Destroyed);
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
         onDestroy();
     }
 
@@ -95,18 +96,18 @@ public class GameObject {
             destroy();
             return;
         }
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
     }
 
     public void setStatus(Status status) {
         if (this.status == Status.Destroyed) return;
         this.status = status;
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
     }
 
     public void setEffect(Effect effect) {
         this.effect = effect;
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
     }
 
     public void setElement(ElementType element) {

@@ -31,7 +31,7 @@ public class Shot extends MagicComponent implements Collidable {
         if (direction == null) {
             return;
         }
-        gameObject.setPosition(gameObject.getPosition().plus(direction.multiply(SPEED * gameObject.getGameLoop().deltaTime)));
+        gameObject.setPosition(gameObject.getPosition().plus(direction.multiply(SPEED * gameObject.getGameContext().getDeltaTime())));
     }
 
     @Override

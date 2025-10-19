@@ -19,6 +19,9 @@ public class GameSessionData {
     public final CardDeck leftCardDeck;
     public final CardDeck rightCardDeck;
 
+    public void addGameObject(GameObject gameObject) {
+        gameObjectsToAdd.add(gameObject);
+    }
 
     public PlayerData getPlayerData(Master master){
         if (master == Master.LeftPlayer) {

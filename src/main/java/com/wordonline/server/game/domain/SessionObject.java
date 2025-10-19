@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.PingChecker;
 import com.wordonline.server.game.service.CardDeck;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,10 @@ public class SessionObject {
     @Setter
     private GameLoop gameLoop;
 
+    public GameContext getGameContext() {
+        return gameLoop.getGameContext();
+    }
+
     public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards, SessionType sessionType){
         this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
         url = String.format("/game/%s/frameInfos", sessionId);
@@ -46,7 +51,7 @@ public class SessionObject {
         pingChecker = new PingChecker(leftUserId, rightUserId,
             userId -> {
                 Master loser = getUserSide(userId);
-                gameLoop.resultChecker.setLoser(loser);
+                getGameContext().getResultChecker().setLoser(loser);
             }
         );
         this.sessionType = sessionType;
@@ -62,7 +67,8 @@ public class SessionObject {
 
     @Override
     public String toString() {
-        double fps = gameLoop.deltaTime > 0 ? 1 / gameLoop.deltaTime : 0.0;
+        float deltaTime = gameLoop.getGameContext().getDeltaTime();
+        double fps = deltaTime > 0 ? 1 / deltaTime : 0.0;
         return String.format("Session(users: [%d, %d], isRunning: %s, currentFps: %.2f)",
                 leftUserId,
                 rightUserId,

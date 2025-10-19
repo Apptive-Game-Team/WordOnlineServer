@@ -21,9 +21,9 @@ public class MagicInputHandler {
 
     private final DatabaseMagicParser magicParser;
 
-    public InputResponseDto handleInput(GameLoop gameLoop, long userId, InputRequestDto inputRequestDto) {
-        Master master = gameLoop.sessionObject.getUserSide(userId);
-        PlayerData playerData = gameLoop.gameSessionData.getPlayerData(master);
+    public InputResponseDto handleInput(GameContext gameContext, long userId, InputRequestDto inputRequestDto) {
+        Master master = gameContext.getSessionObject().getUserSide(userId);
+        PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
         // Parse the magic from the input request
         Magic magic = magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()));
@@ -31,7 +31,7 @@ public class MagicInputHandler {
         if (magic == null) {
             log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
-        } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameLoop.parameters.getValue(magic.magicType.name(), "range")) {
+        } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
             log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
             return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
         }
@@ -45,10 +45,10 @@ public class MagicInputHandler {
         }
 
         // use the magic
-        magic.run(gameLoop, master, inputRequestDto.getPosition().toVector3());
+        magic.run(gameContext, master, inputRequestDto.getPosition().toVector3());
 
         // Add the magic to the deck data
-        gameLoop.gameSessionData.getCardDeck(master).cards.addAll(inputRequestDto.getCards());
+        gameContext.getGameSessionData().getCardDeck(master).cards.addAll(inputRequestDto.getCards());
 
         return new InputResponseDto(true, playerData.mana, inputRequestDto.getId(), magic.id);
     }

@@ -18,7 +18,7 @@ public class TimedSelfDestroyer extends Component {
 
     @Override
     public void update() {
-        elapsedTime += gameObject.getGameLoop().deltaTime;
+        elapsedTime += getGameContext().getDeltaTime();
         if (elapsedTime >= timeToLive) {
             gameObject.destroy();
         }
