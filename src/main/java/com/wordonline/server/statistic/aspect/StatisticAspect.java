@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.dto.InputResponseDto;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.statistic.service.StatisticService;
 
@@ -29,10 +30,10 @@ public class StatisticAspect {
             return;
         }
 
-        GameLoop gameLoop = findArg(joinPoint.getArgs(), GameLoop.class);
+        GameContext gameContext = findArg(joinPoint.getArgs(), GameContext.class);
         Long userId = findArg(joinPoint.getArgs(), Long.class);
 
-        statisticService.saveMagic(gameLoop, userId, response.getMagicId());
+        statisticService.saveMagic(gameContext, userId, response.getMagicId());
     }
 
     private <T> T findArg(Object[] args, Class<T> clazz) {

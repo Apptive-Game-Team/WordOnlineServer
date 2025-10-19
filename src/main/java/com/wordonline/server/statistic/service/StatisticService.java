@@ -11,6 +11,7 @@ import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
 import com.wordonline.server.statistic.repository.StatisticRepository;
@@ -21,16 +22,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StatisticService {
 
-    private final Map<GameLoop, GameResultBuilder> gameResultBuilderMap = new ConcurrentHashMap<>();
+    private final Map<GameContext, GameResultBuilder> gameResultBuilderMap = new ConcurrentHashMap<>();
     private final StatisticRepository statisticRepository;
     private final DeckService deckService;
     private final UserRepository userRepository;
 
-    public void createBuilder(GameLoop gameLoop) {
+    public void createBuilder(GameContext gameContext) {
         GameResultBuilder builder = new GameResultBuilder();
 
-        long leftUserId = gameLoop.sessionObject.getLeftUserId();
-        long rightUserId = gameLoop.sessionObject.getRightUserId();
+        long leftUserId = gameContext.getSessionObject().getLeftUserId();
+        long rightUserId = gameContext.getSessionObject().getRightUserId();
 
         builder.setLeftUserId(leftUserId);
         builder.setRightUserId(rightUserId);
@@ -38,11 +39,11 @@ public class StatisticService {
         saveDeck(leftUserId, builder);
         saveDeck(rightUserId, builder);
 
-        gameResultBuilderMap.put(gameLoop, builder);
+        gameResultBuilderMap.put(gameContext, builder);
     }
 
-    public void saveMagic(GameLoop gameLoop, long userId, long magicId) {
-        gameResultBuilderMap.get(gameLoop)
+    public void saveMagic(GameContext gameContext, long userId, long magicId) {
+        gameResultBuilderMap.get(gameContext)
                 .recordMagic(userId, magicId);
     }
 
@@ -53,8 +54,8 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
-    public void saveGameResult(GameLoop gameLoop, Master loser, SessionType sessionType) {
-        GameResultBuilder builder = gameResultBuilderMap.remove(gameLoop);
+    public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
+        GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
         statisticRepository.saveGameResultDto(builder.build(loser, sessionType));
     }
 }
