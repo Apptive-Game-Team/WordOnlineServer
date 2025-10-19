@@ -14,6 +14,11 @@ import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
+import com.wordonline.server.game.service.system.ComponentUpdateSystem;
+import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
+import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
+import com.wordonline.server.game.service.system.GameSystem;
+import com.wordonline.server.game.service.system.PhysicSystem;
 import com.wordonline.server.game.util.*;
 
 import lombok.Getter;
@@ -37,9 +42,8 @@ public class GameLoop implements Runnable {
     public static final int FPS = 10;
     public SessionObject sessionObject;
     private Runnable onTerminated;
-    private int _frameNum = 0;
 
-    public final MmrService mmrService;
+    private final MmrService mmrService;
     private final UserService userService;
 
     private BotAgent botAgent;
@@ -47,7 +51,10 @@ public class GameLoop implements Runnable {
     @Getter
     private final GameContext gameContext;
 
-    private final PhysicSystem physicSystem = new PhysicSystem();
+    private final GameSystem gameObjectStateInitialSystem = new GameObjectStateInitialSystem();
+    private final GameSystem componentUpdateSystem = new ComponentUpdateSystem();
+    private final GameSystem physicSystem = new PhysicSystem();
+    private final GameSystem gameObjectAddRemoveSystem = new GameObjectAddRemoteSystem();
 
     public final Parameters parameters;
 
@@ -60,7 +67,7 @@ public class GameLoop implements Runnable {
         for (var g : gameContext.getGameObjects()) {
             list.add(SnapshotMapper.toDto(g));
         }
-        return new SnapshotResponseDto(_frameNum, list, gameContext.getGameSessionData().leftPlayerData.cards);
+        return new SnapshotResponseDto(getGameContext().getFrameNum(), list, gameContext.getGameSessionData().leftPlayerData.cards);
     }
 
     public void init(SessionObject sessionObject, Runnable onTerminated) {
@@ -90,7 +97,7 @@ public class GameLoop implements Runnable {
         long frameDuration = 1000 / FPS;
 
         while (_running) {
-            _frameNum++;
+            gameContext.incrementFrameNum();
             long startTime = System.currentTimeMillis();
 
             try {
@@ -127,18 +134,16 @@ public class GameLoop implements Runnable {
         FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
 
         // Charge Mana
-        gameContext.getGameSessionData().leftPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().leftPlayerData, leftFrameInfoDto, _frameNum);
-        gameContext.getGameSessionData().rightPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().rightPlayerData, rightFrameInfoDto, _frameNum);
+        gameContext.getGameSessionData().leftPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().leftPlayerData, leftFrameInfoDto, gameContext.getFrameNum());
+        gameContext.getGameSessionData().rightPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().rightPlayerData, rightFrameInfoDto, gameContext.getFrameNum());
+        // Mana
+        leftFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().leftPlayerData.mana);
+        rightFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().rightPlayerData.mana);
 
         // Draw Cards
         gameContext.getGameSessionData().leftCardDeck.drawCard(gameContext.getGameSessionData().leftPlayerData, leftCardInfo);
         gameContext.getGameSessionData().rightCardDeck.drawCard(gameContext.getGameSessionData().rightPlayerData, rightCardInfo);
 
-        List<GameObject> toRemove = new ArrayList<>();
-
-        // Mana
-        leftFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().leftPlayerData.mana);
-        rightFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().rightPlayerData.mana);
 
         //bot tick
         if(botAgent != null)
@@ -164,7 +169,7 @@ public class GameLoop implements Runnable {
             {
                 mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
             }
-            getGameContext().getResultChecker().broadcastResult(mmrDto);
+            gameContext.getResultChecker().broadcastResult(mmrDto);
 
             userService.markOnline(leftId);
             userService.markOnline(rightId);
@@ -172,33 +177,12 @@ public class GameLoop implements Runnable {
             close();
         }
 
-
-        //Apply Idle Status to Non-Idle Object
-        getGameContext().getGameObjects()
-                .stream()
-                .filter(gameObject -> gameObject.getStatus() != Status.Idle)
-                .forEach(gameObject -> gameObject.setStatus(Status.Idle));
-
-        // Apply Created GameObject
-        getGameContext().getGameObjects().addAll(getGameContext().getGameSessionData().gameObjectsToAdd);
-        getGameContext().getGameSessionData().gameObjectsToAdd.clear();
+        gameObjectStateInitialSystem.update(gameContext);
 
         // Run GameObject's Updates
-        for (GameObject gameObject : getGameContext().getGameObjects()) {
-            if (gameObject.getStatus() == Status.Destroyed) {
-                toRemove.add(gameObject);
-            } else {
-                gameObject.update();
-            }
-        }
-        physicSystem.handleCollisions(getGameContext().getGameObjects());
+        componentUpdateSystem.update(gameContext);
 
-        List<GameObject> objects = getGameContext().getGameObjects();
-
-        // Handle Collision
-        physicSystem.checkAndHandleCollisions(objects);
-
-        physicSystem.onUpdateEnd(getGameContext().getGameObjects());
+        physicSystem.update(gameContext);
 
         // Send Frame Info To Client
         sessionObject.sendFrameInfo(
@@ -210,33 +194,8 @@ public class GameLoop implements Runnable {
                 rightFrameInfoDto
         );
 
+        gameObjectAddRemoveSystem.update(gameContext);
 
-
-        // Apply Destroyed GameObject
-        getGameContext().getGameObjects().removeAll(toRemove);
-
-
-        // Apply Added and Removed Component
-        for (GameObject go : getGameContext().getGameObjects()) {
-
-            if (!go.getComponentsToAdd().isEmpty()) {
-                List<Component> toAdd = new ArrayList<>(go.getComponentsToAdd());
-                go.getComponentsToAdd().clear();
-                go.getComponents().addAll(toAdd);
-                for (Component c : toAdd) {
-                    c.start();
-                }
-            }
-
-            if (!go.getComponentsToRemove().isEmpty()) {
-                List<Component> toRem = new ArrayList<>(go.getComponentsToRemove());
-                go.getComponentsToRemove().clear();
-                for (Component c : toRem) {
-                    c.onDestroy();
-                }
-                go.getComponents().removeAll(toRem);
-            }
-        }
         lastSnapshot = buildSnapshot();
     }
 }
