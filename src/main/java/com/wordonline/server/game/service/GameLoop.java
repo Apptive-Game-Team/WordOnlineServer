@@ -3,23 +3,13 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
-import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
-import com.wordonline.server.game.dto.frame.FrameInfoDto;
-import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
-import com.wordonline.server.game.service.system.ComponentUpdateSystem;
-import com.wordonline.server.game.service.system.FrameDataSystem;
-import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
-import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
-import com.wordonline.server.game.service.system.GameSystem;
-import com.wordonline.server.game.service.system.PhysicSystem;
 import com.wordonline.server.game.util.*;
 
 import lombok.Getter;
@@ -29,15 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Service;
-
 // GameLoop is the main class that runs the game loop
 @Slf4j
-@Scope("prototype")
-@Service
 @RequiredArgsConstructor
-public class GameLoop implements Runnable {
+public abstract class GameLoop implements Runnable {
     @Getter
     private boolean _running = true;
     public static final int FPS = 10;
@@ -47,40 +32,20 @@ public class GameLoop implements Runnable {
     private final MmrService mmrService;
     private final UserService userService;
 
-    private BotAgent botAgent;
-
     @Getter
-    private final GameContext gameContext;
-
-    private final FrameDataSystem frameDataSystem = new FrameDataSystem();
-    private final GameSystem gameObjectStateInitialSystem = new GameObjectStateInitialSystem();
-    private final GameSystem componentUpdateSystem = new ComponentUpdateSystem();
-    private final GameSystem physicSystem = new PhysicSystem();
-    private final GameSystem gameObjectAddRemoveSystem = new GameObjectAddRemoteSystem();
+    protected final GameContext gameContext;
 
     public final Parameters parameters;
 
     @Getter
-    private volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of(), new ArrayList<>());
+    protected volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of(), new ArrayList<>());
 
-    // 2) 스냅샷 빌더
-    private SnapshotResponseDto buildSnapshot() {
-        var list = new ArrayList<SnapshotObjectDto>(gameContext.getGameObjects().size());
-        for (var g : gameContext.getGameObjects()) {
-            list.add(SnapshotMapper.toDto(g));
-        }
-        return new SnapshotResponseDto(getGameContext().getFrameNum(), list, gameContext.getGameSessionData().leftPlayerData.cards);
-    }
 
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
-        if(sessionObject.getSessionType() == SessionType.Practice)
-        {
-            botAgent = new BotAgent(sessionObject);
-        }
 
         gameContext.init(sessionObject);
     }
@@ -125,37 +90,9 @@ public class GameLoop implements Runnable {
     }
 
     // this method is called when the game loop is stopped
-    private void update() {
-        // Initial DTOs
-        frameDataSystem.earlyUpdate(gameContext);
+    abstract void update();
 
-        //bot tick
-        if(botAgent != null)
-        {
-            botAgent.onTick(frameDataSystem.getRightFrameInfoDto());
-        }
-
-        // Check for game over
-        if (gameContext.getResultChecker().checkResult()) {
-            handleGameEnd();
-        }
-
-        gameObjectStateInitialSystem.update(gameContext);
-
-        // Run GameObject's Updates
-        componentUpdateSystem.update(gameContext);
-
-        physicSystem.update(gameContext);
-
-
-        gameObjectAddRemoveSystem.update(gameContext);
-
-        frameDataSystem.lateUpdate(gameContext);
-
-        lastSnapshot = buildSnapshot();
-    }
-
-    private void handleGameEnd() {
+    protected void handleGameEnd() {
         Master loser = gameContext.getResultChecker().getLoser();
 
         long leftId  = sessionObject.getLeftUserId();
@@ -178,6 +115,15 @@ public class GameLoop implements Runnable {
         userService.markOnline(rightId);
         // 3) 루프 종료
         close();
+    }
+
+    // 2) 스냅샷 빌더
+    protected SnapshotResponseDto buildSnapshot() {
+        var list = new ArrayList<SnapshotObjectDto>(gameContext.getGameObjects().size());
+        for (var g : gameContext.getGameObjects()) {
+            list.add(SnapshotMapper.toDto(g));
+        }
+        return new SnapshotResponseDto(getGameContext().getFrameNum(), list, gameContext.getGameSessionData().leftPlayerData.cards);
     }
 }
 
