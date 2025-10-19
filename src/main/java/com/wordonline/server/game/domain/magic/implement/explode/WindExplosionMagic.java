@@ -1,8 +1,7 @@
 package com.wordonline.server.game.domain.magic.implement.explode;
 
-import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
-
 import org.springframework.stereotype.Component;
 
 @Component("wind_explosion")

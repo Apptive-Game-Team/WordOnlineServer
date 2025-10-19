@@ -5,7 +5,8 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
@@ -40,7 +41,7 @@ public class GameLoop implements Runnable {
     private int _frameNum = 0;
     public ResultChecker resultChecker;
 
-
+    private final PrefabProvider prefabProvider;
     public final MmrService mmrService;
     private final UserService userService;
 
@@ -76,8 +77,8 @@ public class GameLoop implements Runnable {
         this.onTerminated = onTerminated;
         gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
         resultChecker = new ResultChecker(sessionObject);
-        new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
-        new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
+        new GameObject(Master.LeftPlayer, prefabProvider.get(PrefabType.Player), GameConfig.LEFT_PLAYER_POSITION, this);
+        new GameObject(Master.RightPlayer, prefabProvider.get(PrefabType.Player), GameConfig.RIGHT_PLAYER_POSITION, this);
         physics = new SimplePhysics(gameSessionData.gameObjects);
         if(sessionObject.getSessionType() == SessionType.Practice)
         {

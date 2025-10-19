@@ -1,6 +1,6 @@
 package com.wordonline.server.game.dto.frame;
 
-import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 import lombok.Data;

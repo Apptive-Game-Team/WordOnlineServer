@@ -3,8 +3,8 @@ package com.wordonline.server.game.domain.object.component.magic;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.PrefabType;
-import com.wordonline.server.game.domain.object.component.Damageable;
+import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 
 public class Spawner extends Mob {
@@ -12,7 +12,7 @@ public class Spawner extends Mob {
 
     private float counter = 0;
     private boolean isRunning = false;
-    private PrefabType prefabType;
+    private PrefabInitializer prefabInitializer;
 
     @Override
     public void start() {
@@ -29,7 +29,7 @@ public class Spawner extends Mob {
             counter += gameObject.getGameLoop().deltaTime;
         } else {
             counter = 0;
-            new GameObject(gameObject, prefabType);
+            new GameObject(gameObject, prefabInitializer);
             onDamaged(new AttackInfo(1, ElementType.NONE));
         }
     }
@@ -39,9 +39,9 @@ public class Spawner extends Mob {
 
     }
 
-    public Spawner(GameObject gameObject, int maxHp, PrefabType prefabType) {
+    public Spawner(GameObject gameObject, int maxHp, PrefabInitializer prefabInitializer) {
         super(gameObject, maxHp, 0);
-        this.prefabType = prefabType;
+        this.prefabInitializer = prefabInitializer;
         isRunning = true;
         this.maxHp = maxHp;
         this.hp = maxHp;
