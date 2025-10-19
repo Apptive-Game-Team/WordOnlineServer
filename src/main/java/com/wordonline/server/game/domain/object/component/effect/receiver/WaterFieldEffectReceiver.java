@@ -13,7 +13,7 @@ public class WaterFieldEffectReceiver extends Component implements EffectReceive
     @Override
     public void onReceive(Effect effect) {
         if (effect == Effect.Shock) {
-            new GameObject(gameObject, Master.None, PrefabProvider.get(PrefabType.ElectricField));
+            new GameObject(gameObject, Master.None, PrefabType.ElectricField);
             gameObject.destroy();
         }
     }

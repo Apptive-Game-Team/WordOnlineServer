@@ -12,7 +12,7 @@ public class Spawner extends Mob {
 
     private float counter = 0;
     private boolean isRunning = false;
-    private PrefabInitializer prefabInitializer;
+    private final PrefabType prefabType;
 
     @Override
     public void start() {
@@ -29,7 +29,7 @@ public class Spawner extends Mob {
             counter += getGameContext().getDeltaTime();
         } else {
             counter = 0;
-            new GameObject(gameObject, prefabInitializer);
+            new GameObject(gameObject, prefabType);
             onDamaged(new AttackInfo(1, ElementType.NONE));
         }
     }
@@ -39,9 +39,9 @@ public class Spawner extends Mob {
 
     }
 
-    public Spawner(GameObject gameObject, int maxHp, PrefabInitializer prefabInitializer) {
+    public Spawner(GameObject gameObject, int maxHp, PrefabType prefabType) {
         super(gameObject, maxHp, 0);
-        this.prefabInitializer = prefabInitializer;
+        this.prefabType = prefabType;
         isRunning = true;
         this.maxHp = maxHp;
         this.hp = maxHp;
