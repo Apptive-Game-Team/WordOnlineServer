@@ -45,7 +45,7 @@ public class SessionManager {
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
         numOfSessionsFlow.submit(getActiveSessions());
-        statisticService.saveGameResult(s.getGameLoop(), s.getGameLoop().resultChecker.getLoser(), s.getSessionType());
+        statisticService.saveGameResult(s.getGameLoop(), s.getGameContext().getResultChecker().getLoser(), s.getSessionType());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 

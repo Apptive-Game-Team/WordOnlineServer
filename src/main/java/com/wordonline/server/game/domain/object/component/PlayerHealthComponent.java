@@ -27,17 +27,17 @@ public class PlayerHealthComponent extends Mob {
 
     @Override
     public void onDeath() {
-        gameObject.getGameLoop().resultChecker.setLoser(gameObject.getMaster());
+        getGameContext().setLoser(gameObject.getMaster());
     }
 
     public PlayerHealthComponent(GameObject gameObject) {
         super(gameObject, MAX_HEALTH, 0);
 
         if (gameObject.getMaster() == Master.LeftPlayer) {
-            playerData = gameObject.getGameLoop().gameSessionData.leftPlayerData;
+            playerData = getGameContext().getGameSessionData().leftPlayerData;
         }
         if (gameObject.getMaster() == Master.RightPlayer) {
-            playerData = gameObject.getGameLoop().gameSessionData.rightPlayerData;
+            playerData = getGameContext().getGameSessionData().rightPlayerData;
         }
     }
 }

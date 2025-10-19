@@ -38,7 +38,6 @@ public class GameLoop implements Runnable {
     public SessionObject sessionObject;
     private Runnable onTerminated;
     private int _frameNum = 0;
-    public ResultChecker resultChecker;
 
     public final MmrService mmrService;
     private final UserService userService;
@@ -46,42 +45,35 @@ public class GameLoop implements Runnable {
     private BotAgent botAgent;
 
     @Getter
-    private final ObjectsInfoDtoBuilder objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
+    private final GameContext gameContext;
 
     private final PhysicSystem physicSystem = new PhysicSystem();
-    public GameSessionData gameSessionData;
-    public Physics physics;
-
-    public final MagicInputHandler magicInputHandler;
 
     public final Parameters parameters;
-
-    public float deltaTime = 1f / FPS;
 
     @Getter
     private volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of(), new ArrayList<>());
 
     // 2) 스냅샷 빌더
     private SnapshotResponseDto buildSnapshot() {
-        var list = new ArrayList<SnapshotObjectDto>(gameSessionData.gameObjects.size());
-        for (var g : gameSessionData.gameObjects) {
+        var list = new ArrayList<SnapshotObjectDto>(gameContext.getGameObjects().size());
+        for (var g : gameContext.getGameObjects()) {
             list.add(SnapshotMapper.toDto(g));
         }
-        return new SnapshotResponseDto(_frameNum, list, gameSessionData.leftPlayerData.cards);
+        return new SnapshotResponseDto(_frameNum, list, gameContext.getGameSessionData().leftPlayerData.cards);
     }
 
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
-        gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);
-        resultChecker = new ResultChecker(sessionObject);
-        new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, this);
-        new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, this);
-        physics = new SimplePhysics(gameSessionData.gameObjects);
+        new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
+        new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
         if(sessionObject.getSessionType() == SessionType.Practice)
         {
             botAgent = new BotAgent(sessionObject);
         }
+
+        gameContext.init(sessionObject);
     }
 
     public void close() {
@@ -115,7 +107,7 @@ public class GameLoop implements Runnable {
                 } catch (InterruptedException ignored) {
                 }
             }
-            deltaTime = (System.currentTimeMillis() - startTime) / 1000.0f;
+            gameContext.setDeltaTime((System.currentTimeMillis() - startTime) / 1000.0f);
         }
 
         if (onTerminated != null) {
@@ -129,24 +121,24 @@ public class GameLoop implements Runnable {
         CardInfoDto leftCardInfo = new CardInfoDto();
         CardInfoDto rightCardInfo = new CardInfoDto();
 
-        ObjectsInfoDto objectsInfoDto = objectsInfoDtoBuilder.getObjectsInfoDto();
+        ObjectsInfoDto objectsInfoDto = gameContext.getObjectsInfoDto();
 
-        FrameInfoDto leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto, gameSessionData);
-        FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameSessionData);
+        FrameInfoDto leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
+        FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
 
         // Charge Mana
-        gameSessionData.leftPlayerData.manaCharger.chargeMana(gameSessionData.leftPlayerData, leftFrameInfoDto, _frameNum);
-        gameSessionData.rightPlayerData.manaCharger.chargeMana(gameSessionData.rightPlayerData, rightFrameInfoDto, _frameNum);
+        gameContext.getGameSessionData().leftPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().leftPlayerData, leftFrameInfoDto, _frameNum);
+        gameContext.getGameSessionData().rightPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().rightPlayerData, rightFrameInfoDto, _frameNum);
 
         // Draw Cards
-        gameSessionData.leftCardDeck.drawCard(gameSessionData.leftPlayerData, leftCardInfo);
-        gameSessionData.rightCardDeck.drawCard(gameSessionData.rightPlayerData, rightCardInfo);
+        gameContext.getGameSessionData().leftCardDeck.drawCard(gameContext.getGameSessionData().leftPlayerData, leftCardInfo);
+        gameContext.getGameSessionData().rightCardDeck.drawCard(gameContext.getGameSessionData().rightPlayerData, rightCardInfo);
 
         List<GameObject> toRemove = new ArrayList<>();
 
         // Mana
-        leftFrameInfoDto.setUpdatedMana(gameSessionData.leftPlayerData.mana);
-        rightFrameInfoDto.setUpdatedMana(gameSessionData.rightPlayerData.mana);
+        leftFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().leftPlayerData.mana);
+        rightFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().rightPlayerData.mana);
 
         //bot tick
         if(botAgent != null)
@@ -155,8 +147,8 @@ public class GameLoop implements Runnable {
         }
 
         // Check for game over
-        if (resultChecker.checkResult()) {
-            Master loser = resultChecker.getLoser();
+        if (gameContext.getResultChecker().checkResult()) {
+            Master loser = gameContext.getResultChecker().getLoser();
 
             long leftId  = sessionObject.getLeftUserId();
             long rightId = sessionObject.getRightUserId();
@@ -172,7 +164,7 @@ public class GameLoop implements Runnable {
             {
                 mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
             }
-            resultChecker.broadcastResult(mmrDto);
+            getGameContext().getResultChecker().broadcastResult(mmrDto);
 
             userService.markOnline(leftId);
             userService.markOnline(rightId);
@@ -182,31 +174,31 @@ public class GameLoop implements Runnable {
 
 
         //Apply Idle Status to Non-Idle Object
-        gameSessionData.gameObjects
+        getGameContext().getGameObjects()
                 .stream()
                 .filter(gameObject -> gameObject.getStatus() != Status.Idle)
                 .forEach(gameObject -> gameObject.setStatus(Status.Idle));
 
         // Apply Created GameObject
-        gameSessionData.gameObjects.addAll(gameSessionData.gameObjectsToAdd);
-        gameSessionData.gameObjectsToAdd.clear();
+        getGameContext().getGameObjects().addAll(getGameContext().getGameSessionData().gameObjectsToAdd);
+        getGameContext().getGameSessionData().gameObjectsToAdd.clear();
 
         // Run GameObject's Updates
-        for (GameObject gameObject : gameSessionData.gameObjects) {
+        for (GameObject gameObject : getGameContext().getGameObjects()) {
             if (gameObject.getStatus() == Status.Destroyed) {
                 toRemove.add(gameObject);
             } else {
                 gameObject.update();
             }
         }
-        physicSystem.handleCollisions(gameSessionData.gameObjects);
+        physicSystem.handleCollisions(getGameContext().getGameObjects());
 
-        List<GameObject> objects = gameSessionData.gameObjects;
+        List<GameObject> objects = getGameContext().getGameObjects();
 
         // Handle Collision
         physicSystem.checkAndHandleCollisions(objects);
 
-        physicSystem.onUpdateEnd(gameSessionData.gameObjects);
+        physicSystem.onUpdateEnd(getGameContext().getGameObjects());
 
         // Send Frame Info To Client
         sessionObject.sendFrameInfo(
@@ -221,11 +213,11 @@ public class GameLoop implements Runnable {
 
 
         // Apply Destroyed GameObject
-        gameSessionData.gameObjects.removeAll(toRemove);
+        getGameContext().getGameObjects().removeAll(toRemove);
 
 
         // Apply Added and Removed Component
-        for (GameObject go : gameSessionData.gameObjects) {
+        for (GameObject go : getGameContext().getGameObjects()) {
 
             if (!go.getComponentsToAdd().isEmpty()) {
                 List<Component> toAdd = new ArrayList<>(go.getComponentsToAdd());
@@ -247,6 +239,5 @@ public class GameLoop implements Runnable {
         }
         lastSnapshot = buildSnapshot();
     }
-
 }
 

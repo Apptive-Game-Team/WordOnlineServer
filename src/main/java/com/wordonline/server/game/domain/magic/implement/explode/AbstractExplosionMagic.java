@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 
 public abstract class AbstractExplosionMagic extends Magic {
@@ -18,8 +19,8 @@ public abstract class AbstractExplosionMagic extends Magic {
     }
 
     @Override
-    public void run(GameLoop gameLoop, Master master, Vector3 position) {
-        new GameObject(getMaster(master), prefabType, position, gameLoop);
+    public void run(GameContext gameContext, Master master, Vector3 position) {
+        new GameObject(getMaster(master), prefabType, position, gameContext);
     }
 
     protected Master getMaster(Master master) {
