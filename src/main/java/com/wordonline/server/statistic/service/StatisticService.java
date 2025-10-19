@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StatisticService {
 
-    private final Map<GameContext, GameResultBuilder> gameResultBuilderMap = new ConcurrentHashMap<>();
+    protected final Map<GameContext, GameResultBuilder> gameResultBuilderMap = new ConcurrentHashMap<>();
     private final StatisticRepository statisticRepository;
     private final DeckService deckService;
     private final UserRepository userRepository;
