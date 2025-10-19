@@ -15,6 +15,7 @@ import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.service.system.ComponentUpdateSystem;
+import com.wordonline.server.game.service.system.FrameDataSystem;
 import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
 import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
 import com.wordonline.server.game.service.system.GameSystem;
@@ -51,6 +52,7 @@ public class GameLoop implements Runnable {
     @Getter
     private final GameContext gameContext;
 
+    private final FrameDataSystem frameDataSystem = new FrameDataSystem();
     private final GameSystem gameObjectStateInitialSystem = new GameObjectStateInitialSystem();
     private final GameSystem componentUpdateSystem = new ComponentUpdateSystem();
     private final GameSystem physicSystem = new PhysicSystem();
@@ -125,56 +127,17 @@ public class GameLoop implements Runnable {
     // this method is called when the game loop is stopped
     private void update() {
         // Initial DTOs
-        CardInfoDto leftCardInfo = new CardInfoDto();
-        CardInfoDto rightCardInfo = new CardInfoDto();
-
-        ObjectsInfoDto objectsInfoDto = gameContext.getObjectsInfoDto();
-
-        FrameInfoDto leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
-        FrameInfoDto rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
-
-        // Charge Mana
-        gameContext.getGameSessionData().leftPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().leftPlayerData, leftFrameInfoDto, gameContext.getFrameNum());
-        gameContext.getGameSessionData().rightPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().rightPlayerData, rightFrameInfoDto, gameContext.getFrameNum());
-        // Mana
-        leftFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().leftPlayerData.mana);
-        rightFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().rightPlayerData.mana);
-
-        // Draw Cards
-        gameContext.getGameSessionData().leftCardDeck.drawCard(gameContext.getGameSessionData().leftPlayerData, leftCardInfo);
-        gameContext.getGameSessionData().rightCardDeck.drawCard(gameContext.getGameSessionData().rightPlayerData, rightCardInfo);
-
+        frameDataSystem.earlyUpdate(gameContext);
 
         //bot tick
         if(botAgent != null)
         {
-            botAgent.onTick(rightFrameInfoDto);
+            botAgent.onTick(frameDataSystem.getRightFrameInfoDto());
         }
 
         // Check for game over
         if (gameContext.getResultChecker().checkResult()) {
-            Master loser = gameContext.getResultChecker().getLoser();
-
-            long leftId  = sessionObject.getLeftUserId();
-            long rightId = sessionObject.getRightUserId();
-            ResultType outcomeLeft = (loser == Master.LeftPlayer)
-                    ? ResultType.Lose
-                    : ResultType.Win;
-
-            short leftMmr = mmrService.fetchRating(leftId);
-            short rightMmr = mmrService.fetchRating(rightId);
-            ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr,leftMmr, rightMmr);
-
-            if(sessionObject.getSessionType() == SessionType.PVP)
-            {
-                mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
-            }
-            gameContext.getResultChecker().broadcastResult(mmrDto);
-
-            userService.markOnline(leftId);
-            userService.markOnline(rightId);
-            // 3) 루프 종료
-            close();
+            handleGameEnd();
         }
 
         gameObjectStateInitialSystem.update(gameContext);
@@ -184,19 +147,37 @@ public class GameLoop implements Runnable {
 
         physicSystem.update(gameContext);
 
-        // Send Frame Info To Client
-        sessionObject.sendFrameInfo(
-                sessionObject.getLeftUserId(),
-                leftFrameInfoDto
-        );
-        sessionObject.sendFrameInfo(
-                sessionObject.getRightUserId(),
-                rightFrameInfoDto
-        );
 
         gameObjectAddRemoveSystem.update(gameContext);
 
+        frameDataSystem.lateUpdate(gameContext);
+
         lastSnapshot = buildSnapshot();
+    }
+
+    private void handleGameEnd() {
+        Master loser = gameContext.getResultChecker().getLoser();
+
+        long leftId  = sessionObject.getLeftUserId();
+        long rightId = sessionObject.getRightUserId();
+        ResultType outcomeLeft = (loser == Master.LeftPlayer)
+                ? ResultType.Lose
+                : ResultType.Win;
+
+        short leftMmr = mmrService.fetchRating(leftId);
+        short rightMmr = mmrService.fetchRating(rightId);
+        ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr,leftMmr, rightMmr);
+
+        if(sessionObject.getSessionType() == SessionType.PVP)
+        {
+            mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
+        }
+        gameContext.getResultChecker().broadcastResult(mmrDto);
+
+        userService.markOnline(leftId);
+        userService.markOnline(rightId);
+        // 3) 루프 종료
+        close();
     }
 }
 

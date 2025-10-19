@@ -2,8 +2,7 @@ package com.wordonline.server.game.service.system;
 
 import com.wordonline.server.game.service.GameContext;
 
-public interface GameSystem {
-
-    void update(GameContext gameContext);
+// update 후에 처리
+public interface LateUpdateSystem {
+    void lateUpdate(GameContext gameContext);
 }
-
