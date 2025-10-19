@@ -10,8 +10,7 @@ public class ManaWellMob extends Mob {
 
     @Override
     public void onDeath() {
-        gameObject.getGameLoop()
-                .gameSessionData
+        getGameContext().getGameSessionData()
                 .getPlayerData(gameObject.getMaster())
                 .manaCharger
                 .updateManaCharge(-1);
@@ -20,8 +19,7 @@ public class ManaWellMob extends Mob {
 
     @Override
     public void start() {
-        gameObject.getGameLoop()
-                .gameSessionData
+        getGameContext().getGameSessionData()
                 .getPlayerData(gameObject.getMaster())
                 .manaCharger
                 .updateManaCharge(1);

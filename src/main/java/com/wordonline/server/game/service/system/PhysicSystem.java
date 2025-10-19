@@ -1,10 +1,11 @@
-package com.wordonline.server.game.service;
+package com.wordonline.server.game.service.system;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.util.Pair;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-public class PhysicSystem implements CollisionSystem {
+public class PhysicSystem implements CollisionSystem, GameSystem {
 
     private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();
 
@@ -129,5 +130,12 @@ public class PhysicSystem implements CollisionSystem {
                     gameObjectPair.b().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.a()));
                 }
         );
+    }
+
+    @Override
+    public void update(GameContext gameContext) {
+        handleCollisions(gameContext.getGameObjects());
+        checkAndHandleCollisions(gameContext.getGameObjects());
+        onUpdateEnd(gameContext.getGameObjects());
     }
 }

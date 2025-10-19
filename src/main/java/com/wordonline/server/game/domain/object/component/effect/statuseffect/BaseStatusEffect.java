@@ -27,7 +27,7 @@ public abstract class BaseStatusEffect extends Component {
 
     @Override
     public void update() {
-        float dt = gameObject.getGameLoop().deltaTime;
+        float dt = getGameContext().getDeltaTime();
         remaining -= dt;
         if (remaining <= 0) {
             expire();

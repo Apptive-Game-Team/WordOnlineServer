@@ -14,18 +14,16 @@ import org.springframework.stereotype.Component;
 public class LeafSummonPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
-    private final PrefabInitializer prefabInitializer;
 
-    public LeafSummonPrefabInitializer(Parameters parameters, PrefabProvider prefabProvider) {
+    public LeafSummonPrefabInitializer(Parameters parameters) {
         super(PrefabType.LeafSummon);
         this.parameters = parameters;
-        this.prefabInitializer = prefabProvider.get(PrefabType.LeafSlime);
     }
 
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.NATURE);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), prefabInitializer));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.LeafSlime));
     }
 }

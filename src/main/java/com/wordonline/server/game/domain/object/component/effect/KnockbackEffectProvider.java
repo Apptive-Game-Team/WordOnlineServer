@@ -26,7 +26,7 @@ public class KnockbackEffectProvider extends EffectProvider {
 
     private float GetProximity(GameObject otherObject)
     {
-        Parameters parameters = gameObject.getGameLoop().parameters;
+        Parameters parameters = getGameContext().getParameters();
         if(gameObject.getComponent(Shot.class) != null)
         {
             return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / parameters.getValue("shoot", "radius"));

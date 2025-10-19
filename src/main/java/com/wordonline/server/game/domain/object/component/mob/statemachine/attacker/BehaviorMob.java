@@ -45,7 +45,7 @@ public class BehaviorMob extends StateMachineMob {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
         //this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
-        this.detector = new ClosestEnemyDetector(gameObject.getGameLoop(), targetMask);
+        this.detector = new ClosestEnemyDetector(getGameContext(), targetMask);
         this.attackInterval = new Stat(attackInterval);
         this.attackRange = attackRange;
         this.behavior = behavior;
@@ -79,7 +79,7 @@ public class BehaviorMob extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            timer += gameObject.getGameLoop().deltaTime;
+            timer += getGameContext().getDeltaTime();
             if (timer > duration) {
                 setState(new IdleState());
             }
@@ -102,7 +102,7 @@ public class BehaviorMob extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            timer += gameObject.getGameLoop().deltaTime;
+            timer += getGameContext().getDeltaTime();
             if (timer > Detector.DETECTING_INTERVAL) {
                 target = detector.detect(gameObject);
                 if (target != null) {
@@ -158,7 +158,7 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
           
-            timer += gameObject.getGameLoop().deltaTime;
+            timer += getGameContext().getDeltaTime();
             if (timer > Detector.DETECTING_INTERVAL) {
                 GameObject newTarget = detector.detect(gameObject);
                 if (newTarget != null && newTarget != target) {
@@ -196,7 +196,7 @@ public class BehaviorMob extends StateMachineMob {
             if (target.getStatus() == Status.Destroyed) {
                 setState(new IdleState());
             }
-            timer += gameObject.getGameLoop().deltaTime;
+            timer += getGameContext().getDeltaTime();
             if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
                 setState(new MoveState());
             } else if (timer > attackInterval.total()) {

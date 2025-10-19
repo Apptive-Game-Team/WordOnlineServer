@@ -4,12 +4,12 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
-import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 
@@ -24,7 +24,7 @@ public class GameObject {
     private static int idCounter = 0;
     private final Master master;
 
-    private PrefabInitializer prefabInitializer;
+    private final PrefabType type;
     private Status status;
 
     public boolean isDestroyed() {
@@ -35,38 +35,28 @@ public class GameObject {
     private Element element = new Element();
     private Vector3 position;
 
-    private final GameLoop gameLoop;
+    private final GameContext gameContext;
     private final List<Collider> colliders = new ArrayList<Collider>();
     private final List<Component> components = new ArrayList<Component>();
     private List<Component> componentsToAdd = new ArrayList<Component>();
     private List<Component> componentsToRemove = new ArrayList<Component>();
 
     public GameObject(GameObject parent, Master master, PrefabType prefabType) {
-        this(parent, master, PrefabProvider.get(prefabType));
+        this(master, prefabType, parent.getPosition(), parent.gameContext);
     }
 
-    public GameObject(GameObject parent, Master master, PrefabInitializer prefabInitializer) {
+    public GameObject(GameObject parent, PrefabType prefabType) {
+        this(parent, parent.getMaster(), prefabType);
+    }
+
+    public GameObject(Master master, PrefabType prefabType, Vector3 position, GameContext gameContext) {
         this.id = idCounter++;
         this.master = master;
-        this.prefabInitializer = prefabInitializer;
-        this.position = parent.getPosition();
-        this.gameLoop = parent.getGameLoop();
-        this.status = Status.Idle;
-        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
-    }
-
-    public GameObject(GameObject parent, PrefabInitializer prefabInitializer) {
-        this(parent, parent.getMaster(), prefabInitializer);
-    }
-
-    public GameObject(Master master, PrefabInitializer prefabInitializer, Vector3 position, GameLoop gameLoop) {
-        this.id = idCounter++;
-        this.master = master;
-        this.prefabInitializer = prefabInitializer;
+        this.type = prefabType;
         this.position = position;
-        this.gameLoop = gameLoop;
+        this.gameContext = gameContext;
         this.status = Status.Idle;
-        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+        gameContext.createGameObject(this);
     }
 
     public <T> T getComponent(Class<T> clazz) {
@@ -96,7 +86,7 @@ public class GameObject {
 
     public void destroy() {
         setStatus(Status.Destroyed);
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
         onDestroy();
     }
 
@@ -106,22 +96,18 @@ public class GameObject {
             destroy();
             return;
         }
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
     }
 
     public void setStatus(Status status) {
         if (this.status == Status.Destroyed) return;
         this.status = status;
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
+        gameContext.updateGameObject(this);
     }
 
     public void setEffect(Effect effect) {
         this.effect = effect;
-        gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
-    }
-
-    public PrefabType getType() {
-        return prefabInitializer.prefabType;
+        gameContext.updateGameObject(this);
     }
 
     public void setElement(ElementType element) {
@@ -139,7 +125,7 @@ public class GameObject {
     }
 
     public void start() {
-        prefabInitializer.initialize(this);
+        PrefabProvider.get(type).initialize(this);
         for (Component component : components)
             component.start();
     }

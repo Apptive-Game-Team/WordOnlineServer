@@ -27,7 +27,7 @@ public class PathSpawner extends Component {
         if (distance >= interval) {
             lastSpawnPosition = gameObject.getPosition().toVector2();
             GameObject newObject = new GameObject(gameObject, Master.None, prefabType);
-            gameObject.getGameLoop().getObjectsInfoDtoBuilder().createGameObject(newObject);
+            getGameContext().createGameObject(newObject);
         }
     }
 
