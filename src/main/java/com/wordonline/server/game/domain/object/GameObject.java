@@ -4,7 +4,6 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
-import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
@@ -24,7 +23,7 @@ public class GameObject {
     private static int idCounter = 0;
     private final Master master;
 
-    private PrefabInitializer prefabInitializer;
+    private final PrefabType type;
     private Status status;
 
     public boolean isDestroyed() {
@@ -42,27 +41,17 @@ public class GameObject {
     private List<Component> componentsToRemove = new ArrayList<Component>();
 
     public GameObject(GameObject parent, Master master, PrefabType prefabType) {
-        this(parent, master, PrefabProvider.get(prefabType));
+        this(master, prefabType, parent.getPosition(), parent.getGameLoop());
     }
 
-    public GameObject(GameObject parent, Master master, PrefabInitializer prefabInitializer) {
+    public GameObject(GameObject parent, PrefabType prefabType) {
+        this(parent, parent.getMaster(), prefabType);
+    }
+
+    public GameObject(Master master, PrefabType prefabType, Vector3 position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
-        this.prefabInitializer = prefabInitializer;
-        this.position = parent.getPosition();
-        this.gameLoop = parent.getGameLoop();
-        this.status = Status.Idle;
-        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
-    }
-
-    public GameObject(GameObject parent, PrefabInitializer prefabInitializer) {
-        this(parent, parent.getMaster(), prefabInitializer);
-    }
-
-    public GameObject(Master master, PrefabInitializer prefabInitializer, Vector3 position, GameLoop gameLoop) {
-        this.id = idCounter++;
-        this.master = master;
-        this.prefabInitializer = prefabInitializer;
+        this.type = prefabType;
         this.position = position;
         this.gameLoop = gameLoop;
         this.status = Status.Idle;
@@ -120,10 +109,6 @@ public class GameObject {
         gameLoop.getObjectsInfoDtoBuilder().updateGameObject(this);
     }
 
-    public PrefabType getType() {
-        return prefabInitializer.prefabType;
-    }
-
     public void setElement(ElementType element) {
         this.element.addNative(element);
     }
@@ -139,7 +124,7 @@ public class GameObject {
     }
 
     public void start() {
-        prefabInitializer.initialize(this);
+        PrefabProvider.get(type).initialize(this);
         for (Component component : components)
             component.start();
     }

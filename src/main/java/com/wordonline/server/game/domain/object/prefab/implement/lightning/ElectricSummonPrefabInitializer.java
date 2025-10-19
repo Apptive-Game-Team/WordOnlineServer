@@ -14,18 +14,16 @@ import org.springframework.stereotype.Component;
 public class ElectricSummonPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
-    private final PrefabInitializer prefabInitializer;
 
-    public ElectricSummonPrefabInitializer(Parameters parameters, PrefabProvider prefabProvider) {
+    public ElectricSummonPrefabInitializer(Parameters parameters) {
         super(PrefabType.ElectricSummon);
         this.parameters = parameters;
-        this.prefabInitializer = prefabProvider.get(PrefabType.ElectricSlime);
     }
 
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), prefabInitializer));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.ElectricSlime));
     }
 }

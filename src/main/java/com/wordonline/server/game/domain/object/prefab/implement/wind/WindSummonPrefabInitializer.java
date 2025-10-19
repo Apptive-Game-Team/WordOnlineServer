@@ -14,18 +14,16 @@ import org.springframework.stereotype.Component;
 public class WindSummonPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
-    private final PrefabInitializer prefabInitializer;
 
-    public WindSummonPrefabInitializer(Parameters parameters, PrefabProvider prefabProvider) {
+    public WindSummonPrefabInitializer(Parameters parameters) {
         super(PrefabType.WindSummon);
         this.parameters = parameters;
-        this.prefabInitializer = prefabProvider.get(PrefabType.WindSlime);
     }
 
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.WIND);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), prefabInitializer));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.WindSlime));
     }
 }

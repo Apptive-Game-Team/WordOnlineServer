@@ -1,6 +1,11 @@
 package com.wordonline.server.game.domain.object.prefab;
 
+import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.object.GameObject;
 import lombok.Getter;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 @Getter
 public enum PrefabType {

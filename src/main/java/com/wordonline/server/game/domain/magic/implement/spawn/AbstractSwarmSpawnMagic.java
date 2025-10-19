@@ -3,8 +3,6 @@ package com.wordonline.server.game.domain.magic.implement.spawn;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
-import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
@@ -21,10 +19,9 @@ public abstract class AbstractSwarmSpawnMagic extends Magic {
 
     @Override
     public void run(GameLoop gameLoop, Master master, Vector3 position) {
-        PrefabInitializer prefabInitializer = PrefabProvider.get(prefabType);
-        new GameObject(getMaster(master), prefabInitializer, position, gameLoop);
-        new GameObject(getMaster(master), prefabInitializer, position.plus(0.5f, 0, 0), gameLoop);
-        new GameObject(getMaster(master), prefabInitializer, position.plus(-0.5f, 0, 0), gameLoop);
+        new GameObject(getMaster(master), prefabType, position, gameLoop);
+        new GameObject(getMaster(master), prefabType, position.plus(0.5f, 0, 0), gameLoop);
+        new GameObject(getMaster(master), prefabType, position.plus(-0.5f, 0, 0), gameLoop);
     }
 
     protected Master getMaster(Master master) {

@@ -14,18 +14,16 @@ import org.springframework.stereotype.Component;
 public class RockSummonPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
-    private final PrefabInitializer prefabInitializer;
 
-    public RockSummonPrefabInitializer(Parameters parameters, PrefabProvider prefabProvider) {
+    public RockSummonPrefabInitializer(Parameters parameters) {
         super(PrefabType.RockSummon);
         this.parameters = parameters;
-        this.prefabInitializer = prefabProvider.get(PrefabType.RockSlime);
     }
 
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), prefabInitializer));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.RockSlime));
     }
 }

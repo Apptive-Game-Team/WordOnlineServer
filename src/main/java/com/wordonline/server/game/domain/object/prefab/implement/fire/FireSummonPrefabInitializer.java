@@ -14,18 +14,16 @@ import org.springframework.stereotype.Component;
 public class FireSummonPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
-    private final PrefabInitializer prefabInitializer;
 
-    public FireSummonPrefabInitializer(Parameters parameters, PrefabProvider prefabProvider) {
+    public FireSummonPrefabInitializer(Parameters parameters) {
         super(PrefabType.FireSummon);
         this.parameters = parameters;
-        prefabInitializer = prefabProvider.get(PrefabType.FireSlime);
     }
 
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), prefabInitializer));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.FireSlime));
     }
 }
