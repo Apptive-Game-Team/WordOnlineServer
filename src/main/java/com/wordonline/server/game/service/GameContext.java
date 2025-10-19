@@ -31,16 +31,17 @@ public class GameContext {
     private ResultChecker resultChecker;
     private int frameNum = 0;
     private final Parameters parameters;
-    private Physics physics = new SimplePhysics(gameSessionData.gameObjects);;
+    private Physics physics;
     private final MagicInputHandler magicInputHandler;
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
 
     public void init(SessionObject sessionObject) {
         this.sessionObject = sessionObject;
-        this.gameSessionData =  new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);;
+        this.gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);;
         this.resultChecker = new ResultChecker(sessionObject);
         this.objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
+        physics = new SimplePhysics(gameSessionData.gameObjects);
     }
 
     public void setLoser(Master master) {
