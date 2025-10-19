@@ -5,7 +5,7 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.PrefabType;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
@@ -39,7 +39,6 @@ public class GameLoop implements Runnable {
     private Runnable onTerminated;
     private int _frameNum = 0;
     public ResultChecker resultChecker;
-
 
     public final MmrService mmrService;
     private final UserService userService;

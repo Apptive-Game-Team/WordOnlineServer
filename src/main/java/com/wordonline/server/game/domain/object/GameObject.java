@@ -4,6 +4,8 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
+import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -21,7 +23,7 @@ public class GameObject {
     private static int idCounter = 0;
     private final Master master;
 
-    private PrefabType type;
+    private final PrefabType type;
     private Status status;
 
     public boolean isDestroyed() {
@@ -38,24 +40,18 @@ public class GameObject {
     private List<Component> componentsToAdd = new ArrayList<Component>();
     private List<Component> componentsToRemove = new ArrayList<Component>();
 
-    public GameObject(GameObject parent, Master master, PrefabType type) {
-        this.id = idCounter++;
-        this.master = master;
-        this.type = type;
-        this.position = parent.getPosition();
-        this.gameLoop = parent.getGameLoop();
-        this.status = Status.Idle;
-        gameLoop.getObjectsInfoDtoBuilder().createGameObject(this);
+    public GameObject(GameObject parent, Master master, PrefabType prefabType) {
+        this(master, prefabType, parent.getPosition(), parent.getGameLoop());
     }
 
-    public GameObject(GameObject parent, PrefabType type) {
-        this(parent, parent.getMaster(), type);
+    public GameObject(GameObject parent, PrefabType prefabType) {
+        this(parent, parent.getMaster(), prefabType);
     }
 
-    public GameObject(Master master, PrefabType type, Vector3 position, GameLoop gameLoop) {
+    public GameObject(Master master, PrefabType prefabType, Vector3 position, GameLoop gameLoop) {
         this.id = idCounter++;
         this.master = master;
-        this.type = type;
+        this.type = prefabType;
         this.position = position;
         this.gameLoop = gameLoop;
         this.status = Status.Idle;
@@ -128,7 +124,7 @@ public class GameObject {
     }
 
     public void start() {
-        type.initialize(this, gameLoop.parameters);
+        PrefabProvider.get(type).initialize(this);
         for (Component component : components)
             component.start();
     }
