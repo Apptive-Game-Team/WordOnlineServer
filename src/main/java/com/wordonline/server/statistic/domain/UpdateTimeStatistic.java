@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class UpdateTimeStatistic {
 
-    private int minInterval;
-    private int maxInterval;
+    private int minInterval = Integer.MAX_VALUE;
+    private int maxInterval = Integer.MIN_VALUE;
     private float meanInterval;
-    private int frameNum;
+    private int frameNum = 0;
 
     public void addInterval(int interval) {
         minInterval = Math.min(minInterval, interval);
