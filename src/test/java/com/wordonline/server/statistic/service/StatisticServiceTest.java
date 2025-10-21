@@ -102,7 +102,7 @@ class StatisticServiceTest {
         // given
         Master loser = Master.RightPlayer;
         SessionType sessionType = SessionType.PVP;
-        GameResultDto gameResultDto = new GameResultDto(sessionType, 1L, 2L, Duration.ofSeconds(100), Collections.emptyList(), Collections.emptyList()); 
+        GameResultDto gameResultDto = new GameResultDto(sessionType, 1L, 2L, Duration.ofSeconds(100), Collections.emptyList(), Collections.emptyList(), Collections.emptyMap());
 
         Map<GameContext, GameResultBuilder> gameResultBuilderMap = new ConcurrentHashMap<>();
         gameResultBuilderMap.put(gameContext, gameResultBuilder);

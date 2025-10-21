@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
@@ -36,12 +37,16 @@ public class GameContext {
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
 
-    public void init(SessionObject sessionObject) {
+    private WordOnlineLoop gameLoop;
+
+    public void init(SessionObject sessionObject, WordOnlineLoop gameLoop) {
         this.sessionObject = sessionObject;
         this.gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);;
         this.resultChecker = new ResultChecker(sessionObject);
         this.objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
         physics = new SimplePhysics(gameSessionData.gameObjects);
+
+        this.gameLoop = gameLoop;
     }
 
     public void setLoser(Master master) {
