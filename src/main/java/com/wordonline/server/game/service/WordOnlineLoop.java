@@ -68,6 +68,6 @@ public class WordOnlineLoop extends GameLoop {
 
         frameDataSystem.lateUpdate(gameContext);
 
-        lastSnapshot = buildSnapshot();
+        buildSnapshot();
     }
 }

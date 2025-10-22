@@ -115,7 +115,7 @@ class SessionControllerTest {
 
         sessionObject.setGameLoop(gameLoop);
         given(sessionManager.getSessionObject(sessionId)).willReturn(sessionObject);
-        given(gameLoop.getLastSnapshot()).willReturn(snapshot);
+        given(gameLoop.getLastSnapshot(leftUserId)).willReturn(snapshot);
 
         // when & then
         mockMvc.perform(get("/sessions/{sessionId}/snapshot", sessionId)
