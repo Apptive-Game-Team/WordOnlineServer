@@ -72,7 +72,8 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.GONE).build(); // 게임 종료됨
         }
 
-        log.info(loop.getLastSnapshot().toString());
-        return ResponseEntity.ok(loop.getLastSnapshot()); // 프레임 캐시 리턴
+        SnapshotResponseDto snapshotResponseDto = loop.getLastSnapshot(uid);
+        log.info(snapshotResponseDto.toString());
+        return ResponseEntity.ok(snapshotResponseDto); // 프레임 캐시 리턴
     }
 }

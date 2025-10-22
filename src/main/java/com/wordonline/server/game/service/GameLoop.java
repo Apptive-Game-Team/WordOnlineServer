@@ -1,8 +1,10 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.auth.service.UserService;
+import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
+import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.*;
@@ -16,7 +18,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 // GameLoop is the main class that runs the game loop
@@ -38,8 +39,8 @@ public abstract class GameLoop implements Runnable {
     public final Parameters parameters;
 
     @Getter
-    protected volatile SnapshotResponseDto lastSnapshot = new SnapshotResponseDto(0, List.of(), new ArrayList<>());
-
+    protected volatile List<SnapshotObjectDto> lastSnapshotObjects = List.of();
+    protected volatile int lastSnapshotFrameNum = 0;
 
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
@@ -117,12 +118,24 @@ public abstract class GameLoop implements Runnable {
     }
 
     // 2) 스냅샷 빌더
-    protected SnapshotResponseDto buildSnapshot() {
-        var list = new ArrayList<SnapshotObjectDto>(gameContext.getGameObjects().size());
-        for (var g : gameContext.getGameObjects()) {
-            list.add(SnapshotMapper.toDto(g));
+    protected void buildSnapshot() {
+        lastSnapshotObjects = gameContext.getGameObjects()
+                .stream()
+                .map(SnapshotMapper::toDto)
+                .toList();
+        lastSnapshotFrameNum = gameContext.getFrameNum();
+    }
+
+    public SnapshotResponseDto getLastSnapshot(Long userId) {
+        List<CardType> cards;
+        if (gameContext.getSessionObject().getLeftUserId() == userId) {
+            cards = gameContext.getGameSessionData().leftPlayerData.cards;
+        } else if (gameContext.getSessionObject().getRightUserId() == userId) {
+            cards = gameContext.getGameSessionData().rightPlayerData.cards;
+        } else {
+            cards = List.of();
         }
-        return new SnapshotResponseDto(getGameContext().getFrameNum(), list, gameContext.getGameSessionData().leftPlayerData.cards);
+        return new SnapshotResponseDto(lastSnapshotFrameNum, lastSnapshotObjects, cards);
     }
 }
 
