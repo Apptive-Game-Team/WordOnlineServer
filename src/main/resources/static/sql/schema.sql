@@ -155,3 +155,27 @@ CREATE TABLE magic_cards (
     magic_id BIGINT REFERENCES magics(id),
     card_id BIGINT REFERENCES cards(id)
 );
+
+
+CREATE TABLE statistic_update_time (
+    id BIGSERIAL PRIMARY KEY,
+    statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE CASCADE,
+    name VARCHAR(31),
+    min_interval_ms INT,
+    max_interval_ms INT,
+    mean_interval_ms FLOAT
+);
+
+ALTER TABLE statistic_update_time RENAME COLUMN min_interval_ms TO min_interval_ns;
+ALTER TABLE statistic_update_time RENAME COLUMN max_interval_ms TO max_interval_ns;
+ALTER TABLE statistic_update_time RENAME COLUMN mean_interval_ms TO mean_interval_ns;
+
+CREATE TABLE statistic_delta_time (
+    id BIGSERIAL PRIMARY KEY,
+    statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE CASCADE,
+
+    min_delta_ms INT,
+    max_delta_ms INT,
+    mean_delta_ms FLOAT,
+    frame_count INT
+);

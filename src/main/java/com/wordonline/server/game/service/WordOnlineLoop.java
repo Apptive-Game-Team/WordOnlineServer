@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.bot.BotAgent;
+import com.wordonline.server.game.service.system.BotAgentSystem;
 import com.wordonline.server.game.service.system.ComponentUpdateSystem;
 import com.wordonline.server.game.service.system.FrameDataSystem;
 import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
@@ -15,26 +16,40 @@ import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
 import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.game.service.system.PhysicSystem;
 
+import lombok.Getter;
+
+@Getter
 @Scope("prototype")
 @Service
 public class WordOnlineLoop extends GameLoop {
 
-    private BotAgent botAgent;
+    private final FrameDataSystem frameDataSystem;
+    private final BotAgentSystem botSystem;
+    private final GameObjectStateInitialSystem gameObjectStateInitialSystem;
+    private final ComponentUpdateSystem componentUpdateSystem;
+    private final PhysicSystem physicSystem;
+    private final GameObjectAddRemoteSystem gameObjectAddRemoveSystem;
 
-    private final FrameDataSystem frameDataSystem = new FrameDataSystem();
-    private final GameSystem gameObjectStateInitialSystem = new GameObjectStateInitialSystem();
-    private final GameSystem componentUpdateSystem = new ComponentUpdateSystem();
-    private final GameSystem physicSystem = new PhysicSystem();
-    private final GameSystem gameObjectAddRemoveSystem = new GameObjectAddRemoteSystem();
+    private BotAgent botAgent;
 
     public WordOnlineLoop(MmrService mmrService,
             UserService userService, GameContext gameContext,
-            Parameters parameters) {
+            Parameters parameters, FrameDataSystem frameDataSystem, BotAgentSystem botSystem,
+            GameObjectStateInitialSystem gameObjectStateInitialSystem,
+            ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
+            GameObjectAddRemoteSystem gameObjectAddRemoveSystem) {
         super(mmrService, userService, gameContext, parameters);
+        this.frameDataSystem = frameDataSystem;
+        this.botSystem = botSystem;
+        this.gameObjectStateInitialSystem = gameObjectStateInitialSystem;
+        this.componentUpdateSystem = componentUpdateSystem;
+        this.physicSystem = physicSystem;
+        this.gameObjectAddRemoveSystem = gameObjectAddRemoveSystem;
     }
 
     @Override
     public void init(SessionObject sessionObject, Runnable onTerminated) {
+        gameContext.init(sessionObject, this);
         super.init(sessionObject, onTerminated);
         if(sessionObject.getSessionType() == SessionType.Practice)
         {
@@ -47,10 +62,7 @@ public class WordOnlineLoop extends GameLoop {
         frameDataSystem.earlyUpdate(gameContext);
 
         //bot tick
-        if(botAgent != null)
-        {
-            botAgent.onTick(frameDataSystem.getRightFrameInfoDto());
-        }
+        botSystem.update(gameContext);
 
         // Check for game over
         if (gameContext.getResultChecker().checkResult()) {

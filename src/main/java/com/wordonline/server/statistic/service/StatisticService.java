@@ -13,6 +13,7 @@ import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
 import com.wordonline.server.statistic.repository.StatisticRepository;
 
@@ -57,5 +58,10 @@ public class StatisticService {
     public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
         statisticRepository.saveGameResultDto(builder.build(loser, sessionType));
+    }
+
+    public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
+        gameResultBuilderMap.get(gameContext)
+                .addInterval(clazz, intervalNs);
     }
 }

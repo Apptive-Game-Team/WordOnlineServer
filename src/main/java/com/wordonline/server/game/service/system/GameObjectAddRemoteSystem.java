@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.service.GameContext;
 
+@org.springframework.stereotype.Component
 public class GameObjectAddRemoteSystem implements GameSystem {
 
     @Override

@@ -44,8 +44,6 @@ public abstract class GameLoop implements Runnable {
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
 
-        gameContext.init(sessionObject);
-
         this.onTerminated = onTerminated;
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
         new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);

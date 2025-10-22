@@ -17,7 +17,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 @Slf4j
+@Component
+@Scope("prototype")
 public class PhysicSystem implements CollisionSystem, GameSystem {
 
     private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <springProperty scope="context" name="WEBHOOK_URL" source="logging.discord-webhook-url"/>
+
+  <appender name="DiscordAppender" class="com.wordonline.server.config.DiscordWebhookAppender">
+    <webhookUrl>${WEBHOOK_URL}</webhookUrl>
+  </appender>
+  <appender name="AsyncDiscordAppender" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="DiscordAppender"/>
+  </appender>
+
+
+  <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.wordonline" level="DEBUG" additivity="true">
+    <appender-ref ref="ConsoleAppender"/>
+  </logger>
+
+  <root level="INFO">
+    <springProfile name="!test">
+      <appender-ref ref="AsyncDiscordAppender"/>
+    </springProfile>
+    <appender-ref ref="ConsoleAppender"/>
+  </root>
+</configuration>

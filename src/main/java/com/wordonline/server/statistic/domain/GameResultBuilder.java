@@ -3,6 +3,7 @@ package com.wordonline.server.statistic.domain;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticMagicDto;
@@ -24,8 +26,15 @@ public class GameResultBuilder {
     private long rightUserId;
     private final List<StatisticCardDto> cardDtos = new ArrayList<>();
     private final List<StatisticMagicDto> magicDtos = new ArrayList<>();
+    private final Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap = new HashMap<>();
 
     private final LocalDateTime startTime = LocalDateTime.now();
+
+    public void addInterval(Class<? extends GameSystem> clazz, long interval) {
+        UpdateTimeStatistic statistic = updateTimeStatisticMap.computeIfAbsent(clazz,
+                k -> new UpdateTimeStatistic());
+        statistic.addInterval((int) interval);
+    }
 
     public void recordCards(long userId, List<CardDto> cardDtos) {
         Map<Long, Long> counts = cardDtos.stream()
@@ -81,7 +90,8 @@ public class GameResultBuilder {
                 lossId,
                 duration,
                 cardDtos,
-                magicDtos
+                magicDtos,
+                updateTimeStatisticMap
         );
     }
 }

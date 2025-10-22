@@ -1,5 +1,8 @@
 package com.wordonline.server.game.service.system;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.wordonline.server.game.dto.CardInfoDto;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
@@ -8,6 +11,8 @@ import com.wordonline.server.game.service.GameContext;
 import lombok.Getter;
 
 @Getter
+@Component
+@Scope("prototype")
 public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
     private FrameInfoDto leftFrameInfoDto;
