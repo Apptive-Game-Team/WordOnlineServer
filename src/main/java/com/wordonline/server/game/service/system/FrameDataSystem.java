@@ -31,8 +31,8 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
         rightFrameInfoDto.setUpdatedMana(gameContext.getGameSessionData().rightPlayerData.mana);
 
         // Draw Cards
-        gameContext.getGameSessionData().leftCardDeck.drawCard(gameContext.getGameSessionData().leftPlayerData, leftCardInfo);
-        gameContext.getGameSessionData().rightCardDeck.drawCard(gameContext.getGameSessionData().rightPlayerData, rightCardInfo);
+        gameContext.getGameSessionData().leftCardDeck.drawCard(gameContext.getGameSessionData().leftPlayerData, leftCardInfo, gameContext.getFrameNum());
+        gameContext.getGameSessionData().rightCardDeck.drawCard(gameContext.getGameSessionData().rightPlayerData, rightCardInfo,  gameContext.getFrameNum());
     }
 
     @Override
