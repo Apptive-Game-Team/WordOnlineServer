@@ -25,15 +25,23 @@ public class MagicInputHandler {
         Master master = gameContext.getSessionObject().getUserSide(userId);
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
+        if (!playerData.validCardsUse(inputRequestDto.getCards())) {
+            log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
+            return new InputResponseDto("마나가 부족합니다.", false, playerData.mana, inputRequestDto.getId(), -1);
+        }
+
         // Parse the magic from the input request
-        Magic magic = magicParser.parseMagic(List.copyOf(inputRequestDto.getCards()));
+        Magic magic = magicParser.parseMagic(inputRequestDto.getCards());
 
         if (magic == null) {
+            // 카드 파사삭
             log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
+            playerData.useCards(inputRequestDto.getCards());
+            gameContext.getGameSessionData().getCardDeck(master).cards.addAll(inputRequestDto.getCards());
+            return new InputResponseDto("마법 시전에 실패했습니다.", true, playerData.mana, inputRequestDto.getId(), -1);
         } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
             log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
+            return new InputResponseDto("마법을 시전할 수 없는 곳입니다.", false, playerData.mana, inputRequestDto.getId(), -1);
         }
 
         // Check if the player has enough mana and card
@@ -41,7 +49,7 @@ public class MagicInputHandler {
 
         if (!valid) {
             log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
-            return new InputResponseDto(false, playerData.mana, inputRequestDto.getId(), -1);
+            return new InputResponseDto("마나가 부족합니다.", false, playerData.mana, inputRequestDto.getId(), -1);
         }
 
         // use the magic
