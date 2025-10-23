@@ -34,8 +34,7 @@ public class PlayerData {
         return false;
     }
 
-    // validate and use cards
-    public boolean useCards(List<CardType> cards) {
+    public boolean validCardsUse(List<CardType> cards) {
         int totalManaCost = 0;
         List<CardType> tempCards = new ArrayList<>(this.cards);
         for (CardType card : cards) {
@@ -45,7 +44,12 @@ public class PlayerData {
                 return false;
             }
         }
-        if (totalManaCost > mana) {
+        return totalManaCost <= mana;
+    }
+
+    // validate and use cards
+    public boolean useCards(List<CardType> cards) {
+        if (!validCardsUse(cards)) {
             return false;
         }
 

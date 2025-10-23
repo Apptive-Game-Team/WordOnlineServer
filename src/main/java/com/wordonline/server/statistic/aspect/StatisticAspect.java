@@ -26,14 +26,14 @@ public class StatisticAspect {
             returning = "response"
     )
     public void afterHandleInput(JoinPoint joinPoint, InputResponseDto response) {
-        if (!response.isValid() || response.getMagicId() == -1) {
+        if (!response.valid() || response.magicId() == -1) {
             return;
         }
 
         GameContext gameContext = PjpUtils.findArg(joinPoint.getArgs(), GameContext.class);
         Long userId = PjpUtils.findArg(joinPoint.getArgs(), Long.class);
 
-        statisticService.saveMagic(gameContext, userId, response.getMagicId());
+        statisticService.saveMagic(gameContext, userId, response.magicId());
     }
 
 
