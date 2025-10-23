@@ -1,12 +1,28 @@
 package com.wordonline.server.game.dto;
 
-import lombok.Data;
+public record InputResponseDto(
+    String type,
+    String message,
+    boolean valid,
+    int updatedMana,
+    int id,
+    long magicId
+) {
+    public InputResponseDto(
+            boolean valid, int updatedMana, int id, long magicId
+    ) {
+        this(
+                (valid ? "magic use is valid" : "magic use is not valid"),
+                valid,
+                updatedMana,
+                id,
+                magicId
+        );
+    }
 
-@Data
-public class InputResponseDto {
-    private final String type = "magicValid";
-    private final boolean valid;
-    private final int updatedMana;
-    private final int id;
-    private final long magicId;
+    public InputResponseDto(
+            String message, boolean valid, int updatedMana, int id, long magicId
+    ) {
+        this("magicValid", message, valid, updatedMana, id, magicId);
+    }
 }
