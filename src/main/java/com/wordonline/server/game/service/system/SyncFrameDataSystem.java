@@ -17,9 +17,7 @@ public class SyncFrameDataSystem extends FrameDataSystem {
 
     @Override
     public void earlyUpdate(GameContext gameContext) {
-        if (gameContext.getFrameNum() % 10 != 0) {
-            super.earlyUpdate(gameContext);
-        }
+        super.earlyUpdate(gameContext);
     }
 
     @Override
