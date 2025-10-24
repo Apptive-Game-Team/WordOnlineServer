@@ -93,7 +93,7 @@ public class BehaviorMob extends StateMachineMob {
         float timer;
         @Override
         public void onEnter() {
-            timer = 0;
+            timer = Detector.DETECTING_INTERVAL + 1;
         }
 
         @Override
