@@ -6,5 +6,7 @@ public record SnapshotObjectDto(
         float x, float y, float z,
         String master,
         String status,
-        String effect
+        String effect,
+        int hp,
+        int maxHp
 ) {}
