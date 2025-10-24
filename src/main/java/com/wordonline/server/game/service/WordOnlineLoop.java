@@ -10,11 +10,10 @@ import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.service.system.BotAgentSystem;
 import com.wordonline.server.game.service.system.ComponentUpdateSystem;
-import com.wordonline.server.game.service.system.FrameDataSystem;
 import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
 import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
-import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.game.service.system.PhysicSystem;
+import com.wordonline.server.game.service.system.SyncFrameDataSystem;
 
 import lombok.Getter;
 
@@ -23,7 +22,7 @@ import lombok.Getter;
 @Service
 public class WordOnlineLoop extends GameLoop {
 
-    private final FrameDataSystem frameDataSystem;
+    private final SyncFrameDataSystem frameDataSystem;
     private final BotAgentSystem botSystem;
     private final GameObjectStateInitialSystem gameObjectStateInitialSystem;
     private final ComponentUpdateSystem componentUpdateSystem;
@@ -34,7 +33,7 @@ public class WordOnlineLoop extends GameLoop {
 
     public WordOnlineLoop(MmrService mmrService,
             UserService userService, GameContext gameContext,
-            Parameters parameters, FrameDataSystem frameDataSystem, BotAgentSystem botSystem,
+            Parameters parameters, SyncFrameDataSystem frameDataSystem, BotAgentSystem botSystem,
             GameObjectStateInitialSystem gameObjectStateInitialSystem,
             ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
             GameObjectAddRemoteSystem gameObjectAddRemoveSystem) {
@@ -62,7 +61,8 @@ public class WordOnlineLoop extends GameLoop {
         frameDataSystem.earlyUpdate(gameContext);
 
         //bot tick
-        botSystem.update(gameContext);
+        if (botAgent != null)
+            botSystem.update(gameContext);
 
         // Check for game over
         if (gameContext.getResultChecker().checkResult()) {
