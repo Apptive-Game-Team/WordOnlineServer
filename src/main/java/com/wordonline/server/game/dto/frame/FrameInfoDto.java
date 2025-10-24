@@ -2,6 +2,8 @@ package com.wordonline.server.game.dto.frame;
 
 import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.dto.CardInfoDto;
+import com.wordonline.server.game.dto.sync.SyncInfoDto;
+
 import lombok.Data;
 
 @Data
@@ -25,6 +27,10 @@ public class FrameInfoDto {
         this.updatedMana = updatedMana;
         this.cards = cards;
         this.objects = objects;
+    }
+
+    public SyncInfoDto toSyncDto(SnapshotResponseDto snapshotResponseDto) {
+        return new SyncInfoDto(this, snapshotResponseDto);
     }
 }
 
