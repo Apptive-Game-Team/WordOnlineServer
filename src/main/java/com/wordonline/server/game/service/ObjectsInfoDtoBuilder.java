@@ -1,9 +1,14 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.CreatedObjectDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
+import com.wordonline.server.game.dto.frame.projectile.ProjectileDto;
+import com.wordonline.server.game.dto.frame.projectile.ProjectileTarget;
+import com.wordonline.server.game.dto.frame.projectile.ReferenceProjectileTarget;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -17,6 +22,7 @@ public class ObjectsInfoDtoBuilder {
 
     private List<CreatedObjectDto> createdObjectDtos = new ArrayList<>();
     private List<UpdatedObjectDto> updatedObjectDtos = new ArrayList<>();
+    private List<ProjectileDto> projectileDtos = new ArrayList<>();
     private final GameContext gameContext;
 
     public ObjectsInfoDtoBuilder(GameContext gameContext) {
@@ -24,12 +30,25 @@ public class ObjectsInfoDtoBuilder {
     }
 
     public ObjectsInfoDto getObjectsInfoDto() {
-        ObjectsInfoDto result = new ObjectsInfoDto(createdObjectDtos, updatedObjectDtos);
+        ObjectsInfoDto result = new ObjectsInfoDto(createdObjectDtos, updatedObjectDtos, projectileDtos);
         if (!createdObjectDtos.isEmpty() || !updatedObjectDtos.isEmpty())
             log.trace("ObjectsInfoDto: {}", result);
         createdObjectDtos = new ArrayList<>();
         updatedObjectDtos = new ArrayList<>();
         return result;
+    }
+
+    public void createProjection(GameObject start, GameObject destination, String type, float duration) {
+        createProjection(
+                new ReferenceProjectileTarget(start.getId()),
+                new ReferenceProjectileTarget(destination.getId()),
+                type,
+                duration
+        );
+    }
+
+    public void createProjection(ProjectileTarget start, ProjectileTarget destination, String type, float duration) {
+        projectileDtos.add(new ProjectileDto(type, start, destination, duration));
     }
 
     public void createGameObject(GameObject gameObject) {

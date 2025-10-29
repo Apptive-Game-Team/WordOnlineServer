@@ -1,6 +1,8 @@
 package com.wordonline.server.game.dto.frame;
 
 import com.wordonline.server.game.dto.UpdatedObjectDto;
+import com.wordonline.server.game.dto.frame.projectile.ProjectileDto;
+
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -11,15 +13,18 @@ import java.util.List;
 public class ObjectsInfoDto {
     private final List<CreatedObjectDto> create;
     private final List<UpdatedObjectDto> update;
+    private final List<ProjectileDto> projectile;
 
     public ObjectsInfoDto(){
-        create = new ArrayList<>();
-        update = new ArrayList<>();
+        this(
+                List.of(), List.of(), List.of()
+        );
     }
 
-    public ObjectsInfoDto(List<CreatedObjectDto> createdObjectDtos, List<UpdatedObjectDto> updatedObjectDtos) {
+    public ObjectsInfoDto(List<CreatedObjectDto> createdObjectDtos, List<UpdatedObjectDto> updatedObjectDtos, List<ProjectileDto> projectileDtos) {
         create = createdObjectDtos;
         update = updatedObjectDtos;
+        projectile = projectileDtos;
     }
 }
 
