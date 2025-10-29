@@ -41,6 +41,7 @@ public abstract class StateMachineMob extends Mob {
     }
 
     public void update() {
+        super.update();
         if (currentState != null) {
             currentState.onUpdate();
         }

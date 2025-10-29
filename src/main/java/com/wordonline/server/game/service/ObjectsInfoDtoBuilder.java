@@ -38,10 +38,10 @@ public class ObjectsInfoDtoBuilder {
         return result;
     }
 
-    public void createProjection(GameObject start, GameObject destination, String type, float duration) {
+    public void createProjection(GameObject start, GameObject end, String type, float duration) {
         createProjection(
                 new ReferenceProjectileTarget(start.getId()),
-                new ReferenceProjectileTarget(destination.getId()),
+                new ReferenceProjectileTarget(end.getId()),
                 type,
                 duration
         );

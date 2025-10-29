@@ -15,6 +15,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 // This class is used to store the game object data
@@ -65,6 +66,10 @@ public class GameObject {
                 .map(clazz::cast)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public <T> Optional<T> getComponentOptional(Class<T> clazz) {
+        return Optional.ofNullable(getComponent(clazz));
     }
 
     public <T> List<T> getComponents(Class<T> clazz) {
