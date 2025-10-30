@@ -17,12 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // This class is used to store the game object data
 @Getter
 public class GameObject {
     private final int id;
-    private static int idCounter = 0;
+    private static final AtomicInteger idCounter = new AtomicInteger(0);
     private final Master master;
 
     private final PrefabType type;
@@ -51,7 +52,7 @@ public class GameObject {
     }
 
     public GameObject(Master master, PrefabType prefabType, Vector3 position, GameContext gameContext) {
-        this.id = idCounter++;
+        this.id = idCounter.getAndIncrement();
         this.master = master;
         this.type = prefabType;
         this.position = position;

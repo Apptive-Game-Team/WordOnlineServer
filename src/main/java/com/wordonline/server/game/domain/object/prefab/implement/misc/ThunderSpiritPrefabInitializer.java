@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.RangeAttackMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.ProjectileRangeAttackMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -31,13 +31,15 @@ public class ThunderSpiritPrefabInitializer extends PrefabInitializer {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
-        gameObject.getComponents().add(new RangeAttackMob(gameObject,
+        gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("thunder_spirit", "hp"),
                 (float) parameters.getValue("thunder_spirit", "speed"),
                 TargetMask.GROUND.bit,
                 (int) parameters.getValue("thunder_spirit", "damage"),
                 (float) parameters.getValue("thunder_spirit", "attack_interval"),
-                (float) parameters.getValue("thunder_spirit", "attack_range")
+                (float) parameters.getValue("thunder_spirit", "attack_range"),
+                "ElectricShot",
+                0.5f
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WIND));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

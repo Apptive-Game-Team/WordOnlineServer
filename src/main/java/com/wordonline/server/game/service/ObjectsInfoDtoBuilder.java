@@ -35,6 +35,7 @@ public class ObjectsInfoDtoBuilder {
             log.trace("ObjectsInfoDto: {}", result);
         createdObjectDtos = new ArrayList<>();
         updatedObjectDtos = new ArrayList<>();
+        projectileDtos = new ArrayList<>();
         return result;
     }
 
