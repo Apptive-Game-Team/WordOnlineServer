@@ -12,7 +12,7 @@ import com.wordonline.server.game.dto.frame.projectile.ReferenceProjectileTarget
 public class ObjectsInfoDtoTest {
 
     @Test
-    void print_json() throws JsonProcessingException {
+    void print_projectile_dto_json() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
 
         // 예시 객체
