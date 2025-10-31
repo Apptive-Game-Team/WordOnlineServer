@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public class RigidBody extends Component {
 
-    private Vector2 velocity = new Vector2(0, 0);
+    private Vector3 velocity = new Vector3(0, 0, 0);
     private final int mass;
 
     public float getInvMass() {
@@ -25,7 +25,7 @@ public class RigidBody extends Component {
         return 1f / mass;
     }
 
-    public void addVelocity(Vector2 velocity) {
+    public void addVelocity(Vector3 velocity) {
         log.trace("added velocity: {}", velocity);
         this.velocity.add(velocity);
     }

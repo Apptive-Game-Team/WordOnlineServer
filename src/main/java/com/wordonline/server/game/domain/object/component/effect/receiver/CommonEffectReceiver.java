@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component.effect.receiver;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.effect.EffectApplyPolicy;
 import com.wordonline.server.game.domain.object.component.effect.EffectImmuneChart;
@@ -92,7 +93,7 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
     }
 
     @Override
-    public void onReceive(Effect effect, Vector2 direction, float prox) {
+    public void onReceive(Effect effect, Vector3 direction, float prox) {
         applyEffect(
                 StatusEffectKey.Knockback_Receive,
                 () -> new KnockbackStatusEffect(gameObject, direction, prox, StatusEffectKey.Knockback_Receive),

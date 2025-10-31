@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component.effect;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
@@ -10,7 +11,7 @@ import com.wordonline.server.game.dto.Effect;
 
 public class KnockbackEffectProvider extends EffectProvider {
 
-    private Vector2 GetDirection(GameObject otherObject)
+    private Vector3 GetDirection(GameObject otherObject)
     {
         if(gameObject.getComponent(Shot.class) != null)
         {
@@ -18,10 +19,10 @@ public class KnockbackEffectProvider extends EffectProvider {
         }
         else if(gameObject.getComponent(Explode.class) != null)
         {
-            return otherObject.getPosition().subtract(this.gameObject.getPosition()).normalize().toVector2();
+            return otherObject.getPosition().subtract(this.gameObject.getPosition()).normalize();
         }
 
-        return Vector2.ZERO;
+        return Vector3.ZERO;
     }
 
     private float GetProximity(GameObject otherObject)

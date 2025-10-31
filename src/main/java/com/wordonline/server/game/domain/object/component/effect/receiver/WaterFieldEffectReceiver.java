@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.effect.receiver;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.Vector2;
@@ -19,7 +20,7 @@ public class WaterFieldEffectReceiver extends Component implements EffectReceive
     }
 
     @Override
-    public void onReceive(Effect effect, Vector2 direction, float prox) {
+    public void onReceive(Effect effect, Vector3 direction, float prox) {
 
     }
 

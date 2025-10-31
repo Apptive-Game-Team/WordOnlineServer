@@ -2,6 +2,7 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Master;
@@ -61,11 +62,11 @@ public class PhysicSystem implements CollisionSystem {
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
 
-                                        Vector2 displacement = colliderA.getDisplacement(colliderB);
+                                        Vector3 displacement = colliderA.getDisplacement(colliderB);
                                         if (displacement == null) return;
-                                        Vector2 normal = displacement.normalize();
+                                        Vector3 normal = displacement.normalize();
 
-                                        Vector2 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
+                                        Vector3 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
                                         float separatingVelocity = relativeVelocity.dot(normal);
 
                                         // 이미 멀어지는 중이면 무시
@@ -76,7 +77,7 @@ public class PhysicSystem implements CollisionSystem {
                                         float impulseMag = - (1 + restitution) * separatingVelocity /
                                               (invMassA + invMassB);
 
-                                        Vector2 impulse = normal.multiply(impulseMag);
+                                        Vector3 impulse = normal.multiply(impulseMag);
                                         if (invMassA > 0) {
                                           rigidBodyA.addVelocity(impulse.multiply(invMassA));
                                         }

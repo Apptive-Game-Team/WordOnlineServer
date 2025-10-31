@@ -45,7 +45,8 @@ public class MagicInputHandler {
         }
 
         // use the magic
-        magic.run(gameLoop, master, inputRequestDto.getPosition().toVector3());
+        log.trace("pos : {}", inputRequestDto.getPosition());
+        magic.run(gameLoop, master, inputRequestDto.getPosition());
 
         // Add the magic to the deck data
         gameLoop.gameSessionData.getCardDeck(master).cards.addAll(inputRequestDto.getCards());

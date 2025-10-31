@@ -27,9 +27,9 @@ public abstract class Collider {
         return rigidBody.getInvMass();
     }
 
-    public Vector2 getVelocity() {
+    public Vector3 getVelocity() {
         if (rigidBody == null) {
-            return Vector2.ZERO;
+            return Vector3.ZERO;
         }
         return rigidBody.getVelocity();
     }
@@ -40,5 +40,5 @@ public abstract class Collider {
         this.gameObject = gameObject;
     }
 
-    public abstract Vector2 getDisplacement(Collider colliderB);
+    public abstract Vector3 getDisplacement(Collider colliderB);
 }
