@@ -40,6 +40,7 @@ public abstract class StateMachineMob extends Mob {
         currentState.onEnter();
     }
 
+    @Override
     public void update() {
         super.update();
         if (currentState != null) {
@@ -47,6 +48,7 @@ public abstract class StateMachineMob extends Mob {
         }
     }
 
+    @Override
     public void onDestroy() {
         if (currentState != null) {
             currentState.onExit();

@@ -10,7 +10,6 @@ import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameContext;
-import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -22,8 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 // This class is used to store the game object data
 @Getter
 public class GameObject {
-    private final int id;
+
     private static final AtomicInteger idCounter = new AtomicInteger(0);
+
+    private final int id;
     private final Master master;
 
     private final PrefabType type;
