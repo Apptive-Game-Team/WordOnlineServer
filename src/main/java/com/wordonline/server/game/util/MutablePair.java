@@ -15,7 +15,7 @@ public class MutablePair<A, B> {
     }
 
     public static  <A, B> MutablePair of(A first, B second) {
-        return new MutablePair(first, second);
+        return new MutablePair<>(first, second);
     }
 
     @Override
