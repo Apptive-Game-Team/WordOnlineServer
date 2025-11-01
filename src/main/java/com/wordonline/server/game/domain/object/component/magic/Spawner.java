@@ -21,6 +21,7 @@ public class Spawner extends Mob {
 
     @Override
     public void update() {
+        super.update();
         if (!isRunning) {
             return;
         }

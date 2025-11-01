@@ -78,8 +78,8 @@ public class WordOnlineLoop extends GameLoop {
 
         gameObjectAddRemoveSystem.update(gameContext);
 
-        frameDataSystem.lateUpdate(gameContext);
-
         buildSnapshot();
+
+        frameDataSystem.lateUpdate(gameContext);
     }
 }

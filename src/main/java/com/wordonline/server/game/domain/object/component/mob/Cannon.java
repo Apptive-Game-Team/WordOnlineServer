@@ -37,6 +37,7 @@ public class Cannon extends Mob {
 
     @Override
     public void update() {
+        super.update();
         timer += getGameContext().getDeltaTime();
         if (timer >= DETECT_INTERVAL) {
             timer = 0;

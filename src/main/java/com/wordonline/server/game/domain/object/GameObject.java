@@ -10,18 +10,21 @@ import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameContext;
-import com.wordonline.server.game.service.GameLoop;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 // This class is used to store the game object data
 @Getter
 public class GameObject {
+
+    private static final AtomicInteger idCounter = new AtomicInteger(0);
+
     private final int id;
-    private static int idCounter = 0;
     private final Master master;
 
     private final PrefabType type;
@@ -50,7 +53,7 @@ public class GameObject {
     }
 
     public GameObject(Master master, PrefabType prefabType, Vector3 position, GameContext gameContext) {
-        this.id = idCounter++;
+        this.id = idCounter.getAndIncrement();
         this.master = master;
         this.type = prefabType;
         this.position = position;
@@ -65,6 +68,10 @@ public class GameObject {
                 .map(clazz::cast)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public <T> Optional<T> getComponentOptional(Class<T> clazz) {
+        return Optional.ofNullable(getComponent(clazz));
     }
 
     public <T> List<T> getComponents(Class<T> clazz) {
