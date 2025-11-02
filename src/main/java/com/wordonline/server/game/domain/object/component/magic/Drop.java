@@ -36,6 +36,7 @@ public class Drop extends Mob implements Collidable {
     @Override
     public void onDeath() {
         direction = 0;
+        gameObject.destroy();
     }
 
     public Drop(GameObject gameObject, int damage) {

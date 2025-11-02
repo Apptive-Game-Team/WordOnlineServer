@@ -40,7 +40,6 @@ public class Cannon extends Mob {
         super.update();
         timer += getGameContext().getDeltaTime();
         if (timer >= DETECT_INTERVAL) {
-            timer = 0;
 
             GameObject target = detector.detect(gameObject);
 
@@ -54,10 +53,11 @@ public class Cannon extends Mob {
                 return;
             }
 
-            target.getComponents(Damageable.class)
-                    .forEach(
-                            damageable -> damageable.onDamaged(attackInfo)
-                    );
+            timer = 0;
+            getGameContext().getObjectsInfoDtoBuilder()
+                            .createProjection(gameObject, target, "RockShot", 0.5f);
+            target.getComponent(Mob.class)
+                            .onDamaged(attackInfo, 0.5f);
             gameObject.setStatus(Status.Attack);
         }
     }
