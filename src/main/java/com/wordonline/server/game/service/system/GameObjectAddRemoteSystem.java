@@ -12,8 +12,6 @@ public class GameObjectAddRemoteSystem implements GameSystem {
 
     @Override
     public void update(GameContext gameContext) {
-
-
         List<GameObject> toRemove = gameContext.getGameObjects()
                 .stream()
                 .filter(GameObject::isDestroyed)
@@ -24,7 +22,6 @@ public class GameObjectAddRemoteSystem implements GameSystem {
 
         // Apply Added and Removed Component
         for (GameObject go : gameContext.getGameObjects()) {
-
             if (!go.getComponentsToAdd().isEmpty()) {
                 List<Component> toAdd = new ArrayList<>(go.getComponentsToAdd());
                 go.getComponentsToAdd().clear();

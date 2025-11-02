@@ -29,8 +29,11 @@ public class DatabaseMagicParser implements MagicParser {
     @PostConstruct
     private void init() {
         magicRepository.getAllMagic()
-                .parallelStream()
                 .forEach(magicInfoDto -> {
+                    if (!applicationContext.containsBean(magicInfoDto.name())) {
+                        return;
+                    }
+
                     Magic magic = applicationContext.getBean(magicInfoDto.name(), Magic.class);
                     magic.id = magicInfoDto.id();
                     magicHashMap.put(

@@ -20,7 +20,9 @@ public class PlayerHealthComponent extends Mob {
     public void start() {}
 
     @Override
-    public void update() {}
+    public void update() {
+        super.update();
+    }
 
     @Override
     public void onDestroy() {}

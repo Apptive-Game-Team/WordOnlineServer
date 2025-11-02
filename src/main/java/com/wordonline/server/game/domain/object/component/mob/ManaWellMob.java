@@ -27,7 +27,7 @@ public class ManaWellMob extends Mob {
 
     @Override
     public void update() {
-
+        super.update();
     }
 
     @Override

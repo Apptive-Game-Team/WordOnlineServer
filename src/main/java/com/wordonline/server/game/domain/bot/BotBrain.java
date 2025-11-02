@@ -11,74 +11,80 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class BotBrain {
 
     public record InputDecision(List<CardType> playCards, Vector3 target) {}
 
     public InputDecision think(List<GameObject> gameObjectList, List<CardType> cardList, GameLoop loop, int mana)
     {
-        Vector3 playerPos = GameConfig.RIGHT_PLAYER_POSITION;
+        try {
+            Vector3 playerPos = GameConfig.RIGHT_PLAYER_POSITION;
 
-        List<GameObject> enemies = gameObjectList.stream()
-                .filter(go -> go.getMaster() == Master.LeftPlayer)
-                .toList();
+            List<GameObject> enemies = gameObjectList.stream()
+                    .filter(go -> go.getMaster() == Master.LeftPlayer)
+                    .toList();
 
-        List<CardType> magicList = cardList.stream()
-                .filter(card -> card.getType() == CardType.Type.Magic)
-                .toList();
+            List<CardType> magicList = cardList.stream()
+                    .filter(card -> card.getType() == CardType.Type.Magic)
+                    .toList();
 
-        List<CardType> usableMagics = new ArrayList<>();
+            List<CardType> usableMagics = new ArrayList<>();
 
-        for (CardType magic : magicList) {
-            double range = loop.parameters.getValue(magic.name(), "range");
-            int cost  = (int) loop.parameters.getValue(magic.name(), "mana_cost");
+            for (CardType magic : magicList) {
+                double range = loop.parameters.getValue(magic.name(), "range");
+                int cost  = (int) loop.parameters.getValue(magic.name(), "mana_cost");
 
-            if (cost > mana) continue;
+                if (cost > mana) continue;
 
 
-            boolean inRange = enemies.stream().anyMatch(enemy ->
-                    enemy.getPosition().distance(playerPos) <= range
-            );
+                boolean inRange = enemies.stream().anyMatch(enemy ->
+                        enemy.getPosition().distance(playerPos) <= range
+                );
 
-            if (inRange) {
-                usableMagics.add(magic);
+                if (inRange) {
+                    usableMagics.add(magic);
+                }
             }
-        }
 
-        if (!usableMagics.isEmpty()) {
-            GameObject nearest = nearestEnemy(enemies, playerPos);
-            if (nearest != null) {
-                CardType useMagic = usableMagics.getFirst();
+            if (!usableMagics.isEmpty()) {
+                GameObject nearest = nearestEnemy(enemies, playerPos);
+                if (nearest != null) {
+                    CardType useMagic = usableMagics.getFirst();
+                    CardType useType = cardList.stream()
+                            .filter(card -> card.getType() == CardType.Type.Type)
+                            .toList().getFirst();
+                    var inputCardList = new ArrayList<CardType>();
+                    inputCardList.add(useMagic);
+                    inputCardList.add(useType);
+
+                    var target = nearest.getPosition();
+                    return new InputDecision(inputCardList, target);
+                }
+            }
+            List<CardType> spawnOrBuild = cardList.stream()
+                    .filter(c -> c == CardType.Build || c == CardType.Spawn)
+                    .toList();
+
+            if(!spawnOrBuild.isEmpty())
+            {
+                CardType useMagic = spawnOrBuild.getFirst();
                 CardType useType = cardList.stream()
                         .filter(card -> card.getType() == CardType.Type.Type)
                         .toList().getFirst();
+                double range = loop.parameters.getValue(useMagic.name(), "range");
                 var inputCardList = new ArrayList<CardType>();
                 inputCardList.add(useMagic);
                 inputCardList.add(useType);
 
-                var target = nearest.getPosition();
+                var target = randomPosInRange(GameConfig.RIGHT_PLAYER_POSITION, range);
                 return new InputDecision(inputCardList, target);
             }
+        } catch (Exception e) {
+            log.trace(e.getMessage());
         }
-        List<CardType> spawnOrBuild = cardList.stream()
-                .filter(c -> c == CardType.Build || c == CardType.Spawn)
-                .toList();
-
-        if(!spawnOrBuild.isEmpty())
-        {
-            CardType useMagic = spawnOrBuild.getFirst();
-            CardType useType = cardList.stream()
-                    .filter(card -> card.getType() == CardType.Type.Type)
-                    .toList().getFirst();
-            double range = loop.parameters.getValue(useMagic.name(), "range");
-            var inputCardList = new ArrayList<CardType>();
-            inputCardList.add(useMagic);
-            inputCardList.add(useType);
-
-            var target = randomPosInRange(GameConfig.RIGHT_PLAYER_POSITION, range);
-            return new InputDecision(inputCardList, target);
-        }
-
         return null;
     }
     private static GameObject nearestEnemy(List<GameObject> enemies, Vector3 myPos) {
