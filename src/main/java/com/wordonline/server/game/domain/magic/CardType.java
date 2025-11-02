@@ -8,6 +8,7 @@ public enum CardType {
     Build(Type.Magic),
     Spawn(Type.Magic),
     Explode(Type.Magic),
+    Drop(Type.Magic),
 
     Fire(Type.Type),
     Water(Type.Type),

@@ -60,6 +60,22 @@ public enum PrefabType {
     FireSpirit("fire_spirit_prefab"),
     ThunderSpirit("thunder_spirit_prefab"),
 
+    // drop
+    FireDrop("fire_drop_prefab"),
+    WaterDrop("water_drop_prefab"),
+    NatureDrop("nature_drop_prefab"),
+    RockDrop("rock_drop_prefab"),
+    LightningDrop("lightning_drop_prefab"),
+    WindDrop("wind_drop_prefab"),
+
+    // rune
+    FireRune("fire_rune_prefab"),
+    WaterRune("water_rune_prefab"),
+    NatureRune("nature_rune_prefab"),
+    RockRune("rock_rune_prefab"),
+    LightningRune("lightning_rune_prefab"),
+    WindRune("wind_rune_prefab"),
+
     Wall("wall_prefab"),
 
     Player("player_prefab");
