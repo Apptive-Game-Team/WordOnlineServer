@@ -28,7 +28,7 @@ public class DOTStatusEffect extends BaseStatusEffect {
     @Override
     public void update() {
         super.update();
-        curTick += gameObject.getGameLoop().deltaTime;
+        curTick += getGameContext().getDeltaTime();
         int ticks = (int)Math.floor(curTick / tickInterval);
         if (ticks <= 0) return;
         curTick -= ticks * tickInterval;

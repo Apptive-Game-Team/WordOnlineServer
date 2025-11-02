@@ -6,7 +6,6 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
-import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import org.springframework.stereotype.Component;
 

@@ -2,6 +2,7 @@ package com.wordonline.server.statistic.repository;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,6 +10,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.wordonline.server.game.domain.SessionType;
+import com.wordonline.server.game.service.system.GameSystem;
+import com.wordonline.server.statistic.domain.UpdateTimeStatistic;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticMagicDto;
@@ -34,10 +37,27 @@ public class StatisticRepository {
             VALUES(:userId, :gameId, :magicId, :count);
             """;
 
+    private final static String SAVE_UPDATE_TIME = """
+            INSERT INTO statistic_update_time(statistic_game_id, name, min_interval_ns, max_interval_ns, mean_interval_ns)
+            VALUES(:gameId, :name, :minInterval, :maxInterval, :meanInterval);
+            """;
+
     public void saveGameResultDto(GameResultDto gameResultDto) {
         long gameId = saveGame(gameResultDto.sessionType(), gameResultDto.winUserId(), gameResultDto.lossUserId(), gameResultDto.duration());
         saveCard(gameId, gameResultDto.cards());
         saveMagic(gameId, gameResultDto.magics());
+        saveUpdateTime(gameId, gameResultDto.updateTimeStatisticMap());
+    }
+
+
+    private void saveUpdateTime(long gameId, Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap) {
+        updateTimeStatisticMap.forEach((key, value) -> jdbcClient.sql(SAVE_UPDATE_TIME)
+                .param("gameId", gameId)
+                .param("minInterval", value.getMinInterval())
+                .param("maxInterval", value.getMaxInterval())
+                .param("meanInterval", value.getMeanInterval())
+                .param("name", key.getSimpleName())
+                .update());
     }
 
     private long saveGame(SessionType sessionType, long winUserId, long lossUserId, Duration duration) {

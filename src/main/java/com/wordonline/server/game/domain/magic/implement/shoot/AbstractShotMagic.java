@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 
 public abstract class AbstractShotMagic extends Magic {
@@ -20,13 +21,13 @@ public abstract class AbstractShotMagic extends Magic {
     }
 
     @Override
-    public void run(GameLoop gameLoop, Master master, Vector3 position) {
+    public void run(GameContext gameContext, Master master, Vector3 position) {
         GameObject gameObject = new GameObject(
                 getMaster(master),
                 prefabType,
                 GameConfig.PLAYER_POSITION.get(master),
-                gameLoop);
-        gameObject.getComponent(Shot.class).setTarget(position);
+                gameContext);
+        gameObject.getComponent(Shot.class).setTarget(position.toVector2());
     }
 
     protected Master getMaster(Master master) {

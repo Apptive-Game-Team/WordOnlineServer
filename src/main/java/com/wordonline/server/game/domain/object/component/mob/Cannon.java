@@ -32,12 +32,12 @@ public class Cannon extends Mob {
 
     @Override
     public void start() {
-        this.detector = new ClosestEnemyDetector(gameObject.getGameLoop(), targetMask);
+        this.detector = new ClosestEnemyDetector(getGameContext(), targetMask);
     }
 
     @Override
     public void update() {
-        timer += gameObject.getGameLoop().deltaTime;
+        timer += getGameContext().getDeltaTime();
         if (timer >= DETECT_INTERVAL) {
             timer = 0;
 

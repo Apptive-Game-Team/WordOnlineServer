@@ -25,8 +25,8 @@ public final class BotAgent {
     }
 
     public void onTick(FrameInfoDto myFrame) {
-        BotEye botEye = new BotEye(gameLoop.gameSessionData, myFrame);
-        BotBrain.InputDecision  decision = botBrain.think(
+        BotEye botEye = new BotEye(gameLoop.getGameContext().getGameSessionData(), myFrame);
+        BotBrain.InputDecision decision = botBrain.think(
                 botEye.getGameObjectList(),
                 botEye.getCardList(),
                 gameLoop,

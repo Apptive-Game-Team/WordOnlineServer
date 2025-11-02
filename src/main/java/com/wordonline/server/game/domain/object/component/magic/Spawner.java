@@ -12,7 +12,7 @@ public class Spawner extends Mob {
 
     private float counter = 0;
     private boolean isRunning = false;
-    private PrefabType prefabType;
+    private final PrefabType prefabType;
 
     @Override
     public void start() {
@@ -26,7 +26,7 @@ public class Spawner extends Mob {
         }
 
         if (counter < SPAWN_INTERNAL) {
-            counter += gameObject.getGameLoop().deltaTime;
+            counter += getGameContext().getDeltaTime();
         } else {
             counter = 0;
             new GameObject(gameObject, prefabType);
@@ -50,7 +50,7 @@ public class Spawner extends Mob {
     @Override
     public void onDamaged(AttackInfo attackInfo) {
         hp -= attackInfo.getDamage();
-        gameObject.getGameLoop().getObjectsInfoDtoBuilder().updateGameObject(gameObject);
+        getGameContext().updateGameObject(gameObject);
         if (hp <= 0) {
             gameObject.destroy();
         }

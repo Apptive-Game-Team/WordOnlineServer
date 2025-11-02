@@ -8,8 +8,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.dto.InputResponseDto;
-import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.statistic.service.StatisticService;
+import com.wordonline.server.statistic.util.PjpUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,21 +26,15 @@ public class StatisticAspect {
             returning = "response"
     )
     public void afterHandleInput(JoinPoint joinPoint, InputResponseDto response) {
-        if (!response.isValid() || response.getMagicId() == -1) {
+        if (!response.valid() || response.magicId() == -1) {
             return;
         }
 
-        GameLoop gameLoop = findArg(joinPoint.getArgs(), GameLoop.class);
-        Long userId = findArg(joinPoint.getArgs(), Long.class);
+        GameContext gameContext = PjpUtils.findArg(joinPoint.getArgs(), GameContext.class);
+        Long userId = PjpUtils.findArg(joinPoint.getArgs(), Long.class);
 
-        statisticService.saveMagic(gameLoop, userId, response.getMagicId());
+        statisticService.saveMagic(gameContext, userId, response.magicId());
     }
 
-    private <T> T findArg(Object[] args, Class<T> clazz) {
-        return Arrays.stream(args)
-                .filter(clazz::isInstance)
-                .map(clazz::cast)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(clazz.getSimpleName() + " Not Found"));
-    }
+
 }

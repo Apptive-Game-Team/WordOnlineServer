@@ -33,7 +33,7 @@ public class SessionManager {
         sessionObject.setGameLoop(gameLoop);
         gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
-        statisticService.createBuilder(gameLoop);
+        statisticService.createBuilder(gameLoop.getGameContext());
 
         Thread thread = new Thread(gameLoop);
         thread.start();
@@ -45,7 +45,7 @@ public class SessionManager {
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
         numOfSessionsFlow.submit(getActiveSessions());
-        statisticService.saveGameResult(s.getGameLoop(), s.getGameLoop().resultChecker.getLoser(), s.getSessionType());
+        statisticService.saveGameResult(s.getGameContext(), s.getGameContext().getResultChecker().getLoser(), s.getSessionType());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 

@@ -62,7 +62,7 @@ public class ZPhysics extends Component {
     }
 
     public void applyZForce() {
-        final float dt = gameObject.getGameLoop().deltaTime;
+        final float dt = getGameContext().getDeltaTime();
 
         zVelocity -= gravity * dt;
 

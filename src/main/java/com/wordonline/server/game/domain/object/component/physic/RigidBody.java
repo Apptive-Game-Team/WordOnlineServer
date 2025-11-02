@@ -32,11 +32,11 @@ public class RigidBody extends Component {
 
     public void applyVelocity() {
         log.trace("velocity: {}", velocity);
-        log.trace("delta time: {}", gameObject.getGameLoop().deltaTime);
-        log.trace("delta position: {}", velocity.multiply(gameObject.getGameLoop().deltaTime));
-        log.trace("next position: {}", gameObject.getPosition().plus(velocity.multiply(gameObject.getGameLoop().deltaTime)));
+        log.trace("delta time: {}", gameObject.getGameContext().getDeltaTime());
+        log.trace("delta position: {}", velocity.multiply(gameObject.getGameContext().getDeltaTime()));
+        log.trace("next position: {}", gameObject.getPosition().plus(velocity.multiply(gameObject.getGameContext().getDeltaTime())));
         gameObject.setPosition(
-                gameObject.getPosition().plus(velocity.multiply(gameObject.getGameLoop().deltaTime))
+                gameObject.getPosition().plus(velocity.multiply(gameObject.getGameContext().getDeltaTime()))
         );
         log.trace("position: {}", gameObject.getPosition());
 

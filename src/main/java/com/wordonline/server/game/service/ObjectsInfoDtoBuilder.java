@@ -9,18 +9,21 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 @Slf4j
 public class ObjectsInfoDtoBuilder {
 
     private List<CreatedObjectDto> createdObjectDtos = new ArrayList<>();
     private List<UpdatedObjectDto> updatedObjectDtos = new ArrayList<>();
-    private final GameLoop gameLoop;
+    private final GameContext gameContext;
 
-    public ObjectsInfoDtoBuilder(GameLoop gameLoop) {
-        this.gameLoop = gameLoop;
+    public ObjectsInfoDtoBuilder(GameContext gameContext) {
+        this.gameContext = gameContext;
     }
 
-    public ObjectsInfoDto getObjectsInfoDto () {
+    public ObjectsInfoDto getObjectsInfoDto() {
         ObjectsInfoDto result = new ObjectsInfoDto(createdObjectDtos, updatedObjectDtos);
         if (!createdObjectDtos.isEmpty() || !updatedObjectDtos.isEmpty())
             log.trace("ObjectsInfoDto: {}", result);
@@ -30,7 +33,7 @@ public class ObjectsInfoDtoBuilder {
     }
 
     public void createGameObject(GameObject gameObject) {
-        gameLoop.gameSessionData.gameObjectsToAdd.add(gameObject);
+        gameContext.addGameObject(gameObject);
         CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster());
         createdObjectDtos.add(createdObjectDto);
         log.trace("CreatedObjectDto: {}", createdObjectDto);
