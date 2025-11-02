@@ -35,15 +35,15 @@ public class Rune extends Component implements Collidable {
 
     private void explode() {
         float radius = (float) getGameContext().getParameters()
-                .getValue("rune", "distance");
+                .getValue("rune", "attack_range");
         int damage = (int) getGameContext().getParameters()
-                .getValue("rune", "distance");
+                .getValue("rune", "damage");
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
         getGameContext().getPhysics()
                 .overlapCircleAll(gameObject, radius)
                 .forEach(target -> {
-                    target.getComponent(Mob.class)
-                            .onDamaged(attackInfo);
+                    target.getComponentOptional(Mob.class)
+                            .ifPresent(mob -> mob.onDamaged(attackInfo));
                 });
     }
 }
