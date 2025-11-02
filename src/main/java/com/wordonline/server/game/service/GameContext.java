@@ -69,8 +69,8 @@ public class GameContext {
         gameSessionData.addGameObject(gameObject);
     }
 
-    public List<GameObject> overlapCircleAll(GameObject object, float distance) {
-        return physics.overlapCircleAll(object, distance);
+    public List<GameObject> overlapSphereAll(GameObject object, float distance) {
+        return physics.overlapSphereAll(object, distance);
     }
 
     public ObjectsInfoDto getObjectsInfoDto() {
