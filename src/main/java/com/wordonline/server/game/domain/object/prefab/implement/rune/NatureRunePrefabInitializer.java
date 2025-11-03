@@ -5,11 +5,10 @@ import org.springframework.stereotype.Component;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 
-@Component("fire_rune_prefab")
-public class FireRunePrefabInitializer extends AbstractRunePrefabInitializer {
+@Component("nature_rune_prefab")
+public class NatureRunePrefabInitializer extends AbstractRunePrefabInitializer {
 
-    public FireRunePrefabInitializer(Parameters parameters) {
-        super(parameters, ElementType.FIRE);
+    public NatureRunePrefabInitializer(Parameters parameters) {
+        super(parameters, ElementType.NATURE);
     }
 }
-
