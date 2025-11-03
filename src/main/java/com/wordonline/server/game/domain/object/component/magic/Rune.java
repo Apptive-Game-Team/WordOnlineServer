@@ -40,7 +40,7 @@ public class Rune extends Component implements Collidable {
                 .getValue("rune", "damage");
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
         getGameContext().getPhysics()
-                .overlapCircleAll(gameObject, radius)
+                .overlapSphereAll(gameObject, radius)
                 .forEach(target -> {
                     target.getComponentOptional(Mob.class)
                             .ifPresent(mob -> mob.onDamaged(attackInfo));
