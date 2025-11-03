@@ -12,7 +12,7 @@ public class ManaCharger {
 
     private final Stat manaChangeValue = new Stat(DEFAULT_MANA_CHARGE_VALUE);
 
-    public void updateManaCharge(int deltaValue) {
+    public void updateManaCharge(float deltaValue) {
         manaChangeValue.addPercent(deltaValue);
     }
 
