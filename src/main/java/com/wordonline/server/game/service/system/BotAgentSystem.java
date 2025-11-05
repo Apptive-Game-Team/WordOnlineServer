@@ -1,6 +1,7 @@
 package com.wordonline.server.game.service.system;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Component;
 
@@ -15,22 +16,28 @@ import lombok.extern.slf4j.Slf4j;
 public class BotAgentSystem implements GameSystem {
 
     private final ExecutorService botExecutorService;
+    private final AtomicBoolean isProcessing = new AtomicBoolean(false);
 
     @Override
     public void update(GameContext gameContext) {
-        botExecutorService.submit(() -> {
-            try {
-                gameContext
-                        .getGameLoop()
-                        .getBotAgent()
-                        .onTick(
-                                gameContext.getGameLoop()
-                                        .getFrameDataSystem()
-                                        .getRightFrameInfoDto()
-                        );
-            } catch (Exception e) {
-                log.debug("Bot agent execution error: {}", e.getMessage());
-            }
-        });
+        // Only submit a new bot task if no bot operation is currently running
+        if (isProcessing.compareAndSet(false, true)) {
+            botExecutorService.submit(() -> {
+                try {
+                    gameContext
+                            .getGameLoop()
+                            .getBotAgent()
+                            .onTick(
+                                    gameContext.getGameLoop()
+                                            .getFrameDataSystem()
+                                            .getRightFrameInfoDto()
+                            );
+                } catch (Exception e) {
+                    log.debug("Bot agent execution error: {}", e.getMessage());
+                } finally {
+                    isProcessing.set(false);
+                }
+            });
+        }
     }
 }
