@@ -30,7 +30,7 @@ public class DeckService {
             deckRepository.saveCardToUser(userId, i, 3);
         }
 
-        long deckId = deckRepository.saveDeck(userId, "기본 덱");
+        long deckId = deckRepository.saveDeck(userId, localizationService.getMessage("string.default.deck"));
 
         for (int i = 1; i <= 10; i++) {
             deckRepository.saveCardToDeck(deckId, i, 1);

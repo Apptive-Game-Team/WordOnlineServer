@@ -30,6 +30,6 @@ public class LocalizationService {
         if (attributes != null && attributes.getRequest() != null) {
             return localeResolver.resolveLocale(attributes.getRequest());
         }
-        return Locale.KOREAN; // default fallback
+        return Locale.KOREAN;
     }
 }
