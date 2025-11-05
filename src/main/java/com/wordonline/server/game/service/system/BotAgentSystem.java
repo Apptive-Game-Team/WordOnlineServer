@@ -41,7 +41,7 @@ public class BotAgentSystem implements GameSystem {
                 try {
                     botAgent.onTick(rightFrameInfoDto);
                 } catch (Exception e) {
-                    log.debug("Bot agent execution error: {}", e.getMessage());
+                    log.debug("Bot agent execution error", e);
                 } finally {
                     isProcessing.set(false);
                 }
