@@ -6,6 +6,7 @@ import com.wordonline.server.auth.domain.PrincipalDetails;
 import com.wordonline.server.auth.domain.UserStatus;
 import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ class UserControllerTest {
 
     @MockBean
     private JwtDecoder jwtDecoder;
+
+    @MockBean
+    private LocalizationService localizationService;
 
     private Authentication authentication;
 

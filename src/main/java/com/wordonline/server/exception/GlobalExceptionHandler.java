@@ -1,5 +1,7 @@
 package com.wordonline.server.exception;
 
+import com.wordonline.server.service.LocalizationService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +12,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
-    private final static String INVALID_REQUEST_MESSAGE = "요청이 잘못됐습니다.";
+    
+    private final LocalizationService localizationService;
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
@@ -23,14 +27,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<String> handleAuthorizationDeniedException(AuthorizationDeniedException e) {
         log.trace(e.getMessage());
+        String message = localizationService.getMessage("error.unauthorized");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Unauthorized");
+                .body(message);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
         log.trace(e.getMessage());
-        return ResponseEntity.badRequest().body(INVALID_REQUEST_MESSAGE);
+        String message = localizationService.getMessage("error.invalid.request");
+        return ResponseEntity.badRequest().body(message);
     }
 
     @ExceptionHandler(Exception.class)
