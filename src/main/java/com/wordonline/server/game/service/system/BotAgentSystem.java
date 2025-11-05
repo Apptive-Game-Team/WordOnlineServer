@@ -34,16 +34,12 @@ public class BotAgentSystem implements GameSystem {
         
         // Only submit a new bot task if no bot operation is currently running
         if (isProcessing.compareAndSet(false, true)) {
+            // Capture required data in local variables to avoid race conditions
+            var botAgent = gameContext.getGameLoop().getBotAgent();
+            var rightFrameInfoDto = gameContext.getGameLoop().getFrameDataSystem().getRightFrameInfoDto();
             botExecutorService.submit(() -> {
                 try {
-                    gameContext
-                            .getGameLoop()
-                            .getBotAgent()
-                            .onTick(
-                                    gameContext.getGameLoop()
-                                            .getFrameDataSystem()
-                                            .getRightFrameInfoDto()
-                            );
+                    botAgent.onTick(rightFrameInfoDto);
                 } catch (Exception e) {
                     log.debug("Bot agent execution error: {}", e.getMessage());
                 } finally {
