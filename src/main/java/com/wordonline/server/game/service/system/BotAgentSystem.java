@@ -29,7 +29,7 @@ public class BotAgentSystem implements GameSystem {
                                         .getRightFrameInfoDto()
                         );
             } catch (Exception e) {
-                log.trace("Bot agent execution error: {}", e.getMessage());
+                log.debug("Bot agent execution error: {}", e.getMessage());
             }
         });
     }

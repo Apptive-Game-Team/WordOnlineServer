@@ -2,12 +2,15 @@ package com.wordonline.server.game.config;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Configuration
 public class BotExecutorConfig {
 
@@ -27,7 +30,15 @@ public class BotExecutorConfig {
     @PreDestroy
     public void cleanup() {
         if (botExecutorService != null) {
-            botExecutorService.shutdown();
+            botExecutorService.shutdownNow();
+            try {
+                if (!botExecutorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                    log.warn("Bot executor service did not terminate within timeout");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Bot executor service shutdown interrupted");
+            }
         }
     }
 }
