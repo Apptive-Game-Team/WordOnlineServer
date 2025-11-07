@@ -1,11 +1,6 @@
 package com.wordonline.server.game.domain.object.prefab;
 
-import com.wordonline.server.game.domain.Parameters;
-import com.wordonline.server.game.domain.object.GameObject;
 import lombok.Getter;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 @Getter
 public enum PrefabType {
@@ -63,6 +58,9 @@ public enum PrefabType {
     HealingTotem("healing_totem_prefab"),
     SandStorm("sand_storm_prefab"),
     ChainLightning("chain_lightning_prefab"),
+    TornadoStrike("tornado_strike_prefab"),
+    MeteorShower("meteor_shower_prefab"),
+    TideCall("tide_call_prefab"),
 
     // drop
     FireDrop("fire_drop_prefab"),
