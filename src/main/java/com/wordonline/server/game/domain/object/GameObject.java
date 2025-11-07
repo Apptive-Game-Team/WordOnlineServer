@@ -30,8 +30,16 @@ public class GameObject {
     private final PrefabType type;
     private Status status;
 
+    public boolean isActive() {
+        return !isDestroyed() && isInitialized();
+    }
+
     public boolean isDestroyed() {
         return status == Status.Destroyed;
+    }
+
+    public boolean isInitialized() {
+        return status != Status.Initializing;
     }
 
     private Effect effect;
@@ -53,12 +61,12 @@ public class GameObject {
     }
 
     public GameObject(Master master, PrefabType prefabType, Vector3 position, GameContext gameContext) {
+        this.status = Status.Initializing;
         this.id = idCounter.getAndIncrement();
         this.master = master;
         this.type = prefabType;
         this.position = position;
         this.gameContext = gameContext;
-        this.status = Status.Idle;
         gameContext.createGameObject(this);
     }
 
@@ -135,6 +143,7 @@ public class GameObject {
         PrefabProvider.get(type).initialize(this);
         for (Component component : components)
             component.start();
+        setStatus(Status.Idle);
     }
 
     public void update() {

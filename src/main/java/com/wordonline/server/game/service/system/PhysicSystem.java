@@ -25,13 +25,15 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class PhysicSystem implements CollisionSystem, GameSystem {
 
+    private static final float SAME_PLACE_THRESHOLD = 1e-6f;
+
     private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();
 
     @Override
     public void update(GameContext gameContext) {
-        handleCollisions(gameContext.getGameObjects());
-        checkAndHandleCollisions(gameContext.getGameObjects());
-        onUpdateEnd(gameContext.getGameObjects());
+        handleCollisions(gameContext.getActiveGameObjects());
+        checkAndHandleCollisions(gameContext.getActiveGameObjects());
+        onUpdateEnd(gameContext.getActiveGameObjects());
     }
 
     private void handleCollisions(List<GameObject> gameObjects) {
@@ -74,9 +76,11 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
 
-                                        Vector2 displacement = colliderA.getDisplacement(colliderB);
-                                        if (displacement == null) return;
-                                        Vector2 normal = displacement.normalize();
+                                        Vector2 normal = getNormalizedDisplacement(colliderA, colliderB);
+
+                                        if (normal == null) {
+                                            return;
+                                        }
 
                                         Vector2 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
                                         float separatingVelocity = relativeVelocity.dot(normal);
@@ -86,8 +90,12 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
 
                                         // 반사량 계산
                                         float restitution = 1.0f; // 탄성 계수
+                                        float totalInvMass = invMassA + invMassB;
+                                        if (totalInvMass == 0) return;
+
                                         float impulseMag = - (1 + restitution) * separatingVelocity /
-                                              (invMassA + invMassB);
+                                              totalInvMass;
+                                        impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
 
                                         Vector2 impulse = normal.multiply(impulseMag);
                                         if (invMassA > 0) {
@@ -102,6 +110,20 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                     );
                 }
         );
+    }
+
+    private Vector2 getNormalizedDisplacement(Collider a, Collider b) {
+        Vector2 displacement = a.getDisplacement(b);
+
+        if (displacement == null) {
+            return null;
+        }
+
+        if (displacement.getY() <= SAME_PLACE_THRESHOLD && displacement.getX() <= SAME_PLACE_THRESHOLD) {
+            return Vector2.randomUnitVector();
+        }
+
+        return displacement.normalize();
     }
 
     @Override
