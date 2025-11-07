@@ -28,7 +28,7 @@ public class RigidBody extends Component {
     public void addVelocity(Vector3 velocity) {
         log.trace("added velocity: {}", velocity);
 
-        if (velocity.hadNaN()) {
+        if (velocity.hasNaN()) {
             return;
         }
 

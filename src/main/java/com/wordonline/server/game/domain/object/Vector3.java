@@ -17,6 +17,10 @@ public class Vector3 {
     public static final Vector3 UP = new Vector3(0, 0, 1);
     public static final Vector3 DOWN = new Vector3(0, 0, -1);
 
+    public boolean hasNaN() {
+        return Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z);
+    }
+
     public void clear() {
         x = 0; y = 0; z = 0;
     }
@@ -51,6 +55,10 @@ public class Vector3 {
         return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
     }
 
+    public float dot(Vector2 other) {
+        return dot(other.toVector3());
+    }
+
     public float dot(Vector3 other) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
@@ -74,5 +82,10 @@ public class Vector3 {
 
     public Vector2 toVector2() {
         return new Vector2(this);
+    }
+
+    public static Vector3 randomUnitVector() {
+        double angle = Math.random() * Math.PI * 2.0;
+        return new Vector3((float)Math.cos(angle), (float)Math.sin(angle), 0);
     }
 }

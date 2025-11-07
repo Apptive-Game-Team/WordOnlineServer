@@ -77,7 +77,7 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
 
-                                        Vector2 normal = getNormalizedDisplacement(colliderA, colliderB);
+                                        Vector3 normal = getNormalizedDisplacement(colliderA, colliderB);
 
                                         if (normal == null) {
                                             return;
@@ -113,15 +113,15 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         );
     }
 
-    private Vector2 getNormalizedDisplacement(Collider a, Collider b) {
-        Vector2 displacement = a.getDisplacement(b);
+    private Vector3 getNormalizedDisplacement(Collider a, Collider b) {
+        Vector3 displacement = a.getDisplacement(b);
 
         if (displacement == null) {
             return null;
         }
 
         if (displacement.getY() <= SAME_PLACE_THRESHOLD && displacement.getX() <= SAME_PLACE_THRESHOLD) {
-            return Vector2.randomUnitVector();
+            return Vector3.randomUnitVector();
         }
 
         return displacement.normalize();
