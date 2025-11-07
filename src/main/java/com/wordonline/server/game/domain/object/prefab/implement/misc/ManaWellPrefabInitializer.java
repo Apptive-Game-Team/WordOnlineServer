@@ -32,7 +32,7 @@ public class ManaWellPrefabInitializer extends PrefabInitializer {
         ));
         gameObject.addComponent(new SelfAttacker(
                 gameObject,
-                new AttackInfo((int)  parameters.getValue("mana_well", "damage"), ElementType.NONE),
+                new AttackInfo((int) parameters.getValue("mana_well", "damage"), ElementType.NONE),
                 (float) parameters.getValue("mana_well", "attack_interval")
                 ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING, ElementType.NATURE));
