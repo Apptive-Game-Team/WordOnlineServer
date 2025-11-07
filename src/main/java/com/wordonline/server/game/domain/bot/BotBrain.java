@@ -100,7 +100,7 @@ public class BotBrain {
     private static Vector3 randomPosInRange(Vector3 center, double range) {
         double u = ThreadLocalRandom.current().nextDouble();
         double r = Math.sqrt(u) * range;
-        double theta = ThreadLocalRandom.current().nextDouble(0, Math.PI);
+        double theta = ThreadLocalRandom.current().nextDouble(Math.PI / 2, Math.PI * 3 / 2);
 
         double dx = r * Math.cos(theta);
         double dy = r * Math.sin(theta);
