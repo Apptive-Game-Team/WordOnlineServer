@@ -59,6 +59,10 @@ public enum PrefabType {
     StormRider("storm_rider_prefab"),
     FireSpirit("fire_spirit_prefab"),
     ThunderSpirit("thunder_spirit_prefab"),
+    MagmaSpirit("magma_spirit_prefab"),
+    HealingTotem("healing_totem_prefab"),
+    SandStorm("sand_storm_prefab"),
+    ChainLightning("chain_lightning_prefab"),
 
     // drop
     FireDrop("fire_drop_prefab"),

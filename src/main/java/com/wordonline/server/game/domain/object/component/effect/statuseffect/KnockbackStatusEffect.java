@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
@@ -15,13 +16,13 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     private static final float KNOCKBACK_POWER    = 2f;
     private static final float KNOCKBACK_POWER_Z  = 10f;
     private static final float PROX_MIN           = 0.2f;
-    private final Vector2 knockbackDir;
+    private final Vector3 knockbackDir;
     private final float proximity;
 
     // 누적 이동 거리
     private float moved = 0f;
 
-    public KnockbackStatusEffect(GameObject owner, Vector2 dir, float prox, StatusEffectKey key) {
+    public KnockbackStatusEffect(GameObject owner, Vector3 dir, float prox, StatusEffectKey key) {
         super(owner, KNOCKBACK_DURATION, key);
         gameObject.setEffect(Effect.Knockback);
         this.knockbackDir = dir;

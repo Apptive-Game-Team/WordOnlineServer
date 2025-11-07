@@ -175,7 +175,7 @@ public class BehaviorMob extends StateMachineMob {
 
             Vector2 velocity = direction.multiply(speed.total());
 
-            rigidBody.addVelocity(velocity);
+            rigidBody.addVelocity(velocity.toVector3());
         }
     }
 

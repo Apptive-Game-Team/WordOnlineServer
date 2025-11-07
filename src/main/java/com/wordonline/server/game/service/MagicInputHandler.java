@@ -53,7 +53,7 @@ public class MagicInputHandler {
         }
 
         // use the magic
-        magic.run(gameContext, master, inputRequestDto.getPosition().toVector3());
+        magic.run(gameContext, master, inputRequestDto.getPosition());
 
         // Add the magic to the deck data
         gameContext.getGameSessionData().getCardDeck(master).cards.addAll(inputRequestDto.getCards());

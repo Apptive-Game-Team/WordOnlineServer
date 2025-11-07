@@ -37,7 +37,7 @@ public final class BotAgent {
             inputRequestDto.setType("useMagic");
             inputRequestDto.setId(NEXT_ID.getAndIncrement());
             inputRequestDto.setCards(decision.playCards());
-            inputRequestDto.setPosition(decision.target().toVector2());
+            inputRequestDto.setPosition(decision.target());
             botAction.useCard(sessionObject, inputRequestDto);
         }
     }

@@ -27,7 +27,7 @@ public abstract class AbstractShotMagic extends Magic {
                 prefabType,
                 GameConfig.PLAYER_POSITION.get(master),
                 gameContext);
-        gameObject.getComponent(Shot.class).setTarget(position.toVector2());
+        gameObject.getComponent(Shot.class).setTarget(position);
     }
 
     protected Master getMaster(Master master) {

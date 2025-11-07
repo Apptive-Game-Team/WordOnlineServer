@@ -2,6 +2,7 @@ package com.wordonline.server.game.service.system;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Master;
@@ -82,7 +83,7 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                             return;
                                         }
 
-                                        Vector2 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
+                                        Vector3 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
                                         float separatingVelocity = relativeVelocity.dot(normal);
 
                                         // 이미 멀어지는 중이면 무시
@@ -97,7 +98,7 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                               totalInvMass;
                                         impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
 
-                                        Vector2 impulse = normal.multiply(impulseMag);
+                                        Vector3 impulse = normal.multiply(impulseMag);
                                         if (invMassA > 0) {
                                           rigidBodyA.addVelocity(impulse.multiply(invMassA));
                                         }

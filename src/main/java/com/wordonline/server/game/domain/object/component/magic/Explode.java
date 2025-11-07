@@ -9,41 +9,49 @@ import java.util.List;
 
 public class Explode extends MagicComponent {
     public static final float EXPLODE_DELAY = 0.5f;
-    public static final int EXPLODE_RADIUS = 3;
-
-    private boolean isRunning = false;
+    public static final float EXPLODE_RADIUS = 3f;
 
     private final int damage;
-    private float counter = 0;
+    private final float radius;
+    private final float delay;
+
+    private boolean isRunning = false;
+    private float counter = 0f;
+
+    public Explode(GameObject gameObject, int damage) {
+        this(gameObject, damage, EXPLODE_RADIUS, EXPLODE_DELAY);
+    }
+
+    public Explode(GameObject gameObject, int damage, float radius, float delay) {
+        super(gameObject);
+        this.damage = damage;
+        this.radius = radius;
+        this.delay = delay;
+        this.isRunning = true;
+    }
 
     @Override
     public void update() {
-        if (!isRunning) {
+        if (!isRunning) return;
+
+        if (counter < delay) {
+            counter += getGameContext().getDeltaTime();
             return;
         }
 
-        if (counter < EXPLODE_DELAY) {
-            counter += gameObject.getGameContext().getDeltaTime();
-        } else {
-            List<GameObject> gameObjects = gameObject.getGameContext().overlapCircleAll(gameObject, EXPLODE_RADIUS);
-            for (GameObject otherObject : gameObjects) {
-                List<Damageable> attackables = otherObject.getComponents(Damageable.class);
+        List<GameObject> gameObjects = getGameContext().overlapSphereAll(gameObject, radius);
 
-                if (attackables.isEmpty()) {
-                    continue;
-                }
-                otherObject.setStatus(Status.Damaged);
-                attackables.forEach(attackable -> attackable.onDamaged(new AttackInfo(damage, gameObject.getElement().total())));
-            }
+        for (GameObject otherObject : gameObjects) {
+            if (otherObject == gameObject) continue;
 
-            gameObject.setStatus(Status.Attack);
-            gameObject.destroy();
+            List<Damageable> attackables = otherObject.getComponents(Damageable.class);
+            if (attackables.isEmpty()) continue;
+
+            otherObject.setStatus(Status.Damaged);
+            AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
+            attackables.forEach(a -> a.onDamaged(info));
         }
-    }
-
-    public Explode(GameObject gameObject, int damage) {
-        super(gameObject);
-        this.damage = damage;
-        isRunning = true;
+        isRunning = false;
+        gameObject.destroy();
     }
 }
