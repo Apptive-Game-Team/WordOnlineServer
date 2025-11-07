@@ -27,21 +27,28 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
 
     private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();
 
-    public void handleCollisions(List<GameObject> gameObjects) {
+    @Override
+    public void update(GameContext gameContext) {
+        handleCollisions(gameContext.getGameObjects());
+        checkAndHandleCollisions(gameContext.getGameObjects());
+        onUpdateEnd(gameContext.getGameObjects());
+    }
+
+    private void handleCollisions(List<GameObject> gameObjects) {
         calculateCollisions(gameObjects);
         applyCollisionsResponses();
     }
 
-    public void calculateCollisions(List<GameObject> gameObjects) {
+    private void calculateCollisions(List<GameObject> gameObjects) {
         for (int i = 0; i < gameObjects.size(); i++) {
             GameObject a = gameObjects.get(i);
             List<Collidable> collidableAList = a.getComponents(Collidable.class);
-            if (collidableAList.isEmpty()) continue;
+            if (collidableAList.isEmpty() || a.isDestroyed()) continue;
 
             for (int j = i + 1; j < gameObjects.size(); j++) {
                 GameObject b = gameObjects.get(j);
                 List<Collidable> collidableBList = b.getComponents(Collidable.class);
-                if (collidableBList.isEmpty()) continue;
+                if (collidableBList.isEmpty() || a.isDestroyed()) continue;
 
                 if (CollisionChecker.isColliding(a, b)) {
                     collidedPairs.add(new Pair<>(a, b));
@@ -50,7 +57,7 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         }
     }
 
-    public void applyCollisionsResponses() {
+    private void applyCollisionsResponses() {
         collidedPairs.forEach(
                 gameObjectPair -> {
                     GameObject a = gameObjectPair.a();
@@ -97,8 +104,28 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         );
     }
 
+    @Override
+    public void checkAndHandleCollisions(List<GameObject> gameObjects) {
+        collidedPairs.forEach(
+                gameObjectPair -> {
+
+                    if (gameObjectPair.a().getMaster() == gameObjectPair.b().getMaster() &&
+                            gameObjectPair.b().getMaster() != Master.None) {
+                        return;
+                    }
+
+                    if (gameObjectPair.a().isDestroyed() || gameObjectPair.b().isDestroyed()) {
+                        return;
+                    }
+
+                    gameObjectPair.a().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.b()));
+                    gameObjectPair.b().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.a()));
+                }
+        );
+    }
+
     // apply rigidbody velocity and clear velocity
-    public void onUpdateEnd(List<GameObject> gameObjects) {
+    private void onUpdateEnd(List<GameObject> gameObjects) {
         gameObjects.forEach(
                 gameObject -> {
                     handleApplyingRigidBody(gameObject);
@@ -123,32 +150,5 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         }
         if(zPhysics.canHover()) zPhysics.applyHover();
         else zPhysics.applyZForce();
-    }
-
-    @Override
-    public void checkAndHandleCollisions(List<GameObject> gameObjects) {
-        collidedPairs.forEach(
-                gameObjectPair -> {
-
-                    if (gameObjectPair.a().getMaster() == gameObjectPair.b().getMaster() &&
-                            gameObjectPair.b().getMaster() != Master.None) {
-                        return;
-                    }
-
-                    if (gameObjectPair.a().isDestroyed() || gameObjectPair.b().isDestroyed()) {
-                        return;
-                    }
-
-                    gameObjectPair.a().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.b()));
-                    gameObjectPair.b().getComponents(Collidable.class).forEach(collidable -> collidable.onCollision(gameObjectPair.a()));
-                }
-        );
-    }
-
-    @Override
-    public void update(GameContext gameContext) {
-        handleCollisions(gameContext.getGameObjects());
-        checkAndHandleCollisions(gameContext.getGameObjects());
-        onUpdateEnd(gameContext.getGameObjects());
     }
 }
