@@ -4,16 +4,15 @@ import com.wordonline.server.game.domain.object.GameObject;
 
 public class ManaWellMob extends Mob {
 
+    private static final float DELTA_VALUE = 0.8f;
+    private static final int SELF_DAMAGE_PER_SEC = 1;
+
     public ManaWellMob(GameObject gameObject, int maxHp) {
         super(gameObject, maxHp, 0);
     }
 
     @Override
     public void onDeath() {
-        getGameContext().getGameSessionData()
-                .getPlayerData(gameObject.getMaster())
-                .manaCharger
-                .updateManaCharge(-1);
         gameObject.destroy();
     }
 
@@ -22,7 +21,7 @@ public class ManaWellMob extends Mob {
         getGameContext().getGameSessionData()
                 .getPlayerData(gameObject.getMaster())
                 .manaCharger
-                .updateManaCharge(1);
+                .updateManaCharge(DELTA_VALUE);
     }
 
     @Override
@@ -32,6 +31,9 @@ public class ManaWellMob extends Mob {
 
     @Override
     public void onDestroy() {
-
+        getGameContext().getGameSessionData()
+                .getPlayerData(gameObject.getMaster())
+                .manaCharger
+                .updateManaCharge(-DELTA_VALUE);
     }
 }
