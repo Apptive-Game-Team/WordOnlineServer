@@ -101,20 +101,28 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
     public void onUpdateEnd(List<GameObject> gameObjects) {
         gameObjects.forEach(
                 gameObject -> {
-                     RigidBody rigidBody = gameObject.getComponent(RigidBody.class);
-                     if (rigidBody == null) {
-                         return;
-                     }
-                    ZPhysics zPhysics = gameObject.getComponent(ZPhysics.class);
-                     if (zPhysics == null) {
-                         return;
-                     }
-                     rigidBody.applyVelocity();
-                     if(zPhysics.canHover()) zPhysics.applyHover();
-                     else zPhysics.applyZForce();
+                    handleApplyingRigidBody(gameObject);
+                    handleApplyingZPhysics(gameObject);
                 }
         );
         collidedPairs.clear();
+    }
+
+    private void handleApplyingRigidBody(GameObject gameObject) {
+        RigidBody rigidBody = gameObject.getComponent(RigidBody.class);
+        if (rigidBody == null) {
+            return;
+        }
+        rigidBody.applyVelocity();
+    }
+
+    private void handleApplyingZPhysics(GameObject gameObject) {
+        ZPhysics zPhysics = gameObject.getComponent(ZPhysics.class);
+        if (zPhysics == null) {
+            return;
+        }
+        if(zPhysics.canHover()) zPhysics.applyHover();
+        else zPhysics.applyZForce();
     }
 
     @Override
