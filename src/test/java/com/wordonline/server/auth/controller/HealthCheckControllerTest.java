@@ -2,6 +2,7 @@ package com.wordonline.server.auth.controller;
 
 import com.wordonline.server.auth.config.JwtProvider;
 import com.wordonline.server.auth.config.WebSecurityConfig;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ class HealthCheckControllerTest {
 
     @MockBean
     private JwtDecoder jwtDecoder;
+
+    @MockBean
+    private LocalizationService localizationService;
 
     @Test
     @DisplayName("헬스체크 테스트")

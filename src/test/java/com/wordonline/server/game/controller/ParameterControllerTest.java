@@ -4,6 +4,7 @@ import com.wordonline.server.auth.config.JwtProvider;
 import com.wordonline.server.auth.config.WebSecurityConfig;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.service.ParameterService;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ class ParameterControllerTest {
 
     @MockBean
     private JwtDecoder jwtDecoder;
+
+    @MockBean
+    private LocalizationService localizationService;
 
     @Test
     @DisplayName("파라미터 캐시 무효화 테스트")

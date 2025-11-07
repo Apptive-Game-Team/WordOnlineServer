@@ -1,6 +1,7 @@
 package com.wordonline.server.websocket;
 
 import com.wordonline.server.auth.config.JwtProvider;
+import com.wordonline.server.service.LocalizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -15,6 +16,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtProvider jwtProvider;
+    private final LocalizationService localizationService;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -24,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new JwtChannelInterceptor(jwtProvider));
+        registration.interceptors(new JwtChannelInterceptor(jwtProvider, localizationService));
     }
 
     @Override

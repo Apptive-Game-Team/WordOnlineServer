@@ -10,6 +10,7 @@ import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.matching.client.AccountClient;
 import com.wordonline.server.matching.dto.AccountMemberResponseDto;
+import com.wordonline.server.service.LocalizationService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -24,12 +25,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final DeckService deckService;
     private final AccountClient accountClient;
+    private final LocalizationService localizationService;
 
     public User initialUser(long memberId) {
         Long userId = userRepository.saveUser(memberId);
 
         User actualUser = userRepository.findUserById(userId)
-                .orElseThrow(() -> new AuthorizationDeniedException("Can't Register"));
+                .orElseThrow(() -> new AuthorizationDeniedException(localizationService.getMessage("error.register.failed")));
 
         long defaultDeckId = deckService.initializeCard(actualUser.getId());
         actualUser.setSelectedDeckId(defaultDeckId);
@@ -59,7 +61,7 @@ public class UserService {
 
     private User findUserDomain(long userId) {
         return userRepository.findUserById(userId)
-                .orElseThrow(() -> new AuthorizationDeniedException("User not found"));
+                .orElseThrow(() -> new AuthorizationDeniedException(localizationService.getMessage("error.user.not.found", new Object[]{userId})));
     }
 
     public void markMatching(long userId) {
@@ -82,7 +84,7 @@ public class UserService {
 
     public UserStatus getStatus(long userId) {
         return userRepository.findUserById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId))
+                .orElseThrow(() -> new IllegalArgumentException(localizationService.getMessage("error.user.not.found", new Object[]{userId})))
                 .getStatus();
     }
 }

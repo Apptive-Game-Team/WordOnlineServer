@@ -8,6 +8,7 @@ import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.matching.client.AccountClient;
 import com.wordonline.server.matching.dto.AccountMemberResponseDto;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +41,9 @@ class UserServiceTest {
 
     @Mock
     private AccountClient accountClient;
+
+    @Mock
+    private LocalizationService localizationService;
 
     @Test
     @DisplayName("사용자 조회 테스트 - 사용자가 존재할 경우")
@@ -67,6 +72,8 @@ class UserServiceTest {
                 .willReturn(Optional.of(user));
         given(userRepository.saveUser(userId)).willReturn(userId);
         given(deckService.initializeCard(userId)).willReturn(1L);
+        lenient().when(localizationService.getMessage(any(String.class))).thenReturn("Can't Register");
+        lenient().when(localizationService.getMessage(any(String.class), any())).thenReturn("User not found");
 
         // when
         UserResponseDto userResponseDto = userService.getUser(userId);
@@ -173,6 +180,7 @@ class UserServiceTest {
         // given
         long userId = 1L;
         given(userRepository.findUserById(userId)).willReturn(Optional.empty());
+        given(localizationService.getMessage(any(String.class), any())).willReturn("User not found: " + userId);
 
         // when & then
         assertThatThrownBy(() -> userService.getStatus(userId))

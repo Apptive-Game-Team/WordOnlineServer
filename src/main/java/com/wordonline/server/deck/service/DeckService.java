@@ -4,6 +4,7 @@ import com.wordonline.server.deck.domain.DeckInfo;
 import com.wordonline.server.deck.dto.*;
 import com.wordonline.server.deck.repository.DeckRepository;
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.service.LocalizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,14 @@ import java.util.stream.Stream;
 public class DeckService {
 
     private final DeckRepository deckRepository;
+    private final LocalizationService localizationService;
 
     public long initializeCard(long userId) {
         for (int i = 1; i <= 10; i++) {
             deckRepository.saveCardToUser(userId, i, 3);
         }
 
-        long deckId = deckRepository.saveDeck(userId, "기본 덱");
+        long deckId = deckRepository.saveDeck(userId, localizationService.getMessage("string.default.deck"));
 
         for (int i = 1; i <= 10; i++) {
             deckRepository.saveCardToDeck(deckId, i, 1);
@@ -112,10 +114,10 @@ public class DeckService {
     public DeckResponseDto updateDeck(long userId, long deckId, DeckRequestDto deckRequestDto) {
 
         DeckInfo deckInfo = deckRepository.getDeckInfo(deckId).orElseThrow(
-                () -> new IllegalArgumentException("deck not found")
+                () -> new IllegalArgumentException(localizationService.getMessage("error.deck.not.found"))
         );
         if (deckInfo.userId() != userId) {
-            throw new IllegalArgumentException("Not authorized");
+            throw new IllegalArgumentException(localizationService.getMessage("error.not.authorized"));
         }
 
         deckRepository.deleteCardInDeck(deckId);
@@ -137,10 +139,10 @@ public class DeckService {
 
     public void selectDeck(long userId, long deckId) {
         DeckInfo deckInfo = deckRepository.getDeckInfo(deckId)
-                .orElseThrow(() -> new IllegalArgumentException("not found deck"));
+                .orElseThrow(() -> new IllegalArgumentException(localizationService.getMessage("error.deck.not.found")));
 
         if (deckInfo.userId() != userId)
-            throw new IllegalArgumentException("illegal deck");
+            throw new IllegalArgumentException(localizationService.getMessage("error.deck.illegal"));
 
         deckRepository.setSelectDeck(userId, deckId);
     }

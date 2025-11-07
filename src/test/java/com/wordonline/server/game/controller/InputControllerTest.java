@@ -8,6 +8,7 @@ import com.wordonline.server.game.dto.InputResponseDto;
 import com.wordonline.server.game.dto.PingChecker;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.MagicInputHandler;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class InputControllerTest {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Mock
+    private LocalizationService localizationService;
+
+    @Mock
     private SessionObject sessionObject;
 
     @Mock
@@ -64,6 +68,7 @@ class InputControllerTest {
         String sessionId = "test-session";
         long otherUserId = 2L;
         InputRequestDto inputRequestDto = new InputRequestDto();
+        given(localizationService.getMessage("error.authorization.denied")).willReturn("Authorization Denied");
 
         // when & then
         assertThatThrownBy(() -> inputController.handleInput(sessionId, otherUserId, inputRequestDto, principalDetails))
