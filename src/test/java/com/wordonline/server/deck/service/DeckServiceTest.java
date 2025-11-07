@@ -8,6 +8,7 @@ import com.wordonline.server.deck.dto.DeckRequestDto;
 import com.wordonline.server.deck.dto.DeckResponseDto;
 import com.wordonline.server.deck.repository.DeckRepository;
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,9 @@ class DeckServiceTest {
 
     @Mock
     private DeckRepository deckRepository;
+
+    @Mock
+    private LocalizationService localizationService;
 
 @Disabled
     @Test
@@ -190,6 +194,7 @@ class DeckServiceTest {
         DeckRequestDto requestDto = new DeckRequestDto("updated-deck", Collections.emptyList());
         DeckInfo deckInfo = new DeckInfo(deckId, otherUserId, "old-deck");
         given(deckRepository.getDeckInfo(deckId)).willReturn(Optional.of(deckInfo));
+        given(localizationService.getMessage("error.not.authorized")).willReturn("Not authorized");
 
         // when & then
         assertThatThrownBy(() -> deckService.updateDeck(userId, deckId, requestDto))
@@ -220,6 +225,7 @@ class DeckServiceTest {
         long userId = 1L;
         long deckId = 1L;
         given(deckRepository.getDeckInfo(deckId)).willReturn(Optional.empty());
+        given(localizationService.getMessage("error.deck.not.found")).willReturn("not found deck");
 
         // when & then
         assertThatThrownBy(() -> deckService.selectDeck(userId, deckId))
@@ -236,6 +242,7 @@ class DeckServiceTest {
         long deckId = 1L;
         DeckInfo deckInfo = new DeckInfo(deckId, otherUserId, "test-deck");
         given(deckRepository.getDeckInfo(deckId)).willReturn(Optional.of(deckInfo));
+        given(localizationService.getMessage("error.deck.illegal")).willReturn("illegal deck");
 
         // when & then
         assertThatThrownBy(() -> deckService.selectDeck(userId, deckId))

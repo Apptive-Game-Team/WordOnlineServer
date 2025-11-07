@@ -26,23 +26,32 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class PhysicSystem implements CollisionSystem, GameSystem {
 
+    private static final float SAME_PLACE_THRESHOLD = 1e-6f;
+
     private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();
 
-    public void handleCollisions(List<GameObject> gameObjects) {
+    @Override
+    public void update(GameContext gameContext) {
+        handleCollisions(gameContext.getActiveGameObjects());
+        checkAndHandleCollisions(gameContext.getActiveGameObjects());
+        onUpdateEnd(gameContext.getActiveGameObjects());
+    }
+
+    private void handleCollisions(List<GameObject> gameObjects) {
         calculateCollisions(gameObjects);
         applyCollisionsResponses();
     }
 
-    public void calculateCollisions(List<GameObject> gameObjects) {
+    private void calculateCollisions(List<GameObject> gameObjects) {
         for (int i = 0; i < gameObjects.size(); i++) {
             GameObject a = gameObjects.get(i);
             List<Collidable> collidableAList = a.getComponents(Collidable.class);
-            if (collidableAList.isEmpty()) continue;
+            if (collidableAList.isEmpty() || a.isDestroyed()) continue;
 
             for (int j = i + 1; j < gameObjects.size(); j++) {
                 GameObject b = gameObjects.get(j);
                 List<Collidable> collidableBList = b.getComponents(Collidable.class);
-                if (collidableBList.isEmpty()) continue;
+                if (collidableBList.isEmpty() || a.isDestroyed()) continue;
 
                 if (CollisionChecker.isColliding(a, b)) {
                     collidedPairs.add(new Pair<>(a, b));
@@ -51,7 +60,7 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         }
     }
 
-    public void applyCollisionsResponses() {
+    private void applyCollisionsResponses() {
         collidedPairs.forEach(
                 gameObjectPair -> {
                     GameObject a = gameObjectPair.a();
@@ -68,9 +77,11 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
 
-                                        Vector3 displacement = colliderA.getDisplacement(colliderB);
-                                        if (displacement == null) return;
-                                        Vector3 normal = displacement.normalize();
+                                        Vector2 normal = getNormalizedDisplacement(colliderA, colliderB);
+
+                                        if (normal == null) {
+                                            return;
+                                        }
 
                                         Vector3 relativeVelocity = colliderA.getVelocity().subtract(colliderB.getVelocity());
                                         float separatingVelocity = relativeVelocity.dot(normal);
@@ -80,8 +91,12 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
 
                                         // 반사량 계산
                                         float restitution = 1.0f; // 탄성 계수
+                                        float totalInvMass = invMassA + invMassB;
+                                        if (totalInvMass == 0) return;
+
                                         float impulseMag = - (1 + restitution) * separatingVelocity /
-                                              (invMassA + invMassB);
+                                              totalInvMass;
+                                        impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
 
                                         Vector3 impulse = normal.multiply(impulseMag);
                                         if (invMassA > 0) {
@@ -98,24 +113,18 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         );
     }
 
-    // apply rigidbody velocity and clear velocity
-    public void onUpdateEnd(List<GameObject> gameObjects) {
-        gameObjects.forEach(
-                gameObject -> {
-                     RigidBody rigidBody = gameObject.getComponent(RigidBody.class);
-                     if (rigidBody == null) {
-                         return;
-                     }
-                    ZPhysics zPhysics = gameObject.getComponent(ZPhysics.class);
-                     if (zPhysics == null) {
-                         return;
-                     }
-                     rigidBody.applyVelocity();
-                     if(zPhysics.canHover()) zPhysics.applyHover();
-                     else zPhysics.applyZForce();
-                }
-        );
-        collidedPairs.clear();
+    private Vector2 getNormalizedDisplacement(Collider a, Collider b) {
+        Vector2 displacement = a.getDisplacement(b);
+
+        if (displacement == null) {
+            return null;
+        }
+
+        if (displacement.getY() <= SAME_PLACE_THRESHOLD && displacement.getX() <= SAME_PLACE_THRESHOLD) {
+            return Vector2.randomUnitVector();
+        }
+
+        return displacement.normalize();
     }
 
     @Override
@@ -138,10 +147,31 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         );
     }
 
-    @Override
-    public void update(GameContext gameContext) {
-        handleCollisions(gameContext.getGameObjects());
-        checkAndHandleCollisions(gameContext.getGameObjects());
-        onUpdateEnd(gameContext.getGameObjects());
+    // apply rigidbody velocity and clear velocity
+    private void onUpdateEnd(List<GameObject> gameObjects) {
+        gameObjects.forEach(
+                gameObject -> {
+                    handleApplyingRigidBody(gameObject);
+                    handleApplyingZPhysics(gameObject);
+                }
+        );
+        collidedPairs.clear();
+    }
+
+    private void handleApplyingRigidBody(GameObject gameObject) {
+        RigidBody rigidBody = gameObject.getComponent(RigidBody.class);
+        if (rigidBody == null) {
+            return;
+        }
+        rigidBody.applyVelocity();
+    }
+
+    private void handleApplyingZPhysics(GameObject gameObject) {
+        ZPhysics zPhysics = gameObject.getComponent(ZPhysics.class);
+        if (zPhysics == null) {
+            return;
+        }
+        if(zPhysics.canHover()) zPhysics.applyHover();
+        else zPhysics.applyZForce();
     }
 }

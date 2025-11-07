@@ -55,7 +55,7 @@ public abstract class Mob extends Component implements Damageable {
     public void applyDamage(AttackInfo attackInfo) {
         log.trace("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
         this.hp -= attackInfo.getDamage() * ElementalChart.computePairwiseProductMultiplier(attackInfo.getElement(),gameObject.getElement().total());
-        if (this.hp <= 0) {
+        if (this.hp <= 0 && !gameObject.isDestroyed()) {
             onDeath();
         }
         else if (this.hp > maxHp) {

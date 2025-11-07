@@ -27,6 +27,11 @@ public class RigidBody extends Component {
 
     public void addVelocity(Vector3 velocity) {
         log.trace("added velocity: {}", velocity);
+
+        if (velocity.hadNaN()) {
+            return;
+        }
+
         this.velocity.add(velocity);
     }
 
@@ -62,5 +67,4 @@ public class RigidBody extends Component {
         super(gameObject);
         this.mass = mass;
     }
-
 }

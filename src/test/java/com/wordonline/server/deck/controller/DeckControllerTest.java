@@ -10,6 +10,7 @@ import com.wordonline.server.deck.dto.DeckRequestDto;
 import com.wordonline.server.deck.dto.DeckResponseDto;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,9 @@ class DeckControllerTest {
 
     @MockBean
     private JwtDecoder jwtDecoder;
+
+    @MockBean
+    private LocalizationService localizationService;
 
     private Authentication authentication;
     private Long userId = 1L;

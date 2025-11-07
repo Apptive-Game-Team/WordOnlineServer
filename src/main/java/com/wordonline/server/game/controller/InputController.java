@@ -5,6 +5,7 @@ import com.wordonline.server.game.component.SessionManager;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.InputResponseDto;
+import com.wordonline.server.service.LocalizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -32,10 +33,13 @@ public class InputController {
     @Autowired
     private SimpMessagingTemplate template;
 
+    @Autowired
+    private LocalizationService localizationService;
+
     @MessageMapping("{sessionId}/{userId}")
     public void handleInput(@DestinationVariable String sessionId, @DestinationVariable long userId, @Payload InputRequestDto inputRequestDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (userId != principalDetails.getUid()) {
-            throw new AuthorizationDeniedException("Authorization Denied");
+            throw new AuthorizationDeniedException(localizationService.getMessage("error.authorization.denied"));
         }
 
         SessionObject sessionObject = sessionManager.getSessionObject(sessionId);

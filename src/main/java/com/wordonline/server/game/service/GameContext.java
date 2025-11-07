@@ -53,6 +53,13 @@ public class GameContext {
         resultChecker.setLoser(master);
     }
 
+    public List<GameObject> getActiveGameObjects() {
+        return gameSessionData.gameObjects
+                .stream()
+                .filter(GameObject::isActive)
+                .toList();
+    }
+
     public List<GameObject> getGameObjects() {
         return gameSessionData.gameObjects;
     }

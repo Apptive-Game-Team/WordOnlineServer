@@ -22,6 +22,10 @@ public class Vector2 {
         y += vector2.getY();
     }
 
+    public boolean hadNaN() {
+        return Double.isNaN(x) || Double.isNaN(y);
+    }
+
     public Vector2 plus(float x, float y) {
         return new Vector2(this.x + x, this.y + y);
     }
@@ -64,5 +68,10 @@ public class Vector2 {
 
     public Vector3 toVector3() {
         return new Vector3(x, y, 0);
+    }
+
+    public static Vector2 randomUnitVector() {
+        double angle = Math.random() * Math.PI * 2.0;
+        return new Vector2((float)Math.cos(angle), (float)Math.sin(angle));
     }
 }

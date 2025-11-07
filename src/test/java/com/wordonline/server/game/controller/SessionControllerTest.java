@@ -11,6 +11,7 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.service.LocalizationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,9 @@ class SessionControllerTest {
 
     @MockBean
     private SimpMessagingTemplate simpMessagingTemplate;
+
+    @MockBean
+    private LocalizationService localizationService;
 
     private Authentication authentication;
     private Long userId = 1L;
