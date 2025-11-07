@@ -65,7 +65,7 @@ public class Shot extends MagicComponent implements Collidable {
 
             go.setStatus(Status.Damaged);
             AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
-            attackables.forEach(a -> a.onDamaged(info));
+            attackable.forEach(a -> a.onDamaged(info));
         }
         gameObject.destroy();
     }

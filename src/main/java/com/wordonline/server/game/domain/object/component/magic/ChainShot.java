@@ -8,33 +8,32 @@ import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.dto.Status;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-public class ChainShot extends MagicComponent implements Collidable {
-    public final int speed;
-
-    private final float chainDistacne;
-    @Getter
-    private Vector3 direction;
+public class ChainShot extends Shot implements Collidable {
     private final int damage;
+    private final float speed;
+    private final float chainRadius;
 
-    private List<GameObject> victimList;
+    private Vector3 direction;
+    private final List<GameObject> hitList = new ArrayList<>();
 
-
-    public ChainShot(GameObject gameObject, int damage, int speed, float chainDistance) {
-        super(gameObject);
+    public ChainShot(GameObject gameObject, int damage, float speed, float chainRadius) {
+        super(gameObject, damage);
         this.damage = damage;
         this.speed = speed;
-        this.chainDistacne = chainDistance;
+        this.chainRadius = chainRadius;
     }
 
     public void setTarget(Vector3 targetPosition) {
-        direction = (targetPosition.subtract(gameObject.getPosition()));
+        this.direction = targetPosition.subtract(gameObject.getPosition());
     }
 
     @Override
     public void update() {
-        if (direction == null) return;
+        if (direction == null || direction.equals(Vector3.ZERO)) return;
         gameObject.setPosition(
                 gameObject.getPosition()
                         .plus(direction.multiply(speed * getGameContext().getDeltaTime()))
@@ -42,28 +41,36 @@ public class ChainShot extends MagicComponent implements Collidable {
     }
 
     @Override
-    public void onCollision(GameObject otherObject) {
+    public void onCollision(GameObject other) {
+        if (other.getMaster() == gameObject.getMaster()) return;
 
-        List<Damageable> attackables = otherObject.getComponents(Damageable.class);
+        List<Damageable> parts = other.getComponents(Damageable.class);
+        if (parts.isEmpty()) return;
+        if (hitList.contains(other)) return;
 
-        if (attackables.isEmpty()) return;
-        if (victimList.contains(otherObject)) return;
-
-        otherObject.setStatus(Status.Damaged);
+        other.setStatus(Status.Damaged);
         AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
-        attackables.forEach(a -> a.onDamaged(info));
+        parts.forEach(p -> p.onDamaged(info));
+        hitList.add(other);
 
-        victimList.add(otherObject);
-        direction = Vector3.ZERO;
-
-        List<GameObject> gameObjects = getGameContext().overlapSphereAll(gameObject, chainDistacne);
-
-        for (GameObject go : gameObjects) {
-            if (go == gameObject || go.getMaster() == gameObject.getMaster()) continue;
-            if (victimList.contains(go)) continue;
-
-            setTarget(go.getPosition());
-            break;
+        GameObject next = findNextTarget();
+        if (next == null) {
+            gameObject.destroy();
+            return;
         }
+
+        gameObject.setPosition(other.getPosition());
+        setTarget(next.getPosition());
+    }
+
+    private GameObject findNextTarget() {
+        List<GameObject> around = getGameContext().overlapSphereAll(gameObject, chainRadius);
+        return around.stream()
+                .filter(go -> go != gameObject)
+                .filter(go -> go.getMaster() != gameObject.getMaster())
+                .filter(go -> !hitList.contains(go))
+                .filter(go -> !go.getComponents(Damageable.class).isEmpty())
+                .findFirst()
+                .orElse(null);
     }
 }
