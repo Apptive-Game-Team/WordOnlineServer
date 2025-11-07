@@ -9,5 +9,6 @@ public enum StatusEffectKey {
     Knockback_Receive,
     DOTHeal_NatureWithWaterField,
     DOTHeal_NatureField,
-    DOTDeal_Burn
+    DOTDeal_Burn,
+    DOT_SandStorm,
 }

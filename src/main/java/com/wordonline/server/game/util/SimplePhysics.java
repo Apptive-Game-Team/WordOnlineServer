@@ -24,7 +24,7 @@ public class SimplePhysics implements Physics {
             if (other == origin) continue;
 
             Vector3 d = other.getPosition().subtract(center);
-            float dist2 = (float)(Math.pow(d.getX(),2) + Math.pow(d.getY(),2) + Math.pow(d.getZ(),2)); // 제곱거리
+            float dist2 = (float)(Math.pow(d.getX(),2) + Math.pow(d.getY(),2) + Math.pow(d.getZ(),2));
             if (dist2 <= r2) {
                 result.add(other);
             }

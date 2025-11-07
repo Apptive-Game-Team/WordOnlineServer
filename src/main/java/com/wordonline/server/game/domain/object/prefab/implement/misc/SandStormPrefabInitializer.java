@@ -12,6 +12,8 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumSet;
+
 @Component("sand_storm_prefab")
 public class SandStormPrefabInitializer extends PrefabInitializer {
 
@@ -25,9 +27,8 @@ public class SandStormPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("sand_storm", "radius"), true));
-        gameObject.setElement(ElementType.ROCK);
-        gameObject.setElement(ElementType.WIND);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
+        gameObject.setElement(EnumSet.of(ElementType.ROCK,ElementType.WIND));
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Sandstorm));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("sand_storm", "duration")));
     }
 }

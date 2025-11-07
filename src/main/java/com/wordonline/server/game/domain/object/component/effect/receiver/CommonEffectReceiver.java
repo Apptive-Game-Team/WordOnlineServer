@@ -88,6 +88,15 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
                         () -> new DOTStatusEffect(gameObject, 3f, -1, ElementType.NONE, StatusEffectKey.DOTHeal_NatureField),
                         EffectApplyPolicy.REFRESH_DURATION,
                         3f);
+            case Sandstorm -> applyEffect(
+                        StatusEffectKey.DOT_SandStorm,
+                        () -> {
+                            new DOTStatusEffect(gameObject, 0.5f, 1, ElementType.NONE, StatusEffectKey.DOT_SandStorm);
+                            new SlowStatusEffect(gameObject, 0.5f, 0.3f, StatusEffectKey.Snared_Receive);
+                            return null;
+                        },
+                        EffectApplyPolicy.REFRESH_DURATION,
+                        0.5f);
 
         }
     }

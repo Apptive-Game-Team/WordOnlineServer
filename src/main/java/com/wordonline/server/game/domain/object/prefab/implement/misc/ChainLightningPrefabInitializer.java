@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
+import com.wordonline.server.game.domain.object.component.magic.ChainShot;
 import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
@@ -26,6 +27,10 @@ public class ChainLightningPrefabInitializer extends PrefabInitializer {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("chain_lightning", "radius"), true));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("chain_lightning", "damage")));
+        gameObject.getComponents().add(new ChainShot(gameObject,
+                (int) parameters.getValue("chain_lightning", "damage"),
+                (int) parameters.getValue("chain_lightning", "speed"),
+                (float) parameters.getValue("chain_lightning", "attack_range")
+        ));
     }
 }
