@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
+import com.wordonline.server.game.domain.object.component.magic.Tornado;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -25,9 +26,16 @@ public class TornadoStrikePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("sand_storm", "radius"), true));
-        gameObject.setElement(EnumSet.of(ElementType.ROCK,ElementType.WIND));
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Sandstorm));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("sand_storm", "duration")));
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("tornado_strike", "radius"), true));
+        gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WIND));
+        gameObject.getComponents().add(new Tornado(gameObject,
+                (float) parameters.getValue("tornado_strike", "speed"),
+                (int) parameters.getValue("tornado_strike", "damage"),
+                (float) parameters.getValue("tornado_strike", "radius"),
+                (float) parameters.getValue("tornado_strike", "duration"),
+                (float) parameters.getValue("tornado_strike", "attack_interval")
+                ));
+//        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("tornado_strike", "duration")));
     }
 }
