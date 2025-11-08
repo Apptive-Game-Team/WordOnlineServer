@@ -7,8 +7,6 @@ import com.wordonline.server.deck.dto.DeckCardDto;
 import com.wordonline.server.game.domain.magic.CardType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -150,6 +148,14 @@ public class DeckRepository {
             SELECT selected_deck_id
             FROM users
             WHERE id = :userId;
+            """;
+
+    private static final String GIVE_ALL_CARDS_TO_USER = """
+            INSERT INTO user_cards(user_id, card_id, count)
+            SELECT :userId, id, :count
+            FROM cards c
+            ON CONFLICT (card_id, user_id)
+            DO UPDATE SET count = user_cards.count + EXCLUDED.count;
             """;
 
     private final JdbcClient jdbcClient;
@@ -300,5 +306,12 @@ public class DeckRepository {
                                 CardType.Type.valueOf(rs.getString("card_type"))
                         ))
                 .list();
+    }
+
+    public void giveAllCards(long userId, int count) {
+        jdbcClient.sql(GIVE_ALL_CARDS_TO_USER)
+                .param("userId", userId)
+                .param("count", count)
+                .update();
     }
 }
