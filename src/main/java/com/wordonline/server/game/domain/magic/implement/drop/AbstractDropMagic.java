@@ -24,13 +24,14 @@ public abstract class AbstractDropMagic extends Magic {
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
-        position.setZ(DROP_MAGIC_INITIAL_Z_POSITION);
-        GameObject gameObject = new GameObject(
+        Vector3 vector3 = new Vector3(position.getX(), position.getY(), position.getZ());
+        vector3.setZ(DROP_MAGIC_INITIAL_Z_POSITION);
+
+        new GameObject(
                 master,
                 prefabType,
-                position,
+                vector3,
                 gameContext);
-        gameObject.getComponent(Drop.class);
     }
 }
 
