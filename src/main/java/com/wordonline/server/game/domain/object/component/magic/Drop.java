@@ -22,6 +22,8 @@ public class Drop extends Mob implements Collidable {
 
     @Override
     public void update() {
+        super.update();
+
         gameObject.setPosition(gameObject.getPosition().plus(0, 0, direction * SPEED * gameObject.getGameContext().getDeltaTime()));
         if (gameObject.getPosition().getZ() < 0) {
             gameObject.destroy();
