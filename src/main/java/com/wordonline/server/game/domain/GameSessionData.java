@@ -3,21 +3,26 @@ package com.wordonline.server.game.domain;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.CardDeck;
-import com.wordonline.server.game.service.ManaCharger;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 // this class is used to store the game session data
+@Component
+@Scope("prototype")
+@RequiredArgsConstructor
 public class GameSessionData {
     public final PlayerData leftPlayerData;
     public final PlayerData rightPlayerData;
     public final List<GameObject> gameObjects = new ArrayList<>();
     public final List<GameObject> gameObjectsToAdd = new ArrayList<>();
 
-    public final CardDeck leftCardDeck;
-    public final CardDeck rightCardDeck;
+    public CardDeck leftCardDeck;
+    public CardDeck rightCardDeck;
 
     public void addGameObject(GameObject gameObject) {
         gameObjectsToAdd.add(gameObject);
@@ -43,11 +48,8 @@ public class GameSessionData {
         }
     }
 
-    public GameSessionData(CardDeck leftCardDeck, CardDeck rightCardDeck, Parameters parameters) {
+    public void initCardDeck(CardDeck leftCardDeck, CardDeck rightCardDeck) {
         this.leftCardDeck = leftCardDeck;
         this.rightCardDeck = rightCardDeck;
-
-        leftPlayerData = new PlayerData(parameters);
-        rightPlayerData = new PlayerData(parameters);
     }
 }
