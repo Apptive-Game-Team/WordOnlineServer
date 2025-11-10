@@ -7,17 +7,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 // This class is used to store player data
 @Slf4j
+@Component
+@Scope("prototype")
 @RequiredArgsConstructor
 public class PlayerData {
     public final static int MAX_CARD_NUM = 6;
     public final static int MAX_HP = 100;
 
-    public final ManaCharger manaCharger = new ManaCharger();
+    public final ManaCharger manaCharger;
 
     private final Parameters parameters;
 
