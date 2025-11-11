@@ -20,6 +20,8 @@ public class ProjectileRangeAttackMob extends BehaviorMob {
                         gameObject.setStatus(Status.Attack);
                     });
 
+            gameObject.setStatus(Status.Attack);
+
             return true;
         });
     }
