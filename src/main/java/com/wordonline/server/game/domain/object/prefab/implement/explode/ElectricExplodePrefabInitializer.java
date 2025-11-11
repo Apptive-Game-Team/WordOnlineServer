@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.object.prefab.implement.lightning;
+package com.wordonline.server.game.domain.object.prefab.implement.explode;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
@@ -12,20 +12,9 @@ import com.wordonline.server.game.dto.Effect;
 import org.springframework.stereotype.Component;
 
 @Component("electric_explode_prefab")
-public class ElectricExplodePrefabInitializer extends PrefabInitializer {
-
-    private final Parameters parameters;
+public class ElectricExplodePrefabInitializer extends AbstractExplodePrefabInitializer {
 
     public ElectricExplodePrefabInitializer(Parameters parameters) {
-        super(PrefabType.ElectricExplode);
-        this.parameters = parameters;
-    }
-
-    @Override
-    public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
-        gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
+        super(ElementType.LIGHTNING, parameters);
     }
 }

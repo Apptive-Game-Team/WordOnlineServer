@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.object.prefab.implement.nature;
+package com.wordonline.server.game.domain.object.prefab.implement.explode;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
@@ -12,20 +12,9 @@ import com.wordonline.server.game.dto.Effect;
 import org.springframework.stereotype.Component;
 
 @Component("leaf_explode_prefab")
-public class LeafExplodePrefabInitializer extends PrefabInitializer {
-
-    private final Parameters parameters;
+public class LeafExplodePrefabInitializer extends AbstractExplodePrefabInitializer {
 
     public LeafExplodePrefabInitializer(Parameters parameters) {
-        super(PrefabType.LeafExplode);
-        this.parameters = parameters;
-    }
-
-    @Override
-    public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
-        gameObject.setElement(ElementType.NATURE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
-        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("explode", "damage")));
+        super(ElementType.NATURE, parameters);
     }
 }
