@@ -37,7 +37,7 @@ public class MagicInputHandler {
             // 카드 파사삭
             log.trace("{}: {} is not valid : could not parse", master, inputRequestDto.getCards());
             playerData.useCards(inputRequestDto.getCards());
-            gameContext.getGameSessionData().getCardDeck(master).cards.addAll(inputRequestDto.getCards());
+            gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
             return new InputResponseDto("마법 시전에 실패했습니다.", true, playerData.mana, inputRequestDto.getId(), -1);
         } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
             log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
@@ -56,7 +56,7 @@ public class MagicInputHandler {
         magic.run(gameContext, master, inputRequestDto.getPosition());
 
         // Add the magic to the deck data
-        gameContext.getGameSessionData().getCardDeck(master).cards.addAll(inputRequestDto.getCards());
+        gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
 
         return new InputResponseDto(true, playerData.mana, inputRequestDto.getId(), magic.id);
     }
