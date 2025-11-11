@@ -22,6 +22,10 @@ public class Explode extends MagicComponent {
         this(gameObject, damage, EXPLODE_RADIUS, EXPLODE_DELAY);
     }
 
+    public Explode(GameObject gameObject, int damage, float radius) {
+        this(gameObject, damage, radius, EXPLODE_DELAY);
+    }
+
     public Explode(GameObject gameObject, int damage, float radius, float delay) {
         super(gameObject);
         this.damage = damage;
