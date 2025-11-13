@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscription;
@@ -29,7 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MatchingManager implements Flow.Subscriber<Long> {
 
     private final ReentrantLock lock = new ReentrantLock();
-    private final Queue<Long> matchingQueue = new LinkedList<>();
+    private final Queue<Long> matchingQueue = new ConcurrentLinkedQueue<>();
     private static int sessionIdCounter = 0;
 
     private Subscription subscription;
@@ -177,9 +178,10 @@ public class MatchingManager implements Flow.Subscriber<Long> {
     }
     public boolean matchPractice(long id) {
 
+        matchingQueue.remove(id);
+
         UserDetailResponseDto user = userService.getUserDetail(id);
         UserDetailResponseDto botDetail = new UserDetailResponseDto(-1, "bot", null);
-
 
         try {
             userService.markPlaying(id);

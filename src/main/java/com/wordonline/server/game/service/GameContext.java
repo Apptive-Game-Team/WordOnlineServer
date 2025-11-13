@@ -28,7 +28,7 @@ import lombok.Setter;
 public class GameContext {
 
     private SessionObject sessionObject;
-    private GameSessionData gameSessionData;
+    private final GameSessionData gameSessionData;
     private ResultChecker resultChecker;
     private int frameNum = 0;
     private final Parameters parameters;
@@ -41,7 +41,7 @@ public class GameContext {
 
     public void init(SessionObject sessionObject, WordOnlineLoop gameLoop) {
         this.sessionObject = sessionObject;
-        this.gameSessionData = new GameSessionData(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck(), parameters);;
+        this.gameSessionData.initCardDeck(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         this.resultChecker = new ResultChecker(sessionObject);
         this.objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
         physics = new SimplePhysics(gameSessionData.gameObjects);

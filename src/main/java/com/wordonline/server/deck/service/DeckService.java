@@ -26,9 +26,7 @@ public class DeckService {
     private final LocalizationService localizationService;
 
     public long initializeCard(long userId) {
-        for (int i = 1; i <= 10; i++) {
-            deckRepository.saveCardToUser(userId, i, 3);
-        }
+        giveAllCard(userId);
 
         long deckId = deckRepository.saveDeck(userId, localizationService.getMessage("string.default.deck"));
 
@@ -38,6 +36,10 @@ public class DeckService {
         deckRepository.setSelectDeck(userId, deckId);
 
         return deckId;
+    }
+
+    private void giveAllCard(long userId) {
+        deckRepository.giveAllCards(userId, 3);
     }
 
     @Transactional(readOnly = true)

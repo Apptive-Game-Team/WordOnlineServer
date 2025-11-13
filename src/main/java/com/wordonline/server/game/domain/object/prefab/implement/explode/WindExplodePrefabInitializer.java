@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.object.prefab.implement.wind;
+package com.wordonline.server.game.domain.object.prefab.implement.explode;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
@@ -26,6 +26,9 @@ public class WindExplodePrefabInitializer extends PrefabInitializer {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
-        gameObject.getComponents().add(new Explode(gameObject, (int) parameters.getValue("wind_shoot", "damage")));
+        gameObject.getComponents().add(new Explode(
+                gameObject,
+                (int) parameters.getValue("wind_shoot", "damage"),
+                (float) parameters.getValue("explode", "radius")));
     }
 }

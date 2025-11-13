@@ -11,18 +11,25 @@ import com.wordonline.server.game.dto.Status;
 
 public class Cannon extends Mob {
 
-    private final float DETECT_INTERVAL = 5;
-    private final float ATTACK_RANGE = 5;
+    private final static float DETECT_INTERVAL = 5;
+    private final static float ATTACK_RANGE = 5;
+    private final static float DEFAULT_ATTACK_DURATION = 0.5f;
 
     private float timer = 0;
     private final AttackInfo attackInfo;
     private final int targetMask;
     private Detector detector;
+    private final float attackDuration;
 
     public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask) {
+        this(gameObject, maxHp, damage, targetMask, DEFAULT_ATTACK_DURATION);
+    }
+
+    public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask, float attackDuration) {
         super(gameObject, maxHp, 0);
         attackInfo = new AttackInfo(damage, ElementType.ROCK);
         this.targetMask = targetMask;
+        this.attackDuration = attackDuration;
     }
 
     @Override
@@ -55,9 +62,9 @@ public class Cannon extends Mob {
 
             timer = 0;
             getGameContext().getObjectsInfoDtoBuilder()
-                            .createProjection(gameObject, target, "RockShot", 0.5f);
+                            .createProjection(gameObject, target, "RockShot", attackDuration);
             target.getComponent(Mob.class)
-                            .onDamaged(attackInfo, 0.5f);
+                            .onDamaged(attackInfo, attackDuration);
             gameObject.setStatus(Status.Attack);
         }
     }

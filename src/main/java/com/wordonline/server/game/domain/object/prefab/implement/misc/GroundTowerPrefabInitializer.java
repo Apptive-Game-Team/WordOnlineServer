@@ -26,7 +26,14 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_tower", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_tower", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_tower", "hp"), (int) parameters.getValue("ground_tower", "damage"), TargetMask.AIR.bit));
+        gameObject.getComponents().add(
+                new Cannon(
+                        gameObject,
+                        (int) parameters.getValue("ground_tower", "hp"),
+                        (int) parameters.getValue("ground_tower", "damage"),
+                        TargetMask.AIR.bit,
+                        0.2f
+                ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
