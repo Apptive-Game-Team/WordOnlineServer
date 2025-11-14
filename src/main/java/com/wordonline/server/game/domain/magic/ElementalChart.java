@@ -12,7 +12,7 @@ public abstract class ElementalChart {
             /* NATURE   */ { 1f,    2f,    1f,  0.5f,    1f,       1f,   1f    },
             /* WATER   */ { 1f,  0.5f,    2f,    1f,    2f,     0.5f,   1f    },
             /* LIGHTNING*/ { 1f,    1f,    1f,    1f,    1f,       1f,   1f    },
-            /* ROCK    */ { 1f,  0.5f,    1.5f, 1.5f,  0.5f,       2f,   0.5f    },
+            /* ROCK    */ { 1f,  0.5f,    1.5f, 1.5f,  0.5f,       1.5f,   0.5f    },
             /* WIND    */ { 1f,    1f,    1f,    1f,    2f,       2f,   1f    },
 
     };
