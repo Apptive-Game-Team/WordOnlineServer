@@ -62,6 +62,9 @@ public class DatabaseMagicParser implements MagicParser {
         }
 
         List<CardType> key = List.copyOf(cards.stream().sorted().toList());
+        magicHashMap.forEach((k, value) ->
+                log.info("key: {}, magicName: {}, id: {}", k, value.getClass().getSimpleName(), value.id)
+        );
         Magic magic = magicHashMap.get(key);
 
         if (magic == null) {

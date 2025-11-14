@@ -34,7 +34,7 @@ public class Tornado extends MagicComponent implements Collidable {
     // 각 피해자의 현재 각도와 궤도 반경을 저장 (회전력 유지용)
     private final Map<GameObject, Float> angles = new HashMap<>();
     private final Map<GameObject, Float> orbits = new HashMap<>();
-    private List<GameObject> victimList;
+    private List<GameObject> victimList = new ArrayList<>();
 
     public Tornado(GameObject gameObject, float speed, int damage, float radius, float duration, float attackInterval) {
         super(gameObject);
