@@ -43,6 +43,7 @@ public class MatchingController {
         matchingManager.tryMatchUsers();
     }
 
+    @ResponseBody
     @GetMapping("/api/match/queue/me")
     public ResponseEntity<Void> isMeInQueue(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         if (matchingManager.isInQueue(principalDetails.memberId)) {
@@ -52,6 +53,7 @@ public class MatchingController {
         return ResponseEntity.notFound().build();
     }
 
+    @ResponseBody
     @DeleteMapping("/api/match/queue/me")
     public void removeFromQueue(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         matchingManager.removeFromQueue(principalDetails.memberId);
