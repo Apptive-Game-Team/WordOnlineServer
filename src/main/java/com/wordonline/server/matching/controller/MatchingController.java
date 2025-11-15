@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -40,6 +41,22 @@ public class MatchingController {
                 new SimpleMessageDto(message)
         );
         matchingManager.tryMatchUsers();
+    }
+
+    @ResponseBody
+    @GetMapping("/api/match/queue/me")
+    public ResponseEntity<Void> isMeInQueue(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        if (matchingManager.isInQueue(principalDetails.memberId)) {
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @ResponseBody
+    @DeleteMapping("/api/match/queue/me")
+    public void removeFromQueue(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        matchingManager.removeFromQueue(principalDetails.memberId);
     }
 
     @ResponseBody
