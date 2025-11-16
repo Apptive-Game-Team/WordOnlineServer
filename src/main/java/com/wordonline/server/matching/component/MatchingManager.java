@@ -77,32 +77,36 @@ public class MatchingManager implements Flow.Subscriber<Long> {
         // 3) 큐에 집어넣기
         matchingQueue.add(userId);
 
-        botFallbackScheduler.schedule(() -> {
-            lock.lock();
-            try {
-                // 아직 큐가 비어있지 않고, userId가 헤드일 때만 봇 전환
-                if (!matchingQueue.isEmpty()
-                        && Objects.equals(matchingQueue.peek(), userId)) {
-
-                    // 세션 한도도 간단 체크 (가득 차면 아무 것도 안 함)
-                    if (sessionManager.getActiveSessions() < parameters.getValue("game", "count")) {
-                        matchingQueue.poll(); // 큐에서 제거
-                    } else {
-                        return; // 한도 초과면 그냥 대기 계속
-                    }
-                } else {
-                    return; // 헤드가 아니면 스킵 (이미 처리됐거나 위치 바뀐 케이스)
-                }
-            } finally {
-                lock.unlock();
-            }
-
-            // 락 밖에서 실제 작업 (메시징/DB 부하 분리)
-            matchPractice(userId);
-
-        }, 15, TimeUnit.SECONDS);
+//        botFallbackScheduler.schedule(() -> {
+//            lock.lock();
+//            try {
+//                // 아직 큐가 비어있지 않고, userId가 헤드일 때만 봇 전환
+//                if (!matchingQueue.isEmpty()
+//                        && Objects.equals(matchingQueue.peek(), userId)) {
+//
+//                    // 세션 한도도 간단 체크 (가득 차면 아무 것도 안 함)
+//                    if (sessionManager.getActiveSessions() < parameters.getValue("game", "count")) {
+//                        matchingQueue.poll(); // 큐에서 제거
+//                    } else {
+//                        return; // 한도 초과면 그냥 대기 계속
+//                    }
+//                } else {
+//                    return; // 헤드가 아니면 스킵 (이미 처리됐거나 위치 바뀐 케이스)
+//                }
+//            } finally {
+//                lock.unlock();
+//            }
+//
+//            // 락 밖에서 실제 작업 (메시징/DB 부하 분리)
+//            matchPractice(userId);
+//
+//        }, 15, TimeUnit.SECONDS);
 
         return true;
+    }
+
+    public void removeFromQueue(long id) {
+        matchingQueue.remove(id);
     }
 
     public boolean tryMatchUsers() {
@@ -176,9 +180,10 @@ public class MatchingManager implements Flow.Subscriber<Long> {
             return false;
         }
     }
+
     public boolean matchPractice(long id) {
 
-        matchingQueue.remove(id);
+        removeFromQueue(id);
 
         UserDetailResponseDto user = userService.getUserDetail(id);
         UserDetailResponseDto botDetail = new UserDetailResponseDto(-1, "bot", null);
