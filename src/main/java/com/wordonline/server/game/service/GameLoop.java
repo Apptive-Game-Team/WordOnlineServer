@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class GameLoop implements Runnable {
     @Getter
     private boolean _running = true;
-    public static final int FPS = 10;
+    public static final int FPS = 20;
     public SessionObject sessionObject;
     private Runnable onTerminated;
 

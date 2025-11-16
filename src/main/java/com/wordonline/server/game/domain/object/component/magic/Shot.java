@@ -14,19 +14,21 @@ import lombok.Getter;
 import java.util.List;
 
 public class Shot extends MagicComponent implements Collidable {
+    protected float speed;
     public static final int SPEED = 2;
 
     private static final float IMPACT_EXPLOSION_RADIUS = 1f;
 
     @Getter
     private Vector3 direction;
-    private final int damage;
+    protected final int damage;
 
     private boolean explosionTriggered = false;
 
     public Shot(GameObject gameObject, int damage) {
         super(gameObject);
         this.damage = damage;
+        speed = SPEED;
     }
 
     public void setTarget(Vector3 targetPosition) {
@@ -38,7 +40,7 @@ public class Shot extends MagicComponent implements Collidable {
         if (direction == null) return;
         gameObject.setPosition(
                 gameObject.getPosition()
-                        .plus(direction.multiply(SPEED * getGameContext().getDeltaTime()))
+                        .plus(direction.multiply(speed * getGameContext().getDeltaTime()))
         );
     }
 
