@@ -2,12 +2,11 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 
 import java.util.function.Predicate;
 
-import javax.swing.text.Position;
-
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 
 import lombok.RequiredArgsConstructor;
@@ -15,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 public class ThunderBirdMob extends BehaviorMob {
 
     private final int ATTACKABLE_HEIGHT = 3;
+    private final float ATTACK_THRESHOLD = 0.5f;
     private final int ATTACK_DURATION = 1;
     private final int damage;
+    private float selfRadius;
 
     public ThunderBirdMob(GameObject gameObject, int maxHp,
             float speed, int targetMask, int damage, float attackInterval, float attackRange) {
@@ -39,10 +40,18 @@ public class ThunderBirdMob extends BehaviorMob {
         return true;
     };
 
+    @Override
+    public void start() {
+        super.start();
+        selfRadius = ((CircleCollider) gameObject.getColliders().getFirst()).getRadius();
+    }
+
     @RequiredArgsConstructor
     public class AttackingState extends State {
 
         private final Mob target;
+        private float targetRadius;
+
         private Vector3 startPos;
 
         @Override
@@ -50,6 +59,7 @@ public class ThunderBirdMob extends BehaviorMob {
             gameObject.getComponentOptional(ZPhysics.class)
                     .ifPresent(zPhysics -> zPhysics.lockHover(this));
             startPos = new Vector3(gameObject.getPosition());
+            targetRadius = ((CircleCollider) target.gameObject.getColliders().getFirst()).getRadius();
         }
 
         @Override
@@ -60,13 +70,17 @@ public class ThunderBirdMob extends BehaviorMob {
 
         @Override
         public void onUpdate() {
-            if (target.gameObject.getPosition().distance(gameObject.getPosition()) > 1) {
+            if (target.gameObject.isDestroyed()) {
+                setState(new FloatingState());
+            }
+
+            if (target.gameObject.getPosition().distance(gameObject.getPosition()) - targetRadius - selfRadius > ATTACK_THRESHOLD) {
 
                 float startZ = startPos.getZ();
                 float lastZ = gameObject.getPosition().getZ();
                 float targetZ = target.gameObject.getPosition().getZ();
 
-                float t = (lastZ - targetZ) / (startZ - targetZ);
+                float t = (lastZ - startZ) / (targetZ - startZ);
 
                 Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
                 nextPos.setZ(lastZ);
@@ -80,7 +94,7 @@ public class ThunderBirdMob extends BehaviorMob {
     }
 
     private int calculateDamage(Vector3 startPos) {
-        return (int) (damage * (startPos.getZ() - gameObject.getPosition().getZ()) / 2);
+        return (int) (damage * (startPos.getZ() - gameObject.getPosition().getZ()) / (ATTACKABLE_HEIGHT - ATTACK_THRESHOLD));
     }
 
     public class FloatingState extends State {
