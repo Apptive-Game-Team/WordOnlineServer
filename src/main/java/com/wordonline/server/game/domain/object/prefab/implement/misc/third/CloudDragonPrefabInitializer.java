@@ -8,6 +8,7 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.AreaEffectProvider;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
@@ -47,7 +48,7 @@ public class CloudDragonPrefabInitializer extends PrefabInitializer {
         gameObject.setElement(EnumSet.of(ElementType.WATER, ElementType.WIND));
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
 
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("cloud_dragon", "attack_range"), true));
-        gameObject.addComponent(new EffectProvider(gameObject, Effect.Wet));
+//        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("cloud_dragon", "attack_range"), true));
+        gameObject.addComponent(new AreaEffectProvider(gameObject, 1, (float) parameters.getValue("cloud_dragon", "attack_range"), Effect.Wet));
     }
 }
