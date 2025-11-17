@@ -2,9 +2,11 @@ package com.wordonline.server.game.domain.object;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 // This class is used to represent the position of an object in the game
 public class Vector3 {
     private float x, y, z;
