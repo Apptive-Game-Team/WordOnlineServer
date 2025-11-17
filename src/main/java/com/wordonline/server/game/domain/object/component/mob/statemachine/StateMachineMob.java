@@ -11,26 +11,26 @@ import java.util.List;
 public abstract class StateMachineMob extends Mob {
 
     protected State currentState;
-    private final List<State> states = getStates();
-
-    private List<State> getStates() {
-        return Arrays.stream(this.getClass().getDeclaredClasses())
-                .filter(stateClass ->
-                        State.class.isAssignableFrom(stateClass) &&
-                                !Modifier.isAbstract(stateClass.getModifiers())
-                )
-                .map(stateClass -> {
-                    try {
-                        State state = (State) stateClass.getDeclaredConstructor(this.getClass()).newInstance(this);
-                        return state;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .filter(state -> state != null)
-                .toList();
-    }
+//    private final List<State> states = getStates();
+//
+//    private List<State> getStates() {
+//        return Arrays.stream(this.getClass().getDeclaredClasses())
+//                .filter(stateClass ->
+//                        State.class.isAssignableFrom(stateClass) &&
+//                                !Modifier.isAbstract(stateClass.getModifiers())
+//                )
+//                .map(stateClass -> {
+//                    try {
+//                        State state = (State) stateClass.getDeclaredConstructor(this.getClass()).newInstance(this);
+//                        return state;
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        return null;
+//                    }
+//                })
+//                .filter(state -> state != null)
+//                .toList();
+//    }
 
     public void setState(State newState) {
         if (currentState != null) {
