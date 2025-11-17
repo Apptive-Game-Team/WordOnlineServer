@@ -28,6 +28,7 @@ public class BehaviorMob extends StateMachineMob {
     RigidBody rigidBody;
     @Getter Stat attackInterval;
     float attackRange;
+    @Setter
     Predicate<GameObject> behavior = null;
 
     @Override
@@ -60,7 +61,6 @@ public class BehaviorMob extends StateMachineMob {
         setState(new IdleState());
     }
 
-
     public class StunState extends State {
         private final float duration;
         float timer;
@@ -86,8 +86,6 @@ public class BehaviorMob extends StateMachineMob {
 
         }
     }
-
-
 
     public class IdleState extends State {
         float timer;
