@@ -1,7 +1,8 @@
-package com.wordonline.server.game.domain.object.component;
+package com.wordonline.server.game.domain.object.component.mob.component;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 
 public class SelfAttacker extends Component {
