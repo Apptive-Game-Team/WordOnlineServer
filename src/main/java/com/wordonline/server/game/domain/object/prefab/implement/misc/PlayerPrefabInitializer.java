@@ -3,7 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.PlayerHealthComponent;
+import com.wordonline.server.game.domain.object.component.mob.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
