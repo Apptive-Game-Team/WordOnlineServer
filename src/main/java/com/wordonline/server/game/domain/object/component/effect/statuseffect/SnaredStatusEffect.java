@@ -29,7 +29,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
 
         ZPhysics zp = gameObject.getComponent(ZPhysics.class);
         if (zp != null) {
-            zp.LockHover(this);
+            zp.lockHover(this);
         }
 
         BehaviorMob behavior = gameObject.getComponent(BehaviorMob.class);
@@ -57,7 +57,7 @@ public class SnaredStatusEffect extends BaseStatusEffect {
         }
         ZPhysics zp = gameObject.getComponent(ZPhysics.class);
         if (zp != null) {
-            zp.UnlockHover(this);
+            zp.unlockHover(this);
         }
         BehaviorMob behavior = gameObject.getComponent(BehaviorMob.class);
         if(behavior != null) {
