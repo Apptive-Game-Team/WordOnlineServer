@@ -4,16 +4,14 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
-import lombok.Getter;
+
 import lombok.Setter;
 
 import java.util.IdentityHashMap;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import static java.util.Collections.newSetFromMap;
 
@@ -24,6 +22,7 @@ public class ZPhysics extends Component {
     private float groundZ = 0f;
     @Setter
     private float gravity = GameConfig.GRAVITY_ACCEL;
+    private float floatingVelocity = GameConfig.DEFAULT_FLOATING_VELOCITY;
 
     private float hoverZ;
     private boolean isHover;
@@ -51,14 +50,24 @@ public class ZPhysics extends Component {
         return isHover && hoverLocks.isEmpty();
     }
 
-    public void LockHover(Object obj){ hoverLocks.add(obj); }
-    public void UnlockHover(Object obj){ hoverLocks.remove(obj); }
+    public void lockHover(Object obj){ hoverLocks.add(obj); }
+    public void unlockHover(Object obj){ hoverLocks.remove(obj); }
 
     public void applyHover()
     {
         Vector3 p = gameObject.getPosition();
         float curZ = p.getZ();
-        if(curZ != hoverZ) gameObject.setPosition(new Vector3(p.getX(), p.getY(), hoverZ));
+        if(curZ != hoverZ) {
+
+            float deltaZ = floatingVelocity * getGameContext().getDeltaTime();
+
+            if (Math.abs(curZ - hoverZ) < deltaZ) {
+                gameObject.setPosition(new Vector3(p.getX(), p.getY(), hoverZ));
+            } else {
+                float direction = Math.signum(hoverZ - curZ);
+                gameObject.setPosition(new Vector3(p.getX(), p.getY(), curZ + deltaZ * direction));
+            }
+        }
     }
 
     public void applyZForce() {

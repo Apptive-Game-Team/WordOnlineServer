@@ -2,9 +2,11 @@ package com.wordonline.server.game.domain.object;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 // This class is used to represent the position of an object in the game
 public class Vector3 {
     private float x, y, z;
@@ -16,6 +18,10 @@ public class Vector3 {
     public static final Vector3 BACK = new Vector3(0, -1, 0);
     public static final Vector3 UP = new Vector3(0, 0, 1);
     public static final Vector3 DOWN = new Vector3(0, 0, -1);
+
+    public Vector3(Vector3 vector) {
+        this(vector.x, vector.y, vector.z);
+    }
 
     public boolean hasNaN() {
         return Double.isNaN(x) || Double.isNaN(y) || Double.isNaN(z);
@@ -87,5 +93,15 @@ public class Vector3 {
     public static Vector3 randomUnitVector() {
         double angle = Math.random() * Math.PI * 2.0;
         return new Vector3((float)Math.cos(angle), (float)Math.sin(angle), 0);
+    }
+
+    public static Vector3 lerp(Vector3 start, Vector3 end, float t) {
+        t = Math.clamp(t, 0, 1);
+
+        float x = start.x + (end.x - start.x) * t;
+        float y = start.y + (end.y - start.y) * t;
+        float z = start.z + (end.z - start.z) * t;
+
+        return new Vector3(x, y, z);
     }
 }

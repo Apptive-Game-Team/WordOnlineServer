@@ -78,6 +78,12 @@ public enum PrefabType {
     LightningRune("lightning_rune_prefab"),
     WindRune("wind_rune_prefab"),
 
+    // 3차 상위 마법
+    TreeGolem("tree_golem_prefab"),
+    VineSpirit("vine_spirit_prefab"),
+    ThunderBird("thunder_bird_prefab"),
+    CloudDragon("cloud_dragon_prefab"),
+
     Wall("wall_prefab"),
 
     Player("player_prefab");

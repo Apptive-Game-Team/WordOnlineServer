@@ -35,4 +35,6 @@ public class GameConfig {
     public static final List<CircleObstacle> OBSTACLES = Collections.singletonList(
             new CircleObstacle(new Vector2(WIDTH/2,HEIGHT/2), 1.5f)
     );
+
+    public static final float DEFAULT_FLOATING_VELOCITY = 1;
 }
