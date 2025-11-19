@@ -20,7 +20,7 @@ public class UserRepository {
             WHERE id = :id;
             """;
     private static final String GET_USER_BY_ID = """
-            SELECT id, name, status, selected_deck_id
+            SELECT id, status, selected_deck_id
             FROM users
             WHERE id = :id;
             """;
@@ -30,9 +30,9 @@ public class UserRepository {
             WHERE id = :userId;
             """;
     private static final String SAVE_USER = """
-            INSERT INTO users(id, email, name, password_hash)
+            INSERT INTO users(id)
             VALUES
-            (:id, :email, :name, :passwordHash)
+            (:id)
             RETURNING id;
             """;
 
@@ -103,16 +103,10 @@ public class UserRepository {
     }
 
     public Long saveUser(long memberId) {
-        String uniqueEmail = "user_" + System.currentTimeMillis() + UUID.randomUUID() + "@example.com";
-        String name = "user_" + System.currentTimeMillis();
-
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcClient.sql(SAVE_USER)
                 .param("id", memberId)
-                .param("email", uniqueEmail)
-                .param("name", name)
-                .param("passwordHash", "")
                 .update(keyHolder);
 
         return keyHolder.getKey().longValue();
