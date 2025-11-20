@@ -26,6 +26,19 @@ public class DeckRepository {
             WHERE users.id = :userId;
             """;
 
+    private static final String GET_DECK = """
+            SELECT
+              cards.id AS id,
+              cards.name AS name,
+              cards.card_type AS card_type,
+              deck_cards.count AS count
+            FROM
+            decks
+            JOIN deck_cards ON deck_cards.deck_id = decks.id
+            JOIN cards ON cards.id = deck_cards.card_id
+            WHERE decks.id = :deckId;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public List<CardsDto> getSelectedDeck(long userId) {
@@ -35,6 +48,16 @@ public class DeckRepository {
                     new CardsDto(rs.getLong("id"),
                             CardType.valueOf(rs.getString("name")),
                             rs.getInt("count"))
+                ).list();
+    }
+
+    public List<CardsDto> getDeck(long deckId) {
+        return jdbcClient.sql(GET_DECK)
+                .param("deckId", deckId)
+                .query((rs, num) ->
+                        new CardsDto(rs.getLong("id"),
+                                CardType.valueOf(rs.getString("name")),
+                                rs.getInt("count"))
                 ).list();
     }
 }
