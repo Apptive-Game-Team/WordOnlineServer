@@ -2,9 +2,8 @@ package com.wordonline.server.game.controller;
 
 import com.wordonline.server.auth.domain.PrincipalDetails;
 import com.wordonline.server.auth.dto.UserDetailResponseDto;
-import com.wordonline.server.auth.dto.UserResponseDto;
 import com.wordonline.server.auth.service.UserService;
-import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.session.service.SessionService;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SessionController {
 
-    private final SessionManager sessionManager;
+    private final SessionService sessionService;
     private final UserService userService;
 
     public record MySessionDto(
@@ -37,7 +36,7 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        return sessionManager.findByUserId(principalDetails.memberId)
+        return sessionService.findByUserId(principalDetails.memberId)
                 .map(s -> {
                     var leftUser = userService.getUserDetail(s.getLeftUserId());   // UserResponseDto
                     var rightUser = userService.getUserDetail(s.getRightUserId()); // UserResponseDto
@@ -58,7 +57,7 @@ public class SessionController {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        SessionObject session = sessionManager.getSessionObject(sessionId);
+        SessionObject session = sessionService.getSessionObject(sessionId);
         if (session == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 세션 없음
         }

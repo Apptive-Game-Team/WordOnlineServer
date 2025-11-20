@@ -1,7 +1,7 @@
 package com.wordonline.server.game.controller;
 
 import com.wordonline.server.auth.domain.PrincipalDetails;
-import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.session.service.SessionService;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.InputResponseDto;
@@ -15,12 +15,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 
 @Slf4j
 @Controller
@@ -28,7 +22,7 @@ import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 public class InputController {
 
     @Autowired
-    private SessionManager sessionManager;
+    private SessionService sessionService;
 
     @Autowired
     private SimpMessagingTemplate template;
@@ -42,7 +36,7 @@ public class InputController {
             throw new AuthorizationDeniedException(localizationService.getMessage("error.authorization.denied"));
         }
 
-        SessionObject sessionObject = sessionManager.getSessionObject(sessionId);
+        SessionObject sessionObject = sessionService.getSessionObject(sessionId);
         log.trace("input arrived {}", inputRequestDto.getType());
 
         if (sessionObject != null && inputRequestDto.getType().equals("ping")) {

@@ -1,7 +1,7 @@
 package com.wordonline.server.game.controller;
 
 import com.wordonline.server.auth.domain.PrincipalDetails;
-import com.wordonline.server.game.component.SessionManager;
+import com.wordonline.server.session.service.SessionService;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.InputResponseDto;
@@ -33,7 +33,7 @@ class InputControllerTest {
     private InputController inputController;
 
     @Mock
-    private SessionManager sessionManager;
+    private SessionService sessionService;
 
     @Mock
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -84,7 +84,7 @@ class InputControllerTest {
         InputRequestDto inputRequestDto = new InputRequestDto();
         inputRequestDto.setType("ping");
 
-        given(sessionManager.getSessionObject(sessionId)).willReturn(sessionObject);
+        given(sessionService.getSessionObject(sessionId)).willReturn(sessionObject);
         given(sessionObject.getPingChecker()).willReturn(pingChecker);
 
         // when
@@ -103,7 +103,7 @@ class InputControllerTest {
         inputRequestDto.setType("other");
         InputResponseDto responseDto = new InputResponseDto(true, 100, 1, 1L);
 
-        given(sessionManager.getSessionObject(sessionId)).willReturn(sessionObject);
+        given(sessionService.getSessionObject(sessionId)).willReturn(sessionObject);
         given(sessionObject.getGameContext()).willReturn(gameContext);
         given(gameContext.getMagicInputHandler()).willReturn(magicInputHandler);
         given(magicInputHandler.handleInput(any(GameContext.class), anyLong(), any(InputRequestDto.class))).willReturn(responseDto);

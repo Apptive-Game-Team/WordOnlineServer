@@ -113,6 +113,7 @@ public abstract class GameLoop implements Runnable {
 
         userService.markOnline(leftId);
         userService.markOnline(rightId);
+
         // 3) 루프 종료
         close();
     }
