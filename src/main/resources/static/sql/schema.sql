@@ -179,3 +179,8 @@ CREATE TABLE statistic_delta_time (
     mean_delta_ms FLOAT,
     frame_count INT
 );
+
+ALTER TABLE users DROP name;
+ALTER TABLE users DROP email;
+ALTER TABLE users DROP member_id;
+ALTER TABLE users DROP password_hash;
