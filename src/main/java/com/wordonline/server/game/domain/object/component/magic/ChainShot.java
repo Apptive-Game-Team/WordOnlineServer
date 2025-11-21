@@ -20,7 +20,7 @@ public class ChainShot extends Shot implements Collidable {
     private Vector3 direction;
     private final List<GameObject> hitList = new ArrayList<>();
     private int chainCount;
-    private final float CHAIN_DELAY = 0.1f;
+    private final float CHAIN_DELAY = 0.4f;
     private final int CHAIN_DAMAGE_REDUCE = 5;
     private final int CHAIN_DAMAGE_REDUCE_CAP = 10;
     private final int CHAIN_COUNT_CAP = 5;
@@ -67,6 +67,7 @@ public class ChainShot extends Shot implements Collidable {
         if (parts.isEmpty()) return;
         if (hitList.contains(other)) return;
 
+        gameObject.setStatus(Status.Attack);
         other.setStatus(Status.Damaged);
         AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
         parts.forEach(p -> p.onDamaged(info));

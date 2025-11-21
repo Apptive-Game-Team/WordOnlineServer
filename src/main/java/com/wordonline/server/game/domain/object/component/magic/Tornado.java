@@ -29,7 +29,7 @@ public class Tornado extends MagicComponent implements Collidable {
 
     // 회전/상승 파라미터 (필요하면 조정)
     private static final float ANGULAR_SPEED = (float) Math.toRadians(360f); // 1rev/s = 360deg/s
-    private static final float LIFT_SPEED = 3f;                               // z 상승 속도 (units/s)
+    private static final float LIFT_SPEED = 8f;                               // z 상승 속도 (units/s)
     private static final float MIN_ORBIT_RADIUS = 0.1f;                       // 중심 흡착 방지
     // 각 피해자의 현재 각도와 궤도 반경을 저장 (회전력 유지용)
     private final Map<GameObject, Float> angles = new HashMap<>();
@@ -81,8 +81,7 @@ public class Tornado extends MagicComponent implements Collidable {
 
             // Z 상승 (최대 center.z + HEIGHT 까지)
             Vector3 vp = victim.getPosition();
-            float targetZ = center.getZ() + HEIGHT;
-            float newZ = vp.getZ() < targetZ ? Math.min(vp.getZ() + LIFT_SPEED * getGameContext().getDeltaTime(), targetZ) : vp.getZ();
+            float newZ = vp.getZ() < HEIGHT ? Math.min(vp.getZ() + LIFT_SPEED * getGameContext().getDeltaTime(), HEIGHT) : vp.getZ();
 
             victim.setPosition(new Vector3(newX, newY, newZ));
 
