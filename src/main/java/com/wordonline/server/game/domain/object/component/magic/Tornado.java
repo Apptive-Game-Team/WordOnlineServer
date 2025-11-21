@@ -47,7 +47,7 @@ public class Tornado extends MagicComponent implements Collidable {
     }
 
     public void setTarget(Vector3 targetPosition) {
-        direction = (targetPosition.subtract(gameObject.getPosition()));
+        direction = (targetPosition.subtract(gameObject.getPosition())).normalize();
     }
 
     @Override

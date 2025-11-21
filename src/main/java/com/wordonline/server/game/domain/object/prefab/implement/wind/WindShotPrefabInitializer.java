@@ -26,6 +26,9 @@ public class WindShotPrefabInitializer extends PrefabInitializer {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
-        gameObject.getComponents().add(new Shot(gameObject, (int) parameters.getValue("wind_shoot", "damage")));
+        gameObject.getComponents().add(new Shot(gameObject,
+                (int) parameters.getValue("shoot", "damage"),
+                (float) parameters.getValue("shoot", "speed")
+        ));
     }
 }

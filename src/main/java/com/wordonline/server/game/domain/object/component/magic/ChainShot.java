@@ -28,14 +28,14 @@ public class ChainShot extends Shot implements Collidable {
     private float activeTimer;
 
     public ChainShot(GameObject gameObject, int damage, float speed, float chainRadius) {
-        super(gameObject, damage);
+        super(gameObject, damage, speed);
         this.damage = damage;
         this.speed = speed;
         this.chainRadius = chainRadius;
     }
 
     public void setTarget(Vector3 targetPosition) {
-        this.direction = targetPosition.subtract(gameObject.getPosition());
+        this.direction = targetPosition.subtract(gameObject.getPosition()).normalize();
     }
 
     @Override
@@ -60,6 +60,7 @@ public class ChainShot extends Shot implements Collidable {
 
     @Override
     public void onCollision(GameObject other) {
+        if(!isActive) return;
         if (other.getMaster() == gameObject.getMaster()) return;
 
         List<Damageable> parts = other.getComponents(Damageable.class);
@@ -70,8 +71,9 @@ public class ChainShot extends Shot implements Collidable {
         AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
         parts.forEach(p -> p.onDamaged(info));
         damage -= CHAIN_DAMAGE_REDUCE;
-        damage = Math.min(damage, CHAIN_DAMAGE_REDUCE_CAP);
+        damage = Math.max(damage, CHAIN_DAMAGE_REDUCE_CAP);
         chainCount++;
+        isActive = false;
         if(chainCount >= CHAIN_COUNT_CAP) gameObject.destroy();
         hitList.add(other);
 
