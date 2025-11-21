@@ -13,26 +13,44 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ChainShot extends Shot implements Collidable {
-    private final int damage;
+    private int damage;
     private final float speed;
     private final float chainRadius;
 
     private Vector3 direction;
     private final List<GameObject> hitList = new ArrayList<>();
+    private int chainCount;
+    private final float CHAIN_DELAY = 0.4f;
+    private final int CHAIN_DAMAGE_REDUCE = 5;
+    private final int CHAIN_DAMAGE_REDUCE_CAP = 10;
+    private final int CHAIN_COUNT_CAP = 5;
+    private boolean isActive = true;
+    private float activeTimer;
 
     public ChainShot(GameObject gameObject, int damage, float speed, float chainRadius) {
-        super(gameObject, damage);
+        super(gameObject, damage, speed);
         this.damage = damage;
         this.speed = speed;
         this.chainRadius = chainRadius;
     }
 
     public void setTarget(Vector3 targetPosition) {
-        this.direction = targetPosition.subtract(gameObject.getPosition());
+        this.direction = targetPosition.subtract(gameObject.getPosition()).normalize();
     }
 
     @Override
     public void update() {
+        if(!isActive)
+        {
+            if(activeTimer >= CHAIN_DELAY) {
+                isActive = true;
+                activeTimer = 0;
+                return;
+            }
+            activeTimer += getGameContext().getDeltaTime();
+            return;
+        }
+
         if (direction == null || direction.equals(Vector3.ZERO)) return;
         gameObject.setPosition(
                 gameObject.getPosition()
@@ -42,15 +60,22 @@ public class ChainShot extends Shot implements Collidable {
 
     @Override
     public void onCollision(GameObject other) {
+        if(!isActive) return;
         if (other.getMaster() == gameObject.getMaster()) return;
 
         List<Damageable> parts = other.getComponents(Damageable.class);
         if (parts.isEmpty()) return;
         if (hitList.contains(other)) return;
 
+        gameObject.setStatus(Status.Attack);
         other.setStatus(Status.Damaged);
         AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
         parts.forEach(p -> p.onDamaged(info));
+        damage -= CHAIN_DAMAGE_REDUCE;
+        damage = Math.max(damage, CHAIN_DAMAGE_REDUCE_CAP);
+        chainCount++;
+        isActive = false;
+        if(chainCount >= CHAIN_COUNT_CAP) gameObject.destroy();
         hitList.add(other);
 
         GameObject next = findNextTarget();

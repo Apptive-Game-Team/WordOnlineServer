@@ -7,7 +7,6 @@ import lombok.Getter;
 
 @Getter
 public class CircleCollider extends Collider {
-
     private final float radius;
 
     public CircleCollider(GameObject gameObject, float radius, boolean isTrigger) {

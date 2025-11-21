@@ -95,7 +95,6 @@ public class UserRepository {
                 .query((rs, num) ->
                         new User(
                                 rs.getLong("id"),
-                                rs.getString("name"),
                                 UserStatus.valueOf(rs.getString("status")),
                                 rs.getLong("selected_deck_id")
                         ))

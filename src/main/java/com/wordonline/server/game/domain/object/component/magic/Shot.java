@@ -15,7 +15,6 @@ import java.util.List;
 
 public class Shot extends MagicComponent implements Collidable {
     protected float speed;
-    public static final int SPEED = 2;
 
     private static final float IMPACT_EXPLOSION_RADIUS = 1f;
 
@@ -25,14 +24,14 @@ public class Shot extends MagicComponent implements Collidable {
 
     private boolean explosionTriggered = false;
 
-    public Shot(GameObject gameObject, int damage) {
+    public Shot(GameObject gameObject, int damage, float speed) {
         super(gameObject);
         this.damage = damage;
-        speed = SPEED;
+        this.speed = speed;
     }
 
     public void setTarget(Vector3 targetPosition) {
-        direction = (targetPosition.subtract(gameObject.getPosition()));
+        direction = (targetPosition.subtract(gameObject.getPosition())).normalize();
     }
 
     @Override
