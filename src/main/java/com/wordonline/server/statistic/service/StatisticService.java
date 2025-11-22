@@ -51,7 +51,7 @@ public class StatisticService {
     private void saveDeck(long userId, GameResultBuilder builder) {
         long deckId = userRepository.getSelectedDeckId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck Not Found"));
-        List<CardDto> cardDtos = deckService.getDeck(deckId).cards();
+        List<CardDto> cardDtos = deckService.getDeckCards(deckId);
         builder.recordCards(userId, cardDtos);
     }
 

@@ -184,3 +184,6 @@ ALTER TABLE users DROP name;
 ALTER TABLE users DROP email;
 ALTER TABLE users DROP member_id;
 ALTER TABLE users DROP password_hash;
+
+ALTER TABLE users
+    ALTER COLUMN status TYPE VARCHAR(20) USING status::text;
