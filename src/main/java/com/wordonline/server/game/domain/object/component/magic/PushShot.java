@@ -15,7 +15,7 @@ public class PushShot extends Shot implements Collidable {
 
     private final List<GameObject> pushedTargets = new ArrayList<>();
     public PushShot(GameObject gameObject, int damage, float speed) {
-        super(gameObject, damage);
+        super(gameObject, damage, speed);
         this.speed = speed;
     }
 

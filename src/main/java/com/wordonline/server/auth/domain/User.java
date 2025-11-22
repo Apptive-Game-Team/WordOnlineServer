@@ -10,7 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 @AllArgsConstructor
 public class User {
     private Long id;
-    private String name;
     private UserStatus status;
     @Setter
     private Long selectedDeckId;
@@ -28,7 +27,7 @@ public class User {
         this.status = UserStatus.Online;
     }
 
-    public User(String name) {
-        this(null, name, UserStatus.Online, null);
-    }
+//    public User(String name) {
+//        this(null, name, UserStatus.Online, null);
+//    }
 }
