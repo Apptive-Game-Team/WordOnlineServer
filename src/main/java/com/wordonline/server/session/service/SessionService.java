@@ -44,6 +44,11 @@ public class SessionService {
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 
+    public boolean isSessionActive(String sessionId) {
+        return sessions.get(sessionId)
+                .getGameLoop().is_running();
+    }
+
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
         statisticService.saveGameResult(s.getGameContext(), s.getGameContext().getResultChecker().getLoser(), s.getSessionType());
