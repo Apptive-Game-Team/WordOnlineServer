@@ -12,13 +12,15 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
+import javax.smartcardio.Card;
+
 @Getter
 // this class is used to store the session information
 // it sends the frame information to the client
 public class SessionObject {
     private final String sessionId;
-    private final long leftUserId;
-    private final long rightUserId;
+    private long leftUserId;
+    private long rightUserId;
     private final SimpMessagingTemplate template;
     private final String url;
     private final CardDeck leftUserCardDeck;
@@ -63,6 +65,18 @@ public class SessionObject {
     // this method is used to send the frame information to the client
     public void sendFrameInfo(long userId, Object data){
         template.convertAndSend(String.format("%s/%d", url, userId), data);
+    }
+
+    public void setLeftUser(long userId, List<CardType> cards) {
+        leftUserId = userId;
+        getGameContext().getGameSessionData().leftPlayerData.cards.clear();
+        getGameContext().getGameSessionData().leftCardDeck.setCards(cards);
+    }
+
+    public void setRightUser(long userId, List<CardType> cards) {
+        rightUserId = userId;
+        getGameContext().getGameSessionData().rightPlayerData.cards.clear();
+        getGameContext().getGameSessionData().rightCardDeck.setCards(cards);
     }
 
     @Override

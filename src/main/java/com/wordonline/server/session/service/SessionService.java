@@ -35,7 +35,9 @@ public class SessionService {
         sessionObject.setGameLoop(gameLoop);
         gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
-        statisticService.createBuilder(gameLoop.getGameContext());
+        if (!sessionObject.getSessionId().contains("debug")) {
+            statisticService.createBuilder(gameLoop.getGameContext());
+        }
 
         Thread thread = new Thread(gameLoop);
         thread.start();
