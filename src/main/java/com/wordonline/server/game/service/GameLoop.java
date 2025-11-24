@@ -1,7 +1,5 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.auth.service.UserService;
-import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.magic.CardType;
@@ -113,6 +111,7 @@ public abstract class GameLoop implements Runnable {
 
         userService.markOnline(leftId);
         userService.markOnline(rightId);
+
         // 3) 루프 종료
         close();
     }

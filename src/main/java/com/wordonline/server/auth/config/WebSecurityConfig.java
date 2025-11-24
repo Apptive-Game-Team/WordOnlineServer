@@ -37,6 +37,7 @@ public class WebSecurityConfig {
                             authorizeRequests
                                     .requestMatchers(
                                             "/healthcheck",
+                                            "/api/server/**",
                                             "/api/admin/invalidate",
                                             "/api/users",
                                             "/api/users/login",

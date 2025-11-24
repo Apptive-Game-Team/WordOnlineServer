@@ -7,6 +7,10 @@ public record CardDto(
         CardType name,
         CardType.Type type
 ) {
+    public CardDto(CardsDto cardsDto) {
+        this(cardsDto.getId(), cardsDto.getName(), cardsDto.getType());
+    }
+
     public CardDto(long id, CardType cardType) {
         this(id, cardType, cardType.getType());
     }

@@ -1,8 +1,9 @@
-package com.wordonline.server.game.component;
+package com.wordonline.server.session.service;
 
 import com.wordonline.server.game.domain.SessionObject;
-import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.session.dto.SessionDto;
+import com.wordonline.server.session.util.SessionObjectFactory;
 import com.wordonline.server.statistic.service.StatisticService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,20 +21,23 @@ import java.util.concurrent.SubmissionPublisher;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SessionManager {
+public class SessionService {
 
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
 
-    public final SubmissionPublisher<Long> numOfSessionsFlow = new SubmissionPublisher<>();
+    private final SessionObjectFactory sessionObjectFactory;
     private final ObjectProvider<GameLoop> gameLoopProvider;
     private final StatisticService statisticService;
 
-    public void createSession(SessionObject sessionObject) {
+    public void createSession(SessionDto sessionDto) {
+        SessionObject sessionObject = sessionObjectFactory.createSessionObject(sessionDto);
         GameLoop gameLoop = gameLoopProvider.getObject();
         sessionObject.setGameLoop(gameLoop);
         gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
-        statisticService.createBuilder(gameLoop.getGameContext());
+        if (!sessionObject.getSessionId().contains("debug")) {
+            statisticService.createBuilder(gameLoop.getGameContext());
+        }
 
         Thread thread = new Thread(gameLoop);
         thread.start();
@@ -42,9 +46,13 @@ public class SessionManager {
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 
+    public boolean isSessionActive(String sessionId) {
+        return sessions.get(sessionId)
+                .getGameLoop().is_running();
+    }
+
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
-        numOfSessionsFlow.submit(getActiveSessions());
         statisticService.saveGameResult(s.getGameContext(), s.getGameContext().getResultChecker().getLoser(), s.getSessionType());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }

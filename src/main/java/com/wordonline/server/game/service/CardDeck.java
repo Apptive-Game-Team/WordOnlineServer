@@ -40,4 +40,10 @@ public class CardDeck {
             cardInfoDto.addCard(card);
         }
     }
+
+    // only use for debug
+    public void setCards(List<CardType> cards) {
+        this.cards.clear();
+        this.cards.addAll(cards);
+    }
 }

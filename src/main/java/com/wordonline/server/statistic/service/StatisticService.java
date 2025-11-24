@@ -2,6 +2,7 @@ package com.wordonline.server.statistic.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
@@ -44,24 +45,35 @@ public class StatisticService {
     }
 
     public void saveMagic(GameContext gameContext, long userId, long magicId) {
-        gameResultBuilderMap.get(gameContext)
-                .recordMagic(userId, magicId);
+        getGameResultBuilder(gameContext)
+                .ifPresent(builder ->
+                        builder.recordMagic(userId, magicId)
+                );
     }
 
     private void saveDeck(long userId, GameResultBuilder builder) {
         long deckId = userRepository.getSelectedDeckId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck Not Found"));
-        List<CardDto> cardDtos = deckService.getDeck(deckId).cards();
+        List<CardDto> cardDtos = deckService.getDeckCards(deckId);
         builder.recordCards(userId, cardDtos);
     }
 
     public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
+        if (builder == null) {
+            return;
+        }
         statisticRepository.saveGameResultDto(builder.build(loser, sessionType));
     }
 
     public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
-        gameResultBuilderMap.get(gameContext)
-                .addInterval(clazz, intervalNs);
+        getGameResultBuilder(gameContext)
+                .ifPresent(builder ->
+                        builder.addInterval(clazz, intervalNs)
+                );
+    }
+
+    private Optional<GameResultBuilder> getGameResultBuilder(GameContext gameContext) {
+        return Optional.ofNullable(gameResultBuilderMap.get(gameContext));
     }
 }

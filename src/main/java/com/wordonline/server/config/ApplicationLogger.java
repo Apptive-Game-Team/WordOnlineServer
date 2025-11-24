@@ -1,8 +1,7 @@
 package com.wordonline.server.config;
 
 import com.sun.management.OperatingSystemMXBean;
-import com.wordonline.server.game.component.SessionManager;
-import com.wordonline.server.matching.component.MatchingManager;
+import com.wordonline.server.session.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,19 +14,17 @@ import java.lang.management.ManagementFactory;
 @Component
 @RequiredArgsConstructor
 public class ApplicationLogger {
-    private final long LOGGING_INTERVAL = 1000 * 60 * 10; // 10 min [ms]
+    private final long LOGGING_INTERVAL = 1000 * 60 * 1; // 1 min [ms]
 
-    private final MatchingManager matchingManager;
-    private final SessionManager sessionManager;
+    private final SessionService sessionService;
     private final OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
     @Scheduled(fixedRate = LOGGING_INTERVAL)
     public void logApplicationHealth() {
 
-        log.info("[Health Check]\n{}\n{}\n{}\n{}",
+        log.info("[Health Check]\n{}\n{}\n{}",
                 getCpuLog(), getMemoryLog(),
-                matchingManager.getHealthLog(),
-                sessionManager.getHealthLog());
+                sessionService.getHealthLog());
     }
 
     private String getCpuLog() {

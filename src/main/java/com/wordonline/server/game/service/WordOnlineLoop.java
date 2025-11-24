@@ -3,7 +3,6 @@ package com.wordonline.server.game.service;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import com.wordonline.server.auth.service.UserService;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
