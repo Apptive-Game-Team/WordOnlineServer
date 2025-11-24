@@ -35,7 +35,7 @@ public class EdgeCollider extends Collider {
     }
 
     @Override
-    public boolean isCollidingWish(Collider collider) {
+    public boolean isCollidingWish(Colliderable collider) {
         if (collider instanceof EdgeCollider edgeCollider) {
             return segmentsIntersect(getPoint1(), getPoint2(), edgeCollider.getPoint1(), edgeCollider.getPoint2());
         }

@@ -17,7 +17,7 @@ public class CylinderCollider extends Collider {
     }
 
     @Override
-    public boolean isCollidingWish(Collider collider) {
+    public boolean isCollidingWish(Colliderable collider) {
         if (collider instanceof CircleCollider circleCollider) {
         }
 
