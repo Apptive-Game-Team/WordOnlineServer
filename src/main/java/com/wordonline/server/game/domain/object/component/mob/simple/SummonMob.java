@@ -46,7 +46,7 @@ public class SummonMob extends TimedBehaviorMob {
 
     @Override
     public void onDeath() {
-
+        gameObject.destroy();
     }
 
     @Override

@@ -32,6 +32,5 @@ public class OnStartAttacker extends Component {
 
     @Override
     public void onDestroy() {
-
     }
 }

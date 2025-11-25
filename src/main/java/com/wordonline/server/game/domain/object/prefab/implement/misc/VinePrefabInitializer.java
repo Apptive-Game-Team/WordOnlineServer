@@ -31,7 +31,7 @@ public class VinePrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("vine", "duration")));
         gameObject.addComponent(new OnStartAttacker(
                 gameObject,
-                (float) parameters.getValue("vine", "attack_range"),
+                (float) parameters.getValue("vine", "radius"),
                 (int) parameters.getValue("vine", "damage")
         ));
     }

@@ -40,14 +40,15 @@ public class FireSpiritPrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("fire_spirit", "attack_interval"),
                 (float) parameters.getValue("fire_spirit", "attack_range"),
                 (int) parameters.getValue("fire_spirit", "damage"),
-                Effect.Burn
+                Effect.Burn,
+                "SprayedFlame"
         ));
         gameObject.setElement(EnumSet.of(ElementType.FIRE,ElementType.WIND));
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
         gameObject.addComponent(new AreaEffectProvider(
                 gameObject,
                 1f,
-                (float) parameters.getValue("fire_spirit", "attack_rage"),
+                (float) parameters.getValue("fire_spirit", "attack_range"),
                 Effect.Burn
                 ));
     }
