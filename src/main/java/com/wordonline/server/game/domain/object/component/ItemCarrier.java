@@ -1,11 +1,9 @@
 package com.wordonline.server.game.domain.object.component;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
-import com.wordonline.server.game.domain.object.component.mob.Totem;
+import com.wordonline.server.game.domain.object.component.mob.simple.Totem;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
-import com.wordonline.server.game.domain.object.prefab.PrefabType;
-import com.wordonline.server.game.dto.Master;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

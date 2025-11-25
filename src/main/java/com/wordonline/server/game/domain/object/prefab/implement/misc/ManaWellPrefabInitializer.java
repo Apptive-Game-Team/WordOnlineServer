@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.component.SelfAttacker;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
-import com.wordonline.server.game.domain.object.component.mob.ManaWellMob;
+import com.wordonline.server.game.domain.object.component.mob.simple.ManaWellMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
