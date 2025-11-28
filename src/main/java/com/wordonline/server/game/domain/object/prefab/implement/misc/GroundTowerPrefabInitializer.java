@@ -32,7 +32,9 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
                         (int) parameters.getValue("ground_tower", "hp"),
                         (int) parameters.getValue("ground_tower", "damage"),
                         TargetMask.AIR.bit,
-                        0.2f
+                        0.2f,
+                        (float) parameters.getValue("ground_tower", "attack_interval"),
+                        (float) parameters.getValue("ground_tower", "attack_range")
                 ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

@@ -26,7 +26,12 @@ public class GroundCannonPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_cannon", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("ground_cannon", "radius"), false));
-        gameObject.getComponents().add(new Cannon(gameObject, (int) parameters.getValue("ground_cannon", "hp"), (int) parameters.getValue("ground_cannon", "damage"), TargetMask.GROUND.bit));
+        gameObject.getComponents().add(new Cannon(gameObject,
+                (int) parameters.getValue("ground_cannon", "hp"),
+                (int) parameters.getValue("ground_cannon", "damage"), TargetMask.GROUND.bit,
+                (float) parameters.getValue("ground_cannon", "attack_interval"),
+                (float) parameters.getValue("ground_cannon", "attack_range")
+                ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
