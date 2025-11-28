@@ -70,6 +70,11 @@ public class GameObject {
         gameContext.createGameObject(this);
     }
 
+    public <T> boolean hasComponent(Class<T> clazz) {
+        return components.stream()
+                .anyMatch(clazz::isInstance);
+    }
+
     public <T> T getComponent(Class<T> clazz) {
         return components.stream()
                 .filter(clazz::isInstance)

@@ -6,7 +6,7 @@ import java.util.List;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
-import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollidingHelper;
 
 public class SimplePhysics implements Physics {
     private final List<GameObject> gameObjects;
@@ -16,12 +16,11 @@ public class SimplePhysics implements Physics {
     }
 
     @Override
-    public List<GameObject> overlapSphereAll(GameObject origin, float radius) {
+    public List<GameObject> overlapSphereAll(Vector3 originPosition, float radius) {
         List<GameObject> result = new ArrayList<>();
-        CircleCollider circle = new CircleCollider(origin, radius, true);
+        CircleCollidingHelper circle = new CircleCollidingHelper(radius, originPosition);
 
         for (GameObject other : gameObjects) {
-            if (other == origin) continue;
             if(circle.isCollidingWish(other.getColliders().getFirst())) result.add(other);
         }
         return result;

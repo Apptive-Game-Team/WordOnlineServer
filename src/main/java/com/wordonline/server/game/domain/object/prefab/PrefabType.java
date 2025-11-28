@@ -86,6 +86,8 @@ public enum PrefabType {
 
     // 베타전 마지막 상위 마법
     RockMage("rock_mage_prefab"),
+    VineColony("vine_colony_prefab"),
+    Vine("vine_prefab"),
 
     Wall("wall_prefab"),
 
