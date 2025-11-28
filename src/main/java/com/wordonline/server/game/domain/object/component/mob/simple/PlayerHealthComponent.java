@@ -1,8 +1,9 @@
-package com.wordonline.server.game.domain.object.component.mob;
+package com.wordonline.server.game.domain.object.component.mob.simple;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Master;
 
 public class PlayerHealthComponent extends Mob {

@@ -15,7 +15,7 @@ public class CircleCollider extends Collider {
     }
 
     @Override
-    public boolean isCollidingWish(Collider collider) {
+    public boolean isCollidingWish(Colliderable collider) {
         if (collider instanceof CircleCollider circleCollider) {
             float distance = (float) circleCollider.getPosition().distance(getPosition());
             return (distance < circleCollider.radius + radius);

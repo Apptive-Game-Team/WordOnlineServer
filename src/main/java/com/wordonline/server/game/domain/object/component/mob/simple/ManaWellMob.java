@@ -1,6 +1,7 @@
-package com.wordonline.server.game.domain.object.component.mob;
+package com.wordonline.server.game.domain.object.component.mob.simple;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 
 public class ManaWellMob extends Mob {
 

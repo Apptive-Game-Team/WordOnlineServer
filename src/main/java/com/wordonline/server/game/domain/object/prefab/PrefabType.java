@@ -84,6 +84,9 @@ public enum PrefabType {
     ThunderBird("thunder_bird_prefab"),
     CloudDragon("cloud_dragon_prefab"),
 
+    VineColony("vine_colony_prefab"),
+    Vine("vine_prefab"),
+
     Wall("wall_prefab"),
 
     Player("player_prefab");

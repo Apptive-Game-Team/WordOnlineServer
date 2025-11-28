@@ -1,10 +1,9 @@
-package com.wordonline.server.game.domain.object.component.mob;
+package com.wordonline.server.game.domain.object.component.mob.simple;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
-import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.List;

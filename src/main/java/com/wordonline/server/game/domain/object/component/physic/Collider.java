@@ -5,12 +5,10 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 
-public abstract class Collider {
+public abstract class Collider implements Colliderable {
     protected final RigidBody rigidBody;
     protected final GameObject gameObject;
     protected final boolean isTrigger;
-
-    public abstract boolean isCollidingWish(Collider collider);
 
     public boolean isNotTrigger() {
         return !isTrigger;
