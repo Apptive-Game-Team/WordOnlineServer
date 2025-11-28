@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -27,7 +28,7 @@ public class RandomAreaSpawner extends TimedSelfDestroyer {
         elapsed += getGameContext().getDeltaTime();
         if (elapsed >= spawnInterval) {
             elapsed -= spawnInterval;
-            Vector3 pos = getRandomVectorInCircle(areaRadius).toVector3();
+            Vector3 pos = getRandomVectorInCircle(areaRadius).toVector3(GameConfig.AERIAL_MOB_INIT_HEIGHT) ;
             new GameObject(gameObject.getMaster(), prefabType,
                     pos, getGameContext());
         }
