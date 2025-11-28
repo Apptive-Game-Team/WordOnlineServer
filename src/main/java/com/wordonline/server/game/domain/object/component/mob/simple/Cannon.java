@@ -8,6 +8,8 @@ import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEn
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.dto.Status;
 
+import java.util.List;
+
 public class Cannon extends TimedBehaviorMob {
 
     private final static float DEFAULT_ATTACK_DURATION = 0.5f;
@@ -17,16 +19,16 @@ public class Cannon extends TimedBehaviorMob {
     private AttackInfo attackInfo;
     private final int targetMask;
     private Detector detector;
-    private final float attackDuration;
+    private float attackDuration;
     private final float attackInterval;
-    private final float attackRange;
+    private float attackRange;
 
     public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask, float attackInterval, float attackRange) {
         this(gameObject, maxHp, damage, targetMask, DEFAULT_ATTACK_DURATION, attackInterval, attackRange);
     }
 
     public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
-        super(gameObject, maxHp, 0, DETECT_INTERVAL, null);
+        super(gameObject, maxHp, 0, attackInterval, null);
         setBehavior(behavior);
         attackInfo = new AttackInfo(damage, ElementType.ROCK);
         this.targetMask = targetMask;
@@ -44,7 +46,7 @@ public class Cannon extends TimedBehaviorMob {
 
         double distance = target.getPosition().distance(gameObject.getPosition());
 
-        if (distance > ATTACK_RANGE) {
+        if (distance > attackRange) {
             return false;
         }
 
