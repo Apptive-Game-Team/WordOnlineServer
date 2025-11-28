@@ -30,13 +30,19 @@ public abstract class ElementalChart {
         if (defElements == null || defElements.isEmpty())
             defElements = List.of(ElementType.NONE);
 
-        float product = 1f;
+        float sum = 0f;
+        int count = 0;
+
         for (ElementType atk : atkElements) {
             for (ElementType def : defElements) {
                 float m = getMultiplier(atk, def);
-                product *= m;
+                sum += m;
+                count++;
             }
         }
-        return product;
+
+        if (count == 0) return 1f;
+
+        return sum / count;
     }
 }
