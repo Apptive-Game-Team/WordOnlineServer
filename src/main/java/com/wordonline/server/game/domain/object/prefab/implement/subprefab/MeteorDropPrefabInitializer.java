@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.object.prefab.implement.drop;
+package com.wordonline.server.game.domain.object.prefab.implement.subprefab;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;

@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.object.prefab.implement.misc;
+package com.wordonline.server.game.domain.object.prefab.implement.subprefab;
 
 import org.springframework.stereotype.Component;
 
