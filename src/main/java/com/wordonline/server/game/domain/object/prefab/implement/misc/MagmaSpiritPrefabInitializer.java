@@ -37,7 +37,7 @@ public class MagmaSpiritPrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 (float) parameters.getValue("magma_spirit", "attack_interval"),
                 (float) parameters.getValue("magma_spirit", "attack_range"),
-                PrefabType.FireExplode
+                PrefabType.MagmaFist
         ));
         gameObject.setElement(EnumSet.of(ElementType.FIRE,ElementType.ROCK));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
