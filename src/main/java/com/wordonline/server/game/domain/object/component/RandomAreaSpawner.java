@@ -28,7 +28,7 @@ public class RandomAreaSpawner extends TimedSelfDestroyer {
         elapsed += getGameContext().getDeltaTime();
         if (elapsed >= spawnInterval) {
             elapsed -= spawnInterval;
-            Vector3 pos = getRandomVectorInCircle(areaRadius).toVector3(GameConfig.AERIAL_MOB_INIT_HEIGHT) ;
+            Vector3 pos = getRandomVectorInCircle(areaRadius).toVector3(GameConfig.DROP_MAGIC_INITIAL_HEIGHT) ;
             new GameObject(gameObject.getMaster(), prefabType,
                     pos, getGameContext());
         }
@@ -36,7 +36,7 @@ public class RandomAreaSpawner extends TimedSelfDestroyer {
 
     private Vector2 getRandomVectorInCircle(float radius) {
         Vector3 center = gameObject.getPosition(); // x,y from your Vector3
-        double angle = ThreadLocalRandom.current().nextDouble(0.0, Math.PI * 2.0);
+        double angle = ThreadLocalRandom.current().nextDouble(0.0, Math.PI);
         double dist  = Math.sqrt(ThreadLocalRandom.current().nextDouble()) * radius; // uniform in disk
         float x = (float) (center.getX() + dist * Math.cos(angle));
         float y = (float) (center.getY() + dist * Math.sin(angle));

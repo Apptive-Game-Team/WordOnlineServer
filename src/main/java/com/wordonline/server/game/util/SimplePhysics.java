@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollidingHelper;
+import com.wordonline.server.game.domain.object.component.physic.Collider;
 
 public class SimplePhysics implements Physics {
     private final List<GameObject> gameObjects;
@@ -21,7 +22,10 @@ public class SimplePhysics implements Physics {
         CircleCollidingHelper circle = new CircleCollidingHelper(radius, originPosition);
 
         for (GameObject other : gameObjects) {
-            if(circle.isCollidingWish(other.getColliders().getFirst())) result.add(other);
+            List<Collider> colliders = other.getColliders();
+            if (colliders == null || colliders.isEmpty()) continue;
+
+            if(circle.isCollidingWish(colliders.getFirst())) result.add(other);
         }
         return result;
     }

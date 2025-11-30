@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.OnStartAttacker;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
@@ -25,6 +26,7 @@ public class MagmaFistPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
+        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("magma_fist", "radius"), true));
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.ROCK));
         gameObject.addComponent(new EffectProvider(gameObject, Effect.Burn));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("magma_fist", "duration")));
