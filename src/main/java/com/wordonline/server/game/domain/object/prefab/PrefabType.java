@@ -87,7 +87,11 @@ public enum PrefabType {
     // 베타전 마지막 상위 마법
     RockMage("rock_mage_prefab"),
     VineColony("vine_colony_prefab"),
+
+    // 부수적 생산 프리팹
     Vine("vine_prefab"),
+    MagmaFist("magma_fist_prefab"),
+    MeteorDrop("meteor_drop_prefab"),
 
     Wall("wall_prefab"),
 
