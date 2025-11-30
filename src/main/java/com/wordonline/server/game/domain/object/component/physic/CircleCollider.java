@@ -1,13 +1,16 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import lombok.Getter;
 
 @Getter
 public class CircleCollider extends Collider {
     private final float radius;
+
+    public static CircleCollider dummyCircleCollider(float radius) {
+        return new CircleCollider(null, radius, true);
+    }
 
     public CircleCollider(GameObject gameObject, float radius, boolean isTrigger) {
         super(gameObject, isTrigger);

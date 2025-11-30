@@ -2,11 +2,10 @@ package com.wordonline.server.game.domain.object.component.physic;
 
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 
 public abstract class Collider {
-    protected final RigidBody rigidBody;
+    protected RigidBody rigidBody;
     protected final GameObject gameObject;
     protected final boolean isTrigger;
 
@@ -35,7 +34,9 @@ public abstract class Collider {
     }
 
     protected Collider(GameObject gameObject, boolean isTrigger) {
-        rigidBody = gameObject.getComponent(RigidBody.class);
+        if (gameObject != null) {
+            rigidBody = gameObject.getComponent(RigidBody.class);
+        }
         this.isTrigger = isTrigger;
         this.gameObject = gameObject;
     }
