@@ -27,7 +27,7 @@ public class BehaviorMob extends StateMachineMob {
     float targetRadius;
     RigidBody rigidBody;
     @Getter Stat attackInterval;
-    float attackRange;
+    protected float attackRange;
     @Setter
     Predicate<GameObject> behavior = null;
 
