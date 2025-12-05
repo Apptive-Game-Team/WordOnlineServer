@@ -45,7 +45,7 @@ public class SessionObjectFactory {
                 rightUserId,
                 simpMessagingTemplate,
                 deckService.getSelectedCards(leftUserId),
-                deckService.getSelectedCards(leftUserId),
+                deckService.getSelectedCards(rightUserId),
                 SessionType.Practice
         );
     }
