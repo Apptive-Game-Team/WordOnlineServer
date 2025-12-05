@@ -8,7 +8,7 @@ public class BotAction {
     public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto)
     {
         sessionObject.getGameContext().getMagicInputHandler().handleInput(
-                sessionObject.getGameContext(), -1, inputRequestDto
+                sessionObject.getGameContext(), sessionObject.getRightUserId(), inputRequestDto
         );
     }
 }
