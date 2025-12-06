@@ -151,7 +151,7 @@ public class BehaviorMob extends StateMachineMob {
                 }
             }
 
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange) {
+            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange - 0.1f) {
                 setState(new AttackState());
                 return;
             }
