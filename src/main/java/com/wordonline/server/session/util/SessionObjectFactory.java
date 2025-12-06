@@ -21,7 +21,7 @@ public class SessionObjectFactory {
         long leftUserId = sessionDto.uid1();
         long rightUserId = sessionDto.uid2();
 
-        if (rightUserId == -1) {
+        if (rightUserId < 0) {
             return createPracticeSessionObject(sessionDto);
         }
 
@@ -45,7 +45,7 @@ public class SessionObjectFactory {
                 rightUserId,
                 simpMessagingTemplate,
                 deckService.getSelectedCards(leftUserId),
-                deckService.getSelectedCards(leftUserId),
+                deckService.getSelectedCards(rightUserId),
                 SessionType.Practice
         );
     }

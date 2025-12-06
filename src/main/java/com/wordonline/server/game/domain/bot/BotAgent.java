@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.dto.InputRequestDto;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.service.GameLoop;
@@ -17,9 +18,9 @@ public final class BotAgent {
 
     private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
 
-    public BotAgent(SessionObject sessionObject) {
+    public BotAgent(SessionObject sessionObject, MagicParser magicParser) {
         this.botAction = new BotAction();
-        this.botBrain = new BotBrain();
+        this.botBrain = new BotBrain(magicParser);
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
     }
