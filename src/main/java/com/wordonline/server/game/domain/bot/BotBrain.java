@@ -148,8 +148,10 @@ public class BotBrain {
                     combo.add(cards.get(i));
                 }
             }
+            log.info(combo.toString());
             result.add(combo);
         }
+        result.sort((a, b) -> Integer.compare(b.size(), a.size()));
         return result;
     }
 
