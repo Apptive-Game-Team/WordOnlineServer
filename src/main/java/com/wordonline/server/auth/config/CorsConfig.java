@@ -16,6 +16,7 @@ public class CorsConfig {
 
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
+                "https://word-online.yunseong.dev",
                 "https://apptive-game-team.github.io",
                 "https://word-online.vercel.app",
                 "https://word-online.apps.tossmini.com",
