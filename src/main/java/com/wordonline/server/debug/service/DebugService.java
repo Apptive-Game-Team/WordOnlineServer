@@ -27,6 +27,12 @@ public class DebugService {
 
     private SessionObject debugSession;
 
+    public DebugGameResponseDto enterPracticeSession(DebugGameRequestDto debugGameRequestDto) {
+        DebugGameResponseDto dto = new DebugGameResponseDto(createDebugSession(debugGameRequestDto.userId(), -1));
+        log.info("Entering practice session userId: {}", debugGameRequestDto.userId());
+        return dto;
+    }
+
     public DebugGameResponseDto enterTestSession(DebugGameRequestDto debugGameRequestDto) {
         DebugGameResponseDto dto = new DebugGameResponseDto(getSessionId());
         log.info("Entering test session userId: {}, side: {}", debugGameRequestDto.userId(), debugGameRequestDto.side());
@@ -56,9 +62,13 @@ public class DebugService {
     }
 
     private String createDebugSession() {
+        return createDebugSession(0, 0);
+    }
+
+    private String createDebugSession(long uid1, long uid2) {
         SessionDto sessionDto = new SessionDto(
                 "debug-" + sessionIdCounter.getAndIncrement(),
-                0L, 0L
+                uid1, uid2
         );
         sessionService.createSession(sessionDto);
         debugSession = sessionService.getSessionObject(sessionDto.sessionId());

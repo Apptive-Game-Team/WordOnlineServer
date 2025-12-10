@@ -34,6 +34,12 @@ public class DebugController {
     ) {
         DebugGameRequestDto gameRequestDto;
         log.info("createGame side {}", side);
+
+        if (side.compareToIgnoreCase("practice") == 0) {
+            gameRequestDto = new DebugGameRequestDto(Master.LeftPlayer, principal.memberId);
+            return ResponseEntity.ok(debugService.enterPracticeSession(gameRequestDto));
+        }
+
         if (side.compareToIgnoreCase("left") == 0) {
             gameRequestDto = new DebugGameRequestDto(Master.LeftPlayer, principal.memberId);
         } else if (side.compareToIgnoreCase("right") == 0) {
