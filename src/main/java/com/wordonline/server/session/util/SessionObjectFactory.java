@@ -44,15 +44,13 @@ public class SessionObjectFactory {
         long leftUserId = sessionDto.uid1();
         long rightUserId = sessionDto.uid2();
 
-        List<CardType> botDeck = deckService.getSelectedCards(rightUserId);
-        log.trace("[Bot Deck] {}", botDeck);
         return new SessionObject(
                 sessionDto.sessionId(),
                 leftUserId,
                 rightUserId,
                 simpMessagingTemplate,
                 deckService.getSelectedCards(leftUserId),
-                botDeck,
+                deckService.getSelectedCards(rightUserId),
                 SessionType.Practice
         );
     }
