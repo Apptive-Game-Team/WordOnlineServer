@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -10,6 +11,7 @@ import com.wordonline.server.game.service.GameLoop;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -40,17 +42,24 @@ public class BotBrain {
                 return null;
             }
 
-            // 1. 현재 손패(cardList)로 만들 수 있는 모든 마법 조합 찾기
             List<MagicCandidate> offensive = new ArrayList<>();
             List<MagicCandidate> placement = new ArrayList<>();
 
-            for (List<CardType> combo : allCombinations(cardList)) {
-                // 이 조합으로 실제 마법이 정의되어 있지 않으면 패스
-                if (magicParser.parseMagic(combo) == null) {
+            if (!(magicParser instanceof DatabaseMagicParser dbParser)) {
+                log.warn("magicParser is not DatabaseMagicParser, fallback disabled");
+                return null;
+            }
+
+            Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
+            List<List<CardType>> sortedRecipes = new ArrayList<>(allRecipes);
+            sortedRecipes.sort((a, b) -> Integer.compare(b.size(), a.size()));
+
+            for (List<CardType> recipe : sortedRecipes) {
+                if (!canMakeRecipe(cardList, recipe)) {
                     continue;
                 }
 
-                CardType mainCard = findMainCard(combo);
+                CardType mainCard = findMainCard(recipe);
                 if (mainCard == null) {
                     continue;
                 }
@@ -61,9 +70,8 @@ public class BotBrain {
                     continue;
                 }
 
-                MagicCandidate candidate = new MagicCandidate(combo, mainCard, range, cost);
+                MagicCandidate candidate = new MagicCandidate(recipe, mainCard, range, cost);
 
-                // 메인 카드 기준으로 공격 / 설치 계열 분리
                 if (mainCard == CardType.Shoot || mainCard == CardType.Explode) {
                     offensive.add(candidate);
                 } else {
@@ -71,7 +79,6 @@ public class BotBrain {
                 }
             }
 
-            // 2. 공격 마법: 사거리 안에 적이 있을 때만 사용
             if (!offensive.isEmpty() && !enemies.isEmpty()) {
                 List<MagicCandidate> usableOffensive = offensive.stream()
                         .filter(c -> enemies.stream().anyMatch(enemy ->
@@ -86,15 +93,12 @@ public class BotBrain {
                 }
             }
 
-            // 3. 설치 / 소환 계열 (사거리 안 랜덤 위치에 사용)
             if (!placement.isEmpty()) {
                 MagicCandidate chosen = placement.getFirst();
                 Vector3 target = randomPosInRange(playerPos, chosen.range());
                 return new InputDecision(chosen.cards(), target);
             }
 
-            // 4. 여기까지 왔다는 건, 어떤 조합으로도 마법을 못 쓴다는 뜻
-            //    → 아래 2번 요구사항: 카드 순환 로직으로 넘어감
             CardType cycleCard = pickCycleCard(cardList, loop, mana);
             if (cycleCard != null) {
                 double range = loop.parameters.getValue(cycleCard.name(), "range");
@@ -106,6 +110,18 @@ public class BotBrain {
             log.trace("Bot think error", e);
         }
         return null;
+    }
+
+    private static boolean canMakeRecipe(List<CardType> hand, List<CardType> recipe) {
+        List<CardType> temp = new ArrayList<>(hand);
+        for (CardType c : recipe) {
+            int idx = temp.indexOf(c);
+            if (idx == -1) {
+                return false;
+            }
+            temp.remove(idx);
+        }
+        return true;
     }
 
     private static GameObject nearestEnemy(List<GameObject> enemies, Vector3 myPos) {
@@ -133,45 +149,18 @@ public class BotBrain {
                 center.getZ());
     }
 
-    // 현재 손패로 만들 수 있는 모든 부분집합 (size >= 2)
-    private static List<List<CardType>> allCombinations(List<CardType> cards) {
-        int n = cards.size();
-        List<List<CardType>> result = new ArrayList<>();
-        int maxMask = 1 << n;
-
-        // 비트마스크로 부분집합 생성
-        for (int mask = 1; mask < maxMask; mask++) {
-            if (Integer.bitCount(mask) < 2) continue; // 1장짜리는 버린다
-            List<CardType> combo = new ArrayList<>();
-            for (int i = 0; i < n; i++) {
-                if ((mask & (1 << i)) != 0) {
-                    combo.add(cards.get(i));
-                }
-            }
-            log.info(combo.toString());
-            result.add(combo);
-        }
-        result.sort((a, b) -> Integer.compare(b.size(), a.size()));
-        return result;
-    }
-
-    // 해당 조합에서 "메인" 카드 (사거리/코스트를 결정하는 카드) 추출
     private static CardType findMainCard(List<CardType> combo) {
-        // 1순위: Magic 타입 카드
         for (CardType c : combo) {
             if (c.getType() == CardType.Type.Magic) {
                 return c;
             }
         }
-        // 그 외에는 그냥 첫 카드
         return combo.isEmpty() ? null : combo.getFirst();
     }
 
-    // 2번 요구사항: 순환용 카드 하나 뽑기
     private static CardType pickCycleCard(List<CardType> cardList, GameLoop loop, int mana) {
         List<CardType> candidates = new ArrayList<>();
         for (CardType c : cardList) {
-
             int cost = (int) loop.parameters.getValue(c.name(), "mana_cost");
             if (cost <= mana) {
                 candidates.add(c);
