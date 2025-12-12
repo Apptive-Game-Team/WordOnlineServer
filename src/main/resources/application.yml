@@ -1,7 +1,7 @@
 server:
-  port: ${PORT:7777}
-  protocol: ${PROTOCOL:https}
-  domain: ${DOMAIN:www.monolong.shop}
+  port: ${PORT}
+  protocol: ${PROTOCOL}
+  domain: ${DOMAIN}
 
 spring:
   application:
