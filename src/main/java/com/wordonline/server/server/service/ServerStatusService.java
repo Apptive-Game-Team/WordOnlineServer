@@ -8,6 +8,7 @@ import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.entity.ServerType;
 import com.wordonline.server.server.repository.ServerRepository;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,7 +26,11 @@ public class ServerStatusService {
     @Value("${server.protocol}")
     private String protocol;
 
+    @Getter
+    private ServerState currentState = ServerState.ACTIVE;
+
     public void setServerStatus(ServerState state) {
+        currentState = state;
         Server server = serverRepository.findByDomainAndPort(domain, port)
                 .orElseGet(() -> new Server(protocol, domain, port, ServerType.GAME, state));
         server.setState(state);

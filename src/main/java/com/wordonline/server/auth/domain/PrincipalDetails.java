@@ -5,30 +5,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 public class PrincipalDetails implements UserDetails, OAuth2User, Principal {
 
-    public final long memberId;
+    public final Long memberId;
     private Map<String, Object> attributes;
+    private final Collection<GrantedAuthority> authorities;
 
-    public PrincipalDetails(long memberId) {
+    public PrincipalDetails(Long memberId, Collection<GrantedAuthority> authorities) {
         this.memberId = memberId;
+        this.authorities = authorities;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(
-                new GrantedAuthority() {
-                    @Override
-                    public String getAuthority() {
-                        return "ROLE_user";
-                    }
-                }
-        );
         return authorities;
     }
 
