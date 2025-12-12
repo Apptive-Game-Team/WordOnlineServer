@@ -14,7 +14,9 @@ import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.session.service.SessionService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ServerStatusTracker {
@@ -37,7 +39,7 @@ public class ServerStatusTracker {
             if (item == 0) {
                 onSessionZero();
             }
-            System.out.println("Session number changed: " + item);
+            log.info("[Server State] Session number changed: {}", item);
         }
 
         @Override
@@ -47,12 +49,13 @@ public class ServerStatusTracker {
 
         @Override
         public void onComplete() {
-            System.out.println("Completed");
         }
     };
 
     private void onSessionZero() {
+        log.info("[Server State] num of game session is zero");
         if (serverStatusService.getCurrentState().equals(ServerState.DRAINING)) {
+            log.info("[KILLING] kill server");
             SpringApplication.exit(context, () -> 0);
             System.exit(0);
         }

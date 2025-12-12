@@ -1,9 +1,9 @@
 package com.wordonline.server.server.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
@@ -12,7 +12,7 @@ import com.wordonline.server.session.service.SessionService;
 import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/server/servers")
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ServerStateController {
 
