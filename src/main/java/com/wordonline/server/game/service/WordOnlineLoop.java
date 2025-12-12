@@ -1,5 +1,7 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
+import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +29,16 @@ public class WordOnlineLoop extends GameLoop {
     private final ComponentUpdateSystem componentUpdateSystem;
     private final PhysicSystem physicSystem;
     private final GameObjectAddRemoteSystem gameObjectAddRemoveSystem;
+    private final DatabaseMagicParser magicParser;
 
     private BotAgent botAgent;
 
     public WordOnlineLoop(MmrService mmrService,
-            UserService userService, GameContext gameContext,
-            Parameters parameters, SyncFrameDataSystem frameDataSystem, BotAgentSystem botSystem,
-            GameObjectStateInitialSystem gameObjectStateInitialSystem,
-            ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
-            GameObjectAddRemoteSystem gameObjectAddRemoveSystem) {
+                          UserService userService, GameContext gameContext,
+                          Parameters parameters, SyncFrameDataSystem frameDataSystem, BotAgentSystem botSystem,
+                          GameObjectStateInitialSystem gameObjectStateInitialSystem,
+                          ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
+                          GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser) {
         super(mmrService, userService, gameContext, parameters);
         this.frameDataSystem = frameDataSystem;
         this.botSystem = botSystem;
@@ -43,6 +46,7 @@ public class WordOnlineLoop extends GameLoop {
         this.componentUpdateSystem = componentUpdateSystem;
         this.physicSystem = physicSystem;
         this.gameObjectAddRemoveSystem = gameObjectAddRemoveSystem;
+        this.magicParser = magicParser;
     }
 
     @Override
@@ -51,7 +55,7 @@ public class WordOnlineLoop extends GameLoop {
         super.init(sessionObject, onTerminated);
         if(sessionObject.getSessionType() == SessionType.Practice)
         {
-            botAgent = new BotAgent(sessionObject);
+            botAgent = new BotAgent(sessionObject, magicParser);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.magic.parser;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,4 +75,12 @@ public class DatabaseMagicParser implements MagicParser {
 
         return magic;
     }
+
+    public Collection<List<CardType>> getAllMagicRecipes() {
+        if (magicHashMap.isEmpty()) {
+            init();
+        }
+        return magicHashMap.keySet();
+    }
+
 }
