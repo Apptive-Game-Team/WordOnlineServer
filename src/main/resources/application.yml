@@ -1,5 +1,8 @@
 server:
-  port: ${PORT:6515}
+  port: ${PORT}
+  external-port: ${EXTERNAL_PORT}
+  protocol: ${PROTOCOL}
+  domain: ${DOMAIN}
 
 spring:
   application:
