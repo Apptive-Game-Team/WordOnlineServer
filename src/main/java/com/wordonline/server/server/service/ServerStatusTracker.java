@@ -44,7 +44,7 @@ public class ServerStatusTracker {
 
         @Override
         public void onError(Throwable throwable) {
-            throwable.printStackTrace();
+            log.error("Error occurred in session number change subscriber", throwable);
         }
 
         @Override
