@@ -1,5 +1,6 @@
 server:
   port: ${PORT}
+  external-port: ${EXTERNAL_PORT}
   protocol: ${PROTOCOL}
   domain: ${DOMAIN}
 

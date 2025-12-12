@@ -16,7 +16,7 @@ public class ServerStatusService {
 
     private final ServerRepository serverRepository;
 
-    @Value("${server.port}")
+    @Value("${server.external-port}")
     private Integer port;
 
     @Value("${server.domain}")
