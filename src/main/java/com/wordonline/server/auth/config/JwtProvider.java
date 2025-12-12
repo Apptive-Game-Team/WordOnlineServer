@@ -36,7 +36,7 @@ public class JwtProvider {
                 .map(value -> (GrantedAuthority) () -> value)
                 .collect(Collectors.toList());
 
-        PrincipalDetails principal = new PrincipalDetails(memberId);
+        PrincipalDetails principal = new PrincipalDetails(memberId, authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 }
