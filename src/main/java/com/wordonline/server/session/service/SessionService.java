@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
+
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 
 // this class is used to manage the sessions
 @Slf4j
@@ -25,11 +28,18 @@ public class SessionService {
 
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
 
+    private final SubmissionPublisher<Integer> onSessionNumChange = new SubmissionPublisher<>();
+
     private final SessionObjectFactory sessionObjectFactory;
     private final ObjectProvider<GameLoop> gameLoopProvider;
     private final StatisticService statisticService;
 
+    public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
+        onSessionNumChange.subscribe(subscriber);
+    }
+
     public void createSession(SessionDto sessionDto) {
+
         SessionObject sessionObject = sessionObjectFactory.createSessionObject(sessionDto);
         GameLoop gameLoop = gameLoopProvider.getObject();
         sessionObject.setGameLoop(gameLoop);
@@ -53,8 +63,13 @@ public class SessionService {
 
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
+        submitSessionNumChange();
         statisticService.saveGameResult(s.getGameContext(), s.getGameContext().getResultChecker().getLoser(), s.getSessionType());
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
+    }
+
+    public void submitSessionNumChange() {
+        onSessionNumChange.submit(sessions.size());
     }
 
     public SessionObject getSessionObject(String sessionId) {
