@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 
 // this class is used to manage the sessions
 @Slf4j
