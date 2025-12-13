@@ -19,7 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 public class BotAgentSystem implements GameSystem {
 
     private final ExecutorService botExecutorService;
-    private final AtomicBoolean isProcessing = new AtomicBoolean(false);
+    private final AtomicBoolean leftBotProcessing = new AtomicBoolean(false);
+    private final AtomicBoolean rightBotProcessing = new AtomicBoolean(false);
     private final AtomicInteger frameCounter = new AtomicInteger(0);
     
     // Bot tick interval: every 8 frames at 10 FPS = 800ms between bot decisions
@@ -32,18 +33,38 @@ public class BotAgentSystem implements GameSystem {
             return;
         }
         
-        // Only submit a new bot task if no bot operation is currently running
-        if (isProcessing.compareAndSet(false, true)) {
-            // Capture required data in local variables to avoid race conditions
-            var botAgent = gameContext.getGameLoop().getBotAgent();
-            var rightFrameInfoDto = gameContext.getGameLoop().getFrameDataSystem().getRightFrameInfoDto();
+        if (!(gameContext.getGameLoop() instanceof com.wordonline.server.game.service.WordOnlineLoop)) {
+            return;
+        }
+        
+        var wordOnlineLoop = (com.wordonline.server.game.service.WordOnlineLoop) gameContext.getGameLoop();
+        
+        // Process left bot if exists
+        var leftBotAgent = wordOnlineLoop.getLeftBotAgent();
+        if (leftBotAgent != null && leftBotProcessing.compareAndSet(false, true)) {
+            var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
             botExecutorService.submit(() -> {
                 try {
-                    botAgent.onTick(rightFrameInfoDto);
+                    leftBotAgent.onTick(leftFrameInfoDto);
                 } catch (Exception e) {
-                    log.debug("Bot agent execution error", e);
+                    log.debug("Left bot agent execution error", e);
                 } finally {
-                    isProcessing.set(false);
+                    leftBotProcessing.set(false);
+                }
+            });
+        }
+        
+        // Process right bot if exists
+        var rightBotAgent = wordOnlineLoop.getRightBotAgent();
+        if (rightBotAgent != null && rightBotProcessing.compareAndSet(false, true)) {
+            var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
+            botExecutorService.submit(() -> {
+                try {
+                    rightBotAgent.onTick(rightFrameInfoDto);
+                } catch (Exception e) {
+                    log.debug("Right bot agent execution error", e);
+                } finally {
+                    rightBotProcessing.set(false);
                 }
             });
         }

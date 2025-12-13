@@ -31,7 +31,8 @@ public class WordOnlineLoop extends GameLoop {
     private final GameObjectAddRemoteSystem gameObjectAddRemoveSystem;
     private final DatabaseMagicParser magicParser;
 
-    private BotAgent botAgent;
+    private BotAgent leftBotAgent;
+    private BotAgent rightBotAgent;
 
     public WordOnlineLoop(MmrService mmrService,
                           UserService userService, GameContext gameContext,
@@ -55,7 +56,13 @@ public class WordOnlineLoop extends GameLoop {
         super.init(sessionObject, onTerminated);
         if(sessionObject.getSessionType() == SessionType.Practice)
         {
-            botAgent = new BotAgent(sessionObject, magicParser);
+            // Create bot agents for negative user IDs
+            if(sessionObject.isLeftBot()) {
+                leftBotAgent = new BotAgent(sessionObject, magicParser, com.wordonline.server.game.dto.Master.LeftPlayer);
+            }
+            if(sessionObject.isRightBot()) {
+                rightBotAgent = new BotAgent(sessionObject, magicParser, com.wordonline.server.game.dto.Master.RightPlayer);
+            }
         }
     }
 
@@ -64,7 +71,7 @@ public class WordOnlineLoop extends GameLoop {
         frameDataSystem.earlyUpdate(gameContext);
 
         //bot tick
-        if (botAgent != null)
+        if (leftBotAgent != null || rightBotAgent != null)
             botSystem.update(gameContext);
 
         // Check for game over
@@ -84,5 +91,13 @@ public class WordOnlineLoop extends GameLoop {
         buildSnapshot();
 
         frameDataSystem.lateUpdate(gameContext);
+    }
+
+    public BotAgent getLeftBotAgent() {
+        return leftBotAgent;
+    }
+
+    public BotAgent getRightBotAgent() {
+        return rightBotAgent;
     }
 }

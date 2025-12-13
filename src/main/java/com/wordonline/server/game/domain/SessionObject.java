@@ -38,6 +38,14 @@ public class SessionObject {
         }
     }
 
+    public boolean isLeftBot() {
+        return leftUserId < 0;
+    }
+
+    public boolean isRightBot() {
+        return rightUserId < 0;
+    }
+
     @Setter
     private GameLoop gameLoop;
 
