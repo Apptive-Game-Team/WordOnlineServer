@@ -3,6 +3,7 @@ package com.wordonline.server.session.service;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.session.dto.SessionDto;
+import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.util.SessionObjectFactory;
 import com.wordonline.server.statistic.service.StatisticService;
 
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,5 +96,17 @@ public class SessionService {
 
     public void clearSessions() {
         sessions.clear();
+    }
+
+    public List<RoomInfoDto> getAllActiveSessionsInfo(String serverUrl) {
+        return sessions.values().stream()
+                .filter(sessionObject -> sessionObject.getGameLoop() != null && sessionObject.getGameLoop().is_running())
+                .map(sessionObject -> new RoomInfoDto(
+                        sessionObject.getSessionId(),
+                        sessionObject.getLeftUserId(),
+                        sessionObject.getRightUserId(),
+                        serverUrl
+                ))
+                .toList();
     }
 }
