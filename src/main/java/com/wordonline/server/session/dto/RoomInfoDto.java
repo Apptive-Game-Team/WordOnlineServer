@@ -2,8 +2,8 @@ package com.wordonline.server.session.dto;
 
 public record RoomInfoDto(
         String sessionId,
-        Long uid1,
-        Long uid2,
+        Long leftUserId,
+        Long rightUserId,
         String serverUrl
 ) {
 

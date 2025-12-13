@@ -1,6 +1,5 @@
 package com.wordonline.server.session.controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
+import com.wordonline.server.server.service.ServerUrlProvider;
 import com.wordonline.server.session.dto.SessionLengthDto;
 import com.wordonline.server.session.dto.SimpleBooleanDto;
 import com.wordonline.server.session.service.SessionService;
@@ -26,15 +26,7 @@ public class SessionServerController {
 
     private final SessionService sessionService;
     private final ServerStatusService serverStatusService;
-
-    @Value("${server.external-port}")
-    private Integer port;
-
-    @Value("${server.domain}")
-    private String domain;
-
-    @Value("${server.protocol}")
-    private String protocol;
+    private final ServerUrlProvider serverUrlProvider;
 
     @PostMapping("/game-sessions")
     public ResponseEntity<SimpleBooleanDto> createGameSession(@RequestBody SessionDto sessionDto) {
@@ -61,8 +53,7 @@ public class SessionServerController {
 
     @GetMapping("/game-sessions")
     public ResponseEntity<RoomListDto> getGameSessions() {
-        String serverUrl = String.format("%s://%s:%d", protocol, domain, port);
         return ResponseEntity.ok(
-                new RoomListDto(sessionService.getAllActiveSessionsInfo(serverUrl)));
+                new RoomListDto(sessionService.getAllActiveSessionsInfo(serverUrlProvider.getServerUrl())));
     }
 }
