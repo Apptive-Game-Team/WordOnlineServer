@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.service.WordOnlineLoop;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 public class BotAgentSystem implements GameSystem {
 
     private final ExecutorService botExecutorService;
-    private final AtomicBoolean isProcessing = new AtomicBoolean(false);
+    private final AtomicBoolean leftBotProcessing = new AtomicBoolean(false);
+    private final AtomicBoolean rightBotProcessing = new AtomicBoolean(false);
     private final AtomicInteger frameCounter = new AtomicInteger(0);
     
-    // Bot tick interval: every 8 frames at 10 FPS = 800ms between bot decisions
+    // Bot tick interval: every 8 frames at 20 FPS = 400ms between bot decisions
     private static final int BOT_TICK_INTERVAL = 8;
 
     @Override
@@ -32,18 +34,38 @@ public class BotAgentSystem implements GameSystem {
             return;
         }
         
-        // Only submit a new bot task if no bot operation is currently running
-        if (isProcessing.compareAndSet(false, true)) {
-            // Capture required data in local variables to avoid race conditions
-            var botAgent = gameContext.getGameLoop().getBotAgent();
-            var rightFrameInfoDto = gameContext.getGameLoop().getFrameDataSystem().getRightFrameInfoDto();
+        if (gameContext.getGameLoop() == null) {
+            return;
+        }
+        
+        var wordOnlineLoop = gameContext.getGameLoop();
+        
+        // Process left bot if exists
+        var leftBotAgent = wordOnlineLoop.getLeftBotAgent();
+        if (leftBotAgent != null && leftBotProcessing.compareAndSet(false, true)) {
+            var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
             botExecutorService.submit(() -> {
                 try {
-                    botAgent.onTick(rightFrameInfoDto);
+                    leftBotAgent.onTick(leftFrameInfoDto);
                 } catch (Exception e) {
-                    log.debug("Bot agent execution error", e);
+                    log.debug("Left bot agent execution error", e);
                 } finally {
-                    isProcessing.set(false);
+                    leftBotProcessing.set(false);
+                }
+            });
+        }
+        
+        // Process right bot if exists
+        var rightBotAgent = wordOnlineLoop.getRightBotAgent();
+        if (rightBotAgent != null && rightBotProcessing.compareAndSet(false, true)) {
+            var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
+            botExecutorService.submit(() -> {
+                try {
+                    rightBotAgent.onTick(rightFrameInfoDto);
+                } catch (Exception e) {
+                    log.debug("Right bot agent execution error", e);
+                } finally {
+                    rightBotProcessing.set(false);
                 }
             });
         }

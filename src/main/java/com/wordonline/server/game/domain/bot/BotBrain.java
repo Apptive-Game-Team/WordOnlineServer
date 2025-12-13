@@ -29,13 +29,15 @@ public class BotBrain {
     public InputDecision think(List<GameObject> gameObjectList,
                                List<CardType> cardList,
                                GameLoop loop,
-                               int mana)
+                               int mana,
+                               Master botSide)
     {
         try {
-            Vector3 playerPos = GameConfig.RIGHT_PLAYER_POSITION;
-
+            Vector3 playerPos = BotSideUtil.getPlayerPosition(botSide);
+            Master enemySide = BotSideUtil.getEnemySide(botSide);
+            
             List<GameObject> enemies = gameObjectList.stream()
-                    .filter(go -> go.getMaster() == Master.LeftPlayer)
+                    .filter(go -> go.getMaster() == enemySide)
                     .toList();
 
             if (cardList.isEmpty()) {
