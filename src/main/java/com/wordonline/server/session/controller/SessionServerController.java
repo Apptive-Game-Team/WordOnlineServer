@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
+import com.wordonline.server.server.service.ServerUrlProvider;
 import com.wordonline.server.session.dto.SessionLengthDto;
 import com.wordonline.server.session.dto.SimpleBooleanDto;
 import com.wordonline.server.session.service.SessionService;
 import com.wordonline.server.session.dto.SessionDto;
+import com.wordonline.server.session.dto.RoomListDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +26,7 @@ public class SessionServerController {
 
     private final SessionService sessionService;
     private final ServerStatusService serverStatusService;
+    private final ServerUrlProvider serverUrlProvider;
 
     @PostMapping("/game-sessions")
     public ResponseEntity<SimpleBooleanDto> createGameSession(@RequestBody SessionDto sessionDto) {
@@ -46,5 +49,11 @@ public class SessionServerController {
     public ResponseEntity<SessionLengthDto> getSessionsLength() {
         return ResponseEntity.ok(
                 new SessionLengthDto((int) sessionService.getActiveSessions()));
+    }
+
+    @GetMapping("/game-sessions")
+    public ResponseEntity<RoomListDto> getGameSessions() {
+        return ResponseEntity.ok(
+                new RoomListDto(sessionService.getAllActiveSessionsInfo(serverUrlProvider.getServerUrl())));
     }
 }
