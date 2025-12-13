@@ -79,6 +79,11 @@ public class SessionObject {
         template.convertAndSend(String.format("%s/%d", url, userId), data);
     }
 
+    // this method is used to broadcast frame information to spectators (userId = 0)
+    public void broadcastFrameInfo(Object data){
+        template.convertAndSend(String.format("%s/0", url), data);
+    }
+
     public void setLeftUser(long userId, List<CardType> cards) {
         leftUserId = userId;
         getGameContext().getGameSessionData().leftPlayerData.cards.clear();

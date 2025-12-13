@@ -17,6 +17,7 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
     private FrameInfoDto leftFrameInfoDto;
     private FrameInfoDto rightFrameInfoDto;
+    private FrameInfoDto broadcastFrameInfoDto;
 
     @Override
     public void earlyUpdate(GameContext gameContext) {
@@ -27,6 +28,10 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
         leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
         rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
+        broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
+                objectsInfoDto,
+                gameContext.getGameSessionData()
+        );
 
         // Charge Mana
         gameContext.getGameSessionData().leftPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().leftPlayerData, leftFrameInfoDto, gameContext.getFrameNum());
@@ -52,5 +57,7 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
                 gameContext.getSessionObject().getRightUserId(),
                 rightFrameInfoDto
         );
+
+        gameContext.getSessionObject().broadcastFrameInfo(broadcastFrameInfoDto);
     }
 }

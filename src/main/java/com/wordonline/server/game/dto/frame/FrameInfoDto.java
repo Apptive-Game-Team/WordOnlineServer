@@ -29,6 +29,13 @@ public class FrameInfoDto {
         this.objects = objects;
     }
 
+    // Constructor for broadcast (spectator) - excludes player-specific card info
+    public static FrameInfoDto createBroadcastDto(ObjectsInfoDto objectsInfoDto, GameSessionData gameSessionData){
+        FrameInfoDto dto = new FrameInfoDto(new CardInfoDto(), objectsInfoDto, gameSessionData);
+        dto.setUpdatedMana(0); // Spectators don't need mana info
+        return dto;
+    }
+
     public SyncInfoDto toSyncDto(SnapshotResponseDto snapshotResponseDto) {
         return new SyncInfoDto(this, snapshotResponseDto);
     }
