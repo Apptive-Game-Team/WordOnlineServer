@@ -36,6 +36,16 @@ public class SyncFrameDataSystem extends FrameDataSystem {
                     gameContext.getSessionObject().getRightUserId(),
                     getRightFrameInfoDto().toSyncDto(rightSnapshotResponseDto)
             );
+
+            // Broadcast sync info to spectators (userId = 0)
+            // Use left player's snapshot as the canonical state for spectators
+            com.wordonline.server.game.dto.frame.FrameInfoDto broadcastFrameInfoDto = com.wordonline.server.game.dto.frame.FrameInfoDto.createBroadcastDto(
+                    gameContext.getObjectsInfoDto(),
+                    gameContext.getGameSessionData()
+            );
+            gameContext.getSessionObject().broadcastFrameInfo(
+                    broadcastFrameInfoDto.toSyncDto(leftSnapshotResponseDto)
+            );
         }
     }
 }

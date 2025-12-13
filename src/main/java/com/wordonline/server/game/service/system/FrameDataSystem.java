@@ -52,5 +52,12 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
                 gameContext.getSessionObject().getRightUserId(),
                 rightFrameInfoDto
         );
+
+        // Broadcast Frame Info To Spectators (userId = 0)
+        FrameInfoDto broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
+                gameContext.getObjectsInfoDto(),
+                gameContext.getGameSessionData()
+        );
+        gameContext.getSessionObject().broadcastFrameInfo(broadcastFrameInfoDto);
     }
 }
