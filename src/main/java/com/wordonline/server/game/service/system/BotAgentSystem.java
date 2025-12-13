@@ -23,7 +23,7 @@ public class BotAgentSystem implements GameSystem {
     private final AtomicBoolean rightBotProcessing = new AtomicBoolean(false);
     private final AtomicInteger frameCounter = new AtomicInteger(0);
     
-    // Bot tick interval: every 8 frames at 10 FPS = 800ms between bot decisions
+    // Bot tick interval: every 8 frames at 20 FPS = 400ms between bot decisions
     private static final int BOT_TICK_INTERVAL = 8;
 
     @Override
