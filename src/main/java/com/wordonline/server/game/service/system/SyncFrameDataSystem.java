@@ -3,6 +3,7 @@ package com.wordonline.server.game.service.system;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.service.GameContext;
 
@@ -39,7 +40,7 @@ public class SyncFrameDataSystem extends FrameDataSystem {
 
             // Broadcast sync info to spectators (userId = 0)
             // Use left player's snapshot as the canonical state for spectators
-            com.wordonline.server.game.dto.frame.FrameInfoDto broadcastFrameInfoDto = com.wordonline.server.game.dto.frame.FrameInfoDto.createBroadcastDto(
+            FrameInfoDto broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
                     gameContext.getObjectsInfoDto(),
                     gameContext.getGameSessionData()
             );
