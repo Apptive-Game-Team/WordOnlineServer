@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.stream.Collectors;
 
 
 // this class is used to manage the sessions
@@ -101,13 +100,13 @@ public class SessionService {
 
     public List<RoomInfoDto> getAllActiveSessionsInfo(String serverUrl) {
         return sessions.values().stream()
-                .filter(sessionObject -> sessionObject.getGameLoop().is_running())
+                .filter(sessionObject -> sessionObject.getGameLoop() != null && sessionObject.getGameLoop().is_running())
                 .map(sessionObject -> new RoomInfoDto(
                         sessionObject.getSessionId(),
                         sessionObject.getLeftUserId(),
                         sessionObject.getRightUserId(),
                         serverUrl
                 ))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
