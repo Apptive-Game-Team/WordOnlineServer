@@ -26,7 +26,8 @@ public class SessionObjectFactory {
         long leftUserId = sessionDto.uid1();
         long rightUserId = sessionDto.uid2();
 
-        if (rightUserId < 0) {
+        // Practice session if either user has a negative ID
+        if (leftUserId < 0 || rightUserId < 0) {
             return createPracticeSessionObject(sessionDto);
         }
 

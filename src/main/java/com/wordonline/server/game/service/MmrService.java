@@ -41,6 +41,10 @@ public class MmrService {
 
     @Transactional(readOnly = true)
     public short fetchRating(long userId) {
+        // Bots (negative user IDs) have default MMR
+        if (userId < 0) {
+            return DEFAULT_MMR;
+        }
         return userRepository
                 .getMmr(userId)                        // Optional<Short>
                 .orElse(DEFAULT_MMR);                   // Short
