@@ -72,6 +72,10 @@ public class SessionObject {
 
     // this method is used to send the frame information to the client
     public void sendFrameInfo(long userId, Object data){
+        // Skip sending frame info to bots (negative user IDs)
+        if (userId < 0) {
+            return;
+        }
         template.convertAndSend(String.format("%s/%d", url, userId), data);
     }
 
