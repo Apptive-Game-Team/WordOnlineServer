@@ -45,43 +45,14 @@ public class SessionObjectFactory {
         long leftUserId = sessionDto.uid1();
         long rightUserId = sessionDto.uid2();
 
-        // Get cards for each side - use default bot deck for negative IDs
-        List<CardType> leftCards = leftUserId < 0 
-                ? getDefaultBotDeck() 
-                : deckService.getSelectedCards(leftUserId);
-        
-        List<CardType> rightCards = rightUserId < 0 
-                ? getDefaultBotDeck() 
-                : deckService.getSelectedCards(rightUserId);
-
         return new SessionObject(
                 sessionDto.sessionId(),
                 leftUserId,
                 rightUserId,
                 simpMessagingTemplate,
-                leftCards,
-                rightCards,
+                deckService.getSelectedCards(leftUserId),
+                deckService.getSelectedCards(rightUserId),
                 SessionType.Practice
-        );
-    }
-
-    private List<CardType> getDefaultBotDeck() {
-        // Create a balanced default deck for bots
-        // 3 of each magic card and 5 of each type card (total: 45 cards)
-        return List.of(
-                // Magic cards (3 each)
-                CardType.Shoot, CardType.Shoot, CardType.Shoot,
-                CardType.Build, CardType.Build, CardType.Build,
-                CardType.Spawn, CardType.Spawn, CardType.Spawn,
-                CardType.Explode, CardType.Explode, CardType.Explode,
-                CardType.Drop, CardType.Drop, CardType.Drop,
-                // Type cards (5 each)
-                CardType.Fire, CardType.Fire, CardType.Fire, CardType.Fire, CardType.Fire,
-                CardType.Water, CardType.Water, CardType.Water, CardType.Water, CardType.Water,
-                CardType.Lightning, CardType.Lightning, CardType.Lightning, CardType.Lightning, CardType.Lightning,
-                CardType.Rock, CardType.Rock, CardType.Rock, CardType.Rock, CardType.Rock,
-                CardType.Nature, CardType.Nature, CardType.Nature, CardType.Nature, CardType.Nature,
-                CardType.Wind, CardType.Wind, CardType.Wind, CardType.Wind, CardType.Wind
         );
     }
 }

@@ -34,11 +34,11 @@ public class BotAgentSystem implements GameSystem {
             return;
         }
         
-        if (!(gameContext.getGameLoop() instanceof WordOnlineLoop)) {
+        if (gameContext.getGameLoop() == null) {
             return;
         }
         
-        var wordOnlineLoop = (WordOnlineLoop) gameContext.getGameLoop();
+        var wordOnlineLoop = gameContext.getGameLoop();
         
         // Process left bot if exists
         var leftBotAgent = wordOnlineLoop.getLeftBotAgent();

@@ -94,12 +94,4 @@ public class WordOnlineLoop extends GameLoop {
 
         frameDataSystem.lateUpdate(gameContext);
     }
-
-    public BotAgent getLeftBotAgent() {
-        return leftBotAgent;
-    }
-
-    public BotAgent getRightBotAgent() {
-        return rightBotAgent;
-    }
 }
