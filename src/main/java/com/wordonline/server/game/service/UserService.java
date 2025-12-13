@@ -14,6 +14,10 @@ public class UserService {
     private final UserRepository userRepository;
 
     public void markOnline(long userId) {
+        // Skip marking bots (negative user IDs) online
+        if (userId < 0) {
+            return;
+        }
         userRepository.updateStatus(userId, UserStatus.Online);
     }
 }
