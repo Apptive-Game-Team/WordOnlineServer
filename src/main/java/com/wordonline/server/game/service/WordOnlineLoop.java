@@ -1,7 +1,6 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
-import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +8,7 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.bot.BotAgent;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.system.BotAgentSystem;
 import com.wordonline.server.game.service.system.ComponentUpdateSystem;
 import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
@@ -54,15 +54,17 @@ public class WordOnlineLoop extends GameLoop {
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         gameContext.init(sessionObject, this);
         super.init(sessionObject, onTerminated);
-        if(sessionObject.getSessionType() == SessionType.Practice)
-        {
-            // Create bot agents for negative user IDs
-            if(sessionObject.isLeftBot()) {
-                leftBotAgent = new BotAgent(sessionObject, magicParser, com.wordonline.server.game.dto.Master.LeftPlayer);
-            }
-            if(sessionObject.isRightBot()) {
-                rightBotAgent = new BotAgent(sessionObject, magicParser, com.wordonline.server.game.dto.Master.RightPlayer);
-            }
+        if(sessionObject.getSessionType() == SessionType.Practice) {
+            initializeBotAgents(sessionObject);
+        }
+    }
+
+    private void initializeBotAgents(SessionObject sessionObject) {
+        if(sessionObject.isLeftBot()) {
+            leftBotAgent = new BotAgent(sessionObject, magicParser, Master.LeftPlayer);
+        }
+        if(sessionObject.isRightBot()) {
+            rightBotAgent = new BotAgent(sessionObject, magicParser, Master.RightPlayer);
         }
     }
 

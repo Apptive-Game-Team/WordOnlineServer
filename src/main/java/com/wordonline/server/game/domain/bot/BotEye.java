@@ -16,13 +16,9 @@ public class BotEye {
     private final int mana;
 
     public BotEye(GameSessionData data, FrameInfoDto myFrame, Master botSide) {
+        var playerData = BotSideUtil.getPlayerData(data, botSide);
         gameObjectList = data.gameObjects;
-        if (botSide == Master.LeftPlayer) {
-            cardList = data.leftPlayerData.cards;
-            mana = data.leftPlayerData.mana;
-        } else {
-            cardList = data.rightPlayerData.cards;
-            mana = data.rightPlayerData.mana;
-        }
+        cardList = playerData.cards;
+        mana = playerData.mana;
     }
 }

@@ -33,13 +33,8 @@ public class BotBrain {
                                Master botSide)
     {
         try {
-            Vector3 playerPos = (botSide == Master.LeftPlayer) 
-                    ? GameConfig.LEFT_PLAYER_POSITION 
-                    : GameConfig.RIGHT_PLAYER_POSITION;
-
-            Master enemySide = (botSide == Master.LeftPlayer) 
-                    ? Master.RightPlayer 
-                    : Master.LeftPlayer;
+            Vector3 playerPos = BotSideUtil.getPlayerPosition(botSide);
+            Master enemySide = BotSideUtil.getEnemySide(botSide);
             
             List<GameObject> enemies = gameObjectList.stream()
                     .filter(go -> go.getMaster() == enemySide)

@@ -8,9 +8,7 @@ public class BotAction {
 
     public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto, Master botSide)
     {
-        long userId = (botSide == Master.LeftPlayer) 
-                ? sessionObject.getLeftUserId() 
-                : sessionObject.getRightUserId();
+        long userId = BotSideUtil.getUserId(sessionObject, botSide);
         
         sessionObject.getGameContext().getMagicInputHandler().handleInput(
                 sessionObject.getGameContext(), userId, inputRequestDto

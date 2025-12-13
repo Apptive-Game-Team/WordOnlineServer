@@ -7,8 +7,11 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.service.GameLoop;
 
+import lombok.Getter;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Getter
 public final class BotAgent {
 
     private final BotAction botAction;
@@ -26,10 +29,6 @@ public final class BotAgent {
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
-    }
-
-    public Master getBotSide() {
-        return botSide;
     }
 
     public void onTick(FrameInfoDto myFrame) {
