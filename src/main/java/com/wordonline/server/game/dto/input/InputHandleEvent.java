@@ -4,7 +4,7 @@ import com.wordonline.server.game.dto.Master;
 
 public record InputHandleEvent(
         Master master,
-        InputResultCode ResultCode,
+        InputResultCode resultCode,
         long magicId
 ) {
 
