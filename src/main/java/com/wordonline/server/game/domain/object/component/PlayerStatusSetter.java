@@ -49,7 +49,7 @@ public class PlayerStatusSetter extends Component implements Flow.Subscriber<Inp
             return;
         }
 
-        switch (event.ResultCode()) {
+        switch (event.resultCode()) {
             case SUCCESS -> getGameObject().setStatus(Status.Attack);
             case FAIL_INVALID_MAGIC -> getGameObject().setStatus(Status.Hindered);
         }
