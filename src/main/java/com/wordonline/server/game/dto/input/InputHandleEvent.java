@@ -12,5 +12,3 @@ public record InputHandleEvent(
         return new InputHandleEvent(master, inputResultCode, -1);
     }
 }
-
-
