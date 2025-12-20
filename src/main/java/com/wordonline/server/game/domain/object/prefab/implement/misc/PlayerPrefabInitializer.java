@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.PlayerStatusSetter;
 import com.wordonline.server.game.domain.object.component.mob.simple.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
@@ -24,7 +25,8 @@ public class PlayerPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getColliders().add(new CircleCollider(gameObject, 1, false));
         gameObject.setElement(ElementType.NONE);
-        gameObject.getComponents().add(new PlayerHealthComponent(gameObject));
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new PlayerHealthComponent(gameObject));
+        gameObject.addComponent(new PlayerStatusSetter(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }
