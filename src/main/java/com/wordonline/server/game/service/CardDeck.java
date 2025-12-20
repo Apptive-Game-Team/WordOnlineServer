@@ -1,5 +1,6 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.dto.CardInfoDto;
@@ -16,6 +17,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class CardDeck {
 
     private static final float CARD_DRAW_INTERVAL = 1;
+    private final Stat cardDrawInterval = new Stat(CARD_DRAW_INTERVAL);
     private final Queue<CardType> cards;
 
     public CardDeck(List<CardType> cards) {
@@ -29,7 +31,7 @@ public class CardDeck {
 
     // random pick card and update to Player Data, Frame Info Dto
     public void drawCard(PlayerData player, CardInfoDto cardInfoDto, int frameNum) {
-        if (frameNum % ((int) (GameLoop.FPS * CARD_DRAW_INTERVAL)) != 0)
+        if (frameNum % ((int) (GameLoop.FPS * cardDrawInterval.total())) != 0)
             return;
         if (cards.isEmpty() || player.cards.size() >= PlayerData.MAX_CARD_NUM)
             return;
@@ -45,5 +47,9 @@ public class CardDeck {
     public void setCards(List<CardType> cards) {
         this.cards.clear();
         this.cards.addAll(cards);
+    }
+
+    public void fever() {
+        cardDrawInterval.addPercent(-0.5f);
     }
 }

@@ -11,6 +11,7 @@ import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.system.BotAgentSystem;
 import com.wordonline.server.game.service.system.ComponentUpdateSystem;
+import com.wordonline.server.game.service.system.FeverTimeSystem;
 import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
 import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
 import com.wordonline.server.game.service.system.PhysicSystem;
@@ -25,6 +26,7 @@ public class WordOnlineLoop extends GameLoop {
 
     private final SyncFrameDataSystem frameDataSystem;
     private final BotAgentSystem botSystem;
+    private final FeverTimeSystem feverTimeSystem;
     private final GameObjectStateInitialSystem gameObjectStateInitialSystem;
     private final ComponentUpdateSystem componentUpdateSystem;
     private final PhysicSystem physicSystem;
@@ -37,12 +39,14 @@ public class WordOnlineLoop extends GameLoop {
     public WordOnlineLoop(MmrService mmrService,
                           UserService userService, GameContext gameContext,
                           Parameters parameters, SyncFrameDataSystem frameDataSystem, BotAgentSystem botSystem,
+            FeverTimeSystem feverTimeSystem,
                           GameObjectStateInitialSystem gameObjectStateInitialSystem,
                           ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
                           GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser) {
         super(mmrService, userService, gameContext, parameters);
         this.frameDataSystem = frameDataSystem;
         this.botSystem = botSystem;
+        this.feverTimeSystem = feverTimeSystem;
         this.gameObjectStateInitialSystem = gameObjectStateInitialSystem;
         this.componentUpdateSystem = componentUpdateSystem;
         this.physicSystem = physicSystem;
@@ -71,6 +75,8 @@ public class WordOnlineLoop extends GameLoop {
     protected void update() {
         // Initial DTOs
         frameDataSystem.earlyUpdate(gameContext);
+
+        feverTimeSystem.update(gameContext);
 
         //bot tick
         if (leftBotAgent != null || rightBotAgent != null)
