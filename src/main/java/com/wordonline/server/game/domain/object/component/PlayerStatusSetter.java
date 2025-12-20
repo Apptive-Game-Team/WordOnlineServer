@@ -27,7 +27,9 @@ public class PlayerStatusSetter extends Component implements Flow.Subscriber<Inp
 
     @Override
     public void onDestroy() {
-        subscription.cancel();
+        if (subscription != null) {
+            subscription.cancel();
+        }
     }
 
     @Override
