@@ -1,4 +1,4 @@
-package com.wordonline.server.game.dto;
+package com.wordonline.server.game.dto.input;
 
 public record InputResponseDto(
     String type,

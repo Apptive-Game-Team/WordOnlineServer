@@ -1,13 +1,11 @@
 package com.wordonline.server.statistic.aspect;
 
-import java.util.Arrays;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import com.wordonline.server.game.dto.InputResponseDto;
+import com.wordonline.server.game.dto.input.InputResponseDto;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.statistic.service.StatisticService;
 import com.wordonline.server.statistic.util.PjpUtils;
@@ -22,7 +20,7 @@ public class StatisticAspect {
     private final StatisticService statisticService;
 
     @AfterReturning(
-            value = "execution(com.wordonline.server.game.dto.InputResponseDto com.wordonline.server.game.service.MagicInputHandler.handleInput(..))",
+            value = "execution(com.wordonline.server.game.dto.input.InputResponseDto com.wordonline.server.game.service.MagicInputHandler.handleInput(..))",
             returning = "response"
     )
     public void afterHandleInput(JoinPoint joinPoint, InputResponseDto response) {

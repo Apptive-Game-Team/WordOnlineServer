@@ -1,7 +1,7 @@
 package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.game.domain.SessionObject;
-import com.wordonline.server.game.dto.InputRequestDto;
+import com.wordonline.server.game.dto.input.InputRequestDto;
 import com.wordonline.server.game.dto.Master;
 
 public class BotAction {

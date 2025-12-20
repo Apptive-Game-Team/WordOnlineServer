@@ -1,4 +1,4 @@
-package com.wordonline.server.game.dto;
+package com.wordonline.server.game.dto.input;
 
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.object.Vector3;
