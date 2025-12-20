@@ -2,7 +2,7 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
-import com.wordonline.server.game.dto.InputRequestDto;
+import com.wordonline.server.game.dto.input.InputRequestDto;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.service.GameLoop;

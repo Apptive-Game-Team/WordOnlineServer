@@ -8,7 +8,7 @@ import com.wordonline.server.game.dto.Master;
 
 public class PlayerHealthComponent extends Mob {
     private static final int MAX_HEALTH = 100;
-    PlayerData playerData;
+    private PlayerData playerData;
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
@@ -25,7 +25,9 @@ public class PlayerHealthComponent extends Mob {
     }
 
     @Override
-    public void onDestroy() {}
+    public void onDestroy() {
+        getGameObject().destroy();
+    }
 
     @Override
     public void onDeath() {
