@@ -10,12 +10,13 @@ import lombok.Data;
 @AllArgsConstructor
 public class SyncInfoDto {
     private final String type = "sync";
+    private int remainingTime;
     private int updatedMana;
     private int leftPlayerHp;
     private int rightPlayerHp;
     private final SnapshotResponseDto snapshotResponseDto;
 
     public SyncInfoDto(FrameInfoDto frameInfoDto, SnapshotResponseDto snapshotResponseDto) {
-        this(frameInfoDto.getUpdatedMana(), frameInfoDto.getLeftPlayerHp(), frameInfoDto.getRightPlayerHp(), snapshotResponseDto);
+        this(frameInfoDto.getRemainingTime(), frameInfoDto.getUpdatedMana(), frameInfoDto.getLeftPlayerHp(), frameInfoDto.getRightPlayerHp(), snapshotResponseDto);
     }
 }
