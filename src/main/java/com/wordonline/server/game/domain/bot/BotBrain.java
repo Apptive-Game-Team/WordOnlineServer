@@ -97,14 +97,14 @@ public class BotBrain {
 
             if (!placement.isEmpty()) {
                 MagicCandidate chosen = placement.getFirst();
-                Vector3 target = randomPosInRange(playerPos, chosen.range());
+                Vector3 target = randomPosInRange(playerPos, chosen.range(), botSide);
                 return new InputDecision(chosen.cards(), target);
             }
 
             CardType cycleCard = pickCycleCard(cardList, loop, mana);
             if (cycleCard != null) {
                 double range = loop.parameters.getValue(cycleCard.name(), "range");
-                Vector3 target = randomPosInRange(playerPos, range);
+                Vector3 target = randomPosInRange(playerPos, range, botSide);
                 return new InputDecision(List.of(cycleCard), target);
             }
 
@@ -139,10 +139,23 @@ public class BotBrain {
         return best;
     }
 
-    private static Vector3 randomPosInRange(Vector3 center, double range) {
+    private static Vector3 randomPosInRange(Vector3 center, double range, Master botSide) {
         double u = ThreadLocalRandom.current().nextDouble();
         double r = Math.sqrt(u) * range;
-        double theta = ThreadLocalRandom.current().nextDouble(Math.PI / 2, Math.PI * 3 / 2);
+
+        double theta = Double.NaN;
+
+        if (botSide == Master.RightPlayer) {
+            theta = ThreadLocalRandom.current()
+                    .nextDouble(Math.PI / 2, Math.PI * 3 / 2);
+        } else if (botSide == Master.LeftPlayer) {
+            theta = ThreadLocalRandom.current()
+                    .nextDouble(-Math.PI / 2, Math.PI / 2);
+        }
+
+        if (Double.isNaN(theta)) {
+            throw new IllegalStateException("Unknown botSide: " + botSide);
+        }
 
         double dx = r * Math.cos(theta);
         double dy = r * Math.sin(theta);

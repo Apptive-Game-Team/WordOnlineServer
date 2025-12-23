@@ -26,9 +26,12 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
         ObjectsInfoDto objectsInfoDto = gameContext.getObjectsInfoDto();
 
-        leftFrameInfoDto = new FrameInfoDto(leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
-        rightFrameInfoDto = new FrameInfoDto(rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
+        long remainingTime = gameContext.getGameTimer().getRemainingTimeSeconds();
+
+        leftFrameInfoDto = new FrameInfoDto(remainingTime, leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
+        rightFrameInfoDto = new FrameInfoDto(remainingTime, rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
         broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
+                remainingTime,
                 objectsInfoDto,
                 gameContext.getGameSessionData()
         );

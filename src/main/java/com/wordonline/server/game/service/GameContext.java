@@ -27,6 +27,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class GameContext {
 
+    private final GameTimer gameTimer;
     private SessionObject sessionObject;
     private final GameSessionData gameSessionData;
     private ResultChecker resultChecker;
