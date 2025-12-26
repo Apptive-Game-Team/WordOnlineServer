@@ -82,6 +82,10 @@ public class WordOnlineLoop extends GameLoop {
         if (leftBotAgent != null || rightBotAgent != null)
             botSystem.update(gameContext);
 
+        if (gameContext.getGameTimer().isEnd()) {
+            gameContext.getResultChecker().setEnd();
+        }
+
         // Check for game over
         if (gameContext.getResultChecker().checkResult()) {
             handleGameEnd();

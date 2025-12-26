@@ -7,6 +7,7 @@ import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -14,9 +15,16 @@ import lombok.extern.slf4j.Slf4j;
 public class ResultChecker {
     private final SessionObject sessionObject;
     @Getter
-    Master loser = null;
+    private Master loser = null;
+    @Setter
+    private boolean isEnd = false;
+
+    public void setEnd() {
+        isEnd = true;
+    }
 
     public void setLoser(Master loser) {
+        isEnd = true;
         if (this.loser != null) {
             return;
         }
@@ -24,18 +32,25 @@ public class ResultChecker {
     }
 
     public boolean checkResult() {
-        if (loser == null) {
-            return false;
-        }
-        return true;
+        return isEnd;
     }
 
     public void broadcastResult(ResultMmrDto mmrDto) {
-        ResultDto resultDto = new ResultDto(
-                (loser==Master.LeftPlayer?ResultType.Lose:ResultType.Win),
-                (loser==Master.RightPlayer?ResultType.Lose:ResultType.Win),
-                mmrDto
-        );
+        ResultDto resultDto;
+
+        if (loser == null) {
+            resultDto = new ResultDto(
+                    ResultType.Draw,
+                    ResultType.Draw,
+                    mmrDto
+            );
+        } else {
+            resultDto = new ResultDto(
+                    (loser==Master.LeftPlayer?ResultType.Lose:ResultType.Win),
+                    (loser==Master.RightPlayer?ResultType.Lose:ResultType.Win),
+                    mmrDto
+            );
+        }
 
         sessionObject.sendFrameInfo(
                 sessionObject.getRightUserId(),

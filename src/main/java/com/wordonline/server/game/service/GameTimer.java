@@ -25,6 +25,10 @@ public class GameTimer {
         return (endTime - System.currentTimeMillis()) / 1000;
     }
 
+    public boolean isEnd() {
+        return getRemainingTimeSeconds() <= 0;
+    }
+
     public boolean isFeverTime() {
         return getRemainingTimeSeconds() < feverTimeDuration;
     }
