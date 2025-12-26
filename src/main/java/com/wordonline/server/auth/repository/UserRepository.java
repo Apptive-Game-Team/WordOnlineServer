@@ -35,6 +35,12 @@ public class UserRepository {
             WHERE id = :userId;
             """;
 
+    private static final String INCREMENT_TOTAL_WINS = """
+            update users
+            set total_wins = coalesce(total_wins, 0) + 1
+            where id = :userId;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public Optional<Long> getSelectedDeckId(long userId) {
@@ -62,6 +68,12 @@ public class UserRepository {
         jdbcClient.sql(UPDATE_STATUS)
                 .param("id", userId)
                 .param("status", status.name())
+                .update();
+    }
+
+    public void incrementTotalWins(long userId) {
+        jdbcClient.sql(INCREMENT_TOTAL_WINS)
+                .param("userId", userId)
                 .update();
     }
 }

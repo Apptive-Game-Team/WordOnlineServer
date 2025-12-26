@@ -20,4 +20,8 @@ public class UserService {
         }
         userRepository.updateStatus(userId, UserStatus.Online);
     }
+
+    public void incrementTotalWins(long userId) {
+        userRepository.incrementTotalWins(userId);
+    }
 }

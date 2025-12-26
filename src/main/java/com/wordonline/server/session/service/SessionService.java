@@ -2,6 +2,7 @@ package com.wordonline.server.session.service;
 
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.service.UserService;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.util.SessionObjectFactory;
@@ -34,6 +35,7 @@ public class SessionService {
     private final SessionObjectFactory sessionObjectFactory;
     private final ObjectProvider<GameLoop> gameLoopProvider;
     private final StatisticService statisticService;
+    private final UserService userService;
 
     public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
         onSessionNumChange.subscribe(subscriber);
@@ -65,7 +67,17 @@ public class SessionService {
     private void onLoopTerminated(SessionObject s) {
         sessions.remove(s.getSessionId());
         submitSessionNumChange();
-        statisticService.saveGameResult(s.getGameContext(), s.getGameContext().getResultChecker().getLoser(), s.getSessionType());
+
+        var ctx = s.getGameContext();
+        var loser = ctx.getResultChecker().getLoser();
+        var winner = ctx.getResultChecker().getWinnerId();
+
+        statisticService.saveGameResult(ctx, loser, s.getSessionType());
+
+        if (!s.getSessionId().contains("debug")) {
+                userService.incrementTotalWins(winner);
+        }
+
         log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
     }
 
