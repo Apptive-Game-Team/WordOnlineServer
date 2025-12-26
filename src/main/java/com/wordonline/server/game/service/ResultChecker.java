@@ -31,6 +31,11 @@ public class ResultChecker {
         this.loser = loser;
     }
 
+    public long getWinnerId()
+    {
+        return loser==Master.LeftPlayer?sessionObject.getRightUserId():sessionObject.getLeftUserId();
+    }
+
     public boolean checkResult() {
         return isEnd;
     }
