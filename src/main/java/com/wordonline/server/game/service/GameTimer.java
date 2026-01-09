@@ -21,15 +21,19 @@ public class GameTimer {
         endTime = startTime + duration;
     }
 
-    public long getRemainingTimeSeconds() {
+    public long getRemainingTimeMillis() {
         return endTime - System.currentTimeMillis();
     }
 
+    public long getRemainingTimeSeconds() {
+        return getRemainingTimeMillis() / 1000;
+    }
+
     public boolean isEnd() {
-        return getRemainingTimeSeconds() <= 0;
+        return getRemainingTimeMillis() <= 0;
     }
 
     public boolean isFeverTime() {
-        return getRemainingTimeSeconds() < feverTimeDuration;
+        return getRemainingTimeMillis() < feverTimeDuration;
     }
 }
