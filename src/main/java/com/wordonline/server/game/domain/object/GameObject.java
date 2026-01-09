@@ -106,7 +106,7 @@ public class GameObject {
 
     public void destroy() {
         setStatus(Status.Destroyed);
-        gameContext.updateGameObject(this);
+        applyUpdate();
         onDestroy();
     }
 
@@ -116,18 +116,18 @@ public class GameObject {
             destroy();
             return;
         }
-        gameContext.updateGameObject(this);
+        applyUpdate();
     }
 
     public void setStatus(Status status) {
         if (this.status == Status.Destroyed) return;
         this.status = status;
-        gameContext.updateGameObject(this);
+        applyUpdate();
     }
 
     public void setEffect(Effect effect) {
         this.effect = effect;
-        gameContext.updateGameObject(this);
+        applyUpdate();
     }
 
     public void setElement(ElementType element) {
@@ -159,5 +159,9 @@ public class GameObject {
     public void onDestroy() {
         for (Component component : components)
             component.onDestroy();
+    }
+
+    public void applyUpdate() {
+        gameContext.updateGameObject(this);
     }
 }
