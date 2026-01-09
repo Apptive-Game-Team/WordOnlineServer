@@ -17,8 +17,8 @@ public final class SnapshotMapper {
                 g.getType().name(),
                 p.getX(), p.getY(), p.getZ(),
                 g.getMaster().toString(),
-                g.getStatus() == null ? Status.Idle.name() : g.getStatus().name(),
-                g.getEffect() == null ? Effect.None.name() : g.getEffect().name(),
+                g.getStatus(),
+                g.getEffect(),
                 mob != null ? mob.getHp() : 0,
                 mob != null ? mob.getMaxHp() : 0
         );
