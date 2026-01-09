@@ -20,7 +20,8 @@ public class CorsConfig {
                 "https://apptive-game-team.github.io",
                 "https://word-online.vercel.app",
                 "https://word-online.apps.tossmini.com",
-                "https://word-online.private-apps.tossmini.com"));
+                "https://word-online.private-apps.tossmini.com",
+                "https://team6515.itch.io"));
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
