@@ -22,7 +22,8 @@ public class CorsConfig {
                 "https://word-online.apps.tossmini.com",
                 "https://word-online.private-apps.tossmini.com",
                 "https://team6515.itch.io",
-                "https://html-classic.itch.zone"));
+                "https://html-classic.itch.zone",
+                "https://assets-production.game-ping.kr"));
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
