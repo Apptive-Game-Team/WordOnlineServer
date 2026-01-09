@@ -79,6 +79,7 @@ public class ObjectsInfoDtoBuilder {
             updatedObjectDto.setPosition(gameObject.getPosition());
             updatedObjectDto.setStatus(gameObject.getStatus());
             updatedObjectDto.setEffect(gameObject.getEffect());
+            updatedObjectDto.updateHp(gameObject);
         } else { // if the object is not in the update list, add it
             updatedObjectDto = new UpdatedObjectDto(gameObject);
             updatedObjectDto.setPosition(gameObject.getPosition());
