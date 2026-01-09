@@ -11,7 +11,7 @@ public class PlayerHealthComponent extends Mob {
     private PlayerData playerData;
 
     @Override
-    public void onDamaged(AttackInfo attackInfo) {
+    public void applyDamage(AttackInfo attackInfo) {
         super.onDamaged(attackInfo);
         playerData.hp = hp;
     }
