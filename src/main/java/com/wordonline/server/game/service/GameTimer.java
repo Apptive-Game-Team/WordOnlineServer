@@ -22,7 +22,7 @@ public class GameTimer {
     }
 
     public long getRemainingTimeSeconds() {
-        return (endTime - System.currentTimeMillis()) / 1000;
+        return endTime - System.currentTimeMillis();
     }
 
     public boolean isEnd() {
