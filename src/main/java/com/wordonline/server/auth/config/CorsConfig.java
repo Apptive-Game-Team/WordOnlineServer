@@ -21,7 +21,8 @@ public class CorsConfig {
                 "https://word-online.vercel.app",
                 "https://word-online.apps.tossmini.com",
                 "https://word-online.private-apps.tossmini.com",
-                "https://team6515.itch.io"));
+                "https://team6515.itch.io",
+                "https://html-classic.itch.zone"));
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
