@@ -13,11 +13,19 @@ import lombok.Setter;
 // This class is used to send updated object information to the client
 public class UpdatedObjectDto {
     private final int id;
-    private final int maxHp;
-    private final int hp;
+    private int maxHp;
+    private int hp;
     private Status status;
     private Effect effect;
     private Vector3 position;
+
+    public void updateHp(GameObject gameObject) {
+        gameObject.getComponentOptional(Mob.class)
+                .ifPresent(mob -> {
+                    this.maxHp = mob.getMaxHp();
+                    this.hp = mob.getHp();
+                });
+    }
 
     public UpdatedObjectDto(GameObject gameObject) {
         this.id = gameObject.getId();

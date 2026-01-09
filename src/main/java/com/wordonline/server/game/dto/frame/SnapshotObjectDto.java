@@ -1,12 +1,15 @@
 package com.wordonline.server.game.dto.frame;
 
+import com.wordonline.server.game.dto.Effect;
+import com.wordonline.server.game.dto.Status;
+
 public record SnapshotObjectDto(
         int id,
         String prefab,
         float x, float y, float z,
         String master,
-        String status,
-        String effect,
+        Status status,
+        Effect effect,
         int hp,
         int maxHp
 ) {}
