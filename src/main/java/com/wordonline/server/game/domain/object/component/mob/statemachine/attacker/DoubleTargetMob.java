@@ -35,23 +35,28 @@ public class DoubleTargetMob extends BehaviorMob {
         this.multiEnemyDetector = new MultiEnemyDetector(getGameContext(), targetMask);
         this.detector = multiEnemyDetector;
 
-        // 공격 로직: 사거리 안 적 최대 2명 찾고 미사일 2발 분배
         setBehavior(target -> {
-            // BehaviorMob.attackRange는 같은 패키지라 접근 가능
+            if (target == null) return false;
+
+            Damageable d = target.getComponent(Damageable.class);
+            if (d == null) return false;
+
+            shoot(target);
+
             List<GameObject> targets = multiEnemyDetector.detectInRange(gameObject, 2, attackRange);
 
-            if (targets.isEmpty()) {
-                // 때릴 놈 없으면 false -> AttackState에서 Idle로 전환
-                return false;
+            GameObject second = null;
+            for (GameObject t : targets) {
+                if (t != target) {
+                    second = t;
+                    break;
+                }
             }
 
-            if (targets.size() == 1) {
-                GameObject only = targets.get(0);
-                shoot(only);
-                shoot(only); // 한 놈에게 2발
+            if (second == null) {
+                shoot(target);
             } else {
-                shoot(targets.get(0));
-                shoot(targets.get(1)); // 두 놈에게 각각 1발
+                shoot(second);
             }
 
             return true;
