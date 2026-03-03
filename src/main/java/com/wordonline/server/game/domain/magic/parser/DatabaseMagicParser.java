@@ -71,7 +71,7 @@ public class DatabaseMagicParser implements MagicParser {
         }
 
         if (!magicRepository.existUserMagic(userId, magic.id)) {
-            log.info("[Magic:NotOwned] User {} does not have Magic(id:{}) yet. Proceeding...", userId, magic.id);
+            log.info("[Magic:NotOwned] User {} does not have Magic(id:{}) yet. Rejecting magic cast.", userId, magic.id);
             return null;
         }
 
