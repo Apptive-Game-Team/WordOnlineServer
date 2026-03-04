@@ -11,8 +11,8 @@ spring:
     import: optional:file:.env[.properties]
   sql:
     init:
-      schema-locations: classpath:static/sql/schema.sql
-      data-locations: classpath:static/sql/data.sql
+      schema-locations: classpath:sql/schema.sql
+      data-locations: classpath:sql/data.sql
       mode: embedded
   datasource:
     driver-class-name: org.postgresql.Driver
