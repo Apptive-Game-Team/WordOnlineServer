@@ -196,3 +196,13 @@ CREATE TABLE servers (
     type VARCHAR(10) NOT NULL, -- GAME, LOBBY, ACCOUNT, ADMIN
     state VARCHAR(10) NOT NULL DEFAULT 'INACTIVE' -- ACTIVE, INACTIVE, DRAINING
 );
+
+CREATE TABLE user_magics (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    magic_id BIGINT REFERENCES magics(id) ON DELETE CASCADE
+);
+
+ALTER TABLE user_magics
+    ADD CONSTRAINT uq_user_magics_user_id_magic_id
+        UNIQUE (user_id, magic_id);

@@ -42,7 +42,7 @@ public class MagicInputHandler {
         }
 
         // Parse the magic from the input request
-        Magic magic = magicParser.parseMagic(inputRequestDto.getCards());
+        Magic magic = magicParser.parseMagic(userId, inputRequestDto.getCards());
 
         if (magic == null) {
             // 카드 파사삭

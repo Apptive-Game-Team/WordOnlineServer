@@ -7,5 +7,5 @@ import com.wordonline.server.game.domain.magic.Magic;
 
 public interface MagicParser {
     // This method is used to parse the magic cards
-    Magic parseMagic(List<CardType> cards);
+    Magic parseMagic(long userId, List<CardType> cards);
 }

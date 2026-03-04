@@ -57,16 +57,21 @@ public class DatabaseMagicParser implements MagicParser {
     }
 
     @Override
-    public Magic parseMagic(List<CardType> cards) {
+    public Magic parseMagic(long userId, List<CardType> cards) {
         if (magicHashMap.isEmpty()) {
             init();
         }
 
-        List<CardType> key = List.copyOf(cards.stream().sorted().toList());
+        List<CardType> key = cards.stream().sorted().toList();
         Magic magic = magicHashMap.get(key);
 
         if (magic == null) {
-            log.info("cards: {}, keys: {}", cards, key);
+            log.warn("[MagicNotFound] No magic mapped for cards: {} (sorted keys: {})", cards, key);
+            return null;
+        }
+
+        if (!magicRepository.existUserMagic(userId, magic.id)) {
+            log.info("[Magic:NotOwned] User {} does not have Magic(id:{}) yet. Rejecting magic cast.", userId, magic.id);
             return null;
         }
 

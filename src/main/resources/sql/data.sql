@@ -99,3 +99,8 @@ WHERE NOT EXISTS (
     FROM user_cards uc
     WHERE uc.user_id = u.id AND uc.card_id = 11
 );
+
+-- For give all magic to User
+INSERT INTO user_magics(user_id, magic_id)
+SELECT u.id, m.id
+FROM users u, magics m
