@@ -38,8 +38,9 @@ public class MagicRepository {
         return jdbcClient.sql(USER_MAGIC_EXIST)
                 .param("userId", userId)
                 .param("magicId", magicId)
-                .query()
-                .singleValue() instanceof Boolean result && result;
+                .query(Boolean.class)
+                .optional()
+                .orElse(false);
     }
 
     public List<MagicInfoDto> getAllMagic() {
