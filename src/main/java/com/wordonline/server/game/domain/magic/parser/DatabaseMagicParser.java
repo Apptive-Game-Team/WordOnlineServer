@@ -37,10 +37,7 @@ public class DatabaseMagicParser implements MagicParser {
 
                     Magic magic = applicationContext.getBean(magicInfoDto.name(), Magic.class);
                     magic.id = magicInfoDto.id();
-                    magicHashMap.put(
-                            convertToKey(magicInfoDto.cards()),
-                            magic
-                    );
+                    magicHashMap.put(convertToKey(magicInfoDto.cards()), magic);
                 });
     }
 
@@ -49,24 +46,13 @@ public class DatabaseMagicParser implements MagicParser {
     }
 
     private List<CardType> convertToKey(List<CardType> cards) {
-        return List.copyOf(
-                        cards.stream()
-                                .sorted()
-                                .toList()
-                );
+        return List.copyOf(cards.stream().sorted().toList());
     }
 
     @Override
     public Magic parseMagic(long userId, List<CardType> cards) {
-        if (magicHashMap.isEmpty()) {
-            init();
-        }
-
-        List<CardType> key = cards.stream().sorted().toList();
-        Magic magic = magicHashMap.get(key);
-
+        Magic magic = getMagicByCards(cards);
         if (magic == null) {
-            log.warn("[MagicNotFound] No magic mapped for cards: {} (sorted keys: {})", cards, key);
             return null;
         }
 
@@ -78,6 +64,10 @@ public class DatabaseMagicParser implements MagicParser {
         return magic;
     }
 
+    public Magic parseMagicForBot(List<CardType> cards) {
+        return getMagicByCards(cards);
+    }
+
     public Collection<List<CardType>> getAllMagicRecipes() {
         if (magicHashMap.isEmpty()) {
             init();
@@ -85,4 +75,25 @@ public class DatabaseMagicParser implements MagicParser {
         return magicHashMap.keySet();
     }
 
+    public Map<List<CardType>, Magic> getAllMagicRecipeMap() {
+        if (magicHashMap.isEmpty()) {
+            init();
+        }
+        return Map.copyOf(magicHashMap);
+    }
+
+    private Magic getMagicByCards(List<CardType> cards) {
+        if (magicHashMap.isEmpty()) {
+            init();
+        }
+
+        List<CardType> key = cards.stream().sorted().toList();
+        Magic magic = magicHashMap.get(key);
+
+        if (magic == null) {
+            log.warn("[MagicNotFound] No magic mapped for cards: {} (sorted keys: {})", cards, key);
+        }
+
+        return magic;
+    }
 }

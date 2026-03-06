@@ -1,17 +1,18 @@
 package com.wordonline.server.session.service;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.game.service.UserService;
-import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.dto.RoomInfoDto;
+import com.wordonline.server.session.dto.SessionDto;
+import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
 import com.wordonline.server.statistic.service.StatisticService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.ObjectProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,38 +22,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-
-// this class is used to manage the sessions
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class SessionService {
 
+    private static final Logger log = LoggerFactory.getLogger(SessionService.class);
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
 
     private final SubmissionPublisher<Integer> onSessionNumChange = new SubmissionPublisher<>();
 
     private final SessionObjectFactory sessionObjectFactory;
-    private final ObjectProvider<GameLoop> gameLoopProvider;
+    private final GameLoopFactory gameLoopFactory;
     private final StatisticService statisticService;
     private final UserService userService;
+
+    public SessionService(SessionObjectFactory sessionObjectFactory, GameLoopFactory gameLoopFactory, StatisticService statisticService, UserService userService) {
+        this.sessionObjectFactory = sessionObjectFactory;
+        this.gameLoopFactory = gameLoopFactory;
+        this.statisticService = statisticService;
+        this.userService = userService;
+    }
 
     public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
         onSessionNumChange.subscribe(subscriber);
     }
 
     public void createSession(SessionDto sessionDto) {
-
         SessionObject sessionObject = sessionObjectFactory.createSessionObject(sessionDto);
-        GameLoop gameLoop = gameLoopProvider.getObject();
-        sessionObject.setGameLoop(gameLoop);
-        gameLoop.init(sessionObject, () -> onLoopTerminated(sessionObject));
+        GameLoop loop = gameLoopFactory.create(sessionObject.getSessionType());
+
+        sessionObject.setGameLoop(loop);
+        loop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
         if (!sessionObject.getSessionId().contains("debug")) {
-            statisticService.createBuilder(gameLoop.getGameContext());
+            statisticService.createBuilder(loop.getGameContext());
         }
 
-        Thread thread = new Thread(gameLoop);
+        Thread thread = new Thread(loop);
         thread.start();
 
         sessions.put(sessionObject.getSessionId(), sessionObject);
@@ -60,25 +65,27 @@ public class SessionService {
     }
 
     public boolean isSessionActive(String sessionId) {
-        return sessions.get(sessionId)
-                .getGameLoop().is_running();
+        return sessions.get(sessionId).getGameLoop().is_running();
     }
 
-    private void onLoopTerminated(SessionObject s) {
-        sessions.remove(s.getSessionId());
+    private void onLoopTerminated(SessionObject sessionObject) {
+        sessions.remove(sessionObject.getSessionId());
         submitSessionNumChange();
 
-        var ctx = s.getGameContext();
-        var loser = ctx.getResultChecker().getLoser();
-        var winner = ctx.getResultChecker().getWinnerId();
+        GameContext gameContext = sessionObject.getGameContext();
+        ResultChecker resultChecker = gameContext.getResultChecker();
+        Master loser = resultChecker.getLoser();
+        long winnerId = resultChecker.getWinnerId();
 
-        statisticService.saveGameResult(ctx, loser, s.getSessionType());
+        statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
 
-        if (!s.getSessionId().contains("debug")) {
-                userService.incrementTotalWins(winner);
+        if (!sessionObject.getSessionId().contains("debug")) {
+            if (winnerId >= 0) {
+                userService.incrementTotalWins(winnerId);
+            }
         }
 
-        log.info("[Session] Session removed; sessionId: {}", s.getSessionId());
+        log.info("[Session] Session removed; sessionId: {}", sessionObject.getSessionId());
     }
 
     public void submitSessionNumChange() {
@@ -90,14 +97,13 @@ public class SessionService {
     }
 
     public long getActiveSessions() {
-        return sessions.values().stream().filter(sessionObject -> sessionObject.getGameLoop().is_running()).count();
+        return sessions.values().stream().filter(s -> s.getGameLoop().is_running()).count();
     }
 
     public String getHealthLog() {
-        long numOfActiveSessions = getActiveSessions();
-        return "Sessions: num :" + numOfActiveSessions + " | " + String.join("\n", sessions.values()
-                .stream()
-                .map(Object::toString).toList());
+        long activeSessions = getActiveSessions();
+        String joined = String.join("\n", sessions.values().stream().map(Object::toString).toList());
+        return "Sessions: num :" + activeSessions + " | " + joined;
     }
 
     public Optional<SessionObject> findByUserId(long userId) {
@@ -110,15 +116,10 @@ public class SessionService {
         sessions.clear();
     }
 
-    public List<RoomInfoDto> getAllActiveSessionsInfo(String serverUrl) {
+    public List<RoomInfoDto> getAllActiveSessionsInfo(String baseUrl) {
         return sessions.values().stream()
-                .filter(sessionObject -> sessionObject.getGameLoop() != null && sessionObject.getGameLoop().is_running())
-                .map(sessionObject -> new RoomInfoDto(
-                        sessionObject.getSessionId(),
-                        sessionObject.getLeftUserId(),
-                        sessionObject.getRightUserId(),
-                        serverUrl
-                ))
+                .filter(s -> s.getGameLoop() != null && s.getGameLoop().is_running())
+                .map(s -> new RoomInfoDto(s.getSessionId(), Long.valueOf(s.getLeftUserId()), Long.valueOf(s.getRightUserId()), baseUrl))
                 .toList();
     }
 }

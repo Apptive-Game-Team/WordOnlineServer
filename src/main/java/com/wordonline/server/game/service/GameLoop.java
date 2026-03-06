@@ -31,6 +31,14 @@ public abstract class GameLoop implements Runnable {
     private final MmrService mmrService;
     private final UserService userService;
 
+    protected MmrService getMmrService() {
+        return mmrService;
+    }
+
+    protected UserService getUserService() {
+        return userService;
+    }
+
     @Getter
     protected final GameContext gameContext;
 
