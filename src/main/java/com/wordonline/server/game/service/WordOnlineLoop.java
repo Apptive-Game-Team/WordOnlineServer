@@ -78,9 +78,10 @@ public class WordOnlineLoop extends GameLoop {
 
         feverTimeSystem.update(gameContext);
 
-        //bot tick
-        if (leftBotAgent != null || rightBotAgent != null)
-            botSystem.update(gameContext);
+        // bot tick (practice bots and pve enemy bots are both handled inside BotAgentSystem)
+        botSystem.update(gameContext);
+
+        beforeResultCheck();
 
         if (gameContext.getGameTimer().isEnd()) {
             gameContext.getResultChecker().setEnd();
@@ -103,5 +104,9 @@ public class WordOnlineLoop extends GameLoop {
         buildSnapshot();
 
         frameDataSystem.lateUpdate(gameContext);
+    }
+
+    protected void beforeResultCheck() {
+        // hook for specialized loops (e.g. PVE)
     }
 }

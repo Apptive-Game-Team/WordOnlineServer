@@ -1,9 +1,7 @@
 package com.wordonline.server.game.service.system;
 
 import com.wordonline.server.game.domain.pve.PveScenario;
-import com.wordonline.server.game.domain.pve.PveTrigger;
-import com.wordonline.server.game.domain.pve.PveTriggerType;
-import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.domain.pve.PveScenarioEvent;
 import com.wordonline.server.game.dto.pve.PveScriptEventDto;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.pve.PveScenarioInstaller;
@@ -32,13 +30,14 @@ public class PveScriptSystem implements GameSystem {
             return;
         }
 
-        for (PveTrigger trigger : scenario.triggers()) {
-            if (fired.contains(trigger.id())) {
+        for (PveScenarioEvent eventSpec : scenario.events()) {
+            if (fired.contains(eventSpec.id())) {
                 continue;
             }
-            if (isSatisfied(trigger, gameContext)) {
-                fired.add(trigger.id());
-                var event = new PveScriptEventDto(trigger.dialogue().key(), trigger.dialogue().lines());
+            if (isSatisfied(eventSpec, gameContext)) {
+                fired.add(eventSpec.id());
+                int speakerObjectId = runtime == null ? -1 : runtime.getInstalledObjectId(eventSpec.speakerInstallerId());
+                var event = new PveScriptEventDto(eventSpec.key(), speakerObjectId, eventSpec.lines());
                 long leftId = gameContext.getSessionObject().getLeftUserId();
                 long rightId = gameContext.getSessionObject().getRightUserId();
                 gameContext.getSessionObject().sendFrameInfo(leftId, event);
@@ -47,23 +46,7 @@ public class PveScriptSystem implements GameSystem {
         }
     }
 
-    private boolean isSatisfied(PveTrigger trigger, GameContext gameContext) {
-        PveTriggerType type = trigger.type();
-        int v = trigger.value();
-
-        return switch (type) {
-            case FrameNumGte -> gameContext.getFrameNum() >= v;
-            case WaveIndexEnter -> runtime != null && runtime.getWaveIndex() == v;
-            case EnemyRemainingLte -> {
-                if (runtime == null) {
-                    yield false;
-                }
-                long remaining = gameContext.getGameObjects().stream()
-                        .filter(o -> o.isActive() && o.getMaster() == Master.RightPlayer)
-                        .filter(o -> runtime.getEnemyPrefabTypes().contains(o.getType()))
-                        .count();
-                yield remaining <= v;
-            }
-        };
+    private boolean isSatisfied(PveScenarioEvent eventSpec, GameContext gameContext) {
+        return gameContext.getFrameNum() >= eventSpec.value();
     }
 }

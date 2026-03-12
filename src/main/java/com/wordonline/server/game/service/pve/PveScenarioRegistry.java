@@ -1,11 +1,13 @@
 package com.wordonline.server.game.service.pve;
 
+import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
-import com.wordonline.server.game.domain.pve.PveDialogue;
+import com.wordonline.server.game.domain.pve.PveInstallObject;
 import com.wordonline.server.game.domain.pve.PveScenario;
-import com.wordonline.server.game.domain.pve.PveTrigger;
+import com.wordonline.server.game.domain.pve.PveScenarioEvent;
 import com.wordonline.server.game.domain.pve.PveTriggerType;
-import com.wordonline.server.game.domain.pve.PveWave;
+import com.wordonline.server.game.dto.Master;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,31 +21,44 @@ public class PveScenarioRegistry {
             new PveScenario(
                     "1-1",
                     List.of(
-                            new PveWave(0, List.of(
-                                    new PveWave.PveSpawn(PrefabType.FireSlime, 3)
-                            )),
-                            new PveWave(40, List.of(
-                                    new PveWave.PveSpawn(PrefabType.WaterSlime, 4)
-                            )),
-                            new PveWave(60, List.of(
-                                    new PveWave.PveSpawn(PrefabType.RockSlime, 5)
-                            ))
+                            new PveInstallObject(
+                                    "objective",
+                                    PrefabType.GroundTower,
+                                    Master.LeftPlayer,
+                                    new Vector3(3, 5, 0),
+                                    List.of(),
+                                    0f
+                            ),
+                            new PveInstallObject(
+                                    "enemy_boss_1",
+                                    PrefabType.MagmaSpirit,
+                                    Master.RightPlayer,
+                                    new Vector3(14, 5, 0),
+                                    List.of(
+                                            List.of(CardType.Shoot, CardType.Fire),
+                                            List.of(CardType.Explode, CardType.Fire)
+                                    ),
+                                    2.5f
+                            )
                     ),
                     List.of(
-                            new PveTrigger(
+                            new PveScenarioEvent(
                                     "intro",
                                     PveTriggerType.FrameNumGte,
                                     10,
-                                    new PveDialogue("pve_1_1_intro", List.of("Stage 1-1", "Defeat all enemies!"))
+                                    "objective",
+                                    "pve_1_1_intro",
+                                    List.of("Stage 1-1", "Defend the objective!")
                             ),
-                            new PveTrigger(
-                                    "lastWave",
-                                    PveTriggerType.WaveIndexEnter,
-                                    2,
-                                    new PveDialogue("pve_1_1_last_wave", List.of("Here they come!"))
+                            new PveScenarioEvent(
+                                    "enemyLine",
+                                    PveTriggerType.FrameNumGte,
+                                    20,
+                                    "enemy_boss_1",
+                                    "pve_1_1_enemy_line",
+                                    List.of("Burn it all down!")
                             )
-                    ),
-                    List.of(PrefabType.FireSlime, PrefabType.WaterSlime, PrefabType.RockSlime)
+                    )
             )
     );
 

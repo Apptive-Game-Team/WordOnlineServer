@@ -5,6 +5,7 @@ import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.PveLoop;
 import com.wordonline.server.game.service.WordOnlineLoop;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +13,8 @@ public class GameLoopFactory {
     private final ObjectProvider<WordOnlineLoop> wordOnlineLoopProvider;
     private final ObjectProvider<PveLoop> pveLoopProvider;
 
-    public GameLoopFactory(ObjectProvider<WordOnlineLoop> wordOnlineLoopProvider, ObjectProvider<PveLoop> pveLoopProvider) {
+    public GameLoopFactory(@Qualifier("wordOnlineLoop") ObjectProvider<WordOnlineLoop> wordOnlineLoopProvider,
+                           @Qualifier("pveLoop") ObjectProvider<PveLoop> pveLoopProvider) {
         this.wordOnlineLoopProvider = wordOnlineLoopProvider;
         this.pveLoopProvider = pveLoopProvider;
     }

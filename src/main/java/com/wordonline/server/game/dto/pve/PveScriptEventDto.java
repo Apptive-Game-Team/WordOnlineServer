@@ -4,6 +4,7 @@ import java.util.List;
 
 public record PveScriptEventDto(
         String key,
+        int speakerObjectId,
         List<String> lines
 ) {
 }

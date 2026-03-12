@@ -3,17 +3,29 @@ package com.wordonline.server.game.service;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.pvebot.PveEnemyBot;
-import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
+import com.wordonline.server.game.service.pve.PveScenarioRegistry;
+import com.wordonline.server.game.service.pve.PveScenarioInstaller;
+import com.wordonline.server.game.service.system.PveScriptSystem;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Scope("prototype")
 public class PveLoop extends WordOnlineLoop {
 
+    private static final String DEFAULT_STAGE_ID = "1-1";
+    private static final Pattern STAGE_ID_PATTERN = Pattern.compile("(\\d+-\\d+)");
+
     private PveEnemyBot leftPveEnemyBot;
     private PveEnemyBot rightPveEnemyBot;
+
+    private final PveScenarioRegistry pveScenarioRegistry;
+    private final PveScenarioInstaller pveScenarioInstaller;
+    private final PveScriptSystem pveScriptSystem;
 
     public PveLoop(MmrService mmrService,
                    UserService userService,
@@ -26,28 +38,58 @@ public class PveLoop extends WordOnlineLoop {
                    com.wordonline.server.game.service.system.ComponentUpdateSystem componentUpdateSystem,
                    com.wordonline.server.game.service.system.PhysicSystem physicSystem,
                    com.wordonline.server.game.service.system.GameObjectAddRemoteSystem gameObjectAddRemoveSystem,
-                   com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser magicParser) {
+                   com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser magicParser,
+                   PveScenarioRegistry pveScenarioRegistry,
+                   PveScenarioInstaller pveScenarioInstaller,
+                   PveScriptSystem pveScriptSystem) {
         super(mmrService, userService, gameContext, parameters, frameDataSystem, botSystem, feverTimeSystem,
                 gameObjectStateInitialSystem, componentUpdateSystem, physicSystem, gameObjectAddRemoveSystem, magicParser);
+        this.pveScenarioRegistry = pveScenarioRegistry;
+        this.pveScenarioInstaller = pveScenarioInstaller;
+        this.pveScriptSystem = pveScriptSystem;
     }
 
     @Override
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         gameContext.init(sessionObject, this);
         super.init(sessionObject, onTerminated);
+
         if (sessionObject.getSessionType() == SessionType.PVE) {
-            initializePveEnemyBots(sessionObject);
+            setupPveScenario(sessionObject);
         }
+
         gameContext.setResultChecker(new PveResultChecker(sessionObject));
     }
 
-    private void initializePveEnemyBots(SessionObject sessionObject) {
-        if (sessionObject.isLeftBot()) {
-            leftPveEnemyBot = new PveEnemyBot(sessionObject, getMagicParser(), Master.LeftPlayer);
+    @Override
+    protected void beforeResultCheck() {
+        if (sessionObject.getSessionType() != SessionType.PVE) {
+            return;
         }
-        if (sessionObject.isRightBot()) {
-            rightPveEnemyBot = new PveEnemyBot(sessionObject, getMagicParser(), Master.RightPlayer);
+
+        pveScriptSystem.update(gameContext);
+    }
+
+    private void setupPveScenario(SessionObject sessionObject) {
+        String stageId = resolveStageId(sessionObject.getSessionId());
+        var scenario = pveScenarioRegistry.getScenario(stageId);
+
+        pveScenarioInstaller.install(stageId, scenario.installers(), gameContext);
+        pveScriptSystem.setScenario(scenario);
+        pveScriptSystem.setRuntime(pveScenarioInstaller.getRuntime());
+    }
+
+    private String resolveStageId(String sessionId) {
+        if (sessionId == null) {
+            return DEFAULT_STAGE_ID;
         }
+
+        Matcher matcher = STAGE_ID_PATTERN.matcher(sessionId);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return DEFAULT_STAGE_ID;
     }
 
     public PveEnemyBot getLeftPveEnemyBot() {
