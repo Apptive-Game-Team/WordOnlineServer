@@ -114,6 +114,37 @@ public class PveScenarioRegistry {
                                     List.of("Burn it all down!")
                             )
                     )
+            ),
+            "1-4",
+            new PveScenario(
+                    "1-4",
+                    List.of("pve_vine_witch"),
+                    List.of(
+                            new PveInstallObject(
+                                    "pve_vine_witch",
+                                    PrefabType.PveVineWitch,
+                                    Master.RightPlayer,
+                                    new Vector3(14, 5, 0)
+                            )
+                    ),
+                    List.of(
+                            new PveScenarioEvent(
+                                    "intro",
+                                    PveTriggerType.FrameNumGte,
+                                    10,
+                                    "pve_vine_witch",
+                                    "pve_1_4_intro",
+                                    List.of("Stage 1-4", "Destroy the enemy nest!")
+                            ),
+                            new PveScenarioEvent(
+                                    "enemyLine",
+                                    PveTriggerType.FrameNumGte,
+                                    20,
+                                    "pve_vine_witch",
+                                    "pve_1_4_enemy_line",
+                                    List.of("Burn it all down!")
+                            )
+                    )
             )
     );
 

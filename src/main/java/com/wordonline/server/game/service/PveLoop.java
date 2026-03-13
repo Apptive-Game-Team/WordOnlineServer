@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Scope("prototype")
 public class PveLoop extends WordOnlineLoop {
 
-    private static final String DEFAULT_STAGE_ID = "1-2";
+    private static final String DEFAULT_STAGE_ID = "1-3";
     private static final Pattern STAGE_ID_PATTERN = Pattern.compile("(\\d+-\\d+)");
 
     private PveEnemyBot leftPveEnemyBot;

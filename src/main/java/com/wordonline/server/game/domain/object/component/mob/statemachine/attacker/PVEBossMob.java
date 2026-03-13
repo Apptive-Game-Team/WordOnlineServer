@@ -59,13 +59,6 @@ public class PVEBossMob extends BehaviorMob {
     }
 
     private static double resolveCooldownSec(Magic magic) {
-        return switch (magic.magicType) {
-            case Shoot -> 1.8;
-            case Explode -> 3.2;
-            case Drop -> 4.0;
-            case Spawn -> 4.8;
-            case Build -> 6.0;
-            default -> 3.0;
-        };
-    }
+        return 2.0;
+        }
 }
