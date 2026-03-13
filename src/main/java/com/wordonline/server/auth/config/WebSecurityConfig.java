@@ -42,6 +42,7 @@ public class WebSecurityConfig {
                                             "/api/users",
                                             "/api/users/login",
                                             "/sessions/**",
+                                            "/api/debug/**",
                                             "/ws").permitAll()
                                     .anyRequest().authenticated();
                         }

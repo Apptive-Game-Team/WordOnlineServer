@@ -1,5 +1,5 @@
 package com.wordonline.server.game.domain;
 
 public enum SessionType {
-    PVP, Practice
+    PVP, Practice, PVE
 }

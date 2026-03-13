@@ -1,7 +1,6 @@
 package com.wordonline.server.debug.service;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
 
@@ -22,13 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 public class DebugService {
 
     private static final AtomicInteger sessionIdCounter = new AtomicInteger(1);
+    private static final String DEBUG_SESSION_PREFIX = "debug-";
+    private static final String DEBUG_PVE_SESSION_PREFIX = "debug-pve-";
+
     private final SessionService sessionService;
     private final DeckService deckService;
 
     private SessionObject debugSession;
 
     public DebugGameResponseDto enterPracticeSession(DebugGameRequestDto debugGameRequestDto) {
-        DebugGameResponseDto dto = new DebugGameResponseDto(createDebugSession(debugGameRequestDto.userId(), -1));
+        DebugGameResponseDto dto = new DebugGameResponseDto(createPveDebugSession(debugGameRequestDto.userId(), -1));
         log.info("Entering practice session userId: {}", debugGameRequestDto.userId());
         return dto;
     }
@@ -66,8 +68,16 @@ public class DebugService {
     }
 
     private String createDebugSession(long uid1, long uid2) {
+        return createDebugSession(DEBUG_SESSION_PREFIX, uid1, uid2);
+    }
+
+    private String createPveDebugSession(long uid1, long uid2) {
+        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2);
+    }
+
+    private String createDebugSession(String sessionPrefix, long uid1, long uid2) {
         SessionDto sessionDto = new SessionDto(
-                "debug-" + sessionIdCounter.getAndIncrement(),
+                sessionPrefix + sessionIdCounter.getAndIncrement(),
                 uid1, uid2
         );
         sessionService.createSession(sessionDto);

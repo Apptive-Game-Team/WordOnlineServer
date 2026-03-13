@@ -31,6 +31,14 @@ public abstract class GameLoop implements Runnable {
     private final MmrService mmrService;
     private final UserService userService;
 
+    protected MmrService getMmrService() {
+        return mmrService;
+    }
+
+    protected UserService getUserService() {
+        return userService;
+    }
+
     @Getter
     protected final GameContext gameContext;
 
@@ -41,11 +49,17 @@ public abstract class GameLoop implements Runnable {
     protected volatile int lastSnapshotFrameNum = 0;
 
     public void init(SessionObject sessionObject, Runnable onTerminated) {
-        this.sessionObject = sessionObject;
+        initializeLoop(sessionObject, onTerminated, true);
+    }
 
+    protected final void initializeLoop(SessionObject sessionObject, Runnable onTerminated, boolean createRightPlayer) {
+        this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
+
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
-        new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
+        if (createRightPlayer) {
+            new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
+        }
     }
 
     public void close() {
@@ -83,7 +97,11 @@ public abstract class GameLoop implements Runnable {
         }
 
         if (onTerminated != null) {
-            try { onTerminated.run(); } catch (Exception e) { log.warn("onTerminated failed", e); }
+            try {
+                onTerminated.run();
+            } catch (Exception e) {
+                log.warn("onTerminated failed", e);
+            }
         }
     }
 
@@ -93,7 +111,7 @@ public abstract class GameLoop implements Runnable {
     protected void handleGameEnd() {
         Master loser = gameContext.getResultChecker().getLoser();
 
-        long leftId  = sessionObject.getLeftUserId();
+        long leftId = sessionObject.getLeftUserId();
         long rightId = sessionObject.getRightUserId();
         ResultType outcomeLeft = (loser == Master.LeftPlayer)
                 ? ResultType.Lose
@@ -101,10 +119,9 @@ public abstract class GameLoop implements Runnable {
 
         short leftMmr = mmrService.fetchRating(leftId);
         short rightMmr = mmrService.fetchRating(rightId);
-        ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr,leftMmr, rightMmr);
+        ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr, leftMmr, rightMmr);
 
-        if(sessionObject.getSessionType() == SessionType.PVP)
-        {
+        if (sessionObject.getSessionType() == SessionType.PVP) {
             mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
         }
         gameContext.getResultChecker().broadcastResult(mmrDto);
@@ -112,11 +129,11 @@ public abstract class GameLoop implements Runnable {
         userService.markOnline(leftId);
         userService.markOnline(rightId);
 
-        // 3) 루프 종료
+        // 3) Loop end
         close();
     }
 
-    // 2) 스냅샷 빌더
+    // 2) Build snapshot
     protected void buildSnapshot() {
         lastSnapshotObjects = gameContext.getGameObjects()
                 .stream()
@@ -137,4 +154,3 @@ public abstract class GameLoop implements Runnable {
         return new SnapshotResponseDto(lastSnapshotFrameNum, lastSnapshotObjects, cards);
     }
 }
-

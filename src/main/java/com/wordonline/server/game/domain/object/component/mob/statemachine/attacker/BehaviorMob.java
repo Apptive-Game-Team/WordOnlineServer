@@ -141,8 +141,7 @@ public class BehaviorMob extends StateMachineMob {
             Vector2 currentPosition = gameObject.getPosition().toVector2();
             log.trace("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
             log.trace("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
-
-            // 다음 포인트에 도착했는지 판단
+            // Check if we reached the next path point
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
                 path.remove(0);
                 if (path.isEmpty()) {
@@ -172,6 +171,12 @@ public class BehaviorMob extends StateMachineMob {
             Vector2 direction = nextPoint.subtract(currentPosition).normalize();
 
             Vector2 velocity = direction.multiply(speed.total());
+
+            if (rigidBody == null) {
+                log.warn("[MobMoveSkipped] {} has no RigidBody; skipping move update", gameObject.getType());
+                setState(new IdleState());
+                return;
+            }
 
             rigidBody.addVelocity(velocity.toVector3());
         }
@@ -208,3 +213,7 @@ public class BehaviorMob extends StateMachineMob {
         }
     }
 }
+
+
+
+

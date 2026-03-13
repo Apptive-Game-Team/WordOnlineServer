@@ -17,7 +17,6 @@ public enum PrefabType {
     WaterExplode("water_explode_prefab"),
     WaterField("water_field_prefab"),
     WaterSlime("water_slime_prefab"),
-    WaterSummon("water_summon_prefab"),
 
     // rock ========================================================
     RockShot("rock_shot_prefab"),
@@ -37,7 +36,6 @@ public enum PrefabType {
     LeafExplode("leaf_explode_prefab"),
     LeafField("leaf_field_prefab"),
     LeafSlime("leaf_slime_prefab"),
-    LeafSummon("leaf_summon_prefab"),
 
     // wind ========================================================
     WindShot("wind_shot_prefab"),
@@ -92,6 +90,12 @@ public enum PrefabType {
     Vine("vine_prefab"),
     MagmaFist("magma_fist_prefab"),
     MeteorDrop("meteor_drop_prefab"),
+
+    // PVE
+    PveNatureSlimeNest("pve_nature_slime_nest_prefab"),
+    PveWaterSlimeNest("pve_water_slime_nest_prefab"),
+    PveVineColony("pve_vine_colony_prefab"),
+    PveVineWitch("pve_vine_witch_prefab"),
 
     Wall("wall_prefab"),
 
