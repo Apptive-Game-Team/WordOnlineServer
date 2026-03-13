@@ -41,8 +41,8 @@ public class PveVineColonyPrefabInitializer extends PrefabInitializer {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("vine_colony", "radius"), true));
         gameObject.setElement(ElementType.NATURE);
 
-        int maxHp = (int) parameters.getValue("vine_colony", "hp");
-        List<Magic> magics = resolveMagics("vine_colony");
+        int maxHp = (int) parameters.getValue("pve_nature_slime_nest", "hp");
+        List<Magic> magics = resolveMagics("vine", "nature_slime_swarm", "water_slime_swarm");
         gameObject.addComponent(new PVEBossMob(
                 gameObject,
                 maxHp,

@@ -46,6 +46,74 @@ public class PveScenarioRegistry {
                                     List.of("Burn it all down!")
                             )
                     )
+            ),
+            "1-2",
+            new PveScenario(
+                    "1-2",
+                    List.of("nature_nest", "water_nest"),
+                    List.of(
+                            new PveInstallObject(
+                                    "nature_nest",
+                                    PrefabType.PveNatureSlimeNest,
+                                    Master.RightPlayer,
+                                    new Vector3(14, 7, 0)
+                            ),
+                            new PveInstallObject(
+                                    "water_nest",
+                                    PrefabType.PveWaterSlimeNest,
+                                    Master.RightPlayer,
+                                    new Vector3(14, 3, 0)
+                            )
+                    ),
+                    List.of(
+                            new PveScenarioEvent(
+                                    "intro",
+                                    PveTriggerType.FrameNumGte,
+                                    10,
+                                    "water_nest",
+                                    "pve_1_2_intro",
+                                    List.of("Stage 1-2", "Destroy the enemy nest!")
+                            ),
+                            new PveScenarioEvent(
+                                    "enemyLine",
+                                    PveTriggerType.FrameNumGte,
+                                    20,
+                                    "water_nest",
+                                    "pve_1_2_enemy_line",
+                                    List.of("Burn it all down!")
+                            )
+                    )
+            ),
+            "1-3",
+            new PveScenario(
+                    "1-3",
+                    List.of("pve_vine_colony"),
+                    List.of(
+                            new PveInstallObject(
+                                    "pve_vine_colony",
+                                    PrefabType.PveVineColony,
+                                    Master.RightPlayer,
+                                    new Vector3(14, 5, 0)
+                            )
+                    ),
+                    List.of(
+                            new PveScenarioEvent(
+                                    "intro",
+                                    PveTriggerType.FrameNumGte,
+                                    10,
+                                    "pve_vine_colony",
+                                    "pve_1_3_intro",
+                                    List.of("Stage 1-2", "Destroy the enemy nest!")
+                            ),
+                            new PveScenarioEvent(
+                                    "enemyLine",
+                                    PveTriggerType.FrameNumGte,
+                                    20,
+                                    "pve_vine_colony",
+                                    "pve_1_3_enemy_line",
+                                    List.of("Burn it all down!")
+                            )
+                    )
             )
     );
 
