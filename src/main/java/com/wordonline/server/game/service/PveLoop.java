@@ -10,6 +10,7 @@ import com.wordonline.server.game.service.system.PveScriptSystem;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
 @Scope("prototype")
 public class PveLoop extends WordOnlineLoop {
 
-    private static final String DEFAULT_STAGE_ID = "1-1";
+    private static final String DEFAULT_STAGE_ID = "1-2";
     private static final Pattern STAGE_ID_PATTERN = Pattern.compile("(\\d+-\\d+)");
 
     private PveEnemyBot leftPveEnemyBot;
@@ -78,10 +79,12 @@ public class PveLoop extends WordOnlineLoop {
         pveScriptSystem.setScenario(scenario);
         pveScriptSystem.setRuntime(pveScenarioInstaller.getRuntime());
 
-        int objectiveId = pveScenarioInstaller.getRuntime() == null
-                ? -1
-                : pveScenarioInstaller.getRuntime().getInstalledObjectId(scenario.objectiveInstallerId());
-        resultChecker.setObjectiveId(objectiveId);
+        List<Integer> objectiveIds = scenario.objectiveInstallerIds().stream()
+                .map(installerId -> pveScenarioInstaller.getRuntime() == null
+                        ? -1
+                        : pveScenarioInstaller.getRuntime().getInstalledObjectId(installerId))
+                .toList();
+        resultChecker.setObjectiveIds(objectiveIds);
     }
 
     private String resolveStageId(String sessionId) {

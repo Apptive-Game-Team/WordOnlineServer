@@ -26,7 +26,7 @@ public class PveScenarioRegistry {
                 "1-1",
                 new PveScenario(
                         "1-1",
-                        "enemy_boss_1",
+                        List.of("enemy_boss_1"),
                         List.of(
                                 new PveInstallObject(
                                         "enemy_boss_1",
@@ -52,6 +52,47 @@ public class PveScenarioRegistry {
                                         20,
                                         "enemy_boss_1",
                                         "pve_1_1_enemy_line",
+                                        List.of("Burn it all down!")
+                                )
+                        )
+                ),
+                "1-2",
+                new PveScenario(
+                        "1-2",
+                        List.of("nature_nest", "water_nest"),
+                        List.of(
+                                new PveInstallObject(
+                                        "nature_nest",
+                                        PrefabType.PveNatureSlimeNest,
+                                        Master.RightPlayer,
+                                        new Vector3(14, 7, 0),
+                                        magics(magicParser, "nature_slime_swarm"),
+                                        2.5f
+                                ),
+                                new PveInstallObject(
+                                        "water_nest",
+                                        PrefabType.PveWaterSlimeNest,
+                                        Master.RightPlayer,
+                                        new Vector3(14, 3, 0),
+                                        magics(magicParser, "water_slime_swarm"),
+                                        2.5f
+                                )
+                        ),
+                        List.of(
+                                new PveScenarioEvent(
+                                        "intro",
+                                        PveTriggerType.FrameNumGte,
+                                        10,
+                                        "water_nest",
+                                        "pve_1_2_intro",
+                                        List.of("Stage 1-2", "Destroy the enemy nest!")
+                                ),
+                                new PveScenarioEvent(
+                                        "enemyLine",
+                                        PveTriggerType.FrameNumGte,
+                                        20,
+                                        "water_nest",
+                                        "pve_1_2_enemy_line",
                                         List.of("Burn it all down!")
                                 )
                         )

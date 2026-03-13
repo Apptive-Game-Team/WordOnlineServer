@@ -4,7 +4,7 @@ import java.util.List;
 
 public record PveScenario(
         String stageId,
-        String objectiveInstallerId,
+        List<String> objectiveInstallerIds,
         List<PveInstallObject> installers,
         List<PveScenarioEvent> events
 ) {
