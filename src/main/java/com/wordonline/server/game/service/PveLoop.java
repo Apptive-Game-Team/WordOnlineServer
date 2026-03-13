@@ -4,8 +4,8 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.pvebot.PveEnemyBot;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
-import com.wordonline.server.game.service.pve.PveScenarioRegistry;
 import com.wordonline.server.game.service.pve.PveScenarioInstaller;
+import com.wordonline.server.game.service.pve.PveScenarioRegistry;
 import com.wordonline.server.game.service.system.PveScriptSystem;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -52,13 +52,13 @@ public class PveLoop extends WordOnlineLoop {
     @Override
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         gameContext.init(sessionObject, this);
-        super.init(sessionObject, onTerminated);
+        initializeLoop(sessionObject, onTerminated, false);
 
-        if (sessionObject.getSessionType() == SessionType.PVE) {
-            setupPveScenario(sessionObject);
-        }
+        PveResultChecker resultChecker = new PveResultChecker(sessionObject);
+        gameContext.setResultChecker(resultChecker);
 
-        gameContext.setResultChecker(new PveResultChecker(sessionObject));
+        // PveLoop should always setup a PVE scenario regardless of SessionType guard.
+        setupPveScenario(sessionObject, resultChecker);
     }
 
     @Override
@@ -70,13 +70,18 @@ public class PveLoop extends WordOnlineLoop {
         pveScriptSystem.update(gameContext);
     }
 
-    private void setupPveScenario(SessionObject sessionObject) {
+    private void setupPveScenario(SessionObject sessionObject, PveResultChecker resultChecker) {
         String stageId = resolveStageId(sessionObject.getSessionId());
         var scenario = pveScenarioRegistry.getScenario(stageId);
 
         pveScenarioInstaller.install(stageId, scenario.installers(), gameContext);
         pveScriptSystem.setScenario(scenario);
         pveScriptSystem.setRuntime(pveScenarioInstaller.getRuntime());
+
+        int objectiveId = pveScenarioInstaller.getRuntime() == null
+                ? -1
+                : pveScenarioInstaller.getRuntime().getInstalledObjectId(scenario.objectiveInstallerId());
+        resultChecker.setObjectiveId(objectiveId);
     }
 
     private String resolveStageId(String sessionId) {

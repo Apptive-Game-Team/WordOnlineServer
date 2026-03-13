@@ -68,6 +68,27 @@ public class DatabaseMagicParser implements MagicParser {
         return getMagicByCards(cards);
     }
 
+    public Magic parseMagicForBot(String magicName) {
+        if (magicHashMap.isEmpty()) {
+            init();
+        }
+
+        if (magicName == null || magicName.isBlank()) {
+            return null;
+        }
+
+        if (!applicationContext.containsBean(magicName)) {
+            log.warn("[MagicNotFound] No magic bean found for name: {}", magicName);
+            return null;
+        }
+
+        Magic magic = applicationContext.getBean(magicName, Magic.class);
+        if (magic.id <= 0) {
+            log.warn("[MagicIdMissing] Magic '{}' has non-positive id ({}).", magicName, magic.id);
+        }
+        return magic;
+    }
+
     public Collection<List<CardType>> getAllMagicRecipes() {
         if (magicHashMap.isEmpty()) {
             init();

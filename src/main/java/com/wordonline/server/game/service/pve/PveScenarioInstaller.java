@@ -1,11 +1,12 @@
 package com.wordonline.server.game.service.pve;
 
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PVEBossMob;
+import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.domain.pve.PveInstallObject;
 import com.wordonline.server.game.service.GameContext;
 import lombok.Getter;
@@ -38,14 +39,8 @@ public class PveScenarioInstaller {
     private static final float DEFAULT_BOSS_SPEED = 1.5f;
     private static final float DEFAULT_BOSS_ATTACK_RANGE = 7.0f;
 
-    private final DatabaseMagicParser magicParser;
-
     @Getter
     private RuntimeState runtime;
-
-    public PveScenarioInstaller(DatabaseMagicParser magicParser) {
-        this.magicParser = magicParser;
-    }
 
     public void install(String stageId, List<PveInstallObject> installers, GameContext gameContext) {
         this.runtime = new RuntimeState(stageId);
@@ -60,8 +55,9 @@ public class PveScenarioInstaller {
 
             runtime.installedObjectIds.put(installObject.installerId(), gameObject.getId());
 
-            List<Magic> usableMagics = installObject.magicRecipes().stream()
-                    .map(magicParser::parseMagicForBot)
+            List<Magic> usableMagics = installObject.magics() == null
+                    ? List.of()
+                    : installObject.magics().stream()
                     .filter(Objects::nonNull)
                     .toList();
 
@@ -73,6 +69,14 @@ public class PveScenarioInstaller {
 
                 if (existingMob != null) {
                     gameObject.removeComponent(existingMob);
+                }
+
+                // Ensure mobility components exist for BehaviorMob-based bosses.
+                if (gameObject.getComponent(RigidBody.class) == null) {
+                    gameObject.addComponent(new RigidBody(gameObject, 1));
+                }
+                if (gameObject.getComponent(ZPhysics.class) == null) {
+                    gameObject.addComponent(new ZPhysics(gameObject));
                 }
 
                 float attackInterval = Math.max(0.6f, installObject.castIntervalSec());
@@ -107,3 +111,5 @@ public class PveScenarioInstaller {
         return null;
     }
 }
+
+

@@ -37,7 +37,7 @@ public enum PrefabType {
     LeafExplode("leaf_explode_prefab"),
     LeafField("leaf_field_prefab"),
     LeafSlime("leaf_slime_prefab"),
-    LeafSummon("leaf_summon_prefab"),
+    PveNatureSlimeNest("pve_nature_slime_nest_prefab"),
 
     // wind ========================================================
     WindShot("wind_shot_prefab"),

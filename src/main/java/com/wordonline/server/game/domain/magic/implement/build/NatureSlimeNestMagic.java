@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 @Component("nature_slime_nest")
 public class NatureSlimeNestMagic extends AbstractSummonMagic {
     public NatureSlimeNestMagic() {
-        super(PrefabType.LeafSummon);
+        super(PrefabType.PveNatureSlimeNest);
     }
 }

@@ -19,6 +19,10 @@ public class ResultChecker {
     @Setter
     private boolean isEnd = false;
 
+    protected SessionObject getSessionObject() {
+        return sessionObject;
+    }
+
     public void setEnd() {
         isEnd = true;
     }
