@@ -2,7 +2,6 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
-import com.wordonline.server.game.domain.pvebot.PveEnemyBot;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.service.pve.PveScenarioInstaller;
 import com.wordonline.server.game.service.pve.PveScenarioRegistry;
@@ -20,9 +19,6 @@ public class PveLoop extends WordOnlineLoop {
 
     private static final String DEFAULT_STAGE_ID = "1-3";
     private static final Pattern STAGE_ID_PATTERN = Pattern.compile("(\\d+-\\d+)");
-
-    private PveEnemyBot leftPveEnemyBot;
-    private PveEnemyBot rightPveEnemyBot;
 
     private final PveScenarioRegistry pveScenarioRegistry;
     private final PveScenarioInstaller pveScenarioInstaller;
@@ -98,14 +94,6 @@ public class PveLoop extends WordOnlineLoop {
         }
 
         return DEFAULT_STAGE_ID;
-    }
-
-    public PveEnemyBot getLeftPveEnemyBot() {
-        return leftPveEnemyBot;
-    }
-
-    public PveEnemyBot getRightPveEnemyBot() {
-        return rightPveEnemyBot;
     }
 
     @Override

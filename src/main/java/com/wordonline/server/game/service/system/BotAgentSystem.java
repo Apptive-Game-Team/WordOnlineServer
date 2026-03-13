@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.service.GameContext;
-import com.wordonline.server.game.service.PveLoop;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,36 +64,6 @@ public class BotAgentSystem implements GameSystem {
                     rightBotProcessing.set(false);
                 }
             });
-        }
-
-        if (wordOnlineLoop instanceof PveLoop pveLoop) {
-            var leftPveEnemyBot = pveLoop.getLeftPveEnemyBot();
-            if (leftPveEnemyBot != null && leftBotProcessing.compareAndSet(false, true)) {
-                var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
-                botExecutorService.submit(() -> {
-                    try {
-                        leftPveEnemyBot.onTick(leftFrameInfoDto);
-                    } catch (Exception e) {
-                        log.debug("Left pve enemy bot execution error", e);
-                    } finally {
-                        leftBotProcessing.set(false);
-                    }
-                });
-            }
-
-            var rightPveEnemyBot = pveLoop.getRightPveEnemyBot();
-            if (rightPveEnemyBot != null && rightBotProcessing.compareAndSet(false, true)) {
-                var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
-                botExecutorService.submit(() -> {
-                    try {
-                        rightPveEnemyBot.onTick(rightFrameInfoDto);
-                    } catch (Exception e) {
-                        log.debug("Right pve enemy bot execution error", e);
-                    } finally {
-                        rightBotProcessing.set(false);
-                    }
-                });
-            }
         }
     }
 }
