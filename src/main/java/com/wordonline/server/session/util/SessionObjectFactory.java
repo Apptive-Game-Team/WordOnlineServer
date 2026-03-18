@@ -22,20 +22,20 @@ public class SessionObjectFactory {
     }
 
     public SessionObject createSessionObject(SessionDto sessionDto) {
-        long uid1 = sessionDto.uid1().longValue();
-        long uid2 = sessionDto.uid2().longValue();
+        Long uid1 = sessionDto.uid1();
+        Long uid2 = sessionDto.uid2();
         String sessionId = sessionDto.sessionId();
 
         SessionType sessionType = resolveSessionType(sessionDto, sessionId, uid1, uid2);
 
         return switch (sessionType) {
-            case PVE -> createPveSessionObject(sessionId, uid1, uid2, sessionDto.scenarioId());
+            case PVE -> createPveSessionObject(sessionId, uid1, sessionDto.scenarioId());
             case Practice -> createPracticeSessionObject(sessionId, uid1, uid2);
             case PVP -> createPvpSessionObject(sessionId, uid1, uid2);
         };
     }
 
-    private SessionType resolveSessionType(SessionDto sessionDto, String sessionId, long uid1, long uid2) {
+    private SessionType resolveSessionType(SessionDto sessionDto, String sessionId, Long uid1, Long uid2) {
         SessionType sessionType = sessionDto.sessionType();
         if (sessionType != null) {
             return sessionType;
@@ -65,9 +65,8 @@ public class SessionObjectFactory {
         return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.Practice);
     }
 
-    private SessionObject createPveSessionObject(String sessionId, long uid1, long uid2, Long scenarioId) {
+    private SessionObject createPveSessionObject(String sessionId, long uid1, Long scenarioId) {
         List<CardType> leftCards = uid1 >= 0 ? deckService.getSelectedCards(uid1) : List.of();
-        List<CardType> rightCards = uid2 >= 0 ? deckService.getSelectedCards(uid2) : List.of();
-        return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.PVE, scenarioId);
+        return new SessionObject(sessionId, uid1, -1, simpMessagingTemplate, leftCards, List.of(), SessionType.PVE, scenarioId);
     }
 }
