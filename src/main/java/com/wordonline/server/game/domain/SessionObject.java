@@ -12,8 +12,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
-import javax.smartcardio.Card;
-
 @Getter
 // this class is used to store the session information
 // it sends the frame information to the client
@@ -27,6 +25,7 @@ public class SessionObject {
     private final CardDeck rightUserCardDeck;
     private final PingChecker pingChecker;
     private final SessionType sessionType;
+    private final Long scenarioId;
 
     public Master getUserSide(long userId) {
         if (userId == leftUserId) {
@@ -53,25 +52,52 @@ public class SessionObject {
         return gameLoop.getGameContext();
     }
 
-    public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards, SessionType sessionType){
-        this.sessionId = sessionId; this.leftUserId = leftUserId; this.rightUserId = rightUserId; this.template = template;
-        url = String.format("/game/%s/frameInfos", sessionId);
-        leftUserCardDeck = new CardDeck(leftUserCards);
-        rightUserCardDeck = new CardDeck(rightUserCards);
-        pingChecker = new PingChecker(leftUserId, rightUserId,
-            userId -> {
-                Master loser = getUserSide(userId);
-                getGameContext().getResultChecker().setLoser(loser);
-            }
+    public SessionObject(String sessionId,
+                         long leftUserId,
+                         long rightUserId,
+                         SimpMessagingTemplate template,
+                         List<CardType> leftUserCards,
+                         List<CardType> rightUserCards,
+                         SessionType sessionType,
+                         Long scenarioId) {
+        this.sessionId = sessionId;
+        this.leftUserId = leftUserId;
+        this.rightUserId = rightUserId;
+        this.template = template;
+        this.url = String.format("/game/%s/frameInfos", sessionId);
+        this.leftUserCardDeck = new CardDeck(leftUserCards);
+        this.rightUserCardDeck = new CardDeck(rightUserCards);
+        this.pingChecker = new PingChecker(leftUserId, rightUserId,
+                userId -> {
+                    Master loser = getUserSide(userId);
+                    getGameContext().getResultChecker().setLoser(loser);
+                }
         );
         this.sessionType = sessionType;
+        this.scenarioId = scenarioId;
     }
-    public SessionObject(String sessionId, long leftUserId, long rightUserId, SimpMessagingTemplate template, List<CardType> leftUserCards, List<CardType> rightUserCards) {
-         this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, SessionType.PVP);
+
+    public SessionObject(String sessionId,
+                         long leftUserId,
+                         long rightUserId,
+                         SimpMessagingTemplate template,
+                         List<CardType> leftUserCards,
+                         List<CardType> rightUserCards,
+                         SessionType sessionType) {
+        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, sessionType, null);
+    }
+
+    public SessionObject(String sessionId,
+                         long leftUserId,
+                         long rightUserId,
+                         SimpMessagingTemplate template,
+                         List<CardType> leftUserCards,
+                         List<CardType> rightUserCards) {
+        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, SessionType.PVP, null);
     }
 
     // this method is used to send the frame information to the client
-    public void sendFrameInfo(long userId, Object data){
+    public void sendFrameInfo(long userId, Object data) {
         // Skip sending frame info to bots (negative user IDs)
         if (userId < 0) {
             return;
@@ -80,7 +106,7 @@ public class SessionObject {
     }
 
     // this method is used to broadcast frame information to spectators (userId = 0)
-    public void broadcastFrameInfo(Object data){
+    public void broadcastFrameInfo(Object data) {
         template.convertAndSend(String.format("%s/0", url), data);
     }
 
@@ -107,4 +133,3 @@ public class SessionObject {
                 fps);
     }
 }
-

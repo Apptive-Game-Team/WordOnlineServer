@@ -15,8 +15,8 @@ import java.util.Map;
 @Component
 public class PveScenarioRegistry {
 
-    private final Map<String, PveScenario> scenarios = Map.of(
-            "1-1",
+    private final Map<Long, PveScenario> scenarios = Map.of(
+            11L,
             new PveScenario(
                     "1-1",
                     List.of("enemy_boss_1"),
@@ -47,7 +47,7 @@ public class PveScenarioRegistry {
                             )
                     )
             ),
-            "1-2",
+            12L,
             new PveScenario(
                     "1-2",
                     List.of("nature_nest", "water_nest"),
@@ -84,7 +84,7 @@ public class PveScenarioRegistry {
                             )
                     )
             ),
-            "1-3",
+            13L,
             new PveScenario(
                     "1-3",
                     List.of("pve_vine_colony"),
@@ -115,7 +115,7 @@ public class PveScenarioRegistry {
                             )
                     )
             ),
-            "1-4",
+            14L,
             new PveScenario(
                     "1-4",
                     List.of("pve_vine_witch"),
@@ -148,10 +148,10 @@ public class PveScenarioRegistry {
             )
     );
 
-    public PveScenario getScenario(String stageId) {
-        PveScenario scenario = scenarios.get(stageId);
+    public PveScenario getScenario(Long scenarioId) {
+        PveScenario scenario = scenarios.get(scenarioId);
         if (scenario == null) {
-            throw new IllegalArgumentException("Unknown stageId: " + stageId);
+            throw new IllegalArgumentException("Unknown scenarioId: " + scenarioId);
         }
         return scenario;
     }
