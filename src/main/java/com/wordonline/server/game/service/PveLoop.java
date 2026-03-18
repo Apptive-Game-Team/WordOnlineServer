@@ -10,15 +10,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @Scope("prototype")
 public class PveLoop extends WordOnlineLoop {
 
-    private static final String DEFAULT_STAGE_ID = "1-3";
-    private static final Pattern STAGE_ID_PATTERN = Pattern.compile("(\\d+-\\d+)");
+    private static final Long DEFAULT_SCENARIO_ID = 13L;
 
     private final PveScenarioRegistry pveScenarioRegistry;
     private final PveScenarioInstaller pveScenarioInstaller;
@@ -68,10 +65,10 @@ public class PveLoop extends WordOnlineLoop {
     }
 
     private void setupPveScenario(SessionObject sessionObject, PveResultChecker resultChecker) {
-        String stageId = resolveStageId(sessionObject.getSessionId());
-        var scenario = pveScenarioRegistry.getScenario(stageId);
+        Long scenarioId = resolveScenarioId(sessionObject.getScenarioId());
+        var scenario = pveScenarioRegistry.getScenario(scenarioId);
 
-        pveScenarioInstaller.install(stageId, scenario.installers(), gameContext);
+        pveScenarioInstaller.install(scenario.stageId(), scenario.installers(), gameContext);
         pveScriptSystem.setScenario(scenario);
         pveScriptSystem.setRuntime(pveScenarioInstaller.getRuntime());
 
@@ -83,17 +80,11 @@ public class PveLoop extends WordOnlineLoop {
         resultChecker.setObjectiveIds(objectiveIds);
     }
 
-    private String resolveStageId(String sessionId) {
-        if (sessionId == null) {
-            return DEFAULT_STAGE_ID;
+    private Long resolveScenarioId(Long scenarioId) {
+        if (scenarioId == null) {
+            return DEFAULT_SCENARIO_ID;
         }
-
-        Matcher matcher = STAGE_ID_PATTERN.matcher(sessionId);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return DEFAULT_STAGE_ID;
+        return scenarioId;
     }
 
     @Override

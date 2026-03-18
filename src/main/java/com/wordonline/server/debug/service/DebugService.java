@@ -8,6 +8,7 @@ import com.wordonline.server.debug.dto.DebugGameRequestDto;
 import com.wordonline.server.debug.dto.DebugGameResponseDto;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.service.SessionService;
@@ -68,17 +69,20 @@ public class DebugService {
     }
 
     private String createDebugSession(long uid1, long uid2) {
-        return createDebugSession(DEBUG_SESSION_PREFIX, uid1, uid2);
+        return createDebugSession(DEBUG_SESSION_PREFIX, uid1, uid2, SessionType.PVP, null);
     }
 
     private String createPveDebugSession(long uid1, long uid2) {
-        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2);
+        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2, SessionType.PVE, null);
     }
 
-    private String createDebugSession(String sessionPrefix, long uid1, long uid2) {
+    private String createDebugSession(String sessionPrefix, long uid1, long uid2, SessionType sessionType, Long scenarioId) {
         SessionDto sessionDto = new SessionDto(
                 sessionPrefix + sessionIdCounter.getAndIncrement(),
-                uid1, uid2
+                uid1,
+                uid2,
+                sessionType,
+                scenarioId
         );
         sessionService.createSession(sessionDto);
         debugSession = sessionService.getSessionObject(sessionDto.sessionId());
