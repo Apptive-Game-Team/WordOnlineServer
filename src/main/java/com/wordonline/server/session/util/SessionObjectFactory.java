@@ -24,18 +24,36 @@ public class SessionObjectFactory {
     public SessionObject createSessionObject(SessionDto sessionDto) {
         long uid1 = sessionDto.uid1().longValue();
         long uid2 = sessionDto.uid2().longValue();
-
         String sessionId = sessionDto.sessionId();
-        boolean isPve = sessionId != null && sessionId.toLowerCase().contains("pve");
 
+        SessionType sessionType = resolveSessionType(sessionDto, sessionId, uid1, uid2);
+
+        return switch (sessionType) {
+            case PVE -> createPveSessionObject(sessionId, uid1, uid2, sessionDto.scenarioId());
+            case Practice -> createPracticeSessionObject(sessionId, uid1, uid2);
+            case PVP -> createPvpSessionObject(sessionId, uid1, uid2);
+        };
+    }
+
+    private SessionType resolveSessionType(SessionDto sessionDto, String sessionId, long uid1, long uid2) {
+        SessionType sessionType = sessionDto.sessionType();
+        if (sessionType != null) {
+            return sessionType;
+        }
+
+        boolean isPve = sessionId != null && sessionId.toLowerCase().contains("pve");
         if (isPve) {
-            return createPveSessionObject(sessionId, uid1, uid2);
+            return SessionType.PVE;
         }
 
         if (uid1 < 0 || uid2 < 0) {
-            return createPracticeSessionObject(sessionId, uid1, uid2);
+            return SessionType.Practice;
         }
 
+        return SessionType.PVP;
+    }
+
+    private SessionObject createPvpSessionObject(String sessionId, long uid1, long uid2) {
         List<CardType> leftCards = deckService.getSelectedCards(uid1);
         List<CardType> rightCards = deckService.getSelectedCards(uid2);
         return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.PVP);
@@ -47,9 +65,9 @@ public class SessionObjectFactory {
         return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.Practice);
     }
 
-    private SessionObject createPveSessionObject(String sessionId, long uid1, long uid2) {
+    private SessionObject createPveSessionObject(String sessionId, long uid1, long uid2, Long scenarioId) {
         List<CardType> leftCards = uid1 >= 0 ? deckService.getSelectedCards(uid1) : List.of();
         List<CardType> rightCards = uid2 >= 0 ? deckService.getSelectedCards(uid2) : List.of();
-        return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.PVE);
+        return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.PVE, scenarioId);
     }
 }
