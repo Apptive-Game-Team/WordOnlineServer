@@ -255,3 +255,19 @@ CREATE TABLE pve_scenario_event_lines (
     line_text VARCHAR(255) NOT NULL,
     CONSTRAINT uq_pve_scenario_event_line_row_order UNIQUE (event_row_id, line_order)
 );
+
+ALTER TABLE pve_scenario_objectives
+    DROP COLUMN scenario_id;
+ALTER TABLE pve_scenario_objectives
+    ADD COLUMN scenario_id BIGINT NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE DEFAULT 1;
+ALTER TABLE pve_scenario_installers
+    DROP COLUMN scenario_id;
+ALTER TABLE pve_scenario_installers
+    ADD COLUMN scenario_id BIGINT NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE DEFAULT 1;
+ALTER TABLE pve_scenario_events
+    DROP COLUMN scenario_id;
+ALTER TABLE pve_scenario_events
+    ADD COLUMN scenario_id BIGINT NOT NULL REFERENCES scenarios(id) ON DELETE CASCADE DEFAULT 1;
+
+DROP TABLE pve_scenarios;
+

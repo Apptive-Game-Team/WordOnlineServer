@@ -18,12 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PveScenarioRepository {
 
-    private static final String FIND_STAGE_ID = """
-            SELECT stage_id
-            FROM pve_scenarios
-            WHERE id = :scenarioId
-            """;
-
     private static final String FIND_OBJECTIVES = """
             SELECT installer_id
             FROM pve_scenario_objectives
@@ -55,12 +49,7 @@ public class PveScenarioRepository {
     private final JdbcClient jdbcClient;
 
     public Optional<PveScenario> findById(Long scenarioId) {
-        return jdbcClient.sql(FIND_STAGE_ID)
-                .param("scenarioId", scenarioId)
-                .query(String.class)
-                .optional()
-                .map(stageId -> new PveScenario(
-                        stageId,
+        return Optional.of(new PveScenario(
                         findObjectives(scenarioId),
                         findInstallers(scenarioId),
                         findEvents(scenarioId)
