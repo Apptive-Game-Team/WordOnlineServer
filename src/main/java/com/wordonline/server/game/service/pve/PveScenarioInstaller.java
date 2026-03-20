@@ -17,12 +17,8 @@ public class PveScenarioInstaller {
 
     @Getter
     public static class RuntimeState {
-        private final String stageId;
         private final Map<String, Integer> installedObjectIds = new HashMap<>();
 
-        private RuntimeState(String stageId) {
-            this.stageId = stageId;
-        }
 
         public int getInstalledObjectId(String installerId) {
             return installedObjectIds.getOrDefault(installerId, -1);
@@ -32,8 +28,8 @@ public class PveScenarioInstaller {
     @Getter
     private RuntimeState runtime;
 
-    public void install(String stageId, List<PveInstallObject> installers, GameContext gameContext) {
-        this.runtime = new RuntimeState(stageId);
+    public void install(List<PveInstallObject> installers, GameContext gameContext) {
+        this.runtime = new RuntimeState();
 
         for (PveInstallObject installObject : installers) {
             GameObject gameObject = new GameObject(

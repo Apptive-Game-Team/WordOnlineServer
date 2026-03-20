@@ -68,7 +68,7 @@ public class PveLoop extends WordOnlineLoop {
         Long scenarioId = resolveScenarioId(sessionObject.getScenarioId());
         var scenario = pveScenarioRegistry.getScenario(scenarioId);
 
-        pveScenarioInstaller.install(scenario.stageId(), scenario.installers(), gameContext);
+        pveScenarioInstaller.install(scenario.installers(), gameContext);
         pveScriptSystem.setScenario(scenario);
         pveScriptSystem.setRuntime(pveScenarioInstaller.getRuntime());
 
