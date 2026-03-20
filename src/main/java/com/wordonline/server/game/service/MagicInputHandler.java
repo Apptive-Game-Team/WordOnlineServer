@@ -83,8 +83,25 @@ public class MagicInputHandler {
 
     public InputResponseDto handleBotMagicInput(GameContext gameContext,
                                                 Master master,
+                                                List<CardType> cards,
+                                                Vector3 position,
+                                                Vector3 castOrigin) {
+        Magic magic = magicParser.parseMagicForBot(cards);
+        return handleBotMagicInput(gameContext, master, magic, position, castOrigin);
+    }
+
+    public InputResponseDto handleBotMagicInput(GameContext gameContext,
+                                                Master master,
                                                 Magic magic,
                                                 Vector3 position) {
+        return handleBotMagicInput(gameContext, master, magic, position, GameConfig.PLAYER_POSITION.get(master));
+    }
+
+    public InputResponseDto handleBotMagicInput(GameContext gameContext,
+                                                Master master,
+                                                Magic magic,
+                                                Vector3 position,
+                                                Vector3 castOrigin) {
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
         if (magic == null) {
@@ -92,7 +109,9 @@ public class MagicInputHandler {
             return new InputResponseDto("invalid bot magic", false, playerData.mana, -1, -1);
         }
 
-        if (GameConfig.PLAYER_POSITION.get(master).distance(position) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
+        Vector3 rangeOrigin = castOrigin == null ? GameConfig.PLAYER_POSITION.get(master) : castOrigin;
+        if (rangeOrigin == null ||
+                rangeOrigin.distance(position) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
             return new InputResponseDto("invalid place", false, playerData.mana, -1, -1);
         }

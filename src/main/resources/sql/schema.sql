@@ -206,3 +206,52 @@ CREATE TABLE user_magics (
 ALTER TABLE user_magics
     ADD CONSTRAINT uq_user_magics_user_id_magic_id
         UNIQUE (user_id, magic_id);
+
+CREATE TABLE pve_scenarios (
+    id BIGINT PRIMARY KEY,
+    stage_id VARCHAR(31) NOT NULL
+);
+
+CREATE TABLE pve_scenario_objectives (
+    id BIGSERIAL PRIMARY KEY,
+    scenario_id BIGINT NOT NULL REFERENCES pve_scenarios(id) ON DELETE CASCADE,
+    installer_id VARCHAR(50) NOT NULL,
+    sort_order INT NOT NULL,
+    CONSTRAINT uq_pve_scenario_objective_scenario_installer UNIQUE (scenario_id, installer_id),
+    CONSTRAINT uq_pve_scenario_objective_scenario_order UNIQUE (scenario_id, sort_order)
+);
+
+CREATE TABLE pve_scenario_installers (
+    id BIGSERIAL PRIMARY KEY,
+    scenario_id BIGINT NOT NULL REFERENCES pve_scenarios(id) ON DELETE CASCADE,
+    installer_id VARCHAR(50) NOT NULL,
+    prefab_type VARCHAR(50) NOT NULL,
+    master VARCHAR(20) NOT NULL,
+    position_x INT NOT NULL,
+    position_y INT NOT NULL,
+    position_z INT NOT NULL,
+    sort_order INT NOT NULL,
+    CONSTRAINT uq_pve_scenario_installer_scenario_installer UNIQUE (scenario_id, installer_id),
+    CONSTRAINT uq_pve_scenario_installer_scenario_order UNIQUE (scenario_id, sort_order)
+);
+
+CREATE TABLE pve_scenario_events (
+    id BIGSERIAL PRIMARY KEY,
+    scenario_id BIGINT NOT NULL REFERENCES pve_scenarios(id) ON DELETE CASCADE,
+    event_id VARCHAR(50) NOT NULL,
+    trigger_type VARCHAR(50) NOT NULL,
+    trigger_value INT NOT NULL,
+    speaker_installer_id VARCHAR(50),
+    message_key VARCHAR(100) NOT NULL,
+    sort_order INT NOT NULL,
+    CONSTRAINT uq_pve_scenario_event_scenario_event UNIQUE (scenario_id, event_id),
+    CONSTRAINT uq_pve_scenario_event_scenario_order UNIQUE (scenario_id, sort_order)
+);
+
+CREATE TABLE pve_scenario_event_lines (
+    id BIGSERIAL PRIMARY KEY,
+    event_row_id BIGINT NOT NULL REFERENCES pve_scenario_events(id) ON DELETE CASCADE,
+    line_order INT NOT NULL,
+    line_text VARCHAR(255) NOT NULL,
+    CONSTRAINT uq_pve_scenario_event_line_row_order UNIQUE (event_row_id, line_order)
+);

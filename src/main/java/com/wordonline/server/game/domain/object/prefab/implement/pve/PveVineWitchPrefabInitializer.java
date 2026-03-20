@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PVEBossMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.VineWitchMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -42,15 +42,17 @@ public class PveVineWitchPrefabInitializer extends PrefabInitializer {
         gameObject.setElement(ElementType.NATURE);
 
         int maxHp = (int) parameters.getValue("pve_nature_slime_nest", "hp");
+        Magic vineMagic = magicParser.parseMagicForBot("vine");
         List<Magic> magics = resolveMagics("vine", "nature_slime_swarm", "water_slime_swarm", "vine_colony", "vine_spirit");
-        gameObject.addComponent(new PVEBossMob( //TODO : use awesome vine magic pattern when hp below 50%
+        gameObject.addComponent(new VineWitchMob(
                 gameObject,
                 maxHp,
                 BOSS_SPEED,
                 TargetMask.GROUND.bit,
                 BOSS_ATTACK_INTERVAL,
                 BOSS_ATTACK_RANGE,
-                magics
+                magics,
+                vineMagic
         ));
     }
 

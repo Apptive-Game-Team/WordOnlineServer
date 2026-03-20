@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class PVEBossMob extends BehaviorMob {
 
-    private final List<Magic> magics;
+    protected final List<Magic> magics;
     private final Map<Long, Integer> cooldownUntilFrame = new HashMap<>();
 
     public PVEBossMob(GameObject gameObject,
@@ -25,28 +25,44 @@ public class PVEBossMob extends BehaviorMob {
         this.setBehavior(this::castMagic);
     }
 
-    private boolean castMagic(GameObject target) {
-        int currentFrame = getGameContext().getFrameNum();
+    protected boolean castMagic(GameObject target) {
+        return castMagicsInOrder(target, magics);
+    }
 
-        for (Magic magic : magics) {
-            if (!isCooldownReady(magic, currentFrame)) {
-                continue;
-            }
-
-            var result = getGameContext().getMagicInputHandler().handleBotMagicInput(
-                    getGameContext(),
-                    gameObject.getMaster(),
-                    magic,
-                    target.getPosition()
-            );
-
-            if (result.valid()) {
-                setCooldown(magic, currentFrame);
+    protected boolean castMagicsInOrder(GameObject target, List<Magic> magicOrder) {
+        if (magicOrder == null || magicOrder.isEmpty()) {
+            return false;
+        }
+        for (Magic magic : magicOrder) {
+            if (tryCastMagic(magic, target)) {
                 return true;
             }
         }
-
         return false;
+    }
+
+    protected boolean tryCastMagic(Magic magic, GameObject target) {
+        if (magic == null) {
+            return false;
+        }
+        int currentFrame = getGameContext().getFrameNum();
+        if (!isCooldownReady(magic, currentFrame)) {
+            return false;
+        }
+
+        var result = getGameContext().getMagicInputHandler().handleBotMagicInput(
+                getGameContext(),
+                gameObject.getMaster(),
+                magic,
+                target.getPosition(),
+                gameObject.getPosition()
+        );
+        if (!result.valid()) {
+            return false;
+        }
+
+        setCooldown(magic, currentFrame);
+        return true;
     }
 
     private boolean isCooldownReady(Magic magic, int currentFrame) {
@@ -60,5 +76,5 @@ public class PVEBossMob extends BehaviorMob {
 
     private static double resolveCooldownSec(Magic magic) {
         return 2.0;
-        }
+    }
 }
