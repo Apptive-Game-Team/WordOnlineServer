@@ -3,63 +3,51 @@ package com.wordonline.server.game.domain.object.prefab.implement.pve;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PVEBossMob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.VineWitchMob;
-import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
-import com.wordonline.server.game.domain.object.component.physic.RigidBody;
-import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
-import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Component("pve_vine_witch_prefab")
-public class PveVineWitchPrefabInitializer extends PrefabInitializer {
+public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
 
-    private static final float BOSS_SPEED = 0f;
     private static final float BOSS_ATTACK_INTERVAL = 2f;
-    private static final float BOSS_ATTACK_RANGE = 7f;
+    private static final List<String> MAGIC_NAMES = List.of(
+            "vine",
+            "nature_slime_swarm",
+            "water_slime_swarm",
+            "vine_colony",
+            "vine_spirit"
+    );
 
-    private final Parameters parameters;
-    private final DatabaseMagicParser magicParser;
-
-    public PveVineWitchPrefabInitializer(Parameters parameters, DatabaseMagicParser magicParser) {
-        super(PrefabType.PveVineWitch);
-        this.parameters = parameters;
-        this.magicParser = magicParser;
+    public PveVineWitchPrefabInitializer(Parameters parameters) {
+        super(
+                PrefabType.PveVineWitch,
+                parameters,
+                "vine_spirit",
+                ElementType.NATURE,
+                0f,
+                BOSS_ATTACK_INTERVAL,
+                7f,
+                null,
+                MAGIC_NAMES
+        );
     }
 
     @Override
-    public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("vine_spirit", "mass")));
-        gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("vine_spirit", "radius"), true));
-        gameObject.setElement(ElementType.NATURE);
-
-        int maxHp = (int) parameters.getValue("pve_nature_slime_nest", "hp");
-        Magic vineMagic = magicParser.parseMagicForBot("vine");
-        List<Magic> magics = resolveMagics("vine", "nature_slime_swarm", "water_slime_swarm", "vine_colony", "vine_spirit");
-        gameObject.addComponent(new VineWitchMob(
+    protected PVEBossMob createBossMob(GameObject gameObject, int maxHp, List<Magic> magics) {
+        return new VineWitchMob(
                 gameObject,
                 maxHp,
-                BOSS_SPEED,
-                TargetMask.GROUND.bit,
-                BOSS_ATTACK_INTERVAL,
-                BOSS_ATTACK_RANGE,
+                getBossSpeed(),
+                getTargetMask(),
+                getBossAttackInterval(),
+                getBossAttackRange(),
                 magics,
-                vineMagic
-        ));
-    }
-
-    private List<Magic> resolveMagics(String... magicNames) {
-        return Arrays.stream(magicNames)
-                .map(magicParser::parseMagicForBot)
-                .filter(Objects::nonNull)
-                .toList();
+                parseMagic("vine")
+        );
     }
 }
