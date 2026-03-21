@@ -1,11 +1,13 @@
 package com.wordonline.server.session.service;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.game.service.UserService;
+import com.wordonline.server.game.service.UserScenarioService;
 import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
@@ -34,12 +36,18 @@ public class SessionService {
     private final GameLoopFactory gameLoopFactory;
     private final StatisticService statisticService;
     private final UserService userService;
+    private final UserScenarioService userScenarioService;
 
-    public SessionService(SessionObjectFactory sessionObjectFactory, GameLoopFactory gameLoopFactory, StatisticService statisticService, UserService userService) {
+    public SessionService(SessionObjectFactory sessionObjectFactory,
+                          GameLoopFactory gameLoopFactory,
+                          StatisticService statisticService,
+                          UserService userService,
+                          UserScenarioService userScenarioService) {
         this.sessionObjectFactory = sessionObjectFactory;
         this.gameLoopFactory = gameLoopFactory;
         this.statisticService = statisticService;
         this.userService = userService;
+        this.userScenarioService = userScenarioService;
     }
 
     public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
@@ -80,6 +88,9 @@ public class SessionService {
         statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
 
         if (!sessionObject.getSessionId().contains("debug")) {
+            if (sessionObject.getSessionType() == SessionType.PVE && loser == Master.RightPlayer) {
+                userScenarioService.markFinished(sessionObject.getLeftUserId(), sessionObject.getScenarioId());
+            }
             if (winnerId >= 0) {
                 userService.incrementTotalWins(winnerId);
             }
