@@ -1,13 +1,53 @@
 package com.wordonline.server.game.domain.magic.implement.pve;
 
-import com.wordonline.server.game.domain.magic.implement.build.AbstractSummonMagic;
+import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.component.magic.SequentialLineSpawner;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import org.springframework.stereotype.Component;
 
 @Component("vine")
-public class VineMagic extends AbstractSummonMagic {
+public class VineMagic extends Magic {
+
+    private static final int VINE_COUNT = 6;
+    private static final float VINE_SPACING = 1f;
+    private static final float VINE_SPAWN_INTERVAL = 0.12f;
 
     public VineMagic() {
-        super(PrefabType.Vine);
+        super(CardType.Shoot);
+    }
+
+    @Override
+    public void run(GameContext gameContext, Master master, Vector3 position) {
+        run(gameContext, master, GameConfig.PLAYER_POSITION.get(master), position);
+    }
+
+    public void run(GameContext gameContext, Master master, Vector3 castOrigin, Vector3 targetPosition) {
+        if (castOrigin == null || targetPosition == null) {
+            return;
+        }
+
+        Vector3 direction = targetPosition.subtract(castOrigin).normalize();
+        if (direction.equals(Vector3.ZERO)) {
+            return;
+        }
+
+        Vector3 firstPosition = castOrigin.plus(direction.multiply(VINE_SPACING));
+        GameObject firstVine = new GameObject(master, PrefabType.Vine, firstPosition, gameContext);
+        firstVine.addComponent(new SequentialLineSpawner(
+                firstVine,
+                master,
+                PrefabType.Vine,
+                firstPosition,
+                direction,
+                VINE_SPACING,
+                VINE_SPAWN_INTERVAL,
+                VINE_COUNT
+        ));
     }
 }

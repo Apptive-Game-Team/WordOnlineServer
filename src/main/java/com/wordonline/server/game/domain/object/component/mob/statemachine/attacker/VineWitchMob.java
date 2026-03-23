@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.magic.implement.pve.VineMagic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.dto.Status;
@@ -13,7 +14,7 @@ public class VineWitchMob extends PVEBossMob {
     private static final int RAGE_CAST_COUNT = 20;
     private static final float RAGE_CAST_INTERVAL_SEC = 0.2f;
 
-    private final Magic vineMagic;
+    private final VineMagic vineMagic;
     private boolean ragePatternActivated = false;
     private int remainingRageCastCount = 0;
     private float rageCastTimer = 0f;
@@ -25,7 +26,7 @@ public class VineWitchMob extends PVEBossMob {
                         float attackInterval,
                         float attackRange,
                         List<Magic> magics,
-                        Magic vineMagic) {
+                        VineMagic vineMagic) {
         super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, magics);
         this.vineMagic = vineMagic;
     }
@@ -73,7 +74,7 @@ public class VineWitchMob extends PVEBossMob {
         rageCastTimer += getGameContext().getDeltaTime();
         while (rageCastTimer >= RAGE_CAST_INTERVAL_SEC && remainingRageCastCount > 0) {
             rageCastTimer -= RAGE_CAST_INTERVAL_SEC;
-            vineMagic.run(getGameContext(), gameObject.getMaster(), rageTarget.getPosition());
+            vineMagic.run(getGameContext(), gameObject.getMaster(), gameObject.getPosition(), rageTarget.getPosition());
             remainingRageCastCount--;
         }
     }

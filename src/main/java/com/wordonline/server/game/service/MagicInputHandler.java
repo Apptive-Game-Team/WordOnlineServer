@@ -66,7 +66,7 @@ public class MagicInputHandler {
             return new InputResponseDto("Insufficient mana.", false, playerData.mana, inputRequestDto.getId(), -1);
         }
 
-        magic.run(gameContext, master, inputRequestDto.getPosition());
+        magic.run(gameContext, master, GameConfig.PLAYER_POSITION.get(master), inputRequestDto.getPosition());
         gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
 
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
@@ -123,7 +123,7 @@ public class MagicInputHandler {
         }
 
         playerData.mana -= manaCost;
-        magic.run(gameContext, master, position);
+        magic.run(gameContext, master, rangeOrigin, position);
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
         return new InputResponseDto(true, playerData.mana, -1, magic.id);
     }
