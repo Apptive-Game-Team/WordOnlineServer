@@ -11,7 +11,7 @@ public class DummyMob extends Mob {
 
     @Override
     public void onDeath() {
-
+        gameObject.destroy();
     }
 
     @Override

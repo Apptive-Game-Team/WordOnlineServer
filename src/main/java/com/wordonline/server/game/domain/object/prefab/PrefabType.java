@@ -107,7 +107,7 @@ public enum PrefabType {
     RockTurret("rock_turret_prefab"),
     WindTotem("wind_totem_prefab"),
 
-    MagmaExplosion("fire_explosion_prefab"),
+    MagmaExplosion("magma_explosion_prefab"),
     WaterExplosion("water_explosion_prefab"),
 
 

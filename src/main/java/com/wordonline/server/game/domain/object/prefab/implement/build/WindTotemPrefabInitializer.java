@@ -32,8 +32,8 @@ public class WindTotemPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("wind_totem", "mass")));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("wind_totem", "radius"), false));
 
-        float pushForce = 2;
-        float pushRangeX = 1;
+        float pushForce = 10;
+        float pushRangeX = 6;
         float pushRangeY = 3;
 
         gameObject.addComponent(new DummyMob(gameObject, (int) parameters.getValue("wind_totem", "hp")));
