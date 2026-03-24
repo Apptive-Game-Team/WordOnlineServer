@@ -9,7 +9,9 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.build.WindPushComponent;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.component.SelfAttacker;
+import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
@@ -33,10 +35,13 @@ public class WindTotemPrefabInitializer extends PrefabInitializer {
         float pushForce = 2;
         float pushRangeX = 1;
         float pushRangeY = 3;
-        
+
+        gameObject.addComponent(new DummyMob(gameObject, (int) parameters.getValue("wind_totem", "hp")));
         gameObject.addComponent(new WindPushComponent(gameObject, pushForce, new Vector3(pushRangeX, pushRangeY, 1.0f)));
 
-        gameObject.addComponent(new SelfAttacker(gameObject, new AttackInfo(1, ElementType.WIND), 1));
+        gameObject.addComponent(new SelfAttacker(gameObject,
+                new AttackInfo((int) parameters.getValue("wind_totem", "damage"), ElementType.WIND),
+                (int) parameters.getValue("wind_totem", "attack_interval")));
         gameObject.setElement(ElementType.ROCK);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
