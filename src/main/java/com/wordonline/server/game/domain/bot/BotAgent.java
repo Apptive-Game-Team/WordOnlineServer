@@ -8,10 +8,12 @@ import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.service.GameLoop;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
+@Slf4j
 public final class BotAgent {
 
     private final BotAction botAction;
@@ -29,24 +31,35 @@ public final class BotAgent {
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
+        log.info("BotAgent initialized for side: {}", botSide);
     }
 
     public void onTick(FrameInfoDto myFrame) {
+        log.trace("[BotAgent {}] Tick start", botSide);
         BotEye botEye = new BotEye(gameLoop.getGameContext().getGameSessionData(), myFrame, botSide);
+        
+        int visibleObjects = botEye.getGameObjectList().size();
+        log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}", 
+                botSide, botEye.getMana(), botEye.getCardList(), visibleObjects);
+
         BotBrain.InputDecision decision = botBrain.think(
                 botEye.getGameObjectList(),
                 botEye.getCardList(),
                 gameLoop,
                 botEye.getMana(),
                 botSide);
+        
         if(decision != null)
         {
+            log.info("[BotAgent {}] Decision made: {} at {}", botSide, decision.playCards(), decision.target());
             InputRequestDto inputRequestDto = new InputRequestDto();
             inputRequestDto.setType("useMagic");
             inputRequestDto.setId(NEXT_ID.getAndIncrement());
             inputRequestDto.setCards(decision.playCards());
             inputRequestDto.setPosition(decision.target());
             botAction.useCard(sessionObject, inputRequestDto, botSide);
+        } else {
+            log.trace("[BotAgent {}] No action decided", botSide);
         }
     }
 }
