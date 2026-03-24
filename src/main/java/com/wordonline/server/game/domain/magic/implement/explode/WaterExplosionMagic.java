@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 @Component("water_explosion")
 public class WaterExplosionMagic extends AbstractExplosionMagic {
     public WaterExplosionMagic() {
-        super(PrefabType.WaterExplode);
+        super(PrefabType.WaterExplosion);
     }
 }

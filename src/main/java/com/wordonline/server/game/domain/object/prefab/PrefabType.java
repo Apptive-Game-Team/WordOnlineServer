@@ -97,6 +97,21 @@ public enum PrefabType {
     PveVineColony("pve_vine_colony_prefab"),
     PveVineWitch("pve_vine_witch_prefab"),
 
+    // New 2 card Magic
+    EmberSpirit("fire_slime_prefab"),
+    SeedSpirit("seed_spirit_prefab"),
+    WindSpirit("wind_spirit_prefab"),
+    MiniRock("mini_rock_prefab"),
+
+    LifeTree("life_tree_prefab"),
+    RockTurret("rock_turret_prefab"),
+    WindTotem("wind_totem_prefab"),
+
+    MagmaExplosion("fire_explosion_prefab"),
+    WaterExplosion("water_explosion_prefab"),
+
+
+
     Wall("wall_prefab"),
 
     Player("player_prefab");
