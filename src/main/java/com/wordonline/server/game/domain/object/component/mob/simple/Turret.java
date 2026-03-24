@@ -1,7 +1,5 @@
 package com.wordonline.server.game.domain.object.component.mob.simple;
 
-import java.util.List;
-
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
@@ -37,7 +35,7 @@ public class Turret extends TimedBehaviorMob {
     private final Behavior behavior = () -> {
         GameObject target = detector.detect(gameObject);
 
-        if (target == null || target.hasComponent(Mob.class)) {
+        if (target == null) {
             return false;
         }
 
@@ -47,8 +45,15 @@ public class Turret extends TimedBehaviorMob {
             return false;
         }
 
-        Mob mob = target.getComponent(Mob.class);
-        mob.onDamaged(attackInfo, attackDuration);
+        Damageable damageable = target.getComponent(Damageable.class);
+        if (damageable == null) {
+            return false;
+        }
+
+        damageable.onDamaged(attackInfo, attackDuration);
+
+        getGameContext().getObjectsInfoDtoBuilder()
+                .createProjection(gameObject, target, "RockShot", attackDuration);
 
         gameObject.setStatus(Status.Attack);
         return true;
