@@ -73,7 +73,7 @@ public class DebugService {
     }
 
     private String createPveDebugSession(long uid1, long uid2) {
-        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2, SessionType.PVE, null);
+        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2, SessionType.Practice, null);
     }
 
     private String createDebugSession(String sessionPrefix, long uid1, long uid2, SessionType sessionType, Long scenarioId) {
