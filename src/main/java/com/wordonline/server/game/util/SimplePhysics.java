@@ -31,6 +31,31 @@ public class SimplePhysics implements Physics {
     }
 
     @Override
+    public List<GameObject> overlapBoxAll(Vector3 center, Vector3 size) {
+        List<GameObject> result = new ArrayList<>();
+        float halfX = size.getX() / 2;
+        float halfY = size.getY() / 2;
+        float halfZ = size.getZ() / 2;
+
+        float minX = center.getX() - halfX;
+        float maxX = center.getX() + halfX;
+        float minY = center.getY() - halfY;
+        float maxY = center.getY() + halfY;
+        float minZ = center.getZ() - halfZ;
+        float maxZ = center.getZ() + halfZ;
+
+        for (GameObject other : gameObjects) {
+            Vector3 pos = other.getPosition();
+            if (pos.getX() >= minX && pos.getX() <= maxX &&
+                pos.getY() >= minY && pos.getY() <= maxY &&
+                pos.getZ() >= minZ && pos.getZ() <= maxZ) {
+                result.add(other);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public GameObject raycast(GameObject object, Vector2 direction, float distance) {
         Vector2 origin = object.getPosition().toVector2();
         Vector2 dirNorm = direction.normalize();

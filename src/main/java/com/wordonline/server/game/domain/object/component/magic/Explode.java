@@ -11,12 +11,14 @@ public class Explode extends MagicComponent {
     public static final float EXPLODE_DELAY = 0.5f;
     public static final float EXPLODE_RADIUS = 3f;
 
-    private final int damage;
-    private final float radius;
-    private final float delay;
+    protected final int damage;
+    protected final float radius;
+    protected final float delay;
 
-    private boolean isRunning = false;
-    private float counter = 0f;
+    protected boolean isRunning = false;
+    protected float counter = 0f;
+
+    protected AttackInfo attackInfo;
 
     public Explode(GameObject gameObject, int damage) {
         this(gameObject, damage, EXPLODE_RADIUS, EXPLODE_DELAY);
@@ -32,6 +34,7 @@ public class Explode extends MagicComponent {
         this.radius = radius;
         this.delay = delay;
         this.isRunning = true;
+        attackInfo = new AttackInfo(damage, gameObject.getElement().total());
     }
 
     @Override
@@ -48,14 +51,23 @@ public class Explode extends MagicComponent {
         for (GameObject otherObject : gameObjects) {
             if (otherObject == gameObject) continue;
 
-            List<Damageable> attackables = otherObject.getComponents(Damageable.class);
-            if (attackables.isEmpty()) continue;
-
-            otherObject.setStatus(Status.Damaged);
-            AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
-            attackables.forEach(a -> a.onDamaged(info));
+            handleGameObject(otherObject);
         }
         isRunning = false;
         gameObject.destroy();
+    }
+
+    protected void handleGameObject(GameObject targetObject) {
+        List<Damageable> attackables = targetObject.getComponents(Damageable.class);
+
+        if (attackables.isEmpty()) return;
+
+        targetObject.setStatus(Status.Damaged);
+
+        attackables.forEach(this::handleDamageable);
+    }
+
+    protected void handleDamageable(Damageable damageable) {
+        damageable.onDamaged(attackInfo);
     }
 }

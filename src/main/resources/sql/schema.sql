@@ -271,3 +271,12 @@ ALTER TABLE pve_scenario_events
 
 DROP TABLE pve_scenarios;
 
+
+ALTER TABLE statistic_game_magics
+    DROP CONSTRAINT statistic_game_magics_magic_id_fkey;
+
+ALTER TABLE magic_cards
+    DROP CONSTRAINT magic_cards_magic_id_fkey;
+ALTER TABLE magic_cards
+    ADD CONSTRAINT magic_cards_magic_id_fkey
+        FOREIGN KEY (magic_id) REFERENCES magics(id) ON DELETE CASCADE;

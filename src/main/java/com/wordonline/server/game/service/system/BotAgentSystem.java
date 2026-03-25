@@ -28,42 +28,55 @@ public class BotAgentSystem implements GameSystem {
 
     @Override
     public void update(GameContext gameContext) {
-        if (frameCounter.incrementAndGet() % BOT_TICK_INTERVAL != 0) {
+        int currentFrame = frameCounter.incrementAndGet();
+        if (currentFrame % BOT_TICK_INTERVAL != 0) {
             return;
         }
 
         if (gameContext.getGameLoop() == null) {
+            log.warn("[BotSystem] GameLoop is null, skipping bot update");
             return;
         }
 
         var wordOnlineLoop = gameContext.getGameLoop();
+        log.trace("[BotSystem] Triggering bot tick at frame {}", currentFrame);
 
         var leftBotAgent = wordOnlineLoop.getLeftBotAgent();
-        if (leftBotAgent != null && leftBotProcessing.compareAndSet(false, true)) {
-            var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
-            botExecutorService.submit(() -> {
-                try {
-                    leftBotAgent.onTick(leftFrameInfoDto);
-                } catch (Exception e) {
-                    log.debug("Left bot agent execution error", e);
-                } finally {
-                    leftBotProcessing.set(false);
-                }
-            });
+        if (leftBotAgent != null) {
+            if (leftBotProcessing.compareAndSet(false, true)) {
+                var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
+                log.debug("[BotSystem] Submitting Left Bot task");
+                botExecutorService.submit(() -> {
+                    try {
+                        leftBotAgent.onTick(leftFrameInfoDto);
+                    } catch (Exception e) {
+                        log.error("[BotSystem] Left bot agent execution error", e);
+                    } finally {
+                        leftBotProcessing.set(false);
+                    }
+                });
+            } else {
+                log.trace("[BotSystem] Left bot is still processing, skipping this tick");
+            }
         }
 
         var rightBotAgent = wordOnlineLoop.getRightBotAgent();
-        if (rightBotAgent != null && rightBotProcessing.compareAndSet(false, true)) {
-            var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
-            botExecutorService.submit(() -> {
-                try {
-                    rightBotAgent.onTick(rightFrameInfoDto);
-                } catch (Exception e) {
-                    log.debug("Right bot agent execution error", e);
-                } finally {
-                    rightBotProcessing.set(false);
-                }
-            });
+        if (rightBotAgent != null) {
+            if (rightBotProcessing.compareAndSet(false, true)) {
+                var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
+                log.debug("[BotSystem] Submitting Right Bot task");
+                botExecutorService.submit(() -> {
+                    try {
+                        rightBotAgent.onTick(rightFrameInfoDto);
+                    } catch (Exception e) {
+                        log.error("[BotSystem] Right bot agent execution error", e);
+                    } finally {
+                        rightBotProcessing.set(false);
+                    }
+                });
+            } else {
+                log.trace("[BotSystem] Right bot is still processing, skipping this tick");
+            }
         }
     }
 }
