@@ -60,8 +60,8 @@ public class SessionObjectFactory {
     }
 
     private SessionObject createPracticeSessionObject(String sessionId, long uid1, long uid2) {
-        List<CardType> leftCards = uid1 >= 0 ? deckService.getSelectedCards(uid1) : List.of();
-        List<CardType> rightCards = uid2 >= 0 ? deckService.getSelectedCards(uid2) : List.of();
+        List<CardType> leftCards = deckService.getSelectedCards(uid1);
+        List<CardType> rightCards = deckService.getSelectedCards(uid2);
         return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.Practice);
     }
 
