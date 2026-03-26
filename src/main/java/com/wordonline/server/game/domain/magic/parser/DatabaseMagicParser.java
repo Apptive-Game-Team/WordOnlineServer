@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DatabaseMagicParser implements MagicParser {
 
+    private static final long INVALID_MAGIC_ID = 0;
+
     private final Map<List<CardType>, Magic> magicHashMap = new ConcurrentHashMap<>();
     private final Map<Long, Magic> magicIdMap = new ConcurrentHashMap<>();
 
@@ -97,7 +99,7 @@ public class DatabaseMagicParser implements MagicParser {
             init();
         }
 
-        if (magicId <= 0) {
+        if (magicId <= INVALID_MAGIC_ID) {
             return null;
         }
 
