@@ -181,6 +181,10 @@ public class DebugService {
 
     private PrefabType resolvePrefabType(DebugSpawnPrefabRequestDto requestDto) {
         String prefabId = requestDto.prefabId();
+        if (prefabId == null || prefabId.isBlank()) {
+            return null;
+        }
+
         return Arrays.stream(PrefabType.values())
                 .filter(prefabType -> prefabType.getBeanName().equals(prefabId))
                 .findFirst()
