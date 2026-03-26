@@ -6,6 +6,7 @@ import com.wordonline.server.game.dto.Master;
 public record DebugSummonMagicRequestDto(
         String sessionId,
         Master master,
+        Long magicId,
         String magicName,
         Vector3 position
 ) {

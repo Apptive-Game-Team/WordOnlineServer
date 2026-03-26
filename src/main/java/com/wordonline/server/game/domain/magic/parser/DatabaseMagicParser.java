@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DatabaseMagicParser implements MagicParser {
 
     private final Map<List<CardType>, Magic> magicHashMap = new ConcurrentHashMap<>();
+    private final Map<Long, Magic> magicIdMap = new ConcurrentHashMap<>();
 
     private final MagicRepository magicRepository;
     private final ApplicationContext applicationContext;
@@ -38,11 +39,13 @@ public class DatabaseMagicParser implements MagicParser {
                     Magic magic = applicationContext.getBean(magicInfoDto.name(), Magic.class);
                     magic.id = magicInfoDto.id();
                     magicHashMap.put(convertToKey(magicInfoDto.cards()), magic);
+                    magicIdMap.put(magic.id, magic);
                 });
     }
 
     public void invalidateCache() {
         magicHashMap.clear();
+        magicIdMap.clear();
     }
 
     private List<CardType> convertToKey(List<CardType> cards) {
@@ -85,6 +88,22 @@ public class DatabaseMagicParser implements MagicParser {
         Magic magic = applicationContext.getBean(magicName, Magic.class);
         if (magic.id <= 0) {
             log.warn("[MagicIdMissing] Magic '{}' has non-positive id ({}).", magicName, magic.id);
+        }
+        return magic;
+    }
+
+    public Magic parseMagicForBot(long magicId) {
+        if (magicIdMap.isEmpty()) {
+            init();
+        }
+
+        if (magicId <= 0) {
+            return null;
+        }
+
+        Magic magic = magicIdMap.get(magicId);
+        if (magic == null) {
+            log.warn("[MagicNotFound] No magic mapped for id: {}", magicId);
         }
         return magic;
     }

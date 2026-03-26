@@ -7,6 +7,7 @@ import com.wordonline.server.game.dto.Master;
 public record DebugSpawnPrefabRequestDto(
         String sessionId,
         Master master,
+        Integer prefabId,
         PrefabType prefabType,
         Vector3 position
 ) {

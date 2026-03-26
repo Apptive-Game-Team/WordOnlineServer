@@ -1,5 +1,7 @@
 package com.wordonline.server.debug.service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.wordonline.server.debug.dto.DebugActionResponseDto;
 import com.wordonline.server.debug.dto.DebugGameRequestDto;
 import com.wordonline.server.debug.dto.DebugGameResponseDto;
+import com.wordonline.server.debug.dto.DebugMagicInfoDto;
+import com.wordonline.server.debug.dto.DebugPrefabInfoDto;
 import com.wordonline.server.debug.dto.DebugSpawnPrefabRequestDto;
 import com.wordonline.server.debug.dto.DebugSummonMagicRequestDto;
 import com.wordonline.server.deck.service.DeckService;
@@ -15,8 +19,10 @@ import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.repository.MagicRepository;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.service.SessionService;
 
@@ -35,6 +41,7 @@ public class DebugService {
     private final SessionService sessionService;
     private final DeckService deckService;
     private final DatabaseMagicParser magicParser;
+    private final MagicRepository magicRepository;
 
     private SessionObject debugSession;
 
@@ -111,15 +118,15 @@ public class DebugService {
             return new DebugActionResponseDto(false, "Session not found or not running.");
         }
 
-        Magic magic = magicParser.parseMagicForBot(requestDto.magicName());
+        Magic magic = resolveMagic(requestDto);
         if (magic == null) {
-            log.warn("summonMagic: magic not found: {}", requestDto.magicName());
-            return new DebugActionResponseDto(false, "Magic not found: " + requestDto.magicName());
+            log.warn("summonMagic: magic not found. magicId: {}, magicName: {}", requestDto.magicId(), requestDto.magicName());
+            return new DebugActionResponseDto(false, "Magic not found.");
         }
 
         GameContext gameContext = session.getGameContext();
         magic.run(gameContext, requestDto.master(), requestDto.position());
-        log.info("summonMagic: magic {} summoned for {} in session {}", requestDto.magicName(), requestDto.master(), requestDto.sessionId());
+        log.info("summonMagic: magicId {}, magicName {} summoned for {} in session {}", requestDto.magicId(), requestDto.magicName(), requestDto.master(), requestDto.sessionId());
         return new DebugActionResponseDto(true, "Magic summoned successfully.");
     }
 
@@ -130,9 +137,57 @@ public class DebugService {
             return new DebugActionResponseDto(false, "Session not found or not running.");
         }
 
+        PrefabType prefabType = resolvePrefabType(requestDto);
+        if (prefabType == null) {
+            log.warn("spawnPrefab: prefab not found. prefabId: {}, prefabType: {}", requestDto.prefabId(), requestDto.prefabType());
+            return new DebugActionResponseDto(false, "Prefab not found.");
+        }
+
         GameContext gameContext = session.getGameContext();
-        new GameObject(requestDto.master(), requestDto.prefabType(), requestDto.position(), gameContext);
-        log.info("spawnPrefab: prefab {} spawned for {} in session {}", requestDto.prefabType(), requestDto.master(), requestDto.sessionId());
+        new GameObject(requestDto.master(), prefabType, requestDto.position(), gameContext);
+        log.info("spawnPrefab: prefabId {}, prefabType {} spawned for {} in session {}", requestDto.prefabId(), prefabType, requestDto.master(), requestDto.sessionId());
         return new DebugActionResponseDto(true, "Prefab spawned successfully.");
+    }
+
+    public List<DebugMagicInfoDto> getMagicList() {
+        return magicRepository.getAllMagic().stream()
+                .map(magicInfo -> new DebugMagicInfoDto(magicInfo.id(), magicInfo.name()))
+                .toList();
+    }
+
+    public List<DebugPrefabInfoDto> getPrefabList() {
+        return Arrays.stream(PrefabType.values())
+                .map(prefabType -> new DebugPrefabInfoDto(prefabType.ordinal(), prefabType.name()))
+                .toList();
+    }
+
+    private Magic resolveMagic(DebugSummonMagicRequestDto requestDto) {
+        if (requestDto.magicId() != null) {
+            return magicParser.parseMagicForBot(requestDto.magicId());
+        }
+
+        if (requestDto.magicName() == null || requestDto.magicName().isBlank()) {
+            return null;
+        }
+
+        return magicParser.parseMagicForBot(requestDto.magicName());
+    }
+
+    private PrefabType resolvePrefabType(DebugSpawnPrefabRequestDto requestDto) {
+        if (requestDto.prefabType() != null) {
+            return requestDto.prefabType();
+        }
+
+        Integer prefabId = requestDto.prefabId();
+        if (prefabId == null) {
+            return null;
+        }
+
+        PrefabType[] prefabTypes = PrefabType.values();
+        if (prefabId < 0 || prefabId >= prefabTypes.length) {
+            return null;
+        }
+
+        return prefabTypes[prefabId];
     }
 }
