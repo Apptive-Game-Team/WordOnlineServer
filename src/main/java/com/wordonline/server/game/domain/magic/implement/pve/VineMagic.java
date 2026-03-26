@@ -6,6 +6,8 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.magic.SequentialLineSpawner;
+import com.wordonline.server.game.domain.object.component.magic.VineHitTracker;
+import com.wordonline.server.game.domain.object.component.magic.VineSpawnContext;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
@@ -37,8 +39,13 @@ public class VineMagic extends Magic {
             return;
         }
 
+        VineHitTracker hitTracker = new VineHitTracker();
         Vector3 firstPosition = castOrigin.plus(direction.multiply(VINE_SPACING));
-        GameObject firstVine = new GameObject(master, PrefabType.Vine, firstPosition, gameContext);
+        final GameObject[] firstVineRef = new GameObject[1];
+        VineSpawnContext.runWithTracker(hitTracker, () ->
+                firstVineRef[0] = new GameObject(master, PrefabType.Vine, firstPosition, gameContext)
+        );
+        GameObject firstVine = firstVineRef[0];
         firstVine.addComponent(new SequentialLineSpawner(
                 firstVine,
                 master,
@@ -47,7 +54,8 @@ public class VineMagic extends Magic {
                 direction,
                 VINE_SPACING,
                 VINE_SPAWN_INTERVAL,
-                VINE_COUNT
+                VINE_COUNT,
+                hitTracker
         ));
     }
 }

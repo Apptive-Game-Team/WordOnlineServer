@@ -22,8 +22,13 @@ public class VineShot extends Shot {
             return;
         }
 
+        VineHitTracker hitTracker = new VineHitTracker();
         Vector3 firstPosition = gameObject.getPosition().plus(direction.multiply(VINE_SPACING));
-        GameObject firstVine = new GameObject(gameObject.getMaster(), PrefabType.Vine, firstPosition, getGameContext());
+        final GameObject[] firstVineRef = new GameObject[1];
+        VineSpawnContext.runWithTracker(hitTracker, () ->
+                firstVineRef[0] = new GameObject(gameObject.getMaster(), PrefabType.Vine, firstPosition, getGameContext())
+        );
+        GameObject firstVine = firstVineRef[0];
         firstVine.addComponent(new SequentialLineSpawner(
                 firstVine,
                 gameObject.getMaster(),
@@ -32,7 +37,8 @@ public class VineShot extends Shot {
                 direction,
                 VINE_SPACING,
                 VINE_SPAWN_INTERVAL,
-                VINE_COUNT
+                VINE_COUNT,
+                hitTracker
         ));
 
         gameObject.destroy();

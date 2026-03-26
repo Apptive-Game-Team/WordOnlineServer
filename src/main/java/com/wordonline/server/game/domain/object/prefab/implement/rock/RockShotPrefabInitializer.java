@@ -3,7 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.rock;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.magic.Shot;
+import com.wordonline.server.game.domain.object.component.magic.RollingRockShot;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -21,11 +21,13 @@ public class RockShotPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        float radius = (float) parameters.getValue("shoot", "radius");
+        gameObject.getColliders().add(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new Shot(gameObject,
+        gameObject.getComponents().add(new RollingRockShot(gameObject,
                 (int) parameters.getValue("shoot", "damage"),
-                (float) parameters.getValue("shoot", "speed")
+                (float) parameters.getValue("shoot", "speed"),
+                radius
         ));
     }
 }

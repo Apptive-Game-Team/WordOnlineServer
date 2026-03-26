@@ -14,6 +14,7 @@ public class SequentialLineSpawner extends Component {
     private final Vector3 direction;
     private final float spacing;
     private final float spawnInterval;
+    private final VineHitTracker hitTracker;
     private int remainingSpawnCount;
     private int nextSpawnIndex;
     private float elapsed;
@@ -25,7 +26,8 @@ public class SequentialLineSpawner extends Component {
                                  Vector3 direction,
                                  float spacing,
                                  float spawnInterval,
-                                 int totalSpawnCount) {
+                                 int totalSpawnCount,
+                                 VineHitTracker hitTracker) {
         super(gameObject);
         this.master = master;
         this.prefabType = prefabType;
@@ -33,6 +35,7 @@ public class SequentialLineSpawner extends Component {
         this.direction = direction.normalize();
         this.spacing = spacing;
         this.spawnInterval = spawnInterval;
+        this.hitTracker = hitTracker;
         this.remainingSpawnCount = Math.max(totalSpawnCount - 1, 0);
         this.nextSpawnIndex = 1;
         this.elapsed = 0f;
@@ -53,7 +56,7 @@ public class SequentialLineSpawner extends Component {
         while (elapsed >= spawnInterval && remainingSpawnCount > 0) {
             elapsed -= spawnInterval;
             Vector3 spawnPosition = startPosition.plus(direction.multiply(spacing * nextSpawnIndex));
-            new GameObject(master, prefabType, spawnPosition, getGameContext());
+            VineSpawnContext.runWithTracker(hitTracker, () -> new GameObject(master, prefabType, spawnPosition, getGameContext()));
             nextSpawnIndex++;
             remainingSpawnCount--;
         }
