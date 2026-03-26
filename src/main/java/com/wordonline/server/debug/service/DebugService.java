@@ -120,13 +120,13 @@ public class DebugService {
 
         Magic magic = resolveMagic(requestDto);
         if (magic == null) {
-            log.warn("summonMagic: magic not found. magicId: {}, magicName: {}", requestDto.magicId(), requestDto.magicName());
+            log.warn("summonMagic: magic not found. magicId: {}", requestDto.magicId());
             return new DebugActionResponseDto(false, "Magic not found.");
         }
 
         GameContext gameContext = session.getGameContext();
         magic.run(gameContext, requestDto.master(), requestDto.position());
-        log.info("summonMagic: magicId {}, magicName {} summoned for {} in session {}", requestDto.magicId(), requestDto.magicName(), requestDto.master(), requestDto.sessionId());
+        log.info("summonMagic: magicId {} summoned for {} in session {}", requestDto.magicId(), requestDto.master(), requestDto.sessionId());
         return new DebugActionResponseDto(true, "Magic summoned successfully.");
     }
 
@@ -139,7 +139,7 @@ public class DebugService {
 
         PrefabType prefabType = resolvePrefabType(requestDto);
         if (prefabType == null) {
-            log.warn("spawnPrefab: prefab not found. prefabId: {}, prefabType: {}", requestDto.prefabId(), requestDto.prefabType());
+            log.warn("spawnPrefab: prefab not found. prefabId: {}", requestDto.prefabId());
             return new DebugActionResponseDto(false, "Prefab not found.");
         }
 
@@ -163,25 +163,14 @@ public class DebugService {
 
     private Magic resolveMagic(DebugSummonMagicRequestDto requestDto) {
         Long magicId = requestDto.magicId();
-        if (magicId != null) {
-            if (magicId <= DatabaseMagicParser.INVALID_MAGIC_ID) {
-                return null;
-            }
-            return magicParser.parseMagicForBot(magicId);
-        }
-
-        if (requestDto.magicName() == null || requestDto.magicName().isBlank()) {
+        if (magicId == null || magicId <= DatabaseMagicParser.INVALID_MAGIC_ID) {
             return null;
         }
 
-        return magicParser.parseMagicForBot(requestDto.magicName());
+        return magicParser.parseMagicForBot(magicId);
     }
 
     private PrefabType resolvePrefabType(DebugSpawnPrefabRequestDto requestDto) {
-        if (requestDto.prefabType() != null) {
-            return requestDto.prefabType();
-        }
-
         String prefabId = requestDto.prefabId();
         if (prefabId == null || prefabId.isBlank()) {
             return null;

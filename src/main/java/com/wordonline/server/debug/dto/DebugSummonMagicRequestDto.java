@@ -7,7 +7,6 @@ public record DebugSummonMagicRequestDto(
         String sessionId,
         Master master,
         Long magicId,
-        String magicName,
         Vector3 position
 ) {
 }

@@ -65,7 +65,7 @@ public class DebugController {
     public ResponseEntity<DebugActionResponseDto> summonMagic(
             @RequestBody DebugSummonMagicRequestDto requestDto
     ) {
-        log.info("summonMagic sessionId: {}, magicId: {}, magicName: {}, master: {}", requestDto.sessionId(), requestDto.magicId(), requestDto.magicName(), requestDto.master());
+        log.info("summonMagic sessionId: {}, magicId: {}, master: {}", requestDto.sessionId(), requestDto.magicId(), requestDto.master());
         DebugActionResponseDto response = debugService.summonMagic(requestDto);
         if (!response.success()) {
             return ResponseEntity.badRequest().body(response);
@@ -82,7 +82,7 @@ public class DebugController {
     public ResponseEntity<DebugActionResponseDto> spawnPrefab(
             @RequestBody DebugSpawnPrefabRequestDto requestDto
     ) {
-        log.info("spawnPrefab sessionId: {}, prefabId: {}, prefabType: {}, master: {}", requestDto.sessionId(), requestDto.prefabId(), requestDto.prefabType(), requestDto.master());
+        log.info("spawnPrefab sessionId: {}, prefabId: {}, master: {}", requestDto.sessionId(), requestDto.prefabId(), requestDto.master());
         DebugActionResponseDto response = debugService.spawnPrefab(requestDto);
         if (!response.success()) {
             return ResponseEntity.badRequest().body(response);
