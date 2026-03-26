@@ -157,7 +157,7 @@ public class DebugService {
 
     public List<DebugPrefabInfoDto> getPrefabList() {
         return Arrays.stream(PrefabType.values())
-                .map(prefabType -> new DebugPrefabInfoDto(prefabType.ordinal(), prefabType.name()))
+                .map(prefabType -> new DebugPrefabInfoDto(prefabType.getBeanName(), prefabType.name()))
                 .toList();
     }
 
@@ -178,16 +178,14 @@ public class DebugService {
             return requestDto.prefabType();
         }
 
-        Integer prefabId = requestDto.prefabId();
-        if (prefabId == null) {
+        String prefabId = requestDto.prefabId();
+        if (prefabId == null || prefabId.isBlank()) {
             return null;
         }
 
-        PrefabType[] prefabTypes = PrefabType.values();
-        if (prefabId < 0 || prefabId >= prefabTypes.length) {
-            return null;
-        }
-
-        return prefabTypes[prefabId];
+        return Arrays.stream(PrefabType.values())
+                .filter(prefabType -> prefabType.getBeanName().equals(prefabId))
+                .findFirst()
+                .orElse(null);
     }
 }
