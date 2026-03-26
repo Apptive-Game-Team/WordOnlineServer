@@ -121,7 +121,7 @@ public class DebugService {
         Magic magic = resolveMagic(requestDto);
         if (magic == null) {
             log.warn("summonMagic: magic not found. magicId: {}", requestDto.magicId());
-            return new DebugActionResponseDto(false, "Magic not found.");
+            return new DebugActionResponseDto(false, String.format("Magic not found for id: %s", requestDto.magicId()));
         }
 
         GameContext gameContext = session.getGameContext();
