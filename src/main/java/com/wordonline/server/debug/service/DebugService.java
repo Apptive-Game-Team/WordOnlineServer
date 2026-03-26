@@ -162,8 +162,12 @@ public class DebugService {
     }
 
     private Magic resolveMagic(DebugSummonMagicRequestDto requestDto) {
-        if (requestDto.magicId() != null) {
-            return magicParser.parseMagicForBot(requestDto.magicId());
+        Long magicId = requestDto.magicId();
+        if (magicId != null) {
+            if (magicId <= 0) {
+                return null;
+            }
+            return magicParser.parseMagicForBot(magicId);
         }
 
         if (requestDto.magicName() == null || requestDto.magicName().isBlank()) {
