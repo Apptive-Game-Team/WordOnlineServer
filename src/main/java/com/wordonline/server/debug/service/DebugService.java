@@ -122,6 +122,10 @@ public class DebugService {
             log.warn("summonMagic: magicId missing");
             return new DebugActionResponseDto(false, "Magic id is required.");
         }
+        if (requestDto.magicId() <= DatabaseMagicParser.INVALID_MAGIC_ID) {
+            log.warn("summonMagic: magicId invalid {}", requestDto.magicId());
+            return new DebugActionResponseDto(false, "Magic id must be positive.");
+        }
 
         Magic magic = resolveMagic(requestDto);
         if (magic == null) {
