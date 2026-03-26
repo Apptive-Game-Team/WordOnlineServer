@@ -164,7 +164,7 @@ public class DebugService {
     private Magic resolveMagic(DebugSummonMagicRequestDto requestDto) {
         Long magicId = requestDto.magicId();
         if (magicId != null) {
-            if (magicId <= 0) {
+            if (magicId <= DatabaseMagicParser.INVALID_MAGIC_ID) {
                 return null;
             }
             return magicParser.parseMagicForBot(magicId);
