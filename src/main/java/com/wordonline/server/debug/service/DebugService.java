@@ -118,6 +118,11 @@ public class DebugService {
             return new DebugActionResponseDto(false, "Session not found or not running.");
         }
 
+        if (requestDto.magicId() == null) {
+            log.warn("summonMagic: magicId missing");
+            return new DebugActionResponseDto(false, "Magic id is required.");
+        }
+
         Magic magic = resolveMagic(requestDto);
         if (magic == null) {
             log.warn("summonMagic: magic not found. magicId: {}", requestDto.magicId());
@@ -181,12 +186,8 @@ public class DebugService {
 
     private PrefabType resolvePrefabType(DebugSpawnPrefabRequestDto requestDto) {
         String prefabId = requestDto.prefabId();
-        if (prefabId == null || prefabId.isBlank()) {
-            return null;
-        }
-
         return Arrays.stream(PrefabType.values())
-                .filter(prefabType -> prefabType.getBeanName().equals(prefabId))
+                .filter(prefabType -> java.util.Objects.equals(prefabType.getBeanName(), prefabId))
                 .findFirst()
                 .orElse(null);
     }
