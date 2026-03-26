@@ -137,10 +137,15 @@ public class DebugService {
             return new DebugActionResponseDto(false, "Session not found or not running.");
         }
 
+        if (requestDto.prefabId() == null || requestDto.prefabId().isBlank()) {
+            log.warn("spawnPrefab: prefabId missing");
+            return new DebugActionResponseDto(false, "Prefab id is required.");
+        }
+
         PrefabType prefabType = resolvePrefabType(requestDto);
         if (prefabType == null) {
             log.warn("spawnPrefab: prefab not found. prefabId: {}", requestDto.prefabId());
-            return new DebugActionResponseDto(false, "Prefab not found.");
+            return new DebugActionResponseDto(false, "Prefab not found for id: " + requestDto.prefabId());
         }
 
         GameContext gameContext = session.getGameContext();
@@ -176,10 +181,6 @@ public class DebugService {
 
     private PrefabType resolvePrefabType(DebugSpawnPrefabRequestDto requestDto) {
         String prefabId = requestDto.prefabId();
-        if (prefabId == null || prefabId.isBlank()) {
-            return null;
-        }
-
         return Arrays.stream(PrefabType.values())
                 .filter(prefabType -> prefabType.getBeanName().equals(prefabId))
                 .findFirst()
