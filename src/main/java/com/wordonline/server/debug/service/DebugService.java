@@ -145,7 +145,7 @@ public class DebugService {
         PrefabType prefabType = resolvePrefabType(requestDto);
         if (prefabType == null) {
             log.warn("spawnPrefab: prefab not found. prefabId: {}", requestDto.prefabId());
-            return new DebugActionResponseDto(false, "Prefab not found for id: " + requestDto.prefabId());
+            return new DebugActionResponseDto(false, String.format("Prefab not found for id: %s", requestDto.prefabId()));
         }
 
         GameContext gameContext = session.getGameContext();
