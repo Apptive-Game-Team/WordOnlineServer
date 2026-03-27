@@ -16,7 +16,7 @@ import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 
-@Component
+@Component("wind_spirit_prefab")
 public class WindSpiritPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
