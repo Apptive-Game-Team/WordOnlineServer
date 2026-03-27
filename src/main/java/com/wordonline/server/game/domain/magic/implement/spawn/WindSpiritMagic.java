@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 @Component("wind_spirit")
 public class WindSpiritMagic extends AbstractSingleSpawnMagic {
     public WindSpiritMagic() {
-        super(PrefabType.WindSlime);
+        super(PrefabType.WindSpirit);
     }
 }
