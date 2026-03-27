@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserScenarioService {
 
-    private static final String FINISHED_STATE = "finished";
+    private static final String FINISHED_STATE = "FINISHED";
 
     private final UserScenarioRepository userScenarioRepository;
 
