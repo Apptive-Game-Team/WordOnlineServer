@@ -280,3 +280,6 @@ ALTER TABLE magic_cards
 ALTER TABLE magic_cards
     ADD CONSTRAINT magic_cards_magic_id_fkey
         FOREIGN KEY (magic_id) REFERENCES magics(id) ON DELETE CASCADE;
+
+
+ALTER TYPE game_type ADD VALUE 'PVE';

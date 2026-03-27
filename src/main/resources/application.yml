@@ -25,6 +25,8 @@ logging:
   level:
     org.springframework.web.socket: WARN
     org.springframework.messaging: WARN
+#    com.wordonline.server.game.domain.bot: DEBUG
+#    com.wordonline.server.game.service.system: DEBUG
 
 team6515:
   server:

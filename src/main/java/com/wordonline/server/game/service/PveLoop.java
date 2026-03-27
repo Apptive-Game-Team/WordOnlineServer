@@ -15,7 +15,7 @@ import java.util.List;
 @Scope("prototype")
 public class PveLoop extends WordOnlineLoop {
 
-    private static final Long DEFAULT_SCENARIO_ID = 14L;
+    private static final Long DEFAULT_SCENARIO_ID = 1L;
 
     private final PveScenarioRegistry pveScenarioRegistry;
     private final PveScenarioInstaller pveScenarioInstaller;
