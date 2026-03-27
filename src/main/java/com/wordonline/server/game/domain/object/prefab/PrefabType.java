@@ -62,7 +62,7 @@ public enum PrefabType {
 
     // drop
     FireDrop("fire_drop_prefab"),
-    WaterDrop("water_drop_prefab"),
+    RainCloud("rain_cloud_prefab"),
     NatureDrop("nature_drop_prefab"),
     RockDrop("rock_drop_prefab"),
     LightningDrop("lightning_drop_prefab"),

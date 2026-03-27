@@ -12,13 +12,13 @@ import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
 
-@Component("water_drop_prefab")
-public class WaterDropPrefabInitializer extends PrefabInitializer {
+@Component("rain_cloud_prefab")
+public class RainCloudPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
 
-    public WaterDropPrefabInitializer(Parameters parameters) {
-        super(PrefabType.WaterDrop);
+    public RainCloudPrefabInitializer(Parameters parameters) {
+        super(PrefabType.RainCloud);
         this.parameters = parameters;
     }
 

@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 
-@Component("water_drop")
-public class WaterDropMagic extends AbstractExplosionMagic {
+@Component("rain_cloud")
+public class RainCloudMagic extends AbstractExplosionMagic {
 
-    public WaterDropMagic() {
-        super(PrefabType.WaterDrop);
+    public RainCloudMagic() {
+        super(PrefabType.RainCloud);
     }
 }
 
