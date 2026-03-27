@@ -28,7 +28,6 @@ public class HealingTotemPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("healing_totem", "mass")));
-//        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("healing_totem", "radius"), false));
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("healing_totem", "radius"), true));
         gameObject.getComponents().add(new Totem(gameObject,
                 (int) parameters.getValue("healing_totem", "hp"),

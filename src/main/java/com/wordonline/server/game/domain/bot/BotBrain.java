@@ -33,6 +33,7 @@ public class BotBrain {
                                Master botSide)
     {
         try {
+            log.trace("[Bot {}] Start thinking with cards={}, mana={}", botSide, cardList, mana);
             Vector3 playerPos = BotSideUtil.getPlayerPosition(botSide);
             Master enemySide = BotSideUtil.getEnemySide(botSide);
             
@@ -48,7 +49,7 @@ public class BotBrain {
             List<MagicCandidate> placement = new ArrayList<>();
 
             if (!(magicParser instanceof DatabaseMagicParser dbParser)) {
-                log.warn("magicParser is not DatabaseMagicParser, fallback disabled");
+                log.warn("[Bot {}] magicParser is not DatabaseMagicParser, fallback disabled", botSide);
                 return null;
             }
 
@@ -82,6 +83,7 @@ public class BotBrain {
             }
 
             if (!offensive.isEmpty() && !enemies.isEmpty()) {
+                log.debug("[Bot {}] Found {} offensive candidates and {} enemies", botSide, offensive.size(), enemies.size());
                 List<MagicCandidate> usableOffensive = offensive.stream()
                         .filter(c -> enemies.stream().anyMatch(enemy ->
                                 enemy.getPosition().distance(playerPos) <= c.range()))
@@ -91,13 +93,17 @@ public class BotBrain {
                     GameObject nearest = nearestEnemy(enemies, playerPos);
                     MagicCandidate chosen = usableOffensive.getFirst();
 
+                    log.info("[Bot {}] Chose offensive action: {} targeting nearest enemy at {}", botSide, chosen.cards(), nearest.getPosition());
                     return new InputDecision(chosen.cards(), nearest.getPosition());
+                } else {
+                    log.debug("[Bot {}] No offensive candidates in range", botSide);
                 }
             }
 
             if (!placement.isEmpty()) {
                 MagicCandidate chosen = placement.getFirst();
                 Vector3 target = randomPosInRange(playerPos, chosen.range(), botSide);
+                log.info("[Bot {}] Chose placement action: {} at random target {}", botSide, chosen.cards(), target);
                 return new InputDecision(chosen.cards(), target);
             }
 
@@ -105,11 +111,13 @@ public class BotBrain {
             if (cycleCard != null) {
                 double range = loop.parameters.getValue(cycleCard.name(), "range");
                 Vector3 target = randomPosInRange(playerPos, range, botSide);
+                log.info("[Bot {}] Chose to cycle card: {} at random target {}", botSide, cycleCard, target);
                 return new InputDecision(List.of(cycleCard), target);
             }
 
+            log.trace("[Bot {}] No valid actions found this tick", botSide);
         } catch (Exception e) {
-            log.trace("Bot think error", e);
+            log.error("[Bot " + botSide + "] Bot think error", e);
         }
         return null;
     }
