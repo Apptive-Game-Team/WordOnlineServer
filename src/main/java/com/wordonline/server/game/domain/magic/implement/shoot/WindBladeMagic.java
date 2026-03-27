@@ -4,10 +4,10 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import org.springframework.stereotype.Component;
 
-@Component("wind_shot")
-public class WindShotMagic extends AbstractShotMagic {
-    public WindShotMagic() {
-        super(PrefabType.WindShot);
+@Component("wind_blade")
+public class WindBladeMagic extends AbstractShotMagic {
+    public WindBladeMagic() {
+        super(PrefabType.WindBlade);
     }
 
     @Override

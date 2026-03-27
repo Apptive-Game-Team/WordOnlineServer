@@ -30,7 +30,7 @@ public abstract class AbstractDropPrefabInitializer extends PrefabInitializer {
     private static PrefabType getPrefabType(ElementType elementType) {
         return switch (elementType) {
             case ElementType.FIRE -> PrefabType.FireDrop;
-            case ElementType.WATER -> PrefabType.WaterDrop;
+            case ElementType.WATER -> PrefabType.RainCloud;
             case ElementType.NATURE -> PrefabType.NatureDrop;
             case ElementType.ROCK -> PrefabType.RockDrop;
             case ElementType.LIGHTNING -> PrefabType.LightningDrop;
