@@ -11,7 +11,7 @@ import com.wordonline.server.game.util.CollisionChecker;
 
 import java.util.List;
 
-public class RollingRockShot extends Shot {
+public class RollingRock extends Shot {
 
     private static final int MAX_BOUNCES = 2;
     private static final float BOUNCE_SEPARATION = 0.05f;
@@ -22,7 +22,7 @@ public class RollingRockShot extends Shot {
     private int bounceCount;
     private Integer collisionLockTargetId;
 
-    public RollingRockShot(GameObject gameObject, int damage, float speed, float radius) {
+    public RollingRock(GameObject gameObject, int damage, float speed, float radius) {
         super(gameObject, damage, speed);
         this.radius = radius;
     }

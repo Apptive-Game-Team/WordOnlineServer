@@ -4,13 +4,13 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 
-public class VineShot extends Shot {
+public class VineToss extends Shot {
 
     private static final int VINE_COUNT = 6;
     private static final float VINE_SPACING = 1f;
     private static final float VINE_SPAWN_INTERVAL = 0.12f;
 
-    public VineShot(GameObject gameObject) {
+    public VineToss(GameObject gameObject) {
         super(gameObject, 0, 0f);
     }
 

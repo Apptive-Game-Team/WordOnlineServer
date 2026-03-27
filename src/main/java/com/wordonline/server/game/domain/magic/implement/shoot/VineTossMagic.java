@@ -1,4 +1,4 @@
-package com.wordonline.server.game.domain.magic.implement.pve;
+package com.wordonline.server.game.domain.magic.implement.shoot;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.CardType;
@@ -13,14 +13,14 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import org.springframework.stereotype.Component;
 
-@Component("vine")
-public class VineMagic extends Magic {
+@Component("vine_toss")
+public class VineTossMagic extends Magic {
 
     private static final int VINE_COUNT = 6;
     private static final float VINE_SPACING = 1f;
     private static final float VINE_SPAWN_INTERVAL = 0.12f;
 
-    public VineMagic() {
+    public VineTossMagic() {
         super(CardType.Shoot);
     }
 

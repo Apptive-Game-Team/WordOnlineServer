@@ -19,7 +19,7 @@ public enum PrefabType {
     WaterSlime("water_slime_prefab"),
 
     // rock ========================================================
-    RockShot("rock_shot_prefab"),
+    RockRolling("rock_rolling_prefab"),
     RockExplode("rock_explode_prefab"),
     RockSlime("rock_slime_prefab"),
     RockSummon("rock_summon_prefab"),
@@ -32,13 +32,13 @@ public enum PrefabType {
     ElectricField("electric_field_prefab"),
 
     // leaf ========================================================
-    LeafShot("leaf_shot_prefab"),
+    VineToss("vine_toss_prefab"),
     LeafExplode("leaf_explode_prefab"),
     LeafField("leaf_field_prefab"),
     LeafSlime("leaf_slime_prefab"),
 
     // wind ========================================================
-    WindShot("wind_shot_prefab"),
+    WindBlade("wind_blade_prefab"),
     WindExplode("wind_explode_prefab"),
     WindSlime("wind_slime_prefab"),
     WindSummon("wind_summon_prefab"),

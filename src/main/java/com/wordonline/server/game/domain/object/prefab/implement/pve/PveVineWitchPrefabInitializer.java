@@ -3,7 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.pve;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.implement.pve.VineMagic;
+import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
@@ -43,7 +43,7 @@ public class PveVineWitchPrefabInitializer extends PrefabInitializer {
         gameObject.setElement(ElementType.NATURE);
 
         int maxHp = (int) parameters.getValue("pve_nature_slime_nest", "hp");
-        VineMagic vineMagic = (VineMagic) magicParser.parseMagicForBot("vine");
+        VineTossMagic vineTossMagic = (VineTossMagic) magicParser.parseMagicForBot("vine");
         List<Magic> magics = resolveMagics("vine", "nature_slime_swarm", "water_slime_swarm", "vine_colony", "vine_spirit");
         gameObject.addComponent(new VineWitchMob(
                 gameObject,
@@ -53,7 +53,7 @@ public class PveVineWitchPrefabInitializer extends PrefabInitializer {
                 BOSS_ATTACK_INTERVAL,
                 BOSS_ATTACK_RANGE,
                 magics,
-                vineMagic
+                vineTossMagic
         ));
     }
 

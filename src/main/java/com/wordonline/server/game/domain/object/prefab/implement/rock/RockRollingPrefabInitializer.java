@@ -1,21 +1,21 @@
-package com.wordonline.server.game.domain.object.prefab.implement.wind;
+package com.wordonline.server.game.domain.object.prefab.implement.rock;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.magic.WindBladeShot;
+import com.wordonline.server.game.domain.object.component.magic.RollingRock;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import org.springframework.stereotype.Component;
 
-@Component("wind_shot_prefab")
-public class WindShotPrefabInitializer extends PrefabInitializer {
+@Component("rock_rolling_prefab")
+public class RockRollingPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
 
-    public WindShotPrefabInitializer(Parameters parameters) {
-        super(PrefabType.WindShot);
+    public RockRollingPrefabInitializer(Parameters parameters) {
+        super(PrefabType.RockRolling);
         this.parameters = parameters;
     }
 
@@ -23,8 +23,8 @@ public class WindShotPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         float radius = (float) parameters.getValue("shoot", "radius");
         gameObject.getColliders().add(new CircleCollider(gameObject, radius, true));
-        gameObject.setElement(ElementType.WIND);
-        gameObject.getComponents().add(new WindBladeShot(gameObject,
+        gameObject.setElement(ElementType.ROCK);
+        gameObject.getComponents().add(new RollingRock(gameObject,
                 (int) parameters.getValue("shoot", "damage"),
                 (float) parameters.getValue("shoot", "speed"),
                 radius
