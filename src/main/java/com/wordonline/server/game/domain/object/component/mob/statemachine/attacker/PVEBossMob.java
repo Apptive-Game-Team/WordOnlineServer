@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
+import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.service.GameLoop;
@@ -50,11 +51,16 @@ public class PVEBossMob extends BehaviorMob {
             return false;
         }
 
+        GameObject castTarget = magic.magicType == CardType.Spawn ? gameObject : target;
+        if (castTarget == null) {
+            return false;
+        }
+
         var result = getGameContext().getMagicInputHandler().handleBotMagicInput(
                 getGameContext(),
                 gameObject.getMaster(),
                 magic,
-                target.getPosition(),
+                castTarget.getPosition(),
                 gameObject.getPosition()
         );
         if (!result.valid()) {
