@@ -5,6 +5,8 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component("pve_water_slime_nest_prefab")
 public class PveWaterSlimeNestPrefabInitializer extends SimplePveBossInitializer {
 
@@ -17,7 +19,7 @@ public class PveWaterSlimeNestPrefabInitializer extends SimplePveBossInitializer
                 parameters,
                 "pve_water_slime_nest",
                 ElementType.WATER,
-                new SpawnConfig(PrefabType.WaterSlime, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT),
+                List.of(new SpawnConfig(PrefabType.WaterSlime, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT)),
                 null
         );
     }

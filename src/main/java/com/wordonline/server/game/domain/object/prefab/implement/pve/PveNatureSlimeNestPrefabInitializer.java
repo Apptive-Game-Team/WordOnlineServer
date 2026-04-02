@@ -5,6 +5,8 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component("pve_nature_slime_nest_prefab")
 public class PveNatureSlimeNestPrefabInitializer extends SimplePveBossInitializer {
 
@@ -17,7 +19,7 @@ public class PveNatureSlimeNestPrefabInitializer extends SimplePveBossInitialize
                 parameters,
                 "pve_nature_slime_nest",
                 ElementType.NATURE,
-                new SpawnConfig(PrefabType.LeafSlime, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT),
+                List.of(new SpawnConfig(PrefabType.LeafSlime, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT)),
                 null
         );
     }

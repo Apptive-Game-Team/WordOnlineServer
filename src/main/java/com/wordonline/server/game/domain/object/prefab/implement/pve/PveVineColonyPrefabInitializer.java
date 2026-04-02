@@ -10,14 +10,20 @@ import java.util.List;
 @Component("pve_vine_colony_prefab")
 public class PveVineColonyPrefabInitializer extends SimplePveBossInitializer {
 
+    private static final float BOSS_SPAWN_INTERVAL = 2.5f;
+    private static final int BOSS_SPAWN_COUNT = 3;
+
     public PveVineColonyPrefabInitializer(Parameters parameters) {
         super(
                 PrefabType.PveVineColony,
                 parameters,
                 "vine_colony",
                 ElementType.NATURE,
-                null,
-                List.of("vine", "nature_slime_swarm", "water_slime_swarm", "vine_spirit")
+                List.of(
+                        new SpawnConfig(PrefabType.LeafSlime, BOSS_SPAWN_INTERVAL, BOSS_SPAWN_COUNT),
+                        new SpawnConfig(PrefabType.WaterSlime, BOSS_SPAWN_INTERVAL, BOSS_SPAWN_COUNT)
+                ),
+                List.of("vine", "vine_spirit")
         );
     }
 }
