@@ -26,7 +26,7 @@ public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
         super(
                 PrefabType.PveVineWitch,
                 parameters,
-                "vine_spirit",
+                "pve_vine_witch",
                 ElementType.NATURE,
                 0f,
                 BOSS_ATTACK_INTERVAL,
