@@ -45,7 +45,6 @@ public class WindBladeShot extends Shot {
 
         piercedTargetIds.add(otherObject.getId());
 
-        gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
 
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
