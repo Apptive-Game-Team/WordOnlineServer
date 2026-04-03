@@ -20,6 +20,7 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class SimplePveBossInitializer extends PrefabInitializer {
 
@@ -41,14 +42,14 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
     private final float bossAttackRange;
     @Getter(AccessLevel.PROTECTED)
     private final int targetMask;
-    private final SpawnConfig spawnConfig;
+    private final List<SpawnConfig> spawnConfigs;
     private final List<String> magicNames;
 
     protected SimplePveBossInitializer(PrefabType prefabType,
                                        Parameters parameters,
                                        String parameterKey,
                                        ElementType elementType,
-                                       SpawnConfig spawnConfig,
+                                       List<SpawnConfig> spawnConfigs,
                                        List<String> magicNames) {
         this(
                 prefabType,
@@ -58,7 +59,7 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
                 DEFAULT_BOSS_SPEED,
                 DEFAULT_BOSS_ATTACK_INTERVAL,
                 DEFAULT_BOSS_ATTACK_RANGE,
-                spawnConfig,
+                spawnConfigs,
                 magicNames
         );
     }
@@ -70,7 +71,7 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
                                        float bossSpeed,
                                        float bossAttackInterval,
                                        float bossAttackRange,
-                                       SpawnConfig spawnConfig,
+                                       List<SpawnConfig> spawnConfigs,
                                        List<String> magicNames) {
         super(prefabType);
         this.parameters = parameters;
@@ -80,7 +81,7 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
         this.bossAttackInterval = bossAttackInterval;
         this.bossAttackRange = bossAttackRange;
         this.targetMask = TargetMask.GROUND.bit;
-        this.spawnConfig = spawnConfig;
+        this.spawnConfigs = spawnConfigs == null ? List.of() : List.copyOf(spawnConfigs);
         this.magicNames = magicNames == null ? List.of() : List.copyOf(magicNames);
     }
 
@@ -91,6 +92,7 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue(parameterKey, "radius"), true));
         gameObject.setElement(elementType);
 
+        SpawnConfig spawnConfig = selectRandomSpawnConfig();
         if (spawnConfig != null) {
             gameObject.addComponent(new Spawner(
                     gameObject,
@@ -128,6 +130,14 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
                 .map(this::parseMagic)
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private SpawnConfig selectRandomSpawnConfig() {
+        if (spawnConfigs.isEmpty()) {
+            return null;
+        }
+        int randomIndex = ThreadLocalRandom.current().nextInt(spawnConfigs.size());
+        return spawnConfigs.get(randomIndex);
     }
 
     protected record SpawnConfig(PrefabType prefabType, float intervalSec, int spawnCount) {

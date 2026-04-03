@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.dto.Effect;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.HashSet;
@@ -32,6 +33,11 @@ public class WindBladeShot extends Shot {
             return;
         }
 
+        Master owner = gameObject.getMaster();
+        if (owner != Master.None && otherObject.getMaster() == owner) {
+            return;
+        }
+
         List<Damageable> damageables = otherObject.getComponents(Damageable.class);
         if (damageables.isEmpty()) {
             return;
@@ -39,7 +45,6 @@ public class WindBladeShot extends Shot {
 
         piercedTargetIds.add(otherObject.getId());
 
-        gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
 
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());

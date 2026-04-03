@@ -12,6 +12,6 @@ public class WindBladeMagic extends AbstractShotMagic {
 
     @Override
     protected Master getMaster(Master master) {
-        return Master.None;
+        return master;
     }
 }
