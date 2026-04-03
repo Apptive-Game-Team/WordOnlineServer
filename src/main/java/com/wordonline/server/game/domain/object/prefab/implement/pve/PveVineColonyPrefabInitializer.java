@@ -10,7 +10,7 @@ import java.util.List;
 @Component("pve_vine_colony_prefab")
 public class PveVineColonyPrefabInitializer extends SimplePveBossInitializer {
 
-    private static final float BOSS_SPAWN_INTERVAL = 4.5f;
+    private static final float BOSS_SPAWN_INTERVAL = 10f;
     private static final int BOSS_SPAWN_COUNT = 2;
 
     public PveVineColonyPrefabInitializer(Parameters parameters) {

@@ -15,7 +15,7 @@ import java.util.List;
 @Component("pve_vine_witch_prefab")
 public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
 
-    private static final float BOSS_ATTACK_INTERVAL = 4f;
+    private static final float BOSS_ATTACK_INTERVAL = 8f;
     private static final int BOSS_SPAWN_COUNT = 2;
     private static final List<String> MAGIC_NAMES = List.of(
             "vine",
