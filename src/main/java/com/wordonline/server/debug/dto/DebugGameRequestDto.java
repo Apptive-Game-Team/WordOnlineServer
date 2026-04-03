@@ -4,7 +4,8 @@ import com.wordonline.server.game.dto.Master;
 
 public record DebugGameRequestDto(
         Master side,
-        long userId
+        long userId,
+        Long scenarioId
 ) {
 
 }

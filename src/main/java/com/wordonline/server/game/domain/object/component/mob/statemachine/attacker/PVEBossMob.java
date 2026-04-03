@@ -3,13 +3,14 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.pve.PveObjectiveTarget;
 import com.wordonline.server.game.service.GameLoop;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PVEBossMob extends BehaviorMob {
+public class PVEBossMob extends BehaviorMob implements PveObjectiveTarget {
 
     protected final List<Magic> magics;
     private final Map<Long, Integer> cooldownUntilFrame = new HashMap<>();
@@ -82,5 +83,10 @@ public class PVEBossMob extends BehaviorMob {
 
     private static double resolveCooldownSec(Magic magic) {
         return 2.0;
+    }
+
+    @Override
+    public boolean isTerminal() {
+        return gameObject.isDestroyed() || getHp() <= 0;
     }
 }

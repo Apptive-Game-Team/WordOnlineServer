@@ -15,25 +15,27 @@ import java.util.List;
 @Component("pve_vine_witch_prefab")
 public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
 
-    private static final float BOSS_ATTACK_INTERVAL = 2f;
+    private static final float BOSS_ATTACK_INTERVAL = 8f;
+    private static final int BOSS_SPAWN_COUNT = 2;
     private static final List<String> MAGIC_NAMES = List.of(
             "vine",
-            "nature_slime_swarm",
-            "water_slime_swarm",
-            "vine_colony",
-            "vine_spirit"
+            "vine_colony"
     );
 
     public PveVineWitchPrefabInitializer(Parameters parameters) {
         super(
                 PrefabType.PveVineWitch,
                 parameters,
-                "vine_spirit",
+                "pve_vine_witch",
                 ElementType.NATURE,
                 0f,
                 BOSS_ATTACK_INTERVAL,
                 7f,
-                null,
+                List.of(
+                        new SpawnConfig(PrefabType.LeafSlime, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT),
+                        new SpawnConfig(PrefabType.WaterSlime, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT),
+                        new SpawnConfig(PrefabType.VineSpirit, BOSS_ATTACK_INTERVAL, BOSS_SPAWN_COUNT)
+                ),
                 MAGIC_NAMES
         );
     }

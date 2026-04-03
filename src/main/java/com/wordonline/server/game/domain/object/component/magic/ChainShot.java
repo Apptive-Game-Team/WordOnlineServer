@@ -67,7 +67,6 @@ public class ChainShot extends Shot implements Collidable {
         if (parts.isEmpty()) return;
         if (hitList.contains(other)) return;
 
-        gameObject.setStatus(Status.Attack);
         other.setStatus(Status.Damaged);
         AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
         parts.forEach(p -> p.onDamaged(info));

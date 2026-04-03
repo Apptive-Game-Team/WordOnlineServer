@@ -46,8 +46,14 @@ public class DebugService {
     private SessionObject debugSession;
 
     public DebugGameResponseDto enterPracticeSession(DebugGameRequestDto debugGameRequestDto) {
-        DebugGameResponseDto dto = new DebugGameResponseDto(createPveDebugSession(debugGameRequestDto.userId(), -1));
-        log.info("Entering practice session userId: {}", debugGameRequestDto.userId());
+        DebugGameResponseDto dto = new DebugGameResponseDto(
+                createPveDebugSession(debugGameRequestDto.userId(), -1, debugGameRequestDto.scenarioId())
+        );
+        log.info(
+                "Entering practice session userId: {}, scenarioId: {}",
+                debugGameRequestDto.userId(),
+                debugGameRequestDto.scenarioId()
+        );
         return dto;
     }
 
@@ -87,8 +93,8 @@ public class DebugService {
         return createDebugSession(DEBUG_SESSION_PREFIX, uid1, uid2, SessionType.PVP, null);
     }
 
-    private String createPveDebugSession(long uid1, long uid2) {
-        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2, SessionType.Practice, null);
+    private String createPveDebugSession(long uid1, long uid2, Long scenarioId) {
+        return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2, SessionType.PVE, scenarioId);
     }
 
     private String createDebugSession(String sessionPrefix, long uid1, long uid2, SessionType sessionType, Long scenarioId) {
