@@ -2,7 +2,7 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
+import com.wordonline.server.game.domain.pve.PveObjectiveTarget;
 import com.wordonline.server.game.dto.Master;
 
 import java.util.ArrayList;
@@ -91,9 +91,7 @@ public class PveResultChecker extends ResultChecker {
     }
 
     private boolean isTerminal(GameObject objective) {
-        Mob objectiveMob = objective.getComponent(Mob.class);
-        boolean objectiveDestroyed = objective.isDestroyed();
-        boolean objectiveHpDepleted = objectiveMob != null && objectiveMob.getHp() <= 0;
-        return objectiveDestroyed || objectiveHpDepleted;
+        return objective.getComponents(PveObjectiveTarget.class).stream()
+                .anyMatch(PveObjectiveTarget::isTerminal);
     }
 }

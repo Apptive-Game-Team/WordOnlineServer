@@ -20,6 +20,7 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class SimplePveBossInitializer extends PrefabInitializer {
 
@@ -91,7 +92,8 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
         gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue(parameterKey, "radius"), true));
         gameObject.setElement(elementType);
 
-        for (SpawnConfig spawnConfig : spawnConfigs) {
+        SpawnConfig spawnConfig = selectRandomSpawnConfig();
+        if (spawnConfig != null) {
             gameObject.addComponent(new Spawner(
                     gameObject,
                     0,
@@ -128,6 +130,14 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
                 .map(this::parseMagic)
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private SpawnConfig selectRandomSpawnConfig() {
+        if (spawnConfigs.isEmpty()) {
+            return null;
+        }
+        int randomIndex = ThreadLocalRandom.current().nextInt(spawnConfigs.size());
+        return spawnConfigs.get(randomIndex);
     }
 
     protected record SpawnConfig(PrefabType prefabType, float intervalSec, int spawnCount) {

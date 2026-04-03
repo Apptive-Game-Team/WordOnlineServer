@@ -10,8 +10,8 @@ import java.util.List;
 @Component("pve_water_slime_nest_prefab")
 public class PveWaterSlimeNestPrefabInitializer extends SimplePveBossInitializer {
 
-    private static final float BOSS_ATTACK_INTERVAL = 2.5f;
-    private static final int BOSS_SPAWN_COUNT = 3;
+    private static final float BOSS_ATTACK_INTERVAL = 5f;
+    private static final int BOSS_SPAWN_COUNT = 1;
 
     public PveWaterSlimeNestPrefabInitializer(Parameters parameters) {
         super(

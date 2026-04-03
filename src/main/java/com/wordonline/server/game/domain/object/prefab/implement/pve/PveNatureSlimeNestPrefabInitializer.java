@@ -11,7 +11,7 @@ import java.util.List;
 public class PveNatureSlimeNestPrefabInitializer extends SimplePveBossInitializer {
 
     private static final float BOSS_ATTACK_INTERVAL = 5f;
-    private static final int BOSS_SPAWN_COUNT = 3;
+    private static final int BOSS_SPAWN_COUNT = 1;
 
     public PveNatureSlimeNestPrefabInitializer(Parameters parameters) {
         super(
