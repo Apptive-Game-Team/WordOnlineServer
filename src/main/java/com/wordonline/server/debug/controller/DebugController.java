@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wordonline.server.auth.domain.PrincipalDetails;
@@ -36,23 +37,38 @@ public class DebugController {
 
     private final DebugService debugService;
 
+    @PostMapping("/game/pve/{scenarioId}")
+    public ResponseEntity<DebugGameResponseDto> createPveGame(
+            @AuthenticationPrincipal PrincipalDetails principal,
+            @PathVariable Long scenarioId
+    ) {
+        log.info("createPveGame scenarioId {}", scenarioId);
+        DebugGameRequestDto gameRequestDto = new DebugGameRequestDto(
+                Master.LeftPlayer,
+                principal.memberId,
+                scenarioId
+        );
+        return ResponseEntity.ok(debugService.enterPracticeSession(gameRequestDto));
+    }
+
     @PostMapping("/game/{side}") // side = left or right
     public ResponseEntity<DebugGameResponseDto> createGame(
             @AuthenticationPrincipal PrincipalDetails principal,
-            @PathVariable String side
+            @PathVariable String side,
+            @RequestParam(required = false) Long scenarioId
     ) {
         DebugGameRequestDto gameRequestDto;
-        log.info("createGame side {}", side);
+        log.info("createGame side {}, scenarioId {}", side, scenarioId);
 
         if (side.compareToIgnoreCase("practice") == 0) {
-            gameRequestDto = new DebugGameRequestDto(Master.LeftPlayer, principal.memberId);
+            gameRequestDto = new DebugGameRequestDto(Master.LeftPlayer, principal.memberId, scenarioId);
             return ResponseEntity.ok(debugService.enterPracticeSession(gameRequestDto));
         }
 
         if (side.compareToIgnoreCase("left") == 0) {
-            gameRequestDto = new DebugGameRequestDto(Master.LeftPlayer, principal.memberId);
+            gameRequestDto = new DebugGameRequestDto(Master.LeftPlayer, principal.memberId, null);
         } else if (side.compareToIgnoreCase("right") == 0) {
-            gameRequestDto = new DebugGameRequestDto(Master.RightPlayer, principal.memberId);
+            gameRequestDto = new DebugGameRequestDto(Master.RightPlayer, principal.memberId, null);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
