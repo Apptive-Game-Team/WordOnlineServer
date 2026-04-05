@@ -12,4 +12,9 @@ public class Parameters {
     public double getValue(String gameObject, String parameter) {
         return parameterService.getValue(gameObject, parameter);
     }
+
+    /** Returns all cached parameters. Used for lockstep SessionStartDto. */
+    public java.util.Map<String, java.util.Map<String, Double>> getAllValues() {
+        return parameterService.getAllValues();
+    }
 }

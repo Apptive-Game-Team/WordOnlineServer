@@ -12,6 +12,7 @@ import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
 
+import com.wordonline.server.game.domain.bot.BotAgent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,11 @@ public abstract class GameLoop implements Runnable {
 
     private final MmrService mmrService;
     private final UserService userService;
+
+    /** Override in subclasses that support bots. */
+    public BotAgent getLeftBotAgent() { return null; }
+    /** Override in subclasses that support bots. */
+    public BotAgent getRightBotAgent() { return null; }
 
     protected MmrService getMmrService() {
         return mmrService;

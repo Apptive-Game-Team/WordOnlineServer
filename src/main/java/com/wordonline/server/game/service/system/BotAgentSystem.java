@@ -38,13 +38,19 @@ public class BotAgentSystem implements GameSystem {
             return;
         }
 
-        var wordOnlineLoop = gameContext.getGameLoop();
+        var gameLoop = gameContext.getGameLoop();
         log.trace("[BotSystem] Triggering bot tick at frame {}", currentFrame);
 
-        var leftBotAgent = wordOnlineLoop.getLeftBotAgent();
+        // Frame data is only available when the server runs a full simulation (WordOnlineLoop).
+        // For InputRelayLoop (lockstep), bots get a null frame — they submit no-op inputs.
+        var frameDataSystem = (gameLoop instanceof com.wordonline.server.game.service.WordOnlineLoop wol)
+                ? wol.getFrameDataSystem()
+                : null;
+
+        var leftBotAgent = gameLoop.getLeftBotAgent();
         if (leftBotAgent != null) {
             if (leftBotProcessing.compareAndSet(false, true)) {
-                var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
+                var leftFrameInfoDto = (frameDataSystem != null) ? frameDataSystem.getLeftFrameInfoDto() : null;
                 log.debug("[BotSystem] Submitting Left Bot task");
                 botExecutorService.submit(() -> {
                     try {
@@ -60,10 +66,10 @@ public class BotAgentSystem implements GameSystem {
             }
         }
 
-        var rightBotAgent = wordOnlineLoop.getRightBotAgent();
+        var rightBotAgent = gameLoop.getRightBotAgent();
         if (rightBotAgent != null) {
             if (rightBotProcessing.compareAndSet(false, true)) {
-                var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
+                var rightFrameInfoDto = (frameDataSystem != null) ? frameDataSystem.getRightFrameInfoDto() : null;
                 log.debug("[BotSystem] Submitting Right Bot task");
                 botExecutorService.submit(() -> {
                     try {

@@ -49,6 +49,11 @@ public class CardDeck {
         this.cards.addAll(cards);
     }
 
+    /** Returns all cards in the deck without removing them. Used for lockstep SessionStartDto. */
+    public List<CardType> peekAll() {
+        return List.copyOf(cards);
+    }
+
     public void fever() {
         cardDrawInterval.addPercent(-0.5f);
     }

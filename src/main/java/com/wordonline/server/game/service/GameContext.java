@@ -40,9 +40,9 @@ public class GameContext {
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
 
-    private WordOnlineLoop gameLoop;
+    private GameLoop gameLoop;
 
-    public void init(SessionObject sessionObject, WordOnlineLoop gameLoop) {
+    public void init(SessionObject sessionObject, GameLoop gameLoop) {
         this.sessionObject = sessionObject;
         this.gameSessionData.initCardDeck(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         this.resultChecker = new ResultChecker(sessionObject);

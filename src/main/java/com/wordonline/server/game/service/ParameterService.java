@@ -21,6 +21,14 @@ public class ParameterService {
         parameterCaches.clear();
     }
 
+    /** Returns all cached parameters. Loads from DB if cache is empty. */
+    public Map<String, Map<String, Double>> getAllValues() {
+        if (parameterCaches.isEmpty()) {
+            parameterCaches.putAll(parameterRepository.getAllParameterValues());
+        }
+        return Map.copyOf(parameterCaches);
+    }
+
     public double getValue(String gameObject, String parameterName) {
 
         Map<String, Double> objectParameters = parameterCaches.get(gameObject);

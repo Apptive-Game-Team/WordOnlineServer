@@ -35,7 +35,9 @@ public class WordOnlineLoop extends GameLoop {
     private final DatabaseMagicParser magicParser;
     private final MagicInputSystem magicInputSystem;
 
+    @Getter
     private BotAgent leftBotAgent;
+    @Getter
     private BotAgent rightBotAgent;
 
     public WordOnlineLoop(MmrService mmrService,
