@@ -10,6 +10,7 @@ import lombok.Data;
 // This class is used to send frame information to the client
 public class FrameInfoDto {
     private final String type = "frame";
+    private int frameNum;
     private int remainingTime;
     private int updatedMana;
     private int leftPlayerHp;
@@ -17,7 +18,8 @@ public class FrameInfoDto {
     private final CardInfoDto cards;
     private final ObjectsInfoDto objects;
 
-    public FrameInfoDto(long remainingTime, CardInfoDto cardInfoDto, ObjectsInfoDto objectsInfoDto, GameSessionData gameSessionData){
+    public FrameInfoDto(long remainingTime, CardInfoDto cardInfoDto, ObjectsInfoDto objectsInfoDto, GameSessionData gameSessionData, int frameNum){
+        this.frameNum = frameNum;
         this.remainingTime = (int) remainingTime;
         cards = cardInfoDto;
         objects = objectsInfoDto;
@@ -26,8 +28,8 @@ public class FrameInfoDto {
     }
 
     // Constructor for broadcast (spectator) - excludes player-specific card info
-    public static FrameInfoDto createBroadcastDto(long remainingTime, ObjectsInfoDto objectsInfoDto, GameSessionData gameSessionData){
-        FrameInfoDto dto = new FrameInfoDto(remainingTime, new CardInfoDto(), objectsInfoDto, gameSessionData);
+    public static FrameInfoDto createBroadcastDto(long remainingTime, ObjectsInfoDto objectsInfoDto, GameSessionData gameSessionData, int frameNum){
+        FrameInfoDto dto = new FrameInfoDto(remainingTime, new CardInfoDto(), objectsInfoDto, gameSessionData, frameNum);
         dto.setUpdatedMana(0); // Spectators don't need mana info
         return dto;
     }

@@ -38,10 +38,12 @@ public class MagicInputHandler {
         Master master = gameContext.getSessionObject().getUserSide(userId);
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
+        int currentFrame = gameContext.getFrameNum();
+
         if (!playerData.validCardsUse(inputRequestDto.getCards())) {
             log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_LACK_OF_CARD));
-            return new InputResponseDto("Cannot use cards.", false, playerData.mana, inputRequestDto.getId(), -1);
+            return new InputResponseDto("Cannot use cards.", false, playerData.mana, inputRequestDto.getId(), -1, currentFrame);
         }
 
         Magic magic = magicParser.parseMagic(userId, inputRequestDto.getCards());
@@ -51,11 +53,11 @@ public class MagicInputHandler {
             playerData.useCards(inputRequestDto.getCards());
             gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_MAGIC));
-            return new InputResponseDto("Invalid magic.", true, playerData.mana, inputRequestDto.getId(), -1);
+            return new InputResponseDto("Invalid magic.", true, playerData.mana, inputRequestDto.getId(), -1, currentFrame);
         } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
             log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
-            return new InputResponseDto("Target is out of range.", false, playerData.mana, inputRequestDto.getId(), -1);
+            return new InputResponseDto("Target is out of range.", false, playerData.mana, inputRequestDto.getId(), -1, currentFrame);
         }
 
         boolean valid = playerData.useCards(inputRequestDto.getCards());
@@ -63,14 +65,14 @@ public class MagicInputHandler {
         if (!valid) {
             log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INSUFFICIENT_MANA));
-            return new InputResponseDto("Insufficient mana.", false, playerData.mana, inputRequestDto.getId(), -1);
+            return new InputResponseDto("Insufficient mana.", false, playerData.mana, inputRequestDto.getId(), -1, currentFrame);
         }
 
         magic.run(gameContext, master, GameConfig.PLAYER_POSITION.get(master), inputRequestDto.getPosition());
         gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
 
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
-        return new InputResponseDto(true, playerData.mana, inputRequestDto.getId(), magic.id);
+        return new InputResponseDto(true, playerData.mana, inputRequestDto.getId(), magic.id, currentFrame);
     }
 
     public InputResponseDto handleBotMagicInput(GameContext gameContext,
@@ -104,27 +106,29 @@ public class MagicInputHandler {
                                                 Vector3 castOrigin) {
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
+        int currentFrame = gameContext.getFrameNum();
+
         if (magic == null) {
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_MAGIC));
-            return new InputResponseDto("invalid bot magic", false, playerData.mana, -1, -1);
+            return new InputResponseDto("invalid bot magic", false, playerData.mana, -1, -1, currentFrame);
         }
 
         Vector3 rangeOrigin = castOrigin == null ? GameConfig.PLAYER_POSITION.get(master) : castOrigin;
         if (rangeOrigin == null ||
                 rangeOrigin.distance(position) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
-            return new InputResponseDto("invalid place", false, playerData.mana, -1, -1);
+            return new InputResponseDto("invalid place", false, playerData.mana, -1, -1, currentFrame);
         }
 
         int manaCost = (int) gameContext.getParameters().getValue(magic.magicType.name(), "mana_cost");
         if (playerData.mana < manaCost) {
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INSUFFICIENT_MANA));
-            return new InputResponseDto("insufficient mana", false, playerData.mana, -1, -1);
+            return new InputResponseDto("insufficient mana", false, playerData.mana, -1, -1, currentFrame);
         }
 
         playerData.mana -= manaCost;
         magic.run(gameContext, master, rangeOrigin, position);
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
-        return new InputResponseDto(true, playerData.mana, -1, magic.id);
+        return new InputResponseDto(true, playerData.mana, -1, magic.id, currentFrame);
     }
 }

@@ -16,4 +16,5 @@ public class InputRequestDto {
     private List<CardType> cards;
     private int id;
     private Vector3 position;
+    private int frameNum; // client's local frame when this input was submitted
 }
