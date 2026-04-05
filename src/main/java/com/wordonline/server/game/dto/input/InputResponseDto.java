@@ -6,23 +6,25 @@ public record InputResponseDto(
     boolean valid,
     int updatedMana,
     int id,
-    long magicId
+    long magicId,
+    int frameNum
 ) {
     public InputResponseDto(
-            boolean valid, int updatedMana, int id, long magicId
+            boolean valid, int updatedMana, int id, long magicId, int frameNum
     ) {
         this(
                 (valid ? "magic use is valid" : "magic use is not valid"),
                 valid,
                 updatedMana,
                 id,
-                magicId
+                magicId,
+                frameNum
         );
     }
 
     public InputResponseDto(
-            String message, boolean valid, int updatedMana, int id, long magicId
+            String message, boolean valid, int updatedMana, int id, long magicId, int frameNum
     ) {
-        this("magicValid", message, valid, updatedMana, id, magicId);
+        this("magicValid", message, valid, updatedMana, id, magicId, frameNum);
     }
 }

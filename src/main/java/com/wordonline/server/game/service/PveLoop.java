@@ -33,11 +33,13 @@ public class PveLoop extends WordOnlineLoop {
                    com.wordonline.server.game.service.system.PhysicSystem physicSystem,
                    com.wordonline.server.game.service.system.GameObjectAddRemoteSystem gameObjectAddRemoveSystem,
                    com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser magicParser,
+                   com.wordonline.server.game.service.system.MagicInputSystem magicInputSystem,
                    PveScenarioRegistry pveScenarioRegistry,
                    PveScenarioInstaller pveScenarioInstaller,
                    PveScriptSystem pveScriptSystem) {
         super(mmrService, userService, gameContext, parameters, frameDataSystem, botSystem, feverTimeSystem,
-                gameObjectStateInitialSystem, componentUpdateSystem, physicSystem, gameObjectAddRemoveSystem, magicParser);
+                gameObjectStateInitialSystem, componentUpdateSystem, physicSystem, gameObjectAddRemoveSystem, magicParser,
+                magicInputSystem);
         this.pveScenarioRegistry = pveScenarioRegistry;
         this.pveScenarioInstaller = pveScenarioInstaller;
         this.pveScriptSystem = pveScriptSystem;
