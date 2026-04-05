@@ -1,6 +1,8 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.data.service.GameDataService;
 import com.wordonline.server.game.repository.ParameterRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -10,15 +12,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ParameterService {
 
     private final ParameterRepository parameterRepository;
+    private final GameDataService gameDataService;
 
-    protected ParameterService(ParameterRepository parameterRepository) {
+    protected ParameterService(ParameterRepository parameterRepository, @Lazy GameDataService gameDataService) {
         this.parameterRepository = parameterRepository;
+        this.gameDataService = gameDataService;
     }
 
     private Map<String, Map<String, Double>> parameterCaches = new ConcurrentHashMap<>();
 
     public void invalidateCache() {
         parameterCaches.clear();
+        gameDataService.invalidate();
     }
 
     public double getValue(String gameObject, String parameterName) {

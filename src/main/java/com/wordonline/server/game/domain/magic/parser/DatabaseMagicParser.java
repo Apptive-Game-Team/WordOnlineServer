@@ -7,9 +7,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import com.wordonline.server.data.service.GameDataService;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.repository.MagicRepository;
@@ -30,6 +33,10 @@ public class DatabaseMagicParser implements MagicParser {
     private final MagicRepository magicRepository;
     private final ApplicationContext applicationContext;
 
+    @Lazy
+    @Autowired
+    private GameDataService gameDataService;
+
     @PostConstruct
     private void init() {
         magicRepository.getAllMagic()
@@ -48,6 +55,7 @@ public class DatabaseMagicParser implements MagicParser {
     public void invalidateCache() {
         magicHashMap.clear();
         magicIdMap.clear();
+        gameDataService.invalidate();
     }
 
     private List<CardType> convertToKey(List<CardType> cards) {
