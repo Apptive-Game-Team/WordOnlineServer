@@ -8,15 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BotAction {
 
-    public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto, Master botSide)
-    {
+    public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto, Master botSide) {
         long userId = BotSideUtil.getUserId(sessionObject, botSide);
-        
-        log.info("[Bot {}] Executing action: {} cards={} target={}", 
-                botSide, inputRequestDto.getType(), inputRequestDto.getCards(), inputRequestDto.getPosition());
-                
-        sessionObject.getGameContext().getMagicInputHandler().handleInput(
-                sessionObject.getGameContext(), userId, inputRequestDto
-        );
+        int frameNum = sessionObject.getGameContext().getFrameNum();
+
+        log.info("[Bot {}] Submitting input: cards={} target={}",
+                botSide, inputRequestDto.getCards(), inputRequestDto.getPosition());
+
+        sessionObject.getGameContext().getInputBufferSystem().receive(frameNum, userId, inputRequestDto);
     }
 }

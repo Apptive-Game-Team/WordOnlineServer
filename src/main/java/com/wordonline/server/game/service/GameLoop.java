@@ -1,25 +1,15 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.CardType;
-import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.prefab.PrefabType;
-import com.wordonline.server.game.dto.*;
-import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
-import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
+import com.wordonline.server.game.domain.bot.BotAgent;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
-import com.wordonline.server.game.util.*;
 
-import com.wordonline.server.game.domain.bot.BotAgent;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-
-// GameLoop is the main class that runs the game loop
 @Slf4j
 @RequiredArgsConstructor
 public abstract class GameLoop implements Runnable {
@@ -37,35 +27,21 @@ public abstract class GameLoop implements Runnable {
     /** Override in subclasses that support bots. */
     public BotAgent getRightBotAgent() { return null; }
 
-    protected MmrService getMmrService() {
-        return mmrService;
-    }
-
-    protected UserService getUserService() {
-        return userService;
-    }
+    protected MmrService getMmrService() { return mmrService; }
+    protected UserService getUserService() { return userService; }
 
     @Getter
     protected final GameContext gameContext;
 
     public final Parameters parameters;
 
-    @Getter
-    protected volatile List<SnapshotObjectDto> lastSnapshotObjects = List.of();
-    protected volatile int lastSnapshotFrameNum = 0;
-
     public void init(SessionObject sessionObject, Runnable onTerminated) {
-        initializeLoop(sessionObject, onTerminated, true);
+        initializeLoop(sessionObject, onTerminated);
     }
 
-    protected final void initializeLoop(SessionObject sessionObject, Runnable onTerminated, boolean createRightPlayer) {
+    protected final void initializeLoop(SessionObject sessionObject, Runnable onTerminated) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
-
-        new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
-        if (createRightPlayer) {
-            new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
-        }
     }
 
     public void close() {
@@ -77,10 +53,8 @@ public abstract class GameLoop implements Runnable {
         runLoop();
     }
 
-    /** Maximum time (ms) to wait for all players to submit inputs before advancing. */
     private static final long MAX_INPUT_WAIT_MS = 100;
 
-    // this method is called when the game loop is started
     private void runLoop() {
         long frameDuration = 1000 / FPS;
 
@@ -116,13 +90,8 @@ public abstract class GameLoop implements Runnable {
         }
     }
 
-    /**
-     * Blocks until all human players have submitted inputs for the current frame,
-     * or until MAX_INPUT_WAIT_MS elapses — whichever comes first.
-     * Bot players (userId < 0) are excluded from the readiness check.
-     */
     private void waitForInputs(long frameStartMs) {
-        List<Long> playerIds = List.of(
+        var playerIds = java.util.List.of(
                 sessionObject.getLeftUserId(),
                 sessionObject.getRightUserId()
         );
@@ -138,7 +107,6 @@ public abstract class GameLoop implements Runnable {
         }
     }
 
-    // this method is called when the game loop is stopped
     abstract void update();
 
     protected void handleGameEnd() {
@@ -162,28 +130,6 @@ public abstract class GameLoop implements Runnable {
         userService.markOnline(leftId);
         userService.markOnline(rightId);
 
-        // 3) Loop end
         close();
-    }
-
-    // 2) Build snapshot
-    protected void buildSnapshot() {
-        lastSnapshotObjects = gameContext.getGameObjects()
-                .stream()
-                .map(SnapshotMapper::toDto)
-                .toList();
-        lastSnapshotFrameNum = gameContext.getFrameNum();
-    }
-
-    public SnapshotResponseDto getLastSnapshot(Long userId) {
-        List<CardType> cards;
-        if (gameContext.getSessionObject().getLeftUserId() == userId) {
-            cards = gameContext.getGameSessionData().leftPlayerData.cards;
-        } else if (gameContext.getSessionObject().getRightUserId() == userId) {
-            cards = gameContext.getGameSessionData().rightPlayerData.cards;
-        } else {
-            cards = List.of();
-        }
-        return new SnapshotResponseDto(lastSnapshotFrameNum, lastSnapshotObjects, cards);
     }
 }

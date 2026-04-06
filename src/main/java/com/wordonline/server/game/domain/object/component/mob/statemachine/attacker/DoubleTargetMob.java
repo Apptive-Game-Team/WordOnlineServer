@@ -64,9 +64,6 @@ public class DoubleTargetMob extends BehaviorMob {
     }
 
     private void shoot(GameObject target) {
-        gameObject.getGameContext()
-                .getObjectsInfoDtoBuilder()
-                .createProjection(gameObject, target, projectileType, projectileDuration);
 
         target.getComponentOptional(Damageable.class)
                 .ifPresent(damageable -> {

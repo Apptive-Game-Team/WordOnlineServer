@@ -52,8 +52,6 @@ public class Turret extends TimedBehaviorMob {
 
         damageable.onDamaged(attackInfo, attackDuration);
 
-        getGameContext().getObjectsInfoDtoBuilder()
-                .createProjection(gameObject, target, "RockShot", attackDuration);
 
         gameObject.setStatus(Status.Attack);
         return true;

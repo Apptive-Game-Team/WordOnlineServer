@@ -25,12 +25,6 @@ public class SprayingAttacker extends BehaviorMob {
         float radius = attackRange / 2;
 
         Vector3 projectTileStart = getGameObject().getPosition().plus(direction.normalize().multiply(radius * 2));
-        getGameContext().getObjectsInfoDtoBuilder()
-                .createProjection(
-                        projectTileStart,
-                        projectTileStart.plus(direction.normalize()),
-                        projectile,
-                        0.5f);
 
         AttackInfo attackInfo = createAttackInfo();
         Set<Mob> mobs = getCollidedMobs(radius, direction);

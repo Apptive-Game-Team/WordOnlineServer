@@ -8,11 +8,9 @@ import org.springframework.stereotype.Service;
 import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
-import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.service.system.InputBufferSystem;
 import com.wordonline.server.game.util.Physics;
 import com.wordonline.server.game.util.SimplePhysics;
@@ -37,7 +35,6 @@ public class GameContext {
     private Physics physics;
     private final MagicInputHandler magicInputHandler;
     private final InputBufferSystem inputBufferSystem;
-    private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
 
     private GameLoop gameLoop;
@@ -46,9 +43,7 @@ public class GameContext {
         this.sessionObject = sessionObject;
         this.gameSessionData.initCardDeck(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         this.resultChecker = new ResultChecker(sessionObject);
-        this.objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
         physics = new SimplePhysics(gameSessionData.gameObjects);
-
         this.gameLoop = gameLoop;
     }
 
@@ -67,13 +62,14 @@ public class GameContext {
         return gameSessionData.gameObjects;
     }
 
-    public void updateGameObject(GameObject gameObject) {
-        objectsInfoDtoBuilder.updateGameObject(gameObject);
+    /** Register a new GameObject and run its start() lifecycle. */
+    public void createGameObject(GameObject gameObject) {
+        gameSessionData.addGameObject(gameObject);
+        gameObject.start();
     }
 
-    public void createGameObject(GameObject gameObject) {
-        objectsInfoDtoBuilder.createGameObject(gameObject);
-    }
+    /** No-op in lockstep: object state updates are handled client-side. */
+    public void updateGameObject(GameObject gameObject) {}
 
     public void addGameObject(GameObject gameObject) {
         gameSessionData.addGameObject(gameObject);
@@ -81,10 +77,6 @@ public class GameContext {
 
     public List<GameObject> overlapSphereAll(GameObject object, float distance) {
         return physics.overlapSphereAll(object, distance);
-    }
-
-    public ObjectsInfoDto getObjectsInfoDto() {
-        return objectsInfoDtoBuilder.getObjectsInfoDto();
     }
 
     public void incrementFrameNum() {

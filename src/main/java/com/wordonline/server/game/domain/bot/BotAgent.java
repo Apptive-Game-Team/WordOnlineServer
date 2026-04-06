@@ -4,7 +4,6 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.dto.input.InputRequestDto;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.service.GameLoop;
 
 import lombok.Getter;
@@ -34,12 +33,12 @@ public final class BotAgent {
         log.info("BotAgent initialized for side: {}", botSide);
     }
 
-    public void onTick(FrameInfoDto myFrame) {
+    public void onTick() {
         log.trace("[BotAgent {}] Tick start", botSide);
-        BotEye botEye = new BotEye(gameLoop.getGameContext().getGameSessionData(), myFrame, botSide);
-        
+        BotEye botEye = new BotEye(gameLoop.getGameContext().getGameSessionData(), botSide);
+
         int visibleObjects = botEye.getGameObjectList().size();
-        log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}", 
+        log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}",
                 botSide, botEye.getMana(), botEye.getCardList(), visibleObjects);
 
         BotBrain.InputDecision decision = botBrain.think(
@@ -48,9 +47,8 @@ public final class BotAgent {
                 gameLoop,
                 botEye.getMana(),
                 botSide);
-        
-        if(decision != null)
-        {
+
+        if (decision != null) {
             log.info("[BotAgent {}] Decision made: {} at {}", botSide, decision.playCards(), decision.target());
             InputRequestDto inputRequestDto = new InputRequestDto();
             inputRequestDto.setType("useMagic");

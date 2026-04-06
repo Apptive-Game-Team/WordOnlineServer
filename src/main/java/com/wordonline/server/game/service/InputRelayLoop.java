@@ -9,6 +9,8 @@ import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.input.InputRequestDto;
 import com.wordonline.server.game.dto.lockstep.ConfirmedFrameDto;
+import com.wordonline.server.game.dto.lockstep.InitialObjectDto;
+import com.wordonline.server.game.dto.lockstep.PveEventDto;
 import com.wordonline.server.game.dto.lockstep.SessionStartDto;
 import com.wordonline.server.game.service.system.BotAgentSystem;
 import com.wordonline.server.game.service.system.InputBufferSystem;
@@ -51,7 +53,7 @@ public class InputRelayLoop extends GameLoop {
     @Override public BotAgent getRightBotAgent() { return rightBotAgent; }
 
     /** Seed shared with clients for deterministic RNG */
-    private long rngSeed;
+    protected long rngSeed;
 
     public InputRelayLoop(MmrService mmrService,
                           UserService userService,
@@ -67,7 +69,7 @@ public class InputRelayLoop extends GameLoop {
     @Override
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         gameContext.init(sessionObject, this);
-        super.initializeLoop(sessionObject, onTerminated, false); // no player GameObjects — clients create them
+        super.initializeLoop(sessionObject, onTerminated);
 
         this.rngSeed = ThreadLocalRandom.current().nextLong();
 
@@ -75,8 +77,8 @@ public class InputRelayLoop extends GameLoop {
             initializeBotAgents(sessionObject);
         }
 
-        // Send sessionStart to both players
-        sendSessionStart(sessionObject);
+        // Send sessionStart to both players (no PVE extras for PVP/Practice)
+        sendSessionStart(sessionObject, null, null);
     }
 
     private void initializeBotAgents(SessionObject sessionObject) {
@@ -88,7 +90,9 @@ public class InputRelayLoop extends GameLoop {
         }
     }
 
-    private void sendSessionStart(SessionObject sessionObject) {
+    protected void sendSessionStart(SessionObject sessionObject,
+                                    List<InitialObjectDto> initialObjects,
+                                    List<PveEventDto> scenarioEvents) {
         List<CardType> leftCards = sessionObject.getLeftUserCardDeck().peekAll();
         List<CardType> rightCards = sessionObject.getRightUserCardDeck().peekAll();
 
@@ -101,7 +105,10 @@ public class InputRelayLoop extends GameLoop {
                 sessionObject.getRightUserId(),
                 leftCards,
                 rightCards,
-                params
+                params,
+                sessionObject.getSessionType().name(),
+                initialObjects,
+                scenarioEvents
         );
 
         sessionObject.sendFrameInfo(sessionObject.getLeftUserId(), dto);

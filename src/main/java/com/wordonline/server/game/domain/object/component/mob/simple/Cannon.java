@@ -50,8 +50,6 @@ public class Cannon extends TimedBehaviorMob {
             return false;
         }
 
-        getGameContext().getObjectsInfoDtoBuilder()
-                .createProjection(gameObject, target, "RockShot", attackDuration);
         List<GameObject> victims = getGameContext().overlapSphereAll(target,AOE_RADIUS);
         for (GameObject victim : victims) {
             Mob mob = victim.getComponent(Mob.class);

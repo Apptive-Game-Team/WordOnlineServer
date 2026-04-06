@@ -23,66 +23,40 @@ public class BotAgentSystem implements GameSystem {
     private final AtomicBoolean rightBotProcessing = new AtomicBoolean(false);
     private final AtomicInteger frameCounter = new AtomicInteger(0);
 
-    // Bot tick interval: every 8 frames at 20 FPS = 400ms between bot decisions
     private static final int BOT_TICK_INTERVAL = 8;
 
     @Override
     public void update(GameContext gameContext) {
         int currentFrame = frameCounter.incrementAndGet();
-        if (currentFrame % BOT_TICK_INTERVAL != 0) {
-            return;
-        }
-
-        if (gameContext.getGameLoop() == null) {
-            log.warn("[BotSystem] GameLoop is null, skipping bot update");
-            return;
-        }
+        if (currentFrame % BOT_TICK_INTERVAL != 0) return;
 
         var gameLoop = gameContext.getGameLoop();
-        log.trace("[BotSystem] Triggering bot tick at frame {}", currentFrame);
-
-        // Frame data is only available when the server runs a full simulation (WordOnlineLoop).
-        // For InputRelayLoop (lockstep), bots get a null frame — they submit no-op inputs.
-        var frameDataSystem = (gameLoop instanceof com.wordonline.server.game.service.WordOnlineLoop wol)
-                ? wol.getFrameDataSystem()
-                : null;
+        if (gameLoop == null) return;
 
         var leftBotAgent = gameLoop.getLeftBotAgent();
-        if (leftBotAgent != null) {
-            if (leftBotProcessing.compareAndSet(false, true)) {
-                var leftFrameInfoDto = (frameDataSystem != null) ? frameDataSystem.getLeftFrameInfoDto() : null;
-                log.debug("[BotSystem] Submitting Left Bot task");
-                botExecutorService.submit(() -> {
-                    try {
-                        leftBotAgent.onTick(leftFrameInfoDto);
-                    } catch (Exception e) {
-                        log.error("[BotSystem] Left bot agent execution error", e);
-                    } finally {
-                        leftBotProcessing.set(false);
-                    }
-                });
-            } else {
-                log.trace("[BotSystem] Left bot is still processing, skipping this tick");
-            }
+        if (leftBotAgent != null && leftBotProcessing.compareAndSet(false, true)) {
+            botExecutorService.submit(() -> {
+                try {
+                    leftBotAgent.onTick();
+                } catch (Exception e) {
+                    log.error("[BotSystem] Left bot error", e);
+                } finally {
+                    leftBotProcessing.set(false);
+                }
+            });
         }
 
         var rightBotAgent = gameLoop.getRightBotAgent();
-        if (rightBotAgent != null) {
-            if (rightBotProcessing.compareAndSet(false, true)) {
-                var rightFrameInfoDto = (frameDataSystem != null) ? frameDataSystem.getRightFrameInfoDto() : null;
-                log.debug("[BotSystem] Submitting Right Bot task");
-                botExecutorService.submit(() -> {
-                    try {
-                        rightBotAgent.onTick(rightFrameInfoDto);
-                    } catch (Exception e) {
-                        log.error("[BotSystem] Right bot agent execution error", e);
-                    } finally {
-                        rightBotProcessing.set(false);
-                    }
-                });
-            } else {
-                log.trace("[BotSystem] Right bot is still processing, skipping this tick");
-            }
+        if (rightBotAgent != null && rightBotProcessing.compareAndSet(false, true)) {
+            botExecutorService.submit(() -> {
+                try {
+                    rightBotAgent.onTick();
+                } catch (Exception e) {
+                    log.error("[BotSystem] Right bot error", e);
+                } finally {
+                    rightBotProcessing.set(false);
+                }
+            });
         }
     }
 }

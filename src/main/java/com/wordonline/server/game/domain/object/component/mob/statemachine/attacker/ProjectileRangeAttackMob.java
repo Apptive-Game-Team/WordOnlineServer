@@ -10,9 +10,6 @@ public class ProjectileRangeAttackMob extends BehaviorMob {
     public ProjectileRangeAttackMob(GameObject gameObject,
             int maxHp, float speed, int targetMask, int damage, float attackInterval, float attackRange, String projectileType, float projectileDuration) {
         super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, (target) -> {
-            gameObject.getGameContext()
-                    .getObjectsInfoDtoBuilder()
-                    .createProjection(gameObject, target, projectileType, projectileDuration);
 
             target.getComponentOptional(Damageable.class)
                     .ifPresent(damageable -> {

@@ -8,11 +8,9 @@ import org.springframework.stereotype.Component;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.Stat;
-import com.wordonline.server.game.dto.frame.FrameInfoDto;
 
 import lombok.RequiredArgsConstructor;
 
-// this class is responsible for charging mana for players
 @Component
 @Scope("prototype")
 @RequiredArgsConstructor
@@ -34,11 +32,8 @@ public class ManaCharger {
         manaChangeValue.addPercent(deltaValue);
     }
 
-    // this method is called every frame to charge mana
-    public void chargeMana(PlayerData player, FrameInfoDto frameInfoDto, int frameNum) {
+    public void chargeMana(PlayerData player, int frameNum) {
         if (frameNum % ((int) (GameLoop.FPS * MANA_CHARGE_INTERVAL)) == 0)
             player.mana = Math.min((int) manaChangeValue.total() + player.mana, MAX_MANA);
-
-        frameInfoDto.setUpdatedMana(player.mana);
     }
 }

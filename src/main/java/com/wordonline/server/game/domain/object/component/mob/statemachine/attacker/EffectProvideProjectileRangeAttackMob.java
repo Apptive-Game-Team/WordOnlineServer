@@ -13,9 +13,6 @@ public class EffectProvideProjectileRangeAttackMob extends BehaviorMob {
             GameObject gameObject,
             int maxHp, float speed, int targetMask, int damage, float attackInterval, float attackRange, Effect effect, String projectileType, float projectileDuration) {
         super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, (target) -> {
-            gameObject.getGameContext()
-                    .getObjectsInfoDtoBuilder()
-                    .createProjection(gameObject, target, projectileType, projectileDuration);
 
             target.getComponentOptional(Damageable.class)
                     .ifPresent(damageable -> {
