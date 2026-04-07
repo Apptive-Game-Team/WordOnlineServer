@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.input.InputRequestDto;
+import com.wordonline.server.game.dto.lockstep.InitialObjectDto;
 import com.wordonline.server.game.service.system.BotAgentSystem;
 import com.wordonline.server.game.service.system.InputBufferSystem;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,10 @@ public class PracticeLockstepLoop extends InputRelayLoop {
                 ? sessionObject.getRightUserId()
                 : sessionObject.getLeftUserId();
 
-        sendSessionStart(sessionObject, null, null);
+        sendSessionStart(sessionObject, List.of(
+                new InitialObjectDto("", "Player", "LeftPlayer", 1, 5, 0),
+                new InitialObjectDto("", "Player", "RightPlayer", 17, 5, 0)
+        ), null);
         log.info("[Practice] Session started; botUserId={}", botUserId);
     }
 

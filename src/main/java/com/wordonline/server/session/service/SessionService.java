@@ -10,25 +10,35 @@ import com.wordonline.server.game.service.UserService;
 import com.wordonline.server.game.service.UserScenarioService;
 import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
+import com.wordonline.server.session.dto.RoomListDto;
 import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
 import com.wordonline.server.statistic.service.StatisticService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.stream.Stream;
 
 @Service
 public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
+    private static final long PENDING_TIMEOUT_MS = 30_000;
+
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
+    private static final Map<String, PendingSession> pendingSessions = new ConcurrentHashMap<>();
+
+    private record PendingSession(SessionObject sessionObject, Set<Long> readyUserIds, long createdAt) {}
 
     private final SubmissionPublisher<Integer> onSessionNumChange = new SubmissionPublisher<>();
 
@@ -54,10 +64,46 @@ public class SessionService {
         onSessionNumChange.subscribe(subscriber);
     }
 
+    /** Account 서버가 호출. SessionObject만 생성하고 pending 상태로 대기. */
     public void createSession(SessionDto sessionDto) {
         SessionObject sessionObject = sessionObjectFactory.createSessionObject(sessionDto);
-        GameLoop loop = gameLoopFactory.create(sessionObject.getSessionType());
+        pendingSessions.put(sessionObject.getSessionId(),
+                new PendingSession(sessionObject, ConcurrentHashMap.newKeySet(), System.currentTimeMillis()));
+        log.info("[Session] Pending session created; sessionId: {}", sessionObject.getSessionId());
+    }
 
+    /**
+     * 클라이언트가 WebSocket 구독 완료 후 ready 신호를 보내면 호출.
+     * JWT에서 추출한 userId가 해당 세션의 참여자인지 검증한 뒤,
+     * 모든 human 플레이어가 ready되면 게임 루프를 시작한다.
+     */
+    public void onReady(String sessionId, long userId) {
+        PendingSession pending = pendingSessions.get(sessionId);
+        if (pending == null) {
+            log.warn("[Session] Ready signal for unknown or already-started session: {}", sessionId);
+            return;
+        }
+
+        SessionObject sessionObject = pending.sessionObject();
+        if (sessionObject.getLeftUserId() != userId && sessionObject.getRightUserId() != userId) {
+            throw new AuthorizationDeniedException("User not in session");
+        }
+
+        pending.readyUserIds().add(userId);
+        log.info("[Session] Player ready; sessionId={} userId={}", sessionId, userId);
+
+        boolean allReady = Stream.of(sessionObject.getLeftUserId(), sessionObject.getRightUserId())
+                .filter(id -> id >= 0)
+                .allMatch(pending.readyUserIds()::contains);
+
+        if (allReady) {
+            pendingSessions.remove(sessionId);
+            startSession(sessionObject);
+        }
+    }
+
+    private void startSession(SessionObject sessionObject) {
+        GameLoop loop = gameLoopFactory.create(sessionObject.getSessionType());
         sessionObject.setGameLoop(loop);
         loop.init(sessionObject, () -> onLoopTerminated(sessionObject));
 
@@ -69,11 +115,25 @@ public class SessionService {
         thread.start();
 
         sessions.put(sessionObject.getSessionId(), sessionObject);
-        log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
+        log.info("[Session] Session started; sessionId: {}", sessionObject.getSessionId());
+    }
+
+    /** 30초마다 ready 신호 없이 방치된 pending 세션을 정리한다. */
+    @Scheduled(fixedDelay = 30_000)
+    public void cleanUpStalePendingSessions() {
+        long now = System.currentTimeMillis();
+        pendingSessions.entrySet().removeIf(entry -> {
+            boolean stale = now - entry.getValue().createdAt() > PENDING_TIMEOUT_MS;
+            if (stale) {
+                log.warn("[Session] Pending session timed out; sessionId: {}", entry.getKey());
+            }
+            return stale;
+        });
     }
 
     public boolean isSessionActive(String sessionId) {
-        return sessions.get(sessionId).getGameLoop().is_running();
+        SessionObject session = sessions.get(sessionId);
+        return session != null && session.getGameLoop().is_running();
     }
 
     private void onLoopTerminated(SessionObject sessionObject) {

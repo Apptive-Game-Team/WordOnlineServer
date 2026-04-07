@@ -78,7 +78,10 @@ public class InputRelayLoop extends GameLoop {
         }
 
         // Send sessionStart to both players (no PVE extras for PVP/Practice)
-        sendSessionStart(sessionObject, null, null);
+        sendSessionStart(sessionObject, List.of(
+                new InitialObjectDto("", "Player", "LeftPlayer", 1, 5, 0),
+                new InitialObjectDto("", "Player", "RightPlayer", 17, 5, 0)
+        ), null);
     }
 
     private void initializeBotAgents(SessionObject sessionObject) {
