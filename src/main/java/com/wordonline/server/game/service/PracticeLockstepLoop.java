@@ -67,10 +67,7 @@ public class PracticeLockstepLoop extends InputRelayLoop {
                 ? sessionObject.getRightUserId()
                 : sessionObject.getLeftUserId();
 
-        sendSessionStart(sessionObject, List.of(
-                new InitialObjectDto("", "Player", "LeftPlayer", 1, 5, 0),
-                new InitialObjectDto("", "Player", "RightPlayer", 17, 5, 0)
-        ), null);
+        sendSessionStart(sessionObject, null, null);
         log.info("[Practice] Session started; botUserId={}", botUserId);
     }
 
