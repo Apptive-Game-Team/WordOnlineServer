@@ -110,7 +110,9 @@ public enum PrefabType {
     MagmaExplosion("magma_explosion_prefab"),
     WaterExplosion("water_explosion_prefab"),
 
-
+    // New Control Magic
+    WillOWisp("will_o_wisp_prefab"),
+    FrenzyTotem("frenzy_totem_prefab"),
 
     Wall("wall_prefab"),
 

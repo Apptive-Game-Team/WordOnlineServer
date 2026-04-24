@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.dto.Status;
 
@@ -11,8 +12,10 @@ import java.util.List;
 
 public class VineWitchMob extends PVEBossMob {
 
-    private static final int RAGE_CAST_COUNT = 20;
-    private static final float RAGE_CAST_INTERVAL_SEC = 0.2f;
+    private static final int RAGE_WAVE_COUNT = 4;
+    private static final int RAGE_FAN_SHOT_COUNT = 5;
+    private static final float RAGE_CAST_INTERVAL_SEC = 0.45f;
+    private static final double RAGE_FAN_ANGLE_DEGREES = 60.0;
 
     private final VineTossMagic vineTossMagic;
     private boolean ragePatternActivated = false;
@@ -37,7 +40,7 @@ public class VineWitchMob extends PVEBossMob {
 
         if (!ragePatternActivated && hp > 0 && hp <= maxHp / 2) {
             ragePatternActivated = true;
-            remainingRageCastCount = RAGE_CAST_COUNT;
+            remainingRageCastCount = RAGE_WAVE_COUNT;
             // Trigger first cast immediately on next update tick.
             rageCastTimer = RAGE_CAST_INTERVAL_SEC;
         }
@@ -74,9 +77,48 @@ public class VineWitchMob extends PVEBossMob {
         rageCastTimer += getGameContext().getDeltaTime();
         while (rageCastTimer >= RAGE_CAST_INTERVAL_SEC && remainingRageCastCount > 0) {
             rageCastTimer -= RAGE_CAST_INTERVAL_SEC;
-            vineTossMagic.run(getGameContext(), gameObject.getMaster(), gameObject.getPosition(), rageTarget.getPosition());
+            castRageFan(rageTarget);
             remainingRageCastCount--;
         }
+    }
+
+    private void castRageFan(GameObject rageTarget) {
+        Vector3 castOrigin = gameObject.getPosition();
+        Vector3 centerDirection = rageTarget.getPosition().subtract(castOrigin).normalize();
+        if (centerDirection.equals(Vector3.ZERO)) {
+            return;
+        }
+
+        for (int i = 0; i < RAGE_FAN_SHOT_COUNT; i++) {
+            double angleDegrees = resolveFanAngleDegrees(i);
+            Vector3 direction = rotateAroundZ(centerDirection, angleDegrees);
+            vineTossMagic.run(
+                    getGameContext(),
+                    gameObject.getMaster(),
+                    castOrigin,
+                    castOrigin.plus(direction)
+            );
+        }
+    }
+
+    private static double resolveFanAngleDegrees(int index) {
+        if (RAGE_FAN_SHOT_COUNT <= 1) {
+            return 0.0;
+        }
+
+        double angleStep = RAGE_FAN_ANGLE_DEGREES / (RAGE_FAN_SHOT_COUNT - 1);
+        return -RAGE_FAN_ANGLE_DEGREES / 2.0 + angleStep * index;
+    }
+
+    private static Vector3 rotateAroundZ(Vector3 direction, double degrees) {
+        double radians = Math.toRadians(degrees);
+        double cos = Math.cos(radians);
+        double sin = Math.sin(radians);
+        return new Vector3(
+                (float) (direction.getX() * cos - direction.getY() * sin),
+                (float) (direction.getX() * sin + direction.getY() * cos),
+                direction.getZ()
+        ).normalize();
     }
 
     private GameObject resolveRageTarget() {
