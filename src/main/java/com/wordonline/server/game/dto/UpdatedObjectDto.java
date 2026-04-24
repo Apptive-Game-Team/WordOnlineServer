@@ -17,6 +17,7 @@ public class UpdatedObjectDto {
     private int hp;
     private Status status;
     private Effect effect;
+    private Master master;
     private Vector3 position;
 
     public void updateHp(GameObject gameObject) {
@@ -40,6 +41,7 @@ public class UpdatedObjectDto {
 
         this.status = gameObject.getStatus();
         this.effect = gameObject.getEffect();
+        this.master = gameObject.getMaster();
         this.position = gameObject.getPosition();
     }
 }

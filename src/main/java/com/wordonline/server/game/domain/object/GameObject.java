@@ -25,7 +25,7 @@ public class GameObject {
     private static final AtomicInteger idCounter = new AtomicInteger(0);
 
     private final int id;
-    private final Master master;
+    private Master master;
 
     private final PrefabType type;
     private Status status;
@@ -122,6 +122,12 @@ public class GameObject {
     public void setStatus(Status status) {
         if (this.status == Status.Destroyed) return;
         this.status = status;
+        applyUpdate();
+    }
+
+    public void setMaster(Master master) {
+        if (this.master == master) return;
+        this.master = master;
         applyUpdate();
     }
 

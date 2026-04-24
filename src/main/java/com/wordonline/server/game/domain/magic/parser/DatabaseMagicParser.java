@@ -35,6 +35,7 @@ public class DatabaseMagicParser implements MagicParser {
         magicRepository.getAllMagic()
                 .forEach(magicInfoDto -> {
                     if (!applicationContext.containsBean(magicInfoDto.name())) {
+                        log.warn("[Magic:Loading] magic ({}) bean is not available", magicInfoDto.name());
                         return;
                     }
 
@@ -43,6 +44,7 @@ public class DatabaseMagicParser implements MagicParser {
                     magicHashMap.put(convertToKey(magicInfoDto.cards()), magic);
                     magicIdMap.put(magic.id, magic);
                 });
+        log.info("[Magic:Loaded]: {}", magicHashMap.values().stream().map(Magic::getClass).map(Class::getSimpleName).toList());
     }
 
     public void invalidateCache() {

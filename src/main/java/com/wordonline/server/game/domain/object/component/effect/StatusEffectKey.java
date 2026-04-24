@@ -11,4 +11,5 @@ public enum StatusEffectKey {
     DOTHeal_NatureField,
     DOTDeal_Burn,
     DOT_SandStorm,
+    Frenzy_Receive,
 }

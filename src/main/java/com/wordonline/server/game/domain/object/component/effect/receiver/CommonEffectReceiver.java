@@ -93,6 +93,11 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
                         () -> new DOTStatusEffect(gameObject, 0.5f, 1, ElementType.NONE, StatusEffectKey.DOT_SandStorm),
                         EffectApplyPolicy.REFRESH_DURATION,
                         0.5f);
+            case Frenzy -> applyEffect(
+                        StatusEffectKey.Frenzy_Receive,
+                        () -> new FrenzyStatusEffect(gameObject, 3f, StatusEffectKey.Frenzy_Receive),
+                        EffectApplyPolicy.REFRESH_DURATION,
+                        3f);
 
         }
     }

@@ -4,8 +4,10 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public abstract class Magic {
 

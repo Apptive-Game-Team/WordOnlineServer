@@ -19,7 +19,10 @@ public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
     private static final int BOSS_SPAWN_COUNT = 2;
     private static final List<String> MAGIC_NAMES = List.of(
             "vine",
-            "vine_colony"
+            "nature_slime_swarm",
+            "water_slime_swarm",
+            "vine_colony",
+            "vine_spirit"
     );
 
     public PveVineWitchPrefabInitializer(Parameters parameters) {
@@ -42,7 +45,7 @@ public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
 
     @Override
     protected PVEBossMob createBossMob(GameObject gameObject, int maxHp, List<Magic> magics) {
-        Magic vineMagic = parseMagic("vine");
+        Magic vineMagic = parseMagic("vine_toss");
         return new VineWitchMob(
                 gameObject,
                 maxHp,
