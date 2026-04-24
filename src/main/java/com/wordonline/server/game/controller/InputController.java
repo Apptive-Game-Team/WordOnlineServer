@@ -4,6 +4,7 @@ import com.wordonline.server.auth.domain.PrincipalDetails;
 import com.wordonline.server.session.service.SessionService;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.input.InputRequestDto;
+import com.wordonline.server.game.dto.input.InputResponseDto;
 import com.wordonline.server.service.LocalizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +48,9 @@ public class InputController {
             return;
         }
 
-        // Buffer input for the current/upcoming frame; execution happens inside MagicInputSystem
-        int targetFrame = inputRequestDto.getFrameNum();
-        sessionObject.getGameContext().getInputBufferSystem().receive(targetFrame, userId, inputRequestDto);
+        InputResponseDto responseDto = sessionObject.getGameContext().getMagicInputHandler().handleInput(
+                sessionObject.getGameContext(), userId, inputRequestDto
+        );
+        template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
 }

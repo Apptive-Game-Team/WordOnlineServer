@@ -13,7 +13,6 @@ import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
-import com.wordonline.server.game.service.system.InputBufferSystem;
 import com.wordonline.server.game.util.Physics;
 import com.wordonline.server.game.util.SimplePhysics;
 
@@ -36,7 +35,6 @@ public class GameContext {
     private final Parameters parameters;
     private Physics physics;
     private final MagicInputHandler magicInputHandler;
-    private final InputBufferSystem inputBufferSystem;
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
 

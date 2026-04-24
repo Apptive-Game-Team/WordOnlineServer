@@ -13,7 +13,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class SyncInfoDto {
     private final String type = "sync";
-    private int frameNum;
     private int remainingTime;
     private int updatedMana;
     private int leftPlayerHp;
@@ -22,7 +21,7 @@ public class SyncInfoDto {
     private final List<ProjectileDto> projectileDtos;
 
     public SyncInfoDto(FrameInfoDto frameInfoDto, SnapshotResponseDto snapshotResponseDto) {
-        this(frameInfoDto.getFrameNum(), frameInfoDto.getRemainingTime(), frameInfoDto.getUpdatedMana(), frameInfoDto.getLeftPlayerHp(), frameInfoDto.getRightPlayerHp(), snapshotResponseDto, frameInfoDto.getObjects()
+        this(frameInfoDto.getRemainingTime(), frameInfoDto.getUpdatedMana(), frameInfoDto.getLeftPlayerHp(), frameInfoDto.getRightPlayerHp(), snapshotResponseDto, frameInfoDto.getObjects()
                 .getProjectile());
     }
 }

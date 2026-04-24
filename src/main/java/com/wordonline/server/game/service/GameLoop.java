@@ -71,9 +71,6 @@ public abstract class GameLoop implements Runnable {
         runLoop();
     }
 
-    /** Maximum time (ms) to wait for all players to submit inputs before advancing. */
-    private static final long MAX_INPUT_WAIT_MS = 100;
-
     // this method is called when the game loop is started
     private void runLoop() {
         long frameDuration = 1000 / FPS;
@@ -81,8 +78,6 @@ public abstract class GameLoop implements Runnable {
         while (_running) {
             gameContext.incrementFrameNum();
             long startTime = System.currentTimeMillis();
-
-            waitForInputs(startTime);
 
             try {
                 update();
@@ -106,28 +101,6 @@ public abstract class GameLoop implements Runnable {
                 onTerminated.run();
             } catch (Exception e) {
                 log.warn("onTerminated failed", e);
-            }
-        }
-    }
-
-    /**
-     * Blocks until all human players have submitted inputs for the current frame,
-     * or until MAX_INPUT_WAIT_MS elapses — whichever comes first.
-     * Bot players (userId < 0) are excluded from the readiness check.
-     */
-    private void waitForInputs(long frameStartMs) {
-        List<Long> playerIds = List.of(
-                sessionObject.getLeftUserId(),
-                sessionObject.getRightUserId()
-        );
-
-        while (!gameContext.getInputBufferSystem().isReady(
-                gameContext.getFrameNum(), playerIds, frameStartMs, MAX_INPUT_WAIT_MS)) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-                return;
             }
         }
     }

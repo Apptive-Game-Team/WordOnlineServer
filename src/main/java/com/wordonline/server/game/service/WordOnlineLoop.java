@@ -14,7 +14,6 @@ import com.wordonline.server.game.service.system.ComponentUpdateSystem;
 import com.wordonline.server.game.service.system.FeverTimeSystem;
 import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
 import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
-import com.wordonline.server.game.service.system.MagicInputSystem;
 import com.wordonline.server.game.service.system.PhysicSystem;
 import com.wordonline.server.game.service.system.SyncFrameDataSystem;
 
@@ -33,7 +32,6 @@ public class WordOnlineLoop extends GameLoop {
     private final PhysicSystem physicSystem;
     private final GameObjectAddRemoteSystem gameObjectAddRemoveSystem;
     private final DatabaseMagicParser magicParser;
-    private final MagicInputSystem magicInputSystem;
 
     private BotAgent leftBotAgent;
     private BotAgent rightBotAgent;
@@ -41,11 +39,10 @@ public class WordOnlineLoop extends GameLoop {
     public WordOnlineLoop(MmrService mmrService,
                           UserService userService, GameContext gameContext,
                           Parameters parameters, SyncFrameDataSystem frameDataSystem, BotAgentSystem botSystem,
-                          FeverTimeSystem feverTimeSystem,
+            FeverTimeSystem feverTimeSystem,
                           GameObjectStateInitialSystem gameObjectStateInitialSystem,
                           ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
-                          GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser,
-                          MagicInputSystem magicInputSystem) {
+                          GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser) {
         super(mmrService, userService, gameContext, parameters);
         this.frameDataSystem = frameDataSystem;
         this.botSystem = botSystem;
@@ -55,7 +52,6 @@ public class WordOnlineLoop extends GameLoop {
         this.physicSystem = physicSystem;
         this.gameObjectAddRemoveSystem = gameObjectAddRemoveSystem;
         this.magicParser = magicParser;
-        this.magicInputSystem = magicInputSystem;
     }
 
     @Override
@@ -77,9 +73,6 @@ public class WordOnlineLoop extends GameLoop {
     }
 
     protected void update() {
-        // Execute buffered player inputs for this frame (must run before any game logic)
-        magicInputSystem.update(gameContext);
-
         // Initial DTOs
         frameDataSystem.earlyUpdate(gameContext);
 

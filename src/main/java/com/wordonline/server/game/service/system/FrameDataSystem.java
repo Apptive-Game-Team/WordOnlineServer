@@ -28,14 +28,12 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
         long remainingTime = gameContext.getGameTimer().getRemainingTimeSeconds();
 
-        int currentFrame = gameContext.getFrameNum();
-        leftFrameInfoDto = new FrameInfoDto(remainingTime, leftCardInfo, objectsInfoDto, gameContext.getGameSessionData(), currentFrame);
-        rightFrameInfoDto = new FrameInfoDto(remainingTime, rightCardInfo, objectsInfoDto, gameContext.getGameSessionData(), currentFrame);
+        leftFrameInfoDto = new FrameInfoDto(remainingTime, leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
+        rightFrameInfoDto = new FrameInfoDto(remainingTime, rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
         broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
                 remainingTime,
                 objectsInfoDto,
-                gameContext.getGameSessionData(),
-                currentFrame
+                gameContext.getGameSessionData()
         );
 
         // Charge Mana
