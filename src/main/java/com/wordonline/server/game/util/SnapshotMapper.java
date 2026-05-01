@@ -10,7 +10,7 @@ public final class SnapshotMapper {
 
     public static SnapshotObjectDto toDto(GameObject g) {
         var p = g.getPosition();
-        Mob mob = g.getComponent(Mob.class);
+        Mob mob = MobHealthSelector.findHealthMob(g);
 
         return new SnapshotObjectDto(
                 g.getId(),

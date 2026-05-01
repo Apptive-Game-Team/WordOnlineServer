@@ -18,8 +18,10 @@ import com.wordonline.server.game.service.system.PhysicSystem;
 import com.wordonline.server.game.service.system.SyncFrameDataSystem;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Slf4j
 @Scope("prototype")
 @Service
 public class WordOnlineLoop extends GameLoop {
@@ -33,8 +35,8 @@ public class WordOnlineLoop extends GameLoop {
     private final GameObjectAddRemoteSystem gameObjectAddRemoveSystem;
     private final DatabaseMagicParser magicParser;
 
-    private BotAgent leftBotAgent;
-    private BotAgent rightBotAgent;
+    private volatile BotAgent leftBotAgent;
+    private volatile BotAgent rightBotAgent;
 
     public WordOnlineLoop(MmrService mmrService,
                           UserService userService, GameContext gameContext,
@@ -70,6 +72,31 @@ public class WordOnlineLoop extends GameLoop {
         if(sessionObject.isRightBot()) {
             rightBotAgent = new BotAgent(sessionObject, magicParser, Master.RightPlayer);
         }
+    }
+
+    public synchronized void activateBotForUser(long userId) {
+        Master side = sessionObject.getUserSide(userId);
+        if (side == Master.LeftPlayer) {
+            activateLeftBot();
+        } else if (side == Master.RightPlayer) {
+            activateRightBot();
+        }
+    }
+
+    private void activateLeftBot() {
+        if (leftBotAgent != null) {
+            return;
+        }
+        leftBotAgent = new BotAgent(sessionObject, magicParser, Master.LeftPlayer);
+        log.info("Activated bot control for disconnected user: side={}", Master.LeftPlayer);
+    }
+
+    private void activateRightBot() {
+        if (rightBotAgent != null) {
+            return;
+        }
+        rightBotAgent = new BotAgent(sessionObject, magicParser, Master.RightPlayer);
+        log.info("Activated bot control for disconnected user: side={}", Master.RightPlayer);
     }
 
     protected void update() {

@@ -6,6 +6,8 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import lombok.Getter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -17,8 +19,10 @@ public class BotEye {
 
     public BotEye(GameSessionData data, FrameInfoDto myFrame, Master botSide) {
         var playerData = BotSideUtil.getPlayerData(data, botSide);
-        gameObjectList = data.gameObjects;
-        cardList = playerData.cards;
+        gameObjectList = new ArrayList<>(data.gameObjects);
+        synchronized (playerData.cards) {
+            cardList = new ArrayList<>(playerData.cards);
+        }
         mana = playerData.mana;
     }
 }
