@@ -3,7 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.pve;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
+import com.wordonline.server.game.domain.magic.implement.shoot.VineFanMagic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PVEBossMob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.VineWitchMob;
@@ -45,7 +45,7 @@ public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
 
     @Override
     protected PVEBossMob createBossMob(GameObject gameObject, int maxHp, List<Magic> magics) {
-        Magic vineMagic = parseMagic("vine_toss");
+        Magic vineFanMagic = parseMagic("vinefan");
         return new VineWitchMob(
                 gameObject,
                 maxHp,
@@ -54,7 +54,7 @@ public class PveVineWitchPrefabInitializer extends SimplePveBossInitializer {
                 getBossAttackInterval(),
                 getBossAttackRange(),
                 magics,
-                vineMagic instanceof VineTossMagic vineTossMagic ? vineTossMagic : null
+                vineFanMagic instanceof VineFanMagic fanMagic ? fanMagic : null
         );
     }
 }

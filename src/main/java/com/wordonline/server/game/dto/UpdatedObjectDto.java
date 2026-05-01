@@ -3,6 +3,7 @@ package com.wordonline.server.game.dto;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
+import com.wordonline.server.game.util.MobHealthSelector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
@@ -21,16 +22,16 @@ public class UpdatedObjectDto {
     private Vector3 position;
 
     public void updateHp(GameObject gameObject) {
-        gameObject.getComponentOptional(Mob.class)
-                .ifPresent(mob -> {
-                    this.maxHp = mob.getMaxHp();
-                    this.hp = mob.getHp();
-                });
+        Mob mob = MobHealthSelector.findHealthMob(gameObject);
+        if (mob != null) {
+            this.maxHp = mob.getMaxHp();
+            this.hp = mob.getHp();
+        }
     }
 
     public UpdatedObjectDto(GameObject gameObject) {
         this.id = gameObject.getId();
-        Mob mob = gameObject.getComponent(Mob.class);
+        Mob mob = MobHealthSelector.findHealthMob(gameObject);
         if (mob != null) {
             this.maxHp = mob.getMaxHp();
             this.hp = mob.getHp();

@@ -2,7 +2,7 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
+import com.wordonline.server.game.domain.magic.implement.shoot.VineFanMagic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
@@ -13,11 +13,9 @@ import java.util.List;
 public class VineWitchMob extends PVEBossMob {
 
     private static final int RAGE_WAVE_COUNT = 4;
-    private static final int RAGE_FAN_SHOT_COUNT = 5;
     private static final float RAGE_CAST_INTERVAL_SEC = 0.45f;
-    private static final double RAGE_FAN_ANGLE_DEGREES = 60.0;
 
-    private final VineTossMagic vineTossMagic;
+    private final VineFanMagic vineFanMagic;
     private boolean ragePatternActivated = false;
     private int remainingRageCastCount = 0;
     private float rageCastTimer = 0f;
@@ -29,9 +27,9 @@ public class VineWitchMob extends PVEBossMob {
                         float attackInterval,
                         float attackRange,
                         List<Magic> magics,
-                        VineTossMagic vineTossMagic) {
+                        VineFanMagic vineFanMagic) {
         super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, magics);
-        this.vineTossMagic = vineTossMagic;
+        this.vineFanMagic = vineFanMagic;
     }
 
     @Override
@@ -55,7 +53,7 @@ public class VineWitchMob extends PVEBossMob {
     @Override
     protected boolean castMagic(GameObject target) {
         if (remainingRageCastCount > 0) {
-            if (vineTossMagic == null) {
+            if (vineFanMagic == null) {
                 remainingRageCastCount = 0;
                 return super.castMagic(target);
             }
@@ -65,7 +63,7 @@ public class VineWitchMob extends PVEBossMob {
     }
 
     private void handleRagePatternCasts() {
-        if (remainingRageCastCount <= 0 || vineTossMagic == null) {
+        if (remainingRageCastCount <= 0 || vineFanMagic == null) {
             return;
         }
 
@@ -84,41 +82,7 @@ public class VineWitchMob extends PVEBossMob {
 
     private void castRageFan(GameObject rageTarget) {
         Vector3 castOrigin = gameObject.getPosition();
-        Vector3 centerDirection = rageTarget.getPosition().subtract(castOrigin).normalize();
-        if (centerDirection.equals(Vector3.ZERO)) {
-            return;
-        }
-
-        for (int i = 0; i < RAGE_FAN_SHOT_COUNT; i++) {
-            double angleDegrees = resolveFanAngleDegrees(i);
-            Vector3 direction = rotateAroundZ(centerDirection, angleDegrees);
-            vineTossMagic.run(
-                    getGameContext(),
-                    gameObject.getMaster(),
-                    castOrigin,
-                    castOrigin.plus(direction)
-            );
-        }
-    }
-
-    private static double resolveFanAngleDegrees(int index) {
-        if (RAGE_FAN_SHOT_COUNT <= 1) {
-            return 0.0;
-        }
-
-        double angleStep = RAGE_FAN_ANGLE_DEGREES / (RAGE_FAN_SHOT_COUNT - 1);
-        return -RAGE_FAN_ANGLE_DEGREES / 2.0 + angleStep * index;
-    }
-
-    private static Vector3 rotateAroundZ(Vector3 direction, double degrees) {
-        double radians = Math.toRadians(degrees);
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
-        return new Vector3(
-                (float) (direction.getX() * cos - direction.getY() * sin),
-                (float) (direction.getX() * sin + direction.getY() * cos),
-                direction.getZ()
-        ).normalize();
+        vineFanMagic.run(getGameContext(), gameObject.getMaster(), castOrigin, rageTarget.getPosition());
     }
 
     private GameObject resolveRageTarget() {

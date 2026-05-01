@@ -6,6 +6,7 @@ import com.wordonline.server.game.dto.PingChecker;
 import com.wordonline.server.game.service.CardDeck;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.service.WordOnlineLoop;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -69,8 +70,22 @@ public class SessionObject {
         this.rightUserCardDeck = new CardDeck(rightUserCards);
         this.pingChecker = new PingChecker(leftUserId, rightUserId,
                 userId -> {
-                    Master loser = getUserSide(userId);
-                    getGameContext().getResultChecker().setLoser(loser);
+                    Master side = getUserSide(userId);
+                    if (side == null) {
+                        return;
+                    }
+                    if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
+                        wordOnlineLoop.activateBotForUser(userId);
+                    }
+                },
+                userId -> {
+                    Master side = getUserSide(userId);
+                    if (side == null) {
+                        return;
+                    }
+                    if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
+                        wordOnlineLoop.deactivateBotForUser(userId);
+                    }
                 }
         );
         this.sessionType = sessionType;

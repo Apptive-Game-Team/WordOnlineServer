@@ -32,7 +32,6 @@ public class PlayerHealthComponent extends Mob {
     @Override
     public void onDeath() {
         getGameContext().setLoser(gameObject.getMaster());
-        getGameObject().destroy();
     }
 
     public PlayerHealthComponent(GameObject gameObject) {
