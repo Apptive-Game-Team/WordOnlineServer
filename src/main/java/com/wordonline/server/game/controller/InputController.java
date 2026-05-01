@@ -42,7 +42,7 @@ public class InputController {
 
         log.trace("input arrived {}", inputRequestDto.getType());
 
-        if (sessionObject != null && inputRequestDto.getType().equals("ping")) {
+        if (inputRequestDto.getType().equals("ping")) {
             log.trace("ping arrived {}", userId);
             sessionObject.getPingChecker().ping(userId);
             return;
