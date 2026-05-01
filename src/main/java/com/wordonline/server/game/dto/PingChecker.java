@@ -15,18 +15,23 @@ public class PingChecker {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static final Map<Long, ScheduledFuture<?>> pingTasks = new ConcurrentHashMap<>();
+    private static final int FIRST_PING_TIMEOUT_THRESHOLD = 30;
     private static final int PING_TIMEOUT_THRESHOLD = 10;
 
     private final Consumer<Long> onNonPing;
 
     public PingChecker(long userId1, long userId2, Consumer<Long> onNonPing) {
         this.onNonPing = onNonPing;
-        ping(userId1);
-        ping(userId2);
+        ping(userId1, FIRST_PING_TIMEOUT_THRESHOLD);
+        ping(userId2, FIRST_PING_TIMEOUT_THRESHOLD);
     }
 
     public void ping(long userId) {
-        if (userId <= 0) return;
+        ping(userId, PING_TIMEOUT_THRESHOLD);
+    }
+
+    public void ping(long userId, int threshold) {
+        if (userId < 0) return;
 
         ScheduledFuture<?> existing = pingTasks.get(userId);
         if (existing != null && !existing.isDone()) {
@@ -34,7 +39,7 @@ public class PingChecker {
         }
 
         ScheduledFuture<?> task = scheduler.schedule(() -> {
-            log.trace("No ping for {} seconds: userId={}", PING_TIMEOUT_THRESHOLD, userId);
+            log.trace("No ping for {} seconds: userId={}", threshold, userId);
             pingTasks.remove(userId);
             onNonPing.accept(userId);
         }, PING_TIMEOUT_THRESHOLD, TimeUnit.SECONDS);
