@@ -1,8 +1,5 @@
 package com.wordonline.server.game.dto;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -11,6 +8,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PingChecker {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -26,7 +26,7 @@ public class PingChecker {
     }
 
     public void ping(long userId) {
-        if (userId < 0) return;
+        if (userId <= 0) return;
 
         ScheduledFuture<?> existing = pingTasks.get(userId);
         if (existing != null && !existing.isDone()) {
@@ -41,6 +41,4 @@ public class PingChecker {
 
         pingTasks.put(userId, task);
     }
-
-    private static final Logger log = LoggerFactory.getLogger(PingChecker.class);
 }
