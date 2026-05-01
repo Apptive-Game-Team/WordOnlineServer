@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimpleP
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class BehaviorMob extends StateMachineMob {
     RigidBody rigidBody;
     @Getter Stat attackInterval;
     protected float attackRange;
+    private Master observedMaster;
     @Setter
     Predicate<GameObject> behavior = null;
 
@@ -38,6 +40,7 @@ public class BehaviorMob extends StateMachineMob {
 
     @Override
     public void start() {
+        observedMaster = gameObject.getMaster();
         setState(new IdleState());
         rigidBody = gameObject.getComponent(RigidBody.class);
     }
@@ -59,6 +62,30 @@ public class BehaviorMob extends StateMachineMob {
     public void setIdle()
     {
         setState(new IdleState());
+    }
+
+    protected void resetTarget() {
+        target = null;
+        targetRadius = 0f;
+    }
+
+    protected boolean isValidTarget(GameObject target) {
+        return target != null
+                && target.getStatus() != Status.Destroyed
+                && target.getMaster() != gameObject.getMaster();
+    }
+
+    @Override
+    public void update() {
+        if (observedMaster == null) {
+            observedMaster = gameObject.getMaster();
+        } else if (observedMaster != gameObject.getMaster()) {
+            observedMaster = gameObject.getMaster();
+            resetTarget();
+            setState(new IdleState());
+        }
+
+        super.update();
     }
 
     public class StunState extends State {
@@ -118,7 +145,8 @@ public class BehaviorMob extends StateMachineMob {
         List<Vector2> path;
         @Override
         public void onEnter() {
-            if (target == null) {
+            if (!isValidTarget(target)) {
+                resetTarget();
                 setState(new IdleState());
                 return;
             }
@@ -132,7 +160,8 @@ public class BehaviorMob extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            if (target.getStatus() == Status.Destroyed || path == null || path.isEmpty()) {
+            if (!isValidTarget(target) || path == null || path.isEmpty()) {
+                resetTarget();
                 setState(new IdleState());
                 return;
             }
@@ -196,8 +225,10 @@ public class BehaviorMob extends StateMachineMob {
 
         @Override
         public void onUpdate() {
-            if (target.getStatus() == Status.Destroyed) {
+            if (!isValidTarget(target)) {
+                resetTarget();
                 setState(new IdleState());
+                return;
             }
             timer += getGameContext().getDeltaTime();
             if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
