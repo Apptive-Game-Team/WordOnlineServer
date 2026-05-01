@@ -99,6 +99,31 @@ public class WordOnlineLoop extends GameLoop {
         log.info("Activated bot control for disconnected user: side={}", Master.RightPlayer);
     }
 
+    public synchronized void deactivateBotForUser(long userId) {
+        Master side = sessionObject.getUserSide(userId);
+        if (side == Master.LeftPlayer) {
+            deactivateLeftBot();
+        } else if (side == Master.RightPlayer) {
+            deactivateRightBot();
+        }
+    }
+
+    private void deactivateLeftBot() {
+        if (sessionObject.isLeftBot() || leftBotAgent == null) {
+            return;
+        }
+        leftBotAgent = null;
+        log.info("Deactivated bot control for reconnected user: side={}", Master.LeftPlayer);
+    }
+
+    private void deactivateRightBot() {
+        if (sessionObject.isRightBot() || rightBotAgent == null) {
+            return;
+        }
+        rightBotAgent = null;
+        log.info("Deactivated bot control for reconnected user: side={}", Master.RightPlayer);
+    }
+
     protected void update() {
         // Initial DTOs
         frameDataSystem.earlyUpdate(gameContext);

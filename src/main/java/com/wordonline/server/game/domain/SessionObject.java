@@ -77,6 +77,15 @@ public class SessionObject {
                     if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
                         wordOnlineLoop.activateBotForUser(userId);
                     }
+                },
+                userId -> {
+                    Master side = getUserSide(userId);
+                    if (side == null) {
+                        return;
+                    }
+                    if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
+                        wordOnlineLoop.deactivateBotForUser(userId);
+                    }
                 }
         );
         this.sessionType = sessionType;
