@@ -14,6 +14,7 @@ This skill covers the minimum scaffold:
 - create the `Magic` class under `src/main/java/com/wordonline/server/game/domain/magic/implement/...`
 - add the matching `PrefabType` entry in `src/main/java/com/wordonline/server/game/domain/object/prefab/PrefabType.java`
 - create the matching `PrefabInitializer` under `src/main/java/com/wordonline/server/game/domain/object/prefab/implement/...`
+- prepare the SQL needed to register the magic in `magics` and connect its recipe in `magic_cards`
 
 Add supporting component classes when the magic behavior is not already provided by existing shared components.
 
@@ -27,7 +28,9 @@ Add supporting component classes when the magic behavior is not already provided
 4. Add the new `PrefabType` enum constant with its bean name.
 5. Implement the prefab initializer using existing helpers like `addComponent(...)` and `addCollider(...)`.
 6. If the behavior is custom, create a dedicated component in `src/main/java/com/wordonline/server/game/domain/object/component/magic`.
-7. Verify compilation with `./gradlew compileJava` when possible.
+7. Write the SQL registration query. Only modify `magics` and `magic_cards`. Use the magic bean name as `magics.name`, and use card names exactly as stored in `cards.name` with leading capitals such as `Nature`, `Wind`, and `Drop`.
+8. For SQL examples and a reusable template, read `references/magic-sql.md`.
+9. Verify compilation with `./gradlew compileJava` when possible.
 
 ## File Patterns
 
@@ -44,4 +47,7 @@ Add supporting component classes when the magic behavior is not already provided
 
 - Match existing naming conventions exactly: `LeafairMagic`, `LeafairPrefabInitializer`, `PrefabType.Leafair`.
 - Reuse nearby parameter keys when possible. Do not introduce new DB-backed parameter names unless the task explicitly includes data changes.
+- `magics.name` must match the Spring magic bean name exactly, for example `leafair`.
+- `cards.name` uses leading-capital card names, for example `Nature`, `Wind`, `Drop`.
+- Do not insert or update `cards` from this workflow. Assume the needed cards already exist.
 - Prefer extending existing shared abstractions over copying large blocks of logic.
