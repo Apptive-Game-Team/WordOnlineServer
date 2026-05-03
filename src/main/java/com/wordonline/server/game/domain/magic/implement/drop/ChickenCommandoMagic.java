@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component("chicken_commando")
 public class ChickenCommandoMagic extends Magic {
 
-    private static final float SPAWN_HEIGHT = 4f;
+    private static final float SPAWN_HEIGHT = 10f;
 
     public ChickenCommandoMagic() {
         super(CardType.Drop);
