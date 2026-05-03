@@ -29,10 +29,10 @@ public class ThunderBirdPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("thunder_bird", "mass")));
-        gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_bird", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("thunder_bird", "radius"), false));
-        gameObject.addComponent(new ThunderBirdMob(gameObject,
+        gameObject.getComponents().add(new ThunderBirdMob(gameObject,
                 (int) parameters.getValue("thunder_bird", "hp"),
                 (float) parameters.getValue("thunder_bird", "speed"),
                 TargetMask.GROUND.bit,
@@ -41,6 +41,6 @@ public class ThunderBirdPrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("thunder_bird", "attack_range")
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING));
-        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

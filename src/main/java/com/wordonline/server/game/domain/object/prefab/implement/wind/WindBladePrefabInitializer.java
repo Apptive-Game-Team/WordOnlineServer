@@ -24,7 +24,7 @@ public class WindBladePrefabInitializer extends PrefabInitializer {
         float radius = (float) parameters.getValue("shoot", "radius");
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.WIND);
-        gameObject.addComponent(new WindBladeShot(gameObject,
+        gameObject.getComponents().add(new WindBladeShot(gameObject,
                 (int) parameters.getValue("shoot", "damage"),
                 (float) parameters.getValue("shoot", "speed"),
                 radius

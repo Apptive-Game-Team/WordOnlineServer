@@ -26,8 +26,8 @@ public class WaterFieldPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
         gameObject.setElement(ElementType.WATER);
-        gameObject.addComponent(new EffectProvider(gameObject, Effect.Wet));
-        gameObject.addComponent(new WaterFieldEffectReceiver(gameObject));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
+        gameObject.getComponents().add(new WaterFieldEffectReceiver(gameObject));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }
 }

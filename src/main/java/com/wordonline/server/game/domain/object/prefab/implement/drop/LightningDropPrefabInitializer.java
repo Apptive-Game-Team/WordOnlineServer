@@ -29,11 +29,11 @@ public class LightningDropPrefabInitializer extends PrefabInitializer {
 
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.addComponent(new LightningStrike(
+        gameObject.getComponents().add(new LightningStrike(
                 gameObject,
                 (int) parameters.getValue("drop", "damage"),
                 radius
         ));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, STRIKE_VISUAL_DURATION));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, STRIKE_VISUAL_DURATION));
     }
 }

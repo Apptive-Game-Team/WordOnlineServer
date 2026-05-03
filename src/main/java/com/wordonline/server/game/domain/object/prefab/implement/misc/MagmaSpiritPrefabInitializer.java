@@ -28,10 +28,10 @@ public class MagmaSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
-        gameObject.addComponent(new ZPhysics(gameObject));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
-        gameObject.addComponent(new SummonerMob(gameObject,
+        gameObject.getComponents().add(new SummonerMob(gameObject,
                 (int) parameters.getValue("magma_spirit", "hp"),
                 (float) parameters.getValue("magma_spirit", "speed"),
                 TargetMask.GROUND.bit,
@@ -40,6 +40,6 @@ public class MagmaSpiritPrefabInitializer extends PrefabInitializer {
                 PrefabType.MagmaFist
         ));
         gameObject.setElement(EnumSet.of(ElementType.FIRE,ElementType.ROCK));
-        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

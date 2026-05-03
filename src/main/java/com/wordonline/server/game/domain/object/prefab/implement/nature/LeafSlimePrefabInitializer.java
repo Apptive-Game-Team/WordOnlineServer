@@ -26,17 +26,17 @@ public class LeafSlimePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
-        gameObject.addComponent(new ZPhysics(gameObject));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
-        gameObject.addComponent(new Slime(gameObject,
+        gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),
                 TargetMask.GROUND.bit,
                 (int) parameters.getValue("slime", "damage"),
                 (float) parameters.getValue("slime", "attack_interval")));
-        gameObject.addComponent(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
+        gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
         gameObject.setElement(ElementType.NATURE);
-        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

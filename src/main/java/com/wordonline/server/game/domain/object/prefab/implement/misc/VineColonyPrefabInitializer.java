@@ -24,9 +24,9 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("vine_colony", "mass")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("vine_colony", "mass")));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine_colony", "radius"), false));
-        gameObject.addComponent(
+        gameObject.getComponents().add(
                 new SummonMob(
                         gameObject,
                         (int) parameters.getValue("vine_colony", "hp"),
@@ -36,6 +36,6 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
                         PrefabType.Vine
                 ));
         gameObject.setElement(ElementType.NATURE);
-        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

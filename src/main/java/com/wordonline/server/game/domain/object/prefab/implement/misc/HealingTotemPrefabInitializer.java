@@ -27,16 +27,16 @@ public class HealingTotemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("healing_totem", "mass")));
+        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("healing_totem", "mass")));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("healing_totem", "radius"), true));
-        gameObject.addComponent(new Totem(gameObject,
+        gameObject.getComponents().add(new Totem(gameObject,
                 (int) parameters.getValue("healing_totem", "hp"),
                 (int) parameters.getValue("healing_totem", "damage"),
                 (float)parameters.getValue("healing_totem", "attack_interval"),
                 (float)parameters.getValue("healing_totem", "range"),
                 TargetMask.GROUND.bit));
         gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WATER));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (int) parameters.getValue("healing_totem", "duration")));
-        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (int) parameters.getValue("healing_totem", "duration")));
+        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

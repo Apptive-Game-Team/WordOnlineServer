@@ -25,7 +25,7 @@ public class ElectricFieldPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field_short", "radius"), true));
         gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.addComponent(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field_short", "duration")));
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field_short", "duration")));
     }
 }

@@ -77,6 +77,6 @@ public abstract class Mob extends Component implements Damageable {
         this.maxHp = maxHp;
         this.hp = maxHp;
         this.speed = new Stat(speed);
-        gameObject.addComponent(new ItemCarrier(gameObject));
+        gameObject.getComponents().add(new ItemCarrier(gameObject));
     }
 }

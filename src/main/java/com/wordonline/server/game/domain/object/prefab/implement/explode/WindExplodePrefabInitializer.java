@@ -25,8 +25,8 @@ public class WindExplodePrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
         gameObject.setElement(ElementType.WIND);
-        gameObject.addComponent(new KnockbackEffectProvider(gameObject, Effect.Knockback));
-        gameObject.addComponent(new Explode(
+        gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
+        gameObject.getComponents().add(new Explode(
                 gameObject,
                 (int) parameters.getValue("wind_shoot", "damage"),
                 (float) parameters.getValue("explode", "radius")));

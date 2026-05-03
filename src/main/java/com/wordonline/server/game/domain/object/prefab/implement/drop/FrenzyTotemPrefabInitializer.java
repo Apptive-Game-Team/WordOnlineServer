@@ -22,6 +22,6 @@ public class FrenzyTotemPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
         gameObject.setElement(ElementType.NONE);
-        gameObject.addComponent(new FrenzyTotem(gameObject));
+        gameObject.getComponents().add(new FrenzyTotem(gameObject));
     }
 }

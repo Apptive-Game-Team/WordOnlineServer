@@ -34,9 +34,9 @@ public abstract class AbstractExplodePrefabInitializer extends PrefabInitializer
         gameObject.setElement(elementType);
         getEffect(elementType)
                 .ifPresent(
-                        effect -> gameObject.addComponent(new EffectProvider(gameObject, effect))
+                        effect -> gameObject.getComponents().add(new EffectProvider(gameObject, effect))
                 );
-        gameObject.addComponent(new Explode(
+        gameObject.getComponents().add(new Explode(
                 gameObject,
                 (int) parameters.getValue("explode", "damage"),
                 (float) parameters.getValue("explode", "radius")

@@ -24,6 +24,6 @@ public class WindSummonPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.WIND);
-        gameObject.addComponent(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.WindSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.WindSlime));
     }
 }

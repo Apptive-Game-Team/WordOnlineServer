@@ -24,7 +24,7 @@ public class MeteorShowerPrefabInitializer extends PrefabInitializer {
 
     public void initialize(GameObject gameObject) {
         gameObject.setElement(elementSet);
-        gameObject.addComponent(new RandomAreaSpawner(gameObject, PrefabType.MeteorDrop,
+        gameObject.getComponents().add(new RandomAreaSpawner(gameObject, PrefabType.MeteorDrop,
                 (int) parameters.getValue("meteor_shower", "duration"),
                 (float) parameters.getValue("meteor_shower", "attack_interval"),
                 (int) parameters.getValue("meteor_shower", "radius")));

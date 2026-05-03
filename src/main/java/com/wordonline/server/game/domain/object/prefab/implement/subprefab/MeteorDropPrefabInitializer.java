@@ -25,7 +25,7 @@ public class MeteorDropPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("meteor_drop", "radius"), true));
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.ROCK));
-        gameObject.addComponent(new Drop(gameObject, (int) parameters.getValue("meteor_drop", "damage")));
+        gameObject.getComponents().add(new Drop(gameObject, (int) parameters.getValue("meteor_drop", "damage")));
     }
 }
 

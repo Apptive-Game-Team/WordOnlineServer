@@ -25,8 +25,8 @@ public class ElectricShotPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
         gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.addComponent(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.addComponent(new Shot(gameObject,
+        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
+        gameObject.getComponents().add(new Shot(gameObject,
                 (int) parameters.getValue("shoot", "damage"),
                 (float) parameters.getValue("shoot", "speed")
         ));
