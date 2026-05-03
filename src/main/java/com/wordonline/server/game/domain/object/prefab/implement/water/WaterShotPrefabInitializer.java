@@ -25,8 +25,8 @@ public class WaterShotPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
         gameObject.setElement(ElementType.WATER);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
-        gameObject.getComponents().add(new Shot(gameObject,
+        gameObject.addComponent(new EffectProvider(gameObject, Effect.Wet));
+        gameObject.addComponent(new Shot(gameObject,
                 (int) parameters.getValue("shoot", "damage"),
                 (float) parameters.getValue("shoot", "speed")
         ));

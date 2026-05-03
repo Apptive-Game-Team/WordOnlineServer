@@ -28,10 +28,10 @@ public class AquaArcherPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("aqua_archer", "mass")));
-        gameObject.getComponents().add(new ZPhysics(gameObject));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("aqua_archer", "mass")));
+        gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("aqua_archer", "radius"), false));
-        gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
+        gameObject.addComponent(new ProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("aqua_archer", "hp"),
                 (float) parameters.getValue("aqua_archer", "speed"),
                 TargetMask.ANY.bit,
@@ -42,6 +42,6 @@ public class AquaArcherPrefabInitializer extends PrefabInitializer {
                 0.5f
         ));
         gameObject.setElement(ElementType.WATER);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

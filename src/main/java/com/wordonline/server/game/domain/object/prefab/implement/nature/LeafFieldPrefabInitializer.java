@@ -26,9 +26,9 @@ public class LeafFieldPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
         gameObject.setElement(ElementType.NATURE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.LeafFieldHeal));
-        gameObject.getComponents().add(new LeafFieldEffectReceiver(gameObject));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
+        gameObject.addComponent(new EffectProvider(gameObject, Effect.Snared));
+        gameObject.addComponent(new EffectProvider(gameObject, Effect.LeafFieldHeal));
+        gameObject.addComponent(new LeafFieldEffectReceiver(gameObject));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }
 }

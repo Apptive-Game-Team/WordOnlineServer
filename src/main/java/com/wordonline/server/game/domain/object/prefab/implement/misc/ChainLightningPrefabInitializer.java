@@ -26,8 +26,8 @@ public class ChainLightningPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("chain_lightning", "radius"), true));
         gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new ChainShot(gameObject,
+        gameObject.addComponent(new EffectProvider(gameObject, Effect.Shock));
+        gameObject.addComponent(new ChainShot(gameObject,
                 (int) parameters.getValue("chain_lightning", "damage"),
                 (int) parameters.getValue("chain_lightning", "speed"),
                 (float) parameters.getValue("chain_lightning", "attack_range")

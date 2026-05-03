@@ -26,16 +26,16 @@ public class MiniRockPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("mini_rock", "mass")));
-        gameObject.getComponents().add(new ZPhysics(gameObject));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("mini_rock", "mass")));
+        gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("mini_rock", "radius"), false));
-        gameObject.getComponents().add(new Slime(gameObject,
+        gameObject.addComponent(new Slime(gameObject,
                 (int) parameters.getValue("mini_rock", "hp"),
                 (float) parameters.getValue("mini_rock", "speed"),
                 TargetMask.GROUND.bit,
                 (int) parameters.getValue("mini_rock", "damage"),
                 (float) parameters.getValue("mini_rock", "attack_interval")));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

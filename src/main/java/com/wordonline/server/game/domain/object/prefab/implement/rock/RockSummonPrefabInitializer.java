@@ -24,6 +24,6 @@ public class RockSummonPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.RockSlime));
+        gameObject.addComponent(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.RockSlime));
     }
 }

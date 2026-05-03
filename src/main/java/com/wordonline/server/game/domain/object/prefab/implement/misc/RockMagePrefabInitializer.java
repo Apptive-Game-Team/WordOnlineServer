@@ -27,10 +27,10 @@ public class RockMagePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_mage", "mass")));
-        gameObject.getComponents().add(new ZPhysics(gameObject));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("rock_mage", "mass")));
+        gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_mage", "radius"), false));
-        gameObject.getComponents().add(new DoubleTargetMob(gameObject,
+        gameObject.addComponent(new DoubleTargetMob(gameObject,
                 (int) parameters.getValue("rock_mage", "hp"),
                 (float) parameters.getValue("rock_mage", "speed"),
                 TargetMask.ANY.bit,
@@ -41,6 +41,6 @@ public class RockMagePrefabInitializer extends PrefabInitializer {
                 0.5f
         ));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

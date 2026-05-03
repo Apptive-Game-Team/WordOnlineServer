@@ -28,10 +28,10 @@ public class ThunderSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
-        gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
+        gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
-        gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
+        gameObject.addComponent(new ProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("thunder_spirit", "hp"),
                 (float) parameters.getValue("thunder_spirit", "speed"),
                 TargetMask.GROUND.bit,
@@ -42,6 +42,6 @@ public class ThunderSpiritPrefabInitializer extends PrefabInitializer {
                 0.5f
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WIND));
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

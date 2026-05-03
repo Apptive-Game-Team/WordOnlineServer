@@ -27,10 +27,10 @@ public class StormRiderPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
-        gameObject.getComponents().add(new ZPhysics(gameObject));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
+        gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.addComponent(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("storm_rider", "hp"),
                 (float) parameters.getValue("storm_rider", "speed"),
                 TargetMask.GROUND.bit,
@@ -38,6 +38,6 @@ public class StormRiderPrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("storm_rider", "attack_interval")
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WATER));
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

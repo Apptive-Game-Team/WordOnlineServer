@@ -25,10 +25,10 @@ public class RockGolemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_golem", "mass")));
-        gameObject.getComponents().add(new ZPhysics(gameObject));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("rock_golem", "mass")));
+        gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_golem", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.addComponent(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("rock_golem", "hp"),
                 (float) parameters.getValue("rock_golem", "speed"),
                 TargetMask.GROUND.bit,
@@ -36,6 +36,6 @@ public class RockGolemPrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("rock_golem", "attack_interval")
         ));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

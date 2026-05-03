@@ -21,6 +21,6 @@ public class VineTossPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.setElement(ElementType.NATURE);
-        gameObject.getComponents().add(new VineToss(gameObject));
+        gameObject.addComponent(new VineToss(gameObject));
     }
 }

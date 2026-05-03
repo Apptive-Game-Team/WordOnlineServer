@@ -27,7 +27,7 @@ public class ManaWellPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("mana_well", "radius"), false));
-        gameObject.getComponents().add(new ManaWellMob(gameObject,
+        gameObject.addComponent(new ManaWellMob(gameObject,
                 (int) parameters.getValue("mana_well", "hp")
         ));
         gameObject.addComponent(new SelfAttacker(
@@ -36,6 +36,6 @@ public class ManaWellPrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("mana_well", "attack_interval")
                 ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING, ElementType.NATURE));
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

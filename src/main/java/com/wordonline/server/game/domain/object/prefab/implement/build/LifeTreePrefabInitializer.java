@@ -28,16 +28,16 @@ public class LifeTreePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("life_tree", "mass")));
+        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("life_tree", "mass")));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("life_tree", "radius"), true));
-        gameObject.getComponents().add(new Totem(gameObject,
+        gameObject.addComponent(new Totem(gameObject,
                 (int) parameters.getValue("life_tree", "hp"),
                 (int) parameters.getValue("life_tree", "damage"),
                 (float)parameters.getValue("life_tree", "attack_interval"),
                 (float)parameters.getValue("life_tree", "range"),
                 TargetMask.GROUND.bit));
         gameObject.setElement(EnumSet.of(ElementType.NATURE));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (int) parameters.getValue("life_tree", "duration")));
-        gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (int) parameters.getValue("life_tree", "duration")));
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }
 }

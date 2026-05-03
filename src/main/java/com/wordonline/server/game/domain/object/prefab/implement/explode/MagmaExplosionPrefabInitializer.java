@@ -30,8 +30,8 @@ public class MagmaExplosionPrefabInitializer extends PrefabInitializer {
                 true
         ));
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.getComponents().add(new Explode(
+        gameObject.addComponent(new EffectProvider(gameObject, Effect.Burn));
+        gameObject.addComponent(new Explode(
                 gameObject,
                 (int) parameters.getValue("explode", "damage"),
                 (float) parameters.getValue("explode", "radius")

@@ -24,7 +24,7 @@ public abstract class AbstractDropPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
         gameObject.setElement(elementType);
-        gameObject.getComponents().add(new Drop(gameObject, (int) parameters.getValue("drop", "damage")));
+        gameObject.addComponent(new Drop(gameObject, (int) parameters.getValue("drop", "damage")));
     }
 
     private static PrefabType getPrefabType(ElementType elementType) {

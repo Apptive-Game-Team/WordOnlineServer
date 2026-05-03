@@ -25,7 +25,7 @@ public class FireFieldPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
         gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
+        gameObject.addComponent(new EffectProvider(gameObject, Effect.Burn));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
     }
 }

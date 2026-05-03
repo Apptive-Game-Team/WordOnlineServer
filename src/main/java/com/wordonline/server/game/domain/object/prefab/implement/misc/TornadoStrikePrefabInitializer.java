@@ -28,14 +28,14 @@ public class TornadoStrikePrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("tornado_strike", "radius"), true));
         gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WIND));
-        gameObject.getComponents().add(new Tornado(gameObject,
+        gameObject.addComponent(new Tornado(gameObject,
                 (float) parameters.getValue("tornado_strike", "speed"),
                 (int) parameters.getValue("tornado_strike", "damage"),
                 (float) parameters.getValue("tornado_strike", "radius"),
                 (float) parameters.getValue("tornado_strike", "duration"),
                 (float) parameters.getValue("tornado_strike", "attack_interval")
                 ));
-//        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("tornado_strike", "duration")));
+//        gameObject.addComponent(new EffectProvider(gameObject, Effect.Shock));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("tornado_strike", "duration")));
     }
 }
