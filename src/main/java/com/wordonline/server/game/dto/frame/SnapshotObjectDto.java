@@ -13,7 +13,6 @@ public record SnapshotObjectDto(
         String master,
         Status status,
         Effect effect,
-        int hp,
-        int maxHp,
-        List<Gizmo> gizmos
+        List<Gizmo> gizmos,
+        List<GaugeDto> gauges
 ) {}
