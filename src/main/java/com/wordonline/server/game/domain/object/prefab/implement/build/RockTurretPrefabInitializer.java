@@ -28,7 +28,7 @@ public class RockTurretPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_turret", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("rock_turret", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_turret", "radius"), false));
         gameObject.getComponents().add(new Turret(gameObject,
                 (int) parameters.getValue("rock_turret", "hp"),
                 (int) parameters.getValue("rock_turret", "damage"),

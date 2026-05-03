@@ -1,8 +1,11 @@
 package com.wordonline.server.game.domain.object;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.debug.Gizmo;
+import com.wordonline.server.game.domain.debug.GizmoType;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.domain.object.prefab.PrefabProvider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -43,14 +46,15 @@ public class GameObject {
     }
 
     private Effect effect;
-    private Element element = new Element();
+    private final Element element = new Element();
     private Vector3 position;
 
     private final GameContext gameContext;
     private final List<Collider> colliders = new ArrayList<Collider>();
     private final List<Component> components = new ArrayList<Component>();
-    private List<Component> componentsToAdd = new ArrayList<Component>();
-    private List<Component> componentsToRemove = new ArrayList<Component>();
+    private final List<Component> componentsToAdd = new ArrayList<Component>();
+    private final List<Component> componentsToRemove = new ArrayList<Component>();
+    private final List<Gizmo> gizmos = new ArrayList<Gizmo>();
 
     public GameObject(GameObject parent, Master master, PrefabType prefabType) {
         this(master, prefabType, parent.getPosition(), parent.gameContext);
@@ -68,6 +72,28 @@ public class GameObject {
         this.position = position;
         this.gameContext = gameContext;
         gameContext.createGameObject(this);
+    }
+
+    public Optional<CircleCollider> getFirstCircleCollider(boolean isTrigger) {
+        return colliders.stream()
+                .filter(CircleCollider.class::isInstance)
+                .filter(collider -> collider.isTrigger() == isTrigger)
+                .map(CircleCollider.class::cast)
+                .findFirst();
+    }
+
+    public Optional<CircleCollider> getFirstCircleCollider() {
+        return colliders.stream()
+                .filter(CircleCollider.class::isInstance)
+                .map(CircleCollider.class::cast)
+                .findFirst();
+    }
+
+    public void addCollider(Collider collider) {
+        colliders.add(collider);
+        if (collider instanceof CircleCollider circleCollider) {
+            gizmos.add(new Gizmo(Vector3.ZERO, circleCollider.getRadius(), GizmoType.Collider));
+        }
     }
 
     public <T> boolean hasComponent(Class<T> clazz) {
@@ -165,6 +191,10 @@ public class GameObject {
     public void onDestroy() {
         for (Component component : components)
             component.onDestroy();
+    }
+
+    public void drawCircle(Vector3 relativePosition, float radius) {
+        gizmos.add(new Gizmo(relativePosition, radius, GizmoType.PhysicsRange));
     }
 
     public void applyUpdate() {

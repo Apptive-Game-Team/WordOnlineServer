@@ -5,15 +5,17 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 
+import lombok.Getter;
+
 public abstract class Collider implements Colliderable {
     protected final RigidBody rigidBody;
     protected final GameObject gameObject;
+    @Getter
     protected final boolean isTrigger;
 
     public boolean isNotTrigger() {
         return !isTrigger;
     }
-
     public Vector3 getPosition() {
         return gameObject.getPosition();
     }

@@ -25,7 +25,7 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("vine_colony", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("vine_colony", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine_colony", "radius"), false));
         gameObject.getComponents().add(
                 new SummonMob(
                         gameObject,

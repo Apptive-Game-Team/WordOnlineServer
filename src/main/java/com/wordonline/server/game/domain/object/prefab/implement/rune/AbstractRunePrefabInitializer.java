@@ -24,7 +24,7 @@ public abstract class AbstractRunePrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.setElement(elementType);
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("rune", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rune", "radius"), true));
         gameObject.addComponent(new Rune(gameObject));
     }
 

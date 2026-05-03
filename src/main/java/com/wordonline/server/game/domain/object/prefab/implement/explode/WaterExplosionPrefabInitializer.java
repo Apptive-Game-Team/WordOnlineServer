@@ -24,7 +24,7 @@ public class WaterExplosionPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(
+        gameObject.addCollider(new CircleCollider(
                 gameObject,
                 (float) parameters.getValue("water_explosion", "radius"),
                 true

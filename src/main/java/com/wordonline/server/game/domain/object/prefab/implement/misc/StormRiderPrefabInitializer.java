@@ -29,7 +29,7 @@ public class StormRiderPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("storm_rider", "hp"),
                 (float) parameters.getValue("storm_rider", "speed"),

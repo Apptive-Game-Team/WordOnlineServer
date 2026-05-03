@@ -1,5 +1,8 @@
 package com.wordonline.server.game.dto.frame;
 
+import java.util.List;
+
+import com.wordonline.server.game.domain.debug.Gizmo;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Status;
 
@@ -11,5 +14,6 @@ public record SnapshotObjectDto(
         Status status,
         Effect effect,
         int hp,
-        int maxHp
+        int maxHp,
+        List<Gizmo> gizmos
 ) {}

@@ -159,17 +159,9 @@ public class RollingRock extends Shot {
                 .subtract(otherObject.getPosition());
 
         if (normal.getX() == 0f && normal.getY() == 0f) {
-            CircleCollider selfCollider = gameObject.getColliders()
-                    .stream()
-                    .filter(CircleCollider.class::isInstance)
-                    .map(CircleCollider.class::cast)
-                    .findFirst()
+            CircleCollider selfCollider = gameObject.getFirstCircleCollider()
                     .orElse(null);
-            CircleCollider otherCollider = otherObject.getColliders()
-                    .stream()
-                    .filter(CircleCollider.class::isInstance)
-                    .map(CircleCollider.class::cast)
-                    .findFirst()
+            CircleCollider otherCollider = otherObject.getFirstCircleCollider()
                     .orElse(null);
 
             if (selfCollider != null && otherCollider != null) {

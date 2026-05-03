@@ -30,7 +30,7 @@ public class TreeGolemPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("tree_golem", "mass")));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("tree_golem", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("tree_golem", "radius"), false));
         gameObject.addComponent(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("tree_golem", "hp"),
                 (float) parameters.getValue("tree_golem", "speed"),

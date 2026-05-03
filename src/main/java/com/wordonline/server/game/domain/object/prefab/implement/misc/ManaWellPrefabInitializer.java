@@ -26,7 +26,7 @@ public class ManaWellPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("mana_well", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("mana_well", "radius"), false));
         gameObject.getComponents().add(new ManaWellMob(gameObject,
                 (int) parameters.getValue("mana_well", "hp")
         ));

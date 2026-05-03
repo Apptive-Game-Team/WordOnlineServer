@@ -29,7 +29,7 @@ public class LifeTreePrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("life_tree", "mass")));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("life_tree", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("life_tree", "radius"), true));
         gameObject.getComponents().add(new Totem(gameObject,
                 (int) parameters.getValue("life_tree", "hp"),
                 (int) parameters.getValue("life_tree", "damage"),

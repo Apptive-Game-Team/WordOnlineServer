@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
-import com.wordonline.server.game.domain.object.component.physic.Collider;
 
 public class MeleeAttackMob extends AttackMob {
 
@@ -21,12 +20,7 @@ public class MeleeAttackMob extends AttackMob {
     }
 
     private float getAttackRange() {
-        Optional<CircleCollider> circleCollider = gameObject.getColliders()
-                .stream()
-                .filter(CircleCollider.class::isInstance)
-                .filter(Collider::isNotTrigger)
-                .findFirst()
-                .map(CircleCollider.class::cast);
+        Optional<CircleCollider> circleCollider = gameObject.getFirstCircleCollider(false);
         return circleCollider.map(collider -> collider.getRadius() + DEFAULT_ATTACK_RANGE)
                 .orElse(DEFAULT_ATTACK_RANGE);
     }

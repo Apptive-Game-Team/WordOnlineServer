@@ -20,7 +20,7 @@ public class WillOWispPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
         gameObject.setElement(ElementType.NONE);
         gameObject.getComponents().add(new MindControlShot(gameObject, (float) parameters.getValue("shoot", "speed")));
     }

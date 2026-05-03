@@ -26,7 +26,7 @@ public class VinePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("vine", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine", "radius"), true));
         gameObject.setElement(ElementType.NATURE);
         gameObject.addComponent(new EffectProvider(gameObject, Effect.Snared));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("vine", "duration")));

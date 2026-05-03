@@ -22,7 +22,7 @@ public class FireShotPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
         gameObject.getComponents().add(new Shot(gameObject,

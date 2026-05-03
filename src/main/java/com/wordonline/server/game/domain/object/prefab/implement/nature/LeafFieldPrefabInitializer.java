@@ -24,7 +24,7 @@ public class LeafFieldPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
         gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.LeafFieldHeal));

@@ -29,7 +29,7 @@ public class VineSpiritPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("vine_spirit", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("vine_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine_spirit", "radius"), false));
         gameObject.getComponents().add(new EffectProvideProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("vine_spirit", "hp"),
                 (float) parameters.getValue("vine_spirit", "speed"),

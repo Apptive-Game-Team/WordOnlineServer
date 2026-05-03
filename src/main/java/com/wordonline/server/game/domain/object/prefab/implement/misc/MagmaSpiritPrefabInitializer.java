@@ -30,7 +30,7 @@ public class MagmaSpiritPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
         gameObject.getComponents().add(new SummonerMob(gameObject,
                 (int) parameters.getValue("magma_spirit", "hp"),
                 (float) parameters.getValue("magma_spirit", "speed"),
