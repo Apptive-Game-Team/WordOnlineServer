@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.component.build;
 
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
@@ -22,6 +23,10 @@ public class WindPushComponent extends Component {
 
     @Override
     public void start() {
+        Master master = gameObject.getMaster();
+        Vector3 direction = (master == Master.LeftPlayer) ? Vector3.RIGHT : Vector3.LEFT;
+        Vector3 centerOffset = direction.multiply(boxSize.getX() / 2);
+        gameObject.drawBox(centerOffset, boxSize, GizmoCategory.AreaOfEffect);
     }
 
     @Override

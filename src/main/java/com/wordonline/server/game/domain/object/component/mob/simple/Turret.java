@@ -1,8 +1,10 @@
 package com.wordonline.server.game.domain.object.component.mob.simple;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
@@ -68,6 +70,7 @@ public class Turret extends TimedBehaviorMob {
     @Override
     public void start() {
         this.detector = new ClosestEnemyDetector(getGameContext(), targetMask);
+        gameObject.drawCircle(Vector3.ZERO, attackRange, GizmoCategory.AttackRange);
     }
 
     @Override
@@ -75,4 +78,3 @@ public class Turret extends TimedBehaviorMob {
 
     }
 }
-

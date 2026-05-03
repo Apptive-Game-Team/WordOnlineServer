@@ -2,9 +2,9 @@ package com.wordonline.server.game.util;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
-import com.wordonline.server.game.dto.Effect;
-import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
+
+import java.util.List;
 
 public final class SnapshotMapper {
 
@@ -20,7 +20,8 @@ public final class SnapshotMapper {
                 g.getStatus(),
                 g.getEffect(),
                 mob != null ? mob.getHp() : 0,
-                mob != null ? mob.getMaxHp() : 0
+                mob != null ? mob.getMaxHp() : 0,
+                List.copyOf(g.getGizmos())
         );
     }
 }

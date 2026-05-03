@@ -1,8 +1,8 @@
 package com.wordonline.server.game.domain.object;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.debug.Gizmo;
-import com.wordonline.server.game.domain.debug.GizmoType;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
@@ -92,7 +92,7 @@ public class GameObject {
     public void addCollider(Collider collider) {
         colliders.add(collider);
         if (collider instanceof CircleCollider circleCollider) {
-            gizmos.add(new Gizmo(Vector3.ZERO, circleCollider.getRadius(), GizmoType.Collider));
+            gizmos.add(Gizmo.circle(Vector3.ZERO, circleCollider.getRadius(), GizmoCategory.Collider));
         }
     }
 
@@ -193,8 +193,12 @@ public class GameObject {
             component.onDestroy();
     }
 
-    public void drawCircle(Vector3 relativePosition, float radius) {
-        gizmos.add(new Gizmo(relativePosition, radius, GizmoType.PhysicsRange));
+    public void drawCircle(Vector3 relativePosition, float radius, GizmoCategory category) {
+        gizmos.add(Gizmo.circle(relativePosition, radius, category));
+    }
+
+    public void drawBox(Vector3 relativePosition, Vector3 boxSize, GizmoCategory category) {
+        gizmos.add(Gizmo.box(relativePosition, boxSize, category));
     }
 
     public void applyUpdate() {

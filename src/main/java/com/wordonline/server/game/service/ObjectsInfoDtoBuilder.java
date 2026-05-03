@@ -64,10 +64,16 @@ public class ObjectsInfoDtoBuilder {
 
     public void createGameObject(GameObject gameObject) {
         gameContext.addGameObject(gameObject);
-        CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster(), null);
+        gameObject.start();
+        CreatedObjectDto createdObjectDto = new CreatedObjectDto(
+                gameObject.getId(),
+                gameObject.getType(),
+                gameObject.getPosition(),
+                gameObject.getMaster(),
+                List.copyOf(gameObject.getGizmos())
+        );
         createdObjectDtos.add(createdObjectDto);
         log.trace("CreatedObjectDto: {}", createdObjectDto);
-        gameObject.start();
     }
 
     public void updateGameObject(GameObject gameObject) {
@@ -89,4 +95,3 @@ public class ObjectsInfoDtoBuilder {
         log.trace("UpdatedObjectDto: {}", updatedObjectDto);
     }
 }
-

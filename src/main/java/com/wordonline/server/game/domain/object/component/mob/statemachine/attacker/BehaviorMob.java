@@ -1,8 +1,10 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
 import com.wordonline.server.game.domain.Stat;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
@@ -43,6 +45,9 @@ public class BehaviorMob extends StateMachineMob {
         observedMaster = gameObject.getMaster();
         setState(new IdleState());
         rigidBody = gameObject.getComponent(RigidBody.class);
+        if (attackRange > 0f) {
+            gameObject.drawCircle(Vector3.ZERO, attackRange, GizmoCategory.AttackRange);
+        }
     }
 
     public BehaviorMob(GameObject gameObject, int maxHp, float speed, int targetMask, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
@@ -244,7 +249,5 @@ public class BehaviorMob extends StateMachineMob {
         }
     }
 }
-
-
 
 

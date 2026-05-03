@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -19,6 +20,12 @@ public class RandomAreaSpawner extends TimedSelfDestroyer {
         this.spawnInterval = spawnInterval;
         this.areaRadius = areaRadius;
         this.prefabType = spawnPrefabType;
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        gameObject.drawCircle(Vector3.ZERO, areaRadius, GizmoCategory.SpawnArea);
     }
 
 
