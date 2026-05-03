@@ -22,23 +22,7 @@ public class GameObjectAddRemoteSystem implements GameSystem {
 
         // Apply Added and Removed Component
         for (GameObject go : gameContext.getGameObjects()) {
-            if (!go.getComponentsToAdd().isEmpty()) {
-                List<Component> toAdd = new ArrayList<>(go.getComponentsToAdd());
-                go.getComponentsToAdd().clear();
-                go.getComponents().addAll(toAdd);
-                for (Component c : toAdd) {
-                    c.start();
-                }
-            }
-
-            if (!go.getComponentsToRemove().isEmpty()) {
-                List<Component> toRem = new ArrayList<>(go.getComponentsToRemove());
-                go.getComponentsToRemove().clear();
-                for (Component c : toRem) {
-                    c.onDestroy();
-                }
-                go.getComponents().removeAll(toRem);
-            }
+            go.flushComponents();
         }
 
         // Apply Created GameObject

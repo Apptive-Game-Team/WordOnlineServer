@@ -178,6 +178,7 @@ public class GameObject {
 
     public void start() {
         PrefabProvider.get(type).initialize(this);
+        flushComponents();
         for (Component component : components)
             component.start();
         setStatus(Status.Idle);
@@ -203,5 +204,25 @@ public class GameObject {
 
     public void applyUpdate() {
         gameContext.updateGameObject(this);
+    }
+
+    public void flushComponents() {
+        if (!this.getComponentsToAdd().isEmpty()) {
+            List<Component> toAdd = new ArrayList<>(this.getComponentsToAdd());
+            this.getComponentsToAdd().clear();
+            this.getComponents().addAll(toAdd);
+            for (Component c : toAdd) {
+                c.start();
+            }
+        }
+
+        if (!this.getComponentsToRemove().isEmpty()) {
+            List<Component> toRem = new ArrayList<>(this.getComponentsToRemove());
+            this.getComponentsToRemove().clear();
+            for (Component c : toRem) {
+                c.onDestroy();
+            }
+            this.getComponents().removeAll(toRem);
+        }
     }
 }
