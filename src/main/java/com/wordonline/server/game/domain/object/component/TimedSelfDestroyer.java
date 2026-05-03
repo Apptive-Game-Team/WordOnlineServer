@@ -29,6 +29,15 @@ public class TimedSelfDestroyer extends Component implements GaugeComponent {
     @Override
     public void onDestroy() { }
 
+    public void recover(float amount) {
+        if (amount <= 0f) {
+            return;
+        }
+
+        elapsedTime = Math.max(0f, elapsedTime - amount);
+        gameObject.applyUpdate();
+    }
+
     @Override
     public GaugeDto getGauge() {
         return new GaugeDto(timeToLive - elapsedTime, timeToLive, GaugeCategory.TTL);

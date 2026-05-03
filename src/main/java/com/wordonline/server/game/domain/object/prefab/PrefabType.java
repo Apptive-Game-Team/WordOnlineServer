@@ -114,6 +114,9 @@ public enum PrefabType {
     WillOWisp("will_o_wisp_prefab"),
     FrenzyTotem("frenzy_totem_prefab"),
 
+    // NewNew 2 Card Magic
+    Leafair("leafair_prefab"),
+
     Wall("wall_prefab"),
 
     Player("player_prefab");
