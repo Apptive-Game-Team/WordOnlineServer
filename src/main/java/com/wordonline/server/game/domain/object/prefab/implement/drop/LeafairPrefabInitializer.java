@@ -26,9 +26,10 @@ public class LeafairPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
+        float radius = (float) parameters.getValue("drop", "radius");
+        gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(EnumSet.of(ElementType.NATURE));
         int amount = (int) parameters.getValue("drop", "damage");
-        gameObject.addComponent(new Leafair(gameObject, amount, amount, DEFAULT_TTL_RECOVER_AMOUNT));
+        gameObject.addComponent(new Leafair(gameObject, amount, amount, DEFAULT_TTL_RECOVER_AMOUNT, radius));
     }
 }

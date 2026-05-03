@@ -16,34 +16,48 @@ import com.wordonline.server.game.dto.Status;
 public class Leafair extends Drop {
     private final int healAmount;
     private final float ttlRecoverAmount;
+    private final float radius;
 
-    public Leafair(GameObject gameObject, int damage, int healAmount, float ttlRecoverAmount) {
+    public Leafair(GameObject gameObject, int damage, int healAmount, float ttlRecoverAmount, float radius) {
         super(gameObject, damage);
         this.healAmount = healAmount;
         this.ttlRecoverAmount = ttlRecoverAmount;
+        this.radius = radius;
+    }
+
+    @Override
+    public void update() {
+        super.update();
+
+        if (gameObject.isDestroyed()) {
+            return;
+        }
+
+        for (GameObject target : getGameContext().overlapSphereAll(gameObject, radius)) {
+            if (target == gameObject || target.isDestroyed()) {
+                continue;
+            }
+
+            Master owner = gameObject.getMaster();
+            if (owner != Master.None && target.getMaster() == owner) {
+                if (handleAlly(target)) {
+                    gameObject.setStatus(Status.Attack);
+                    gameObject.destroy();
+                    return;
+                }
+                continue;
+            }
+
+            if (handleEnemy(target)) {
+                gameObject.destroy();
+                return;
+            }
+        }
     }
 
     @Override
     public void onCollision(GameObject otherObject) {
-        if (otherObject == gameObject || otherObject.isDestroyed()) {
-            return;
-        }
-
-        Master owner = gameObject.getMaster();
-        if (owner != Master.None && otherObject.getMaster() == owner) {
-            if (!handleAlly(otherObject)) {
-                return;
-            }
-            gameObject.setStatus(Status.Attack);
-            gameObject.destroy();
-            return;
-        }
-
-        if (!handleEnemy(otherObject)) {
-            return;
-        }
-
-        gameObject.destroy();
+        // Leafair uses overlapSphereAll in update because same-owner collisions are filtered out.
     }
 
     private boolean handleAlly(GameObject target) {
