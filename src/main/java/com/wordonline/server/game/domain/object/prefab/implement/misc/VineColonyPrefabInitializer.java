@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.simple.SummonMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
@@ -35,6 +36,10 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
                         (int) parameters.getValue("vine_colony", "attack_range"),
                         PrefabType.Vine
                 ));
+        gameObject.addComponent(new TimedSelfDestroyer(
+                gameObject,
+                60
+        ));
         gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }

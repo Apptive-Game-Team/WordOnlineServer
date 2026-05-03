@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.simple.Cannon;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
@@ -32,6 +33,10 @@ public class GroundCannonPrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("ground_cannon", "attack_interval"),
                 (float) parameters.getValue("ground_cannon", "attack_range")
                 ));
+        gameObject.addComponent(new TimedSelfDestroyer(
+                gameObject,
+                60
+        ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
