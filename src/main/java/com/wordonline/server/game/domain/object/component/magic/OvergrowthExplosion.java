@@ -8,20 +8,22 @@ import com.wordonline.server.game.dto.Master;
 
 public class OvergrowthExplosion extends MagicComponent {
     private static final float EFFECT_DELAY = 0.5f;
-    private static final float EFFECT_RADIUS = 3f;
     private static final float SUMMON_SPACING = 0.5f;
-    private static final int SUMMON_COUNT = 2;
 
+    private final float effectRadius;
+    private final int summonCount;
     private float counter = 0f;
     private boolean isRunning = true;
 
-    public OvergrowthExplosion(GameObject gameObject) {
+    public OvergrowthExplosion(GameObject gameObject, float effectRadius, int summonCount) {
         super(gameObject);
+        this.effectRadius = effectRadius;
+        this.summonCount = Math.max(1, summonCount);
     }
 
     @Override
     public void start() {
-        gameObject.drawCircle(Vector3.ZERO, EFFECT_RADIUS, GizmoCategory.AreaOfEffect);
+        gameObject.drawCircle(Vector3.ZERO, effectRadius, GizmoCategory.AreaOfEffect);
     }
 
     @Override
@@ -38,7 +40,7 @@ public class OvergrowthExplosion extends MagicComponent {
         Master owner = gameObject.getMaster();
         int transformedCount = 0;
 
-        for (GameObject target : getGameContext().overlapSphereAll(gameObject, EFFECT_RADIUS)) {
+        for (GameObject target : getGameContext().overlapSphereAll(gameObject, effectRadius)) {
             if (target == gameObject || target.isDestroyed()) {
                 continue;
             }
@@ -66,9 +68,9 @@ public class OvergrowthExplosion extends MagicComponent {
 
     private void summonSeedSpirits(Master owner) {
         Vector3 basePosition = gameObject.getPosition();
-        float centerOffset = (SUMMON_COUNT - 1) / 2f;
+        float centerOffset = (summonCount - 1) / 2f;
 
-        for (int i = 0; i < SUMMON_COUNT; i++) {
+        for (int i = 0; i < summonCount; i++) {
             float offsetX = (i - centerOffset) * SUMMON_SPACING;
             Vector3 summonPosition = basePosition.plus(offsetX, 0, 0);
             new GameObject(owner, PrefabType.SeedSpirit, summonPosition, getGameContext());
