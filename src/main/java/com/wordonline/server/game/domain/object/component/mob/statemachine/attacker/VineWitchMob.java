@@ -96,11 +96,9 @@ public class VineWitchMob extends PVEBossMob {
         }
 
         target = detected;
-        if (!detected.getColliders().isEmpty() && detected.getColliders().getFirst() instanceof CircleCollider circleCollider) {
-            targetRadius = circleCollider.getRadius();
-        } else {
-            targetRadius = 0f;
-        }
+        targetRadius = detected.getFirstCircleCollider()
+                .map(CircleCollider::getRadius)
+                .orElse(0f);
         return target;
     }
 

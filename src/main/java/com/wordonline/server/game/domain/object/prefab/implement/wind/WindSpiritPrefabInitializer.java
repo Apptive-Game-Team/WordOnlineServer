@@ -31,7 +31,7 @@ public class WindSpiritPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("wind_spirit", "mass")));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("wind_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("wind_spirit", "radius"), false));
         gameObject.addComponent(new SelfDestructMob(gameObject,
                 (int) parameters.getValue("wind_spirit", "hp"),
                 (float) parameters.getValue("wind_spirit", "speed"),

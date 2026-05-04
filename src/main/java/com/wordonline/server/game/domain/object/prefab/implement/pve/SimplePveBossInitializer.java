@@ -89,7 +89,7 @@ public abstract class SimplePveBossInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue(parameterKey, "mass")));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue(parameterKey, "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue(parameterKey, "radius"), true));
         gameObject.setElement(elementType);
 
         SpawnConfig spawnConfig = selectRandomSpawnConfig();

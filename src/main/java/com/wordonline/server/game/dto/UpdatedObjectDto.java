@@ -1,9 +1,12 @@
 package com.wordonline.server.game.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
-import com.wordonline.server.game.util.MobHealthSelector;
+import com.wordonline.server.game.dto.frame.GaugeDto;
+import com.wordonline.server.game.util.GaugeExtractor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
@@ -14,31 +17,20 @@ import lombok.Setter;
 // This class is used to send updated object information to the client
 public class UpdatedObjectDto {
     private final int id;
-    private int maxHp;
-    private int hp;
     private Status status;
     private Effect effect;
     private Master master;
     private Vector3 position;
+    private List<GaugeDto> gauges = new ArrayList<>();
 
-    public void updateHp(GameObject gameObject) {
-        Mob mob = MobHealthSelector.findHealthMob(gameObject);
-        if (mob != null) {
-            this.maxHp = mob.getMaxHp();
-            this.hp = mob.getHp();
-        }
+    public void updateGauges(GameObject gameObject) {
+        GaugeExtractor.mergeGaugeDto(gameObject, gauges);
     }
 
     public UpdatedObjectDto(GameObject gameObject) {
         this.id = gameObject.getId();
-        Mob mob = MobHealthSelector.findHealthMob(gameObject);
-        if (mob != null) {
-            this.maxHp = mob.getMaxHp();
-            this.hp = mob.getHp();
-        } else {
-            this.maxHp = -1;
-            this.hp = -1;
-        }
+
+        updateGauges(gameObject);
 
         this.status = gameObject.getStatus();
         this.effect = gameObject.getEffect();

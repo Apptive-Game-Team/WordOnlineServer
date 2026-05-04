@@ -22,7 +22,7 @@ public class RockRollingPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         float radius = (float) parameters.getValue("shoot", "radius");
-        gameObject.getColliders().add(new CircleCollider(gameObject, radius, true));
+        gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new RollingRock(gameObject,
                 (int) parameters.getValue("shoot", "damage"),

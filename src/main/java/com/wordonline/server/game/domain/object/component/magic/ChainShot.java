@@ -1,15 +1,14 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.dto.Status;
-import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class ChainShot extends Shot implements Collidable {
@@ -36,6 +35,12 @@ public class ChainShot extends Shot implements Collidable {
 
     public void setTarget(Vector3 targetPosition) {
         this.direction = targetPosition.subtract(gameObject.getPosition()).normalize();
+    }
+
+    @Override
+    public void start() {
+        super.start();
+        gameObject.drawCircle(Vector3.ZERO, chainRadius, GizmoCategory.DetectionRange);
     }
 
     @Override

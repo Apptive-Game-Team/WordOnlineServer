@@ -26,7 +26,7 @@ public class MagmaFistPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("magma_fist", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("magma_fist", "radius"), true));
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.ROCK));
         gameObject.addComponent(new EffectProvider(gameObject, Effect.Burn));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("magma_fist", "duration")));

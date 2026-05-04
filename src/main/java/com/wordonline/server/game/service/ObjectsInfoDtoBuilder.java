@@ -15,9 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 @Slf4j
 public class ObjectsInfoDtoBuilder {
 
@@ -64,10 +61,16 @@ public class ObjectsInfoDtoBuilder {
 
     public void createGameObject(GameObject gameObject) {
         gameContext.addGameObject(gameObject);
-        CreatedObjectDto createdObjectDto = new CreatedObjectDto(gameObject.getId(), gameObject.getType(), gameObject.getPosition(), gameObject.getMaster());
+        gameObject.start();
+        CreatedObjectDto createdObjectDto = new CreatedObjectDto(
+                gameObject.getId(),
+                gameObject.getType(),
+                gameObject.getPosition(),
+                gameObject.getMaster(),
+                List.copyOf(gameObject.getGizmos())
+        );
         createdObjectDtos.add(createdObjectDto);
         log.trace("CreatedObjectDto: {}", createdObjectDto);
-        gameObject.start();
     }
 
     public void updateGameObject(GameObject gameObject) {
@@ -80,7 +83,7 @@ public class ObjectsInfoDtoBuilder {
             updatedObjectDto.setStatus(gameObject.getStatus());
             updatedObjectDto.setEffect(gameObject.getEffect());
             updatedObjectDto.setMaster(gameObject.getMaster());
-            updatedObjectDto.updateHp(gameObject);
+            updatedObjectDto.updateGauges(gameObject);
         } else { // if the object is not in the update list, add it
             updatedObjectDto = new UpdatedObjectDto(gameObject);
             updatedObjectDto.setPosition(gameObject.getPosition());
@@ -89,4 +92,3 @@ public class ObjectsInfoDtoBuilder {
         log.trace("UpdatedObjectDto: {}", updatedObjectDto);
     }
 }
-

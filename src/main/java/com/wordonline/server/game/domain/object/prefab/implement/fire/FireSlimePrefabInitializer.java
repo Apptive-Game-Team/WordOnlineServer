@@ -28,7 +28,7 @@ public class FireSlimePrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),

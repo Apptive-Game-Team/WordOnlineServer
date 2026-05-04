@@ -27,8 +27,8 @@ public class TideCallPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-//        gameObject.getColliders().add(new EdgeCollider(gameObject, gameObject.getPosition().plus(0,2,0),gameObject.getPosition().plus(0,-2,0),true));
-        gameObject.getColliders().add(new CircleCollider(gameObject, 2f,true));
+//        gameObject.addCollider(new EdgeCollider(gameObject, gameObject.getPosition().plus(0,2,0),gameObject.getPosition().plus(0,-2,0),true));
+        gameObject.addCollider(new CircleCollider(gameObject, 2f,true));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
         gameObject.getComponents().add(new PushShot(gameObject, (int) parameters.getValue("tide_call", "damage"), (float) parameters.getValue("tide_call", "speed")));

@@ -26,7 +26,7 @@ public class SandStormPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("sand_storm", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("sand_storm", "radius"), true));
         gameObject.setElement(EnumSet.of(ElementType.ROCK,ElementType.WIND));
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Sandstorm));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("sand_storm", "duration")));

@@ -1,7 +1,9 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Status;
 
@@ -35,6 +37,11 @@ public class Explode extends MagicComponent {
         this.delay = delay;
         this.isRunning = true;
         attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+    }
+
+    @Override
+    public void start() {
+        gameObject.drawCircle(Vector3.ZERO, radius, GizmoCategory.AreaOfEffect);
     }
 
     @Override

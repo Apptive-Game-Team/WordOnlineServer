@@ -27,7 +27,7 @@ public class LightningDropPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         float radius = (float) parameters.getValue("drop", "radius");
 
-        gameObject.getColliders().add(new CircleCollider(gameObject, radius, true));
+        gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new LightningStrike(
                 gameObject,

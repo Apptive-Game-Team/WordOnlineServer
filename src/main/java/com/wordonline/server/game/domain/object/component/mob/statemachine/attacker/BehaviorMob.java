@@ -1,8 +1,10 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
 import com.wordonline.server.game.domain.Stat;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
@@ -43,6 +45,9 @@ public class BehaviorMob extends StateMachineMob {
         observedMaster = gameObject.getMaster();
         setState(new IdleState());
         rigidBody = gameObject.getComponent(RigidBody.class);
+        if (attackRange > 0f) {
+            gameObject.drawCircle(Vector3.ZERO, attackRange, GizmoCategory.AttackRange);
+        }
     }
 
     public BehaviorMob(GameObject gameObject, int maxHp, float speed, int targetMask, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
@@ -132,7 +137,7 @@ public class BehaviorMob extends StateMachineMob {
                 target = detector.detect(gameObject);
                 if (target != null) {
                     setState(new MoveState());
-                    targetRadius = ((CircleCollider) target.getColliders().getFirst()).getRadius();
+                    targetRadius = target.getFirstCircleCollider().get().getRadius();
                     return;
                 }
                 timer = 0;
@@ -189,7 +194,7 @@ public class BehaviorMob extends StateMachineMob {
                 GameObject newTarget = detector.detect(gameObject);
                 if (newTarget != null && newTarget != target) {
                     target = newTarget;
-                    targetRadius = ((CircleCollider)newTarget.getColliders().getFirst()).getRadius();
+                    targetRadius = newTarget.getFirstCircleCollider().get().getRadius();
                     path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
                     if (path.isEmpty()) return;
                 }
@@ -244,7 +249,5 @@ public class BehaviorMob extends StateMachineMob {
         }
     }
 }
-
-
 
 

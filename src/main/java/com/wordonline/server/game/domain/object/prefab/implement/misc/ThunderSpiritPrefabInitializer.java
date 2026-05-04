@@ -30,7 +30,7 @@ public class ThunderSpiritPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
         gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("thunder_spirit", "hp"),
                 (float) parameters.getValue("thunder_spirit", "speed"),
