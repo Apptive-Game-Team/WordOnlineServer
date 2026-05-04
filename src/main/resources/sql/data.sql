@@ -89,6 +89,8 @@ VALUES
     (31, 'thunder_spirit'),
     (32, 'fire_spirit');
 
+SELECT setval('magics_id_seq', (SELECT MAX(id) FROM magics), true);
+
 
 -- For give card to User
 INSERT INTO user_cards(user_id, card_id, count)
@@ -103,7 +105,13 @@ WHERE NOT EXISTS (
 -- For give all magic to User
 INSERT INTO user_magics(user_id, magic_id)
 SELECT u.id, m.id
-FROM users u, magics m;
+FROM users u, magics m
+WHERE m.access_type = 'DEFAULT' AND
+      NOT EXISTS(
+          SELECT 1
+          FROM user_magics um
+          WHERE um.user_id = u.id AND um.magic_id = m.id
+      );
 
 INSERT INTO pve_scenarios(id, stage_id)
 VALUES
