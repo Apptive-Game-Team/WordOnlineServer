@@ -90,6 +90,7 @@ public enum PrefabType {
     Vine("vine_prefab"),
     MagmaFist("magma_fist_prefab"),
     MeteorDrop("meteor_drop_prefab"),
+    CraterEmber("crater_ember_prefab"),
 
     // PVE
     PveNatureSlimeNest("pve_nature_slime_nest_prefab"),
@@ -118,6 +119,7 @@ public enum PrefabType {
     Leafair("leafair_prefab"),
     ChickenCommando("chicken_commando_prefab"),
     Overgrowth("overgrowth_prefab"),
+    Crater("crater_prefab"),
 
     Wall("wall_prefab"),
 
