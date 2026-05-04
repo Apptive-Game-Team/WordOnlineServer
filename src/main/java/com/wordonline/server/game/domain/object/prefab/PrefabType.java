@@ -117,6 +117,7 @@ public enum PrefabType {
     // NewNew 2 Card Magic
     Leafair("leafair_prefab"),
     ChickenCommando("chicken_commando_prefab"),
+    Overgrowth("overgrowth_prefab"),
 
     Wall("wall_prefab"),
 
