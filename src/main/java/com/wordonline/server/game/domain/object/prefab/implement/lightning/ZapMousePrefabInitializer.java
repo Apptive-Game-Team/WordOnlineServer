@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.Slime;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.CowardMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -28,12 +28,14 @@ public class ZapMousePrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("zap_mouse", "mass")));
         gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("zap_mouse", "radius"), false));
-        gameObject.addComponent(new Slime(gameObject,
+        gameObject.addComponent(new CowardMob(gameObject,
                 (int) parameters.getValue("zap_mouse", "hp"),
                 (float) parameters.getValue("zap_mouse", "speed"),
                 TargetMask.GROUND.bit,
                 (int) parameters.getValue("zap_mouse", "damage"),
-                (float) parameters.getValue("zap_mouse", "attack_interval")));
+                (float) parameters.getValue("zap_mouse", "attack_interval"),
+                (float) parameters.getValue("zap_mouse", "detection_range"),
+                (float) parameters.getValue("zap_mouse", "panic_duration")));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

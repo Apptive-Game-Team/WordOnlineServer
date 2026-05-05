@@ -57,7 +57,9 @@ required_parameters AS (
             ('hp'),
             ('speed'),
             ('damage'),
-            ('attack_interval')
+            ('attack_interval'),
+            ('detection_range'),
+            ('panic_duration')
     ) AS params(parameter_name)
 ),
 inserted_parameters AS (
@@ -87,7 +89,9 @@ parameter_seed_values AS (
             ('hp', 7.0),
             ('speed', 1.2),
             ('damage', 4.0),
-            ('attack_interval', 0.8)
+            ('attack_interval', 0.8),
+            ('detection_range', 6.0),
+            ('panic_duration', 5.0)
     ) AS seed(parameter_name, parameter_value)
 )
 INSERT INTO parameter_values(game_object_id, parameter_id, value)

@@ -115,7 +115,6 @@ public enum PrefabType {
     // New Control Magic
     WillOWisp("will_o_wisp_prefab"),
     FrenzyTotem("frenzy_totem_prefab"),
-    RallyingTorch("rallying_torch_prefab"),
 
     // NewNew 2 Card Magic
     Leafair("leafair_prefab"),
