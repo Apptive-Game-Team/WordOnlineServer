@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.directive.MovementDirective;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimplePathFinder;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
@@ -18,7 +19,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -80,6 +83,13 @@ public class BehaviorMob extends StateMachineMob {
                 && target.getMaster() != gameObject.getMaster();
     }
 
+    private Optional<MovementDirective> resolveMovementDirective() {
+        return gameObject.getComponents(MovementDirective.class).stream()
+                .sorted(Comparator.comparingInt(MovementDirective::priority).reversed())
+                .filter(directive -> directive.getMoveTarget(gameObject).isPresent())
+                .findFirst();
+    }
+
     @Override
     public void update() {
         if (observedMaster == null) {
@@ -88,6 +98,14 @@ public class BehaviorMob extends StateMachineMob {
             observedMaster = gameObject.getMaster();
             resetTarget();
             setState(new IdleState());
+        }
+
+        Optional<MovementDirective> directive = resolveMovementDirective();
+        if (directive.isPresent()
+                && directive.get().suppressCombat()
+                && !(currentState instanceof DirectiveMoveState)) {
+            resetTarget();
+            setState(new DirectiveMoveState(directive.get()));
         }
 
         super.update();
@@ -213,6 +231,89 @@ public class BehaviorMob extends StateMachineMob {
             }
 
             rigidBody.addVelocity(velocity.toVector3());
+        }
+    }
+
+    public class DirectiveMoveState extends State {
+        private MovementDirective directive;
+        private Vector3 destination;
+        private List<Vector2> path;
+        private float timer;
+
+        public DirectiveMoveState(MovementDirective directive) {
+            this.directive = directive;
+        }
+
+        @Override
+        public void onEnter() {
+            updateDestination();
+        }
+
+        @Override
+        public void onExit() {
+        }
+
+        @Override
+        public void onUpdate() {
+            timer += getGameContext().getDeltaTime();
+            if (timer > Detector.DETECTING_INTERVAL) {
+                Optional<MovementDirective> latestDirective = resolveMovementDirective();
+                if (latestDirective.isEmpty() || !latestDirective.get().suppressCombat()) {
+                    setState(new IdleState());
+                    return;
+                }
+
+                directive = latestDirective.get();
+                updateDestination();
+                timer = 0f;
+            }
+
+            if (destination == null) {
+                setState(new IdleState());
+                return;
+            }
+
+            if (gameObject.getPosition().distance(destination) <= directive.getArrivalDistance()) {
+                return;
+            }
+
+            if (path == null || path.isEmpty()) {
+                setState(new IdleState());
+                return;
+            }
+
+            Vector2 currentPosition = gameObject.getPosition().toVector2();
+            if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
+                path.remove(0);
+                if (path.isEmpty()) {
+                    setState(new IdleState());
+                    return;
+                }
+            }
+
+            Vector2 nextPoint = path.get(0);
+            Vector2 direction = nextPoint.subtract(currentPosition).normalize();
+            Vector2 velocity = direction.multiply(speed.total());
+
+            if (rigidBody == null) {
+                log.warn("[MobDirectiveMoveSkipped] {} has no RigidBody; skipping directive move", gameObject.getType());
+                setState(new IdleState());
+                return;
+            }
+
+            rigidBody.addVelocity(velocity.toVector3());
+        }
+
+        private void updateDestination() {
+            Optional<Vector3> moveTarget = directive.getMoveTarget(gameObject);
+            if (moveTarget.isEmpty()) {
+                destination = null;
+                path = null;
+                return;
+            }
+
+            destination = moveTarget.get();
+            path = pathFinder.findPath(gameObject.getPosition().toVector2(), destination.toVector2());
         }
     }
 

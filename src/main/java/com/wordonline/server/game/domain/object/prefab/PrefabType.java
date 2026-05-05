@@ -67,6 +67,7 @@ public enum PrefabType {
     RockDrop("rock_drop_prefab"),
     LightningDrop("lightning_drop_prefab"),
     WindDrop("wind_drop_prefab"),
+    RallyingTorch("rallying_torch_prefab"),
 
     // rune
     FireRune("fire_rune_prefab"),
