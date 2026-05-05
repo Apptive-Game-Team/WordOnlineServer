@@ -101,6 +101,7 @@ public enum PrefabType {
     // New 2 card Magic
     EmberSpirit("fire_slime_prefab"),
     SeedSpirit("seed_spirit_prefab"),
+    ZapMouse("zap_mouse_prefab"),
     WindSpirit("wind_spirit_prefab"),
     MiniRock("mini_rock_prefab"),
 
@@ -114,6 +115,7 @@ public enum PrefabType {
     // New Control Magic
     WillOWisp("will_o_wisp_prefab"),
     FrenzyTotem("frenzy_totem_prefab"),
+    RallyingTorch("rallying_torch_prefab"),
 
     // NewNew 2 Card Magic
     Leafair("leafair_prefab"),
