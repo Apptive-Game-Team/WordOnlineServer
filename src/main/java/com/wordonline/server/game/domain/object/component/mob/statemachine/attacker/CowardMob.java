@@ -30,10 +30,11 @@ public class CowardMob extends AttackMob {
     private final float panicSpeedMultiplier;
     private Detector objectiveDetector;
     private Detector threatDetector;
+    private boolean hasPanicked;
 
     public CowardMob(GameObject gameObject, int maxHp, float speed, int targetMask, int damage,
             float attackInterval, float detectionRange, float panicDuration) {
-        this(gameObject, maxHp, speed, targetMask, damage, attackInterval, detectionRange, panicDuration, 1.25f);
+        this(gameObject, maxHp, speed, targetMask, damage, attackInterval, detectionRange, panicDuration, 2f);
     }
 
     public CowardMob(GameObject gameObject, int maxHp, float speed, int targetMask, int damage,
@@ -77,7 +78,7 @@ public class CowardMob extends AttackMob {
                 .orElse(0f);
 
         if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange) {
-            setState(new AttackState());
+            setState(new CowardAttackState());
         } else {
             setState(new CowardMoveState());
         }
@@ -122,7 +123,7 @@ public class CowardMob extends AttackMob {
                 return;
             }
 
-            GameObject threat = detectThreat();
+            GameObject threat = hasPanicked ? null : detectThreat();
             if (threat != null) {
                 setState(new PanicState(threat));
                 return;
@@ -158,7 +159,7 @@ public class CowardMob extends AttackMob {
 
         @Override
         public void onUpdate() {
-            GameObject threat = detectThreat();
+            GameObject threat = hasPanicked ? null : detectThreat();
             if (threat != null) {
                 setState(new PanicState(threat));
                 return;
@@ -180,7 +181,7 @@ public class CowardMob extends AttackMob {
             }
 
             if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange - 0.1f) {
-                setState(new AttackState());
+                setState(new CowardAttackState());
                 return;
             }
 
@@ -207,6 +208,38 @@ public class CowardMob extends AttackMob {
             }
 
             rigidBody.addVelocity(velocity.toVector3());
+        }
+    }
+
+    public class CowardAttackState extends State {
+        private float timer = 0f;
+
+        @Override
+        public void onEnter() {
+        }
+
+        @Override
+        public void onExit() {
+        }
+
+        @Override
+        public void onUpdate() {
+            if (!isValidTarget(target)) {
+                resetTarget();
+                setState(new CowardIdleState());
+                return;
+            }
+
+            timer += getGameContext().getDeltaTime();
+            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
+                setState(new CowardMoveState());
+            } else if (timer > attackInterval.total()) {
+                timer = 0f;
+
+                if (!behavior.test(target)) {
+                    setState(new CowardIdleState());
+                }
+            }
         }
     }
 
@@ -245,22 +278,17 @@ public class CowardMob extends AttackMob {
             timer += getGameContext().getDeltaTime();
             RigidBody rb = gameObject.getComponent(RigidBody.class);
             if (rb != null) {
-                rb.addVelocity(fleeDirection.multiply(speed.total() * panicSpeedMultiplier).toVector3());
+                Vector2 velocity = fleeDirection.multiply(speed.total() * panicSpeedMultiplier);
+                rb.addVelocity(velocity.toVector3());
             } else {
                 log.warn("[CowardPanicMoveSkipped] {} has no RigidBody; skipping panic move", gameObject.getType());
             }
 
-            if (timer < panicDuration) {
+            if (timer < panicDuration && detectThreat() != null) {
                 return;
             }
 
-            GameObject detectedThreat = detectThreat();
-            if (detectedThreat == threat && isValidTarget(threat)) {
-                target = threat;
-                moveToTargetOrAttack();
-                return;
-            }
-
+            hasPanicked = true;
             target = objectiveDetector.detect(gameObject);
             if (target == null) {
                 resetTarget();
