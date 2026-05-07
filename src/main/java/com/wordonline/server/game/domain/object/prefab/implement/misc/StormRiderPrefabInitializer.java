@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PlayerPrioMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -30,7 +30,7 @@ public class StormRiderPrefabInitializer extends PrefabInitializer {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new PlayerPrioMob(gameObject,
                 (int) parameters.getValue("storm_rider", "hp"),
                 (float) parameters.getValue("storm_rider", "speed"),
                 TargetMask.GROUND.bit,

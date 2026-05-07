@@ -12,4 +12,5 @@ public enum StatusEffectKey {
     DOTDeal_Burn,
     DOT_SandStorm,
     Frenzy_Receive,
+    Panic_Receive,
 }
