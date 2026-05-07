@@ -22,6 +22,6 @@ public class SyncInfoDto {
 
     public SyncInfoDto(FrameInfoDto frameInfoDto, SnapshotResponseDto snapshotResponseDto) {
         this(frameInfoDto.getRemainingTime(), frameInfoDto.getUpdatedMana(), frameInfoDto.getLeftPlayerHp(), frameInfoDto.getRightPlayerHp(), snapshotResponseDto, frameInfoDto.getObjects()
-                .getProjectile());
+                .projectile());
     }
 }

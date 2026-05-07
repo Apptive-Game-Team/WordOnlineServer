@@ -1,10 +1,10 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
-import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import lombok.RequiredArgsConstructor;
@@ -13,15 +13,19 @@ import java.util.function.Predicate;
 
 public class SelfDestructMob extends BehaviorMob implements Collidable {
 
-    private final float ATTACK_THRESHOLD = 0.5f; // Keep ATTACK_THRESHOLD for proximity explosion logic
+    private static final float ATTACK_THRESHOLD = 0.3f;
     private final int damage;
+    private final float explosionRange;
     private float selfRadius;
 
     public SelfDestructMob(GameObject gameObject, int maxHp,
                            float speed, int targetMask, int damage, float attackInterval, float attackRange) {
-        super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, null);
+        // Self-destruct mobs should commit as soon as they can collide, so they do not use the
+        // shared attack interval or explosion radius as their attack-state trigger distance.
+        super(gameObject, maxHp, speed, targetMask, 0f, 0f, null);
         setBehavior(predicate);
         this.damage = damage;
+        this.explosionRange = attackRange;
     }
 
     private final Predicate<GameObject> predicate = (target) -> {
@@ -38,7 +42,17 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     @Override
     public void start() {
         super.start();
-        selfRadius = ((CircleCollider) gameObject.getColliders().getFirst()).getRadius();
+        selfRadius = gameObject.getFirstCircleCollider()
+                .orElseThrow()
+                .getRadius();
+        attackRange = selfRadius + ATTACK_THRESHOLD;
+        gameObject.drawCircle(Vector3.ZERO, explosionRange, GizmoCategory.AreaOfEffect);
+    }
+
+    @Override
+    public void onDeath() {
+        explode();
+        super.onDeath();
     }
 
     @Override
@@ -49,12 +63,15 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
         }
     }
 
+
+
     private void explode() {
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
         getGameContext().getPhysics()
-                .overlapSphereAll(gameObject, attackRange)
+                .overlapSphereAll(gameObject, explosionRange)
                 .forEach(target -> {
                     target.getComponentOptional(Mob.class)
+                            .filter(mob -> mob.gameObject.getMaster() == gameObject.getMaster())
                             .ifPresent(mob -> mob.onDamaged(attackInfo));
                 });
     }
@@ -72,7 +89,9 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
             gameObject.getComponentOptional(ZPhysics.class)
                     .ifPresent(zPhysics -> zPhysics.lockHover(this));
             startPos = new Vector3(gameObject.getPosition());
-            targetRadius = ((CircleCollider) target.gameObject.getColliders().getFirst()).getRadius();
+            targetRadius = target.gameObject.getFirstCircleCollider()
+                    .orElseThrow()
+                    .getRadius();
         }
 
         @Override

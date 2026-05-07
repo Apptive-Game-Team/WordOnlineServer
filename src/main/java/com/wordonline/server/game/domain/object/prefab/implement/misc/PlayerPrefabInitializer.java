@@ -23,7 +23,7 @@ public class PlayerPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, 1, false));
+        gameObject.addCollider(new CircleCollider(gameObject, 1, false));
         gameObject.setElement(ElementType.NONE);
         gameObject.addComponent(new PlayerHealthComponent(gameObject));
         gameObject.addComponent(new PlayerStatusSetter(gameObject));

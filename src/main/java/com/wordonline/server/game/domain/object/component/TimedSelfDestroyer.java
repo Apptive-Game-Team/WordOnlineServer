@@ -1,8 +1,10 @@
 package com.wordonline.server.game.domain.object.component;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.dto.frame.GaugeCategory;
+import com.wordonline.server.game.dto.frame.GaugeDto;
 
-public class TimedSelfDestroyer extends Component {
+public class TimedSelfDestroyer extends Component implements GaugeComponent {
 
     protected final float timeToLive;
     protected float elapsedTime;
@@ -26,4 +28,18 @@ public class TimedSelfDestroyer extends Component {
 
     @Override
     public void onDestroy() { }
+
+    public void recover(float amount) {
+        if (amount <= 0f) {
+            return;
+        }
+
+        elapsedTime = Math.max(0f, elapsedTime - amount);
+        gameObject.applyUpdate();
+    }
+
+    @Override
+    public GaugeDto getGauge() {
+        return new GaugeDto(timeToLive - elapsedTime, timeToLive, GaugeCategory.TTL);
+    }
 }

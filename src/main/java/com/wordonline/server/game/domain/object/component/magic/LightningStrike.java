@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
@@ -23,6 +24,7 @@ public class LightningStrike extends MagicComponent {
 
     @Override
     public void start() {
+        gameObject.drawBox(new Vector3(0, 0, boxSize.getZ() / 2), boxSize, GizmoCategory.AreaOfEffect);
         Vector3 position = gameObject.getPosition();
         Vector3 boxCenter = new Vector3(
                 position.getX(),

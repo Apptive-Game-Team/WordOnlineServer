@@ -9,15 +9,18 @@ import com.wordonline.server.game.domain.magic.ElementalChart;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.Component;
+import com.wordonline.server.game.domain.object.component.GaugeComponent;
 import com.wordonline.server.game.domain.object.component.ItemCarrier;
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.BaseStatusEffect;
+import com.wordonline.server.game.dto.frame.GaugeCategory;
+import com.wordonline.server.game.dto.frame.GaugeDto;
 import com.wordonline.server.game.util.MutablePair;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class Mob extends Component implements Damageable {
+public abstract class Mob extends Component implements Damageable, GaugeComponent {
     @Getter
     protected int hp;
     @Getter
@@ -26,6 +29,12 @@ public abstract class Mob extends Component implements Damageable {
     protected Stat speed;
 
     private List<MutablePair<AttackInfo, Float>> delayedAttackInfoList = new ArrayList<>();
+
+
+    @Override
+    public GaugeDto getGauge() {
+        return new GaugeDto(hp, maxHp, GaugeCategory.HP);
+    }
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {

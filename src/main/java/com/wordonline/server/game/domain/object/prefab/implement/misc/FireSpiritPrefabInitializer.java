@@ -32,7 +32,7 @@ public class FireSpiritPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
         gameObject.addComponent(new SprayingAttacker(gameObject,
                 (int) parameters.getValue("fire_spirit", "hp"),
                 (float) parameters.getValue("fire_spirit", "speed"),

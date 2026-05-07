@@ -1,8 +1,10 @@
 package com.wordonline.server.game.domain.object.component.mob.simple;
 
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Status;
 
@@ -30,7 +32,9 @@ public class Totem extends Mob {
     }
 
     @Override
-    public void start() {}
+    public void start() {
+        gameObject.drawCircle(Vector3.ZERO, healRange, GizmoCategory.AttackRange);
+    }
 
     @Override
     public void update() {

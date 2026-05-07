@@ -23,10 +23,10 @@ public class WallPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector3(0, 0, 0), new Vector3(0, GameConfig.HEIGHT, 0), false));
-        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector3(GameConfig.WIDTH, GameConfig.HEIGHT, 0), new Vector3(0, GameConfig.HEIGHT, 0), false));
-        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector3(GameConfig.WIDTH, GameConfig.HEIGHT, 0), new Vector3(GameConfig.WIDTH, 0, 0), false));
-        gameObject.getColliders().add(new EdgeCollider(gameObject, new Vector3(0, 0, 0), new Vector3(GameConfig.WIDTH, 0, 0), false));
+        gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(0, 0, 0), new Vector3(0, GameConfig.HEIGHT, 0), false));
+        gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(GameConfig.WIDTH, GameConfig.HEIGHT, 0), new Vector3(0, GameConfig.HEIGHT, 0), false));
+        gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(GameConfig.WIDTH, GameConfig.HEIGHT, 0), new Vector3(GameConfig.WIDTH, 0, 0), false));
+        gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(0, 0, 0), new Vector3(GameConfig.WIDTH, 0, 0), false));
         gameObject.setElement(ElementType.NONE);
     }
 }

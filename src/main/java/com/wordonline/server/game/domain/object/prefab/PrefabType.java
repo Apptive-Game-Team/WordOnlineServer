@@ -67,6 +67,7 @@ public enum PrefabType {
     RockDrop("rock_drop_prefab"),
     LightningDrop("lightning_drop_prefab"),
     WindDrop("wind_drop_prefab"),
+    RallyingTorch("rallying_torch_prefab"),
 
     // rune
     FireRune("fire_rune_prefab"),
@@ -90,6 +91,7 @@ public enum PrefabType {
     Vine("vine_prefab"),
     MagmaFist("magma_fist_prefab"),
     MeteorDrop("meteor_drop_prefab"),
+    CraterEmber("crater_ember_prefab"),
 
     // PVE
     PveNatureSlimeNest("pve_nature_slime_nest_prefab"),
@@ -100,6 +102,7 @@ public enum PrefabType {
     // New 2 card Magic
     EmberSpirit("fire_slime_prefab"),
     SeedSpirit("seed_spirit_prefab"),
+    ZapMouse("zap_mouse_prefab"),
     WindSpirit("wind_spirit_prefab"),
     MiniRock("mini_rock_prefab"),
 
@@ -113,6 +116,12 @@ public enum PrefabType {
     // New Control Magic
     WillOWisp("will_o_wisp_prefab"),
     FrenzyTotem("frenzy_totem_prefab"),
+
+    // NewNew 2 Card Magic
+    Leafair("leafair_prefab"),
+    ChickenCommando("chicken_commando_prefab"),
+    Overgrowth("overgrowth_prefab"),
+    Crater("crater_prefab"),
 
     Wall("wall_prefab"),
 

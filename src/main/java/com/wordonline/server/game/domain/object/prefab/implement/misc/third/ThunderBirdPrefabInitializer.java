@@ -31,7 +31,7 @@ public class ThunderBirdPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_bird", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("thunder_bird", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("thunder_bird", "radius"), false));
         gameObject.getComponents().add(new ThunderBirdMob(gameObject,
                 (int) parameters.getValue("thunder_bird", "hp"),
                 (float) parameters.getValue("thunder_bird", "speed"),

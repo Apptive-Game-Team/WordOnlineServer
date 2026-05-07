@@ -30,7 +30,7 @@ public class AquaArcherPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("aqua_archer", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("aqua_archer", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("aqua_archer", "radius"), false));
         gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("aqua_archer", "hp"),
                 (float) parameters.getValue("aqua_archer", "speed"),

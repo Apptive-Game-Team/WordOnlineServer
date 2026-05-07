@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.component.mob.simple.ManaWellMob
 import com.wordonline.server.game.domain.object.component.mob.simple.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.mob.simple.Totem;
 import com.wordonline.server.game.domain.object.component.mob.simple.Turret;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PVEBossMob;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 
@@ -40,6 +41,7 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
         return !gameObject.hasComponent(PlayerHealthComponent.class)
                 && !gameObject.hasComponent(Cannon.class)
                 && !gameObject.hasComponent(ManaWellMob.class)
+                && !gameObject.hasComponent(PVEBossMob.class)
                 && !gameObject.hasComponent(Totem.class)
                 && !gameObject.hasComponent(Turret.class);
     }

@@ -27,7 +27,7 @@ public class RockGolemPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_golem", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("rock_golem", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_golem", "radius"), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("rock_golem", "hp"),
                 (float) parameters.getValue("rock_golem", "speed"),

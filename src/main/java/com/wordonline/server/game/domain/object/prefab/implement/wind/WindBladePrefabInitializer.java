@@ -22,7 +22,7 @@ public class WindBladePrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         float radius = (float) parameters.getValue("shoot", "radius");
-        gameObject.getColliders().add(new CircleCollider(gameObject, radius, true));
+        gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new WindBladeShot(gameObject,
                 (int) parameters.getValue("shoot", "damage"),

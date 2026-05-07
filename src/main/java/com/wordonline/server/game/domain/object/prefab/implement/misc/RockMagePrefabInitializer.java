@@ -29,7 +29,7 @@ public class RockMagePrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_mage", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("rock_mage", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_mage", "radius"), false));
         gameObject.getComponents().add(new DoubleTargetMob(gameObject,
                 (int) parameters.getValue("rock_mage", "hp"),
                 (float) parameters.getValue("rock_mage", "speed"),

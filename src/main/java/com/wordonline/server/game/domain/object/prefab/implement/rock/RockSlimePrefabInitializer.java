@@ -27,7 +27,7 @@ public class RockSlimePrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
         gameObject.getComponents().add(new Slime(gameObject,
                 (int) parameters.getValue("slime", "hp"),
                 (float) parameters.getValue("slime", "speed"),

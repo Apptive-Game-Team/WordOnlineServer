@@ -43,7 +43,9 @@ public class ThunderBirdMob extends BehaviorMob {
     @Override
     public void start() {
         super.start();
-        selfRadius = ((CircleCollider) gameObject.getColliders().getFirst()).getRadius();
+        selfRadius = gameObject.getFirstCircleCollider()
+                .orElseThrow()
+                .getRadius();
     }
 
     @RequiredArgsConstructor
@@ -59,7 +61,9 @@ public class ThunderBirdMob extends BehaviorMob {
             gameObject.getComponentOptional(ZPhysics.class)
                     .ifPresent(zPhysics -> zPhysics.lockHover(this));
             startPos = new Vector3(gameObject.getPosition());
-            targetRadius = ((CircleCollider) target.gameObject.getColliders().getFirst()).getRadius();
+            targetRadius = target.gameObject.getFirstCircleCollider()
+                    .orElseThrow()
+                    .getRadius();
         }
 
         @Override

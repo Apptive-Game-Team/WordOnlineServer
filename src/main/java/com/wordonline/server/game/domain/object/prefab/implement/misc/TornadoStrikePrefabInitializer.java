@@ -26,7 +26,7 @@ public class TornadoStrikePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("tornado_strike", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("tornado_strike", "radius"), true));
         gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WIND));
         gameObject.getComponents().add(new Tornado(gameObject,
                 (float) parameters.getValue("tornado_strike", "speed"),

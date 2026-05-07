@@ -2,7 +2,9 @@ package com.wordonline.server.game.domain.object.component.effect;
 
 import java.util.List;
 
+import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.dto.Effect;
@@ -24,7 +26,7 @@ public class AreaEffectProvider extends Component {
 
     @Override
     public void start() {
-
+        gameObject.drawCircle(Vector3.ZERO, radius, GizmoCategory.AreaOfEffect);
     }
 
     @Override

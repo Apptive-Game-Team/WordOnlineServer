@@ -22,7 +22,7 @@ public abstract class AbstractDropPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
         gameObject.setElement(elementType);
         gameObject.getComponents().add(new Drop(gameObject, (int) parameters.getValue("drop", "damage")));
     }

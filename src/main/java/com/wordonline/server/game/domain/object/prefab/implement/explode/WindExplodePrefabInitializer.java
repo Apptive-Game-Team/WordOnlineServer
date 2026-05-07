@@ -23,7 +23,7 @@ public class WindExplodePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getColliders().add(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("explode", "radius"), true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
         gameObject.getComponents().add(new Explode(

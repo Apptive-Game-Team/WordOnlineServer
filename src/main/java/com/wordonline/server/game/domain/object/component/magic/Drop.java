@@ -48,6 +48,10 @@ public class Drop extends Mob implements Collidable {
         this.damage = damage;
     }
 
+    protected int getDamage() {
+        return damage;
+    }
+
     @Override
     public void onCollision(GameObject otherObject) {
         List<Damageable> damageables = otherObject.getComponents(Damageable.class);
