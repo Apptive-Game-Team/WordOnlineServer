@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.deck.service.DeckService;
+import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
@@ -31,17 +32,8 @@ public class StatisticService {
 
     public void createBuilder(GameContext gameContext) {
         GameResultBuilder builder = new GameResultBuilder();
-
-        long leftUserId = gameContext.getSessionObject().getLeftUserId();
-        long rightUserId = gameContext.getSessionObject().getRightUserId();
-
-        builder.setLeftUserId(leftUserId);
-        builder.setRightUserId(rightUserId);
-
-        saveDeck(leftUserId, builder);
-        saveDeck(rightUserId, builder);
-
         gameResultBuilderMap.put(gameContext, builder);
+        syncBuilder(gameContext);
     }
 
     public void saveMagic(GameContext gameContext, long userId, long magicId) {
@@ -51,11 +43,29 @@ public class StatisticService {
                 );
     }
 
-    private void saveDeck(long userId, GameResultBuilder builder) {
-        long deckId = userRepository.getSelectedDeckId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Deck Not Found"));
-        List<CardDto> cardDtos = deckService.getDeckCards(deckId);
-        builder.recordCards(userId, cardDtos);
+    public void syncBuilder(GameContext gameContext) {
+        getGameResultBuilder(gameContext).ifPresent(builder -> {
+            SessionObject sessionObject = gameContext.getSessionObject();
+            builder.setLeftUserId(sessionObject.getLeftUserId());
+            builder.setRightUserId(sessionObject.getRightUserId());
+            builder.setRunType(sessionObject.getRunType());
+            builder.setParameterProfileId(sessionObject.getParameterProfileId());
+            builder.setSimulationBatchId(sessionObject.getSimulationBatchId());
+
+            builder.clearCards();
+            syncDeck(sessionObject.getLeftUserId(), builder);
+            syncDeck(sessionObject.getRightUserId(), builder);
+        });
+    }
+
+    private void syncDeck(long userId, GameResultBuilder builder) {
+        if (userId <= 0) {
+            return;
+        }
+
+        userRepository.getSelectedDeckId(userId)
+                .map(deckService::getDeckCards)
+                .ifPresent(cardDtos -> builder.replaceCards(userId, cardDtos));
     }
 
     public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {

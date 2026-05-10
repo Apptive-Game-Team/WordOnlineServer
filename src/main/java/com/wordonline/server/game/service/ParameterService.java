@@ -10,32 +10,35 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ParameterService {
 
     private final ParameterRepository parameterRepository;
+    private final ParameterProfileContext parameterProfileContext;
 
-    protected ParameterService(ParameterRepository parameterRepository) {
+    protected ParameterService(ParameterRepository parameterRepository,
+                               ParameterProfileContext parameterProfileContext) {
         this.parameterRepository = parameterRepository;
+        this.parameterProfileContext = parameterProfileContext;
     }
 
-    private Map<String, Map<String, Double>> parameterCaches = new ConcurrentHashMap<>();
+    private final Map<ParameterCacheKey, Double> parameterCaches = new ConcurrentHashMap<>();
 
     public void invalidateCache() {
         parameterCaches.clear();
     }
 
     public double getValue(String gameObject, String parameterName) {
+        Long parameterProfileId = parameterProfileContext.getCurrentProfileId();
+        ParameterCacheKey cacheKey = new ParameterCacheKey(gameObject, parameterName, parameterProfileId);
 
-        Map<String, Double> objectParameters = parameterCaches.get(gameObject);
-        if (objectParameters != null && objectParameters.containsKey(parameterName)) {
-            return objectParameters.get(parameterName);
+        Double cachedValue = parameterCaches.get(cacheKey);
+        if (cachedValue != null) {
+            return cachedValue;
         }
 
-
-        Double valueFromDb = parameterRepository.getParameterValue(gameObject, parameterName)
+        Double valueFromDb = parameterRepository.getParameterValue(gameObject, parameterName, parameterProfileId)
                 .orElseThrow(() -> new IllegalArgumentException("Parameter not found: " + gameObject + ", " + parameterName));
-
-
-        parameterCaches
-                .computeIfAbsent(gameObject, k -> new ConcurrentHashMap<>())
-                .put(parameterName, valueFromDb);
+        parameterCaches.put(cacheKey, valueFromDb);
         return valueFromDb;
+    }
+
+    private record ParameterCacheKey(String gameObject, String parameterName, Long parameterProfileId) {
     }
 }

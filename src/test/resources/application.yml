@@ -3,7 +3,7 @@ jwt:
     key: classpath:/key/public.pem
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -22,4 +22,3 @@ team6515:
       url: http://localhost:8081
 logging:
   discord-webhook-url: http://localhost/webhook
-

@@ -59,11 +59,12 @@ public class SessionService {
         GameLoop loop = gameLoopFactory.create(sessionObject.getSessionType());
 
         sessionObject.setGameLoop(loop);
-        loop.init(sessionObject, () -> onLoopTerminated(sessionObject));
+        loop.getGameContext().getParameters().runWithProfile(
+                sessionObject.getParameterProfileId(),
+                () -> loop.init(sessionObject, () -> onLoopTerminated(sessionObject))
+        );
 
-        if (!sessionObject.getSessionId().contains("debug")) {
-            statisticService.createBuilder(loop.getGameContext());
-        }
+        statisticService.createBuilder(loop.getGameContext());
 
         Thread thread = new Thread(loop);
         thread.start();
@@ -87,7 +88,7 @@ public class SessionService {
 
         statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
 
-        if (!sessionObject.getSessionId().contains("debug")) {
+        if (sessionObject.isLiveRun()) {
             if (sessionObject.getSessionType() == SessionType.PVE && loser == Master.RightPlayer) {
                 userScenarioService.markFinished(sessionObject.getLeftUserId(), sessionObject.getScenarioId());
             }

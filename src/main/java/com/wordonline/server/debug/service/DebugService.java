@@ -14,6 +14,7 @@ import com.wordonline.server.debug.dto.DebugPrefabInfoDto;
 import com.wordonline.server.debug.dto.DebugSpawnPrefabRequestDto;
 import com.wordonline.server.debug.dto.DebugSummonMagicRequestDto;
 import com.wordonline.server.deck.service.DeckService;
+import com.wordonline.server.game.domain.RunType;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.magic.Magic;
@@ -25,6 +26,7 @@ import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.repository.MagicRepository;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.service.SessionService;
+import com.wordonline.server.statistic.service.StatisticService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,7 @@ public class DebugService {
     private final DeckService deckService;
     private final DatabaseMagicParser magicParser;
     private final MagicRepository magicRepository;
+    private final StatisticService statisticService;
 
     private SessionObject debugSession;
 
@@ -74,6 +77,7 @@ public class DebugService {
                     deckService.getSelectedCards(userId)
             );
         }
+        statisticService.syncBuilder(debugSession.getGameContext());
         return dto;
     }
 
@@ -103,7 +107,10 @@ public class DebugService {
                 uid1,
                 uid2,
                 sessionType,
-                scenarioId
+                scenarioId,
+                RunType.DEBUG,
+                null,
+                null
         );
         sessionService.createSession(sessionDto);
         debugSession = sessionService.getSessionObject(sessionDto.sessionId());
@@ -140,7 +147,10 @@ public class DebugService {
         }
 
         GameContext gameContext = session.getGameContext();
-        magic.run(gameContext, requestDto.master(), requestDto.position());
+        gameContext.getParameters().runWithProfile(
+                session.getParameterProfileId(),
+                () -> magic.run(gameContext, requestDto.master(), requestDto.position())
+        );
         log.info("summonMagic: magicId {} summoned for {} in session {}", requestDto.magicId(), requestDto.master(), requestDto.sessionId());
         return new DebugActionResponseDto(true, "Magic summoned successfully.");
     }
@@ -164,7 +174,10 @@ public class DebugService {
         }
 
         GameContext gameContext = session.getGameContext();
-        new GameObject(requestDto.master(), prefabType, requestDto.position(), gameContext);
+        gameContext.getParameters().runWithProfile(
+                session.getParameterProfileId(),
+                () -> new GameObject(requestDto.master(), prefabType, requestDto.position(), gameContext)
+        );
         log.info("spawnPrefab: prefabId {}, prefabType {} spawned for {} in session {}", requestDto.prefabId(), prefabType, requestDto.master(), requestDto.sessionId());
         return new DebugActionResponseDto(true, "Prefab spawned successfully.");
     }

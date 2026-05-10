@@ -95,10 +95,10 @@ public class PveLoop extends WordOnlineLoop {
         ResultMmrDto mmrDto = new ResultMmrDto((short) 0, (short) 0, (short) 0, (short) 0);
         gameContext.getResultChecker().broadcastResult(mmrDto);
 
-        if (leftId >= 0) {
+        if (sessionObject.isLiveRun() && leftId >= 0) {
             getUserService().markOnline(leftId);
         }
-        if (rightId >= 0) {
+        if (sessionObject.isLiveRun() && rightId >= 0) {
             getUserService().markOnline(rightId);
         }
         close();

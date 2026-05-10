@@ -80,7 +80,7 @@ public abstract class GameLoop implements Runnable {
             long startTime = System.currentTimeMillis();
 
             try {
-                update();
+                parameters.runWithProfile(sessionObject.getParameterProfileId(), this::update);
             } catch (Exception e) {
                 log.error("[ERROR] {}", e.getMessage(), e);
             }
@@ -113,21 +113,25 @@ public abstract class GameLoop implements Runnable {
 
         long leftId = sessionObject.getLeftUserId();
         long rightId = sessionObject.getRightUserId();
-        ResultType outcomeLeft = (loser == Master.LeftPlayer)
+        ResultType outcomeLeft = loser == Master.LeftPlayer
                 ? ResultType.Lose
-                : ResultType.Win;
+                : loser == Master.RightPlayer
+                ? ResultType.Win
+                : ResultType.Draw;
 
         short leftMmr = mmrService.fetchRating(leftId);
         short rightMmr = mmrService.fetchRating(rightId);
         ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr, leftMmr, rightMmr);
 
-        if (sessionObject.getSessionType() == SessionType.PVP) {
+        if (sessionObject.isLiveRun() && sessionObject.getSessionType() == SessionType.PVP) {
             mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
         }
         gameContext.getResultChecker().broadcastResult(mmrDto);
 
-        userService.markOnline(leftId);
-        userService.markOnline(rightId);
+        if (sessionObject.isLiveRun()) {
+            userService.markOnline(leftId);
+            userService.markOnline(rightId);
+        }
 
         // 3) Loop end
         close();

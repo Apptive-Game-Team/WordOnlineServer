@@ -12,6 +12,7 @@ import lombok.Setter;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 // this class is used to store the session information
@@ -27,6 +28,13 @@ public class SessionObject {
     private final PingChecker pingChecker;
     private final SessionType sessionType;
     private final Long scenarioId;
+    private final RunType runType;
+    private final Long parameterProfileId;
+    private final UUID simulationBatchId;
+
+    public boolean isLiveRun() {
+        return runType == RunType.LIVE;
+    }
 
     public Master getUserSide(long userId) {
         if (userId == leftUserId) {
@@ -60,7 +68,10 @@ public class SessionObject {
                          List<CardType> leftUserCards,
                          List<CardType> rightUserCards,
                          SessionType sessionType,
-                         Long scenarioId) {
+                         Long scenarioId,
+                         RunType runType,
+                         Long parameterProfileId,
+                         UUID simulationBatchId) {
         this.sessionId = sessionId;
         this.leftUserId = leftUserId;
         this.rightUserId = rightUserId;
@@ -90,6 +101,20 @@ public class SessionObject {
         );
         this.sessionType = sessionType;
         this.scenarioId = scenarioId;
+        this.runType = runType == null ? RunType.LIVE : runType;
+        this.parameterProfileId = parameterProfileId;
+        this.simulationBatchId = simulationBatchId;
+    }
+
+    public SessionObject(String sessionId,
+                         long leftUserId,
+                         long rightUserId,
+                         SimpMessagingTemplate template,
+                         List<CardType> leftUserCards,
+                         List<CardType> rightUserCards,
+                         SessionType sessionType,
+                         Long scenarioId) {
+        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, sessionType, scenarioId, RunType.LIVE, null, null);
     }
 
     public SessionObject(String sessionId,
@@ -99,7 +124,7 @@ public class SessionObject {
                          List<CardType> leftUserCards,
                          List<CardType> rightUserCards,
                          SessionType sessionType) {
-        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, sessionType, null);
+        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, sessionType, null, RunType.LIVE, null, null);
     }
 
     public SessionObject(String sessionId,
@@ -108,7 +133,7 @@ public class SessionObject {
                          SimpMessagingTemplate template,
                          List<CardType> leftUserCards,
                          List<CardType> rightUserCards) {
-        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, SessionType.PVP, null);
+        this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, SessionType.PVP, null, RunType.LIVE, null, null);
     }
 
     // this method is used to send the frame information to the client

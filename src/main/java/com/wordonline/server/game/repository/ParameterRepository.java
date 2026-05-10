@@ -1,12 +1,11 @@
 package com.wordonline.server.game.repository;
 
+import java.util.HashSet;
 import java.util.Optional;
-import java.util.OptionalDouble;
+import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -25,6 +24,22 @@ public class ParameterRepository {
             WHERE game_objects.name = :gameObject AND parameters.name = :parameter;
             """;
 
+    private static final String GET_PROFILE_PARAMETER_VALUE = """
+            SELECT ppv.value
+            FROM parameter_profile_values ppv
+            JOIN game_objects ON ppv.game_object_id = game_objects.id
+            JOIN parameters ON ppv.parameter_id = parameters.id
+            WHERE ppv.parameter_profile_id = :parameterProfileId
+              AND game_objects.name = :gameObject
+              AND parameters.name = :parameter;
+            """;
+
+    private static final String GET_PARENT_PROFILE_ID = """
+            SELECT parent_profile_id
+            FROM parameter_profiles
+            WHERE id = :parameterProfileId;
+            """;
+
     public Optional<Double> getParameterValue(String gameObject, String parameter) {
         log.info("[Database] get parameter gameobject: {} | parameter: {}", gameObject.toLowerCase(), parameter);
         return jdbcClient.sql(GET_PARAMETER_VALUE)
@@ -32,5 +47,42 @@ public class ParameterRepository {
                 .param("parameter", parameter)
                 .query(Double.class)
                 .optional();
+    }
+
+    public Optional<Double> getParameterValue(String gameObject, String parameter, Long parameterProfileId) {
+        if (parameterProfileId == null) {
+            return getParameterValue(gameObject, parameter);
+        }
+
+        Optional<Double> profileValue = getProfileParameterValue(gameObject, parameter, parameterProfileId);
+        if (profileValue.isPresent()) {
+            return profileValue;
+        }
+        return getParameterValue(gameObject, parameter);
+    }
+
+    private Optional<Double> getProfileParameterValue(String gameObject, String parameter, Long parameterProfileId) {
+        Set<Long> visitedProfileIds = new HashSet<>();
+        Long currentProfileId = parameterProfileId;
+
+        while (currentProfileId != null && visitedProfileIds.add(currentProfileId)) {
+            Optional<Double> value = jdbcClient.sql(GET_PROFILE_PARAMETER_VALUE)
+                    .param("parameterProfileId", currentProfileId)
+                    .param("gameObject", gameObject.toLowerCase())
+                    .param("parameter", parameter)
+                    .query(Double.class)
+                    .optional();
+            if (value.isPresent()) {
+                return value;
+            }
+
+            currentProfileId = jdbcClient.sql(GET_PARENT_PROFILE_ID)
+                    .param("parameterProfileId", currentProfileId)
+                    .query(Long.class)
+                    .optional()
+                    .orElse(null);
+        }
+
+        return Optional.empty();
     }
 }

@@ -9,11 +9,6 @@ spring:
     name: word-online-server
   config:
     import: optional:file:.env[.properties]
-  sql:
-    init:
-      schema-locations: classpath:sql/schema.sql
-      data-locations: classpath:sql/data.sql
-      mode: embedded
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DATABASE_URL}

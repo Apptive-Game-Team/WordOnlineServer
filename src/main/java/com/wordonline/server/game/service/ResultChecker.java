@@ -37,6 +37,9 @@ public class ResultChecker {
 
     public long getWinnerId()
     {
+        if (loser == null) {
+            return -1;
+        }
         return loser==Master.LeftPlayer?sessionObject.getRightUserId():sessionObject.getLeftUserId();
     }
 

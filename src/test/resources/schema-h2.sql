@@ -6,7 +6,8 @@ CREATE TABLE users (
     selected_deck_id BIGINT,
     mmr SMALLINT NOT NULL DEFAULT 1000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(255) NOT NULL DEFAULT 'Online'
+    status VARCHAR(255) NOT NULL DEFAULT 'Online',
+    total_wins BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE cards (
@@ -68,6 +69,22 @@ CREATE TABLE parameter_values(
         UNIQUE (parameter_id, game_object_id)
 );
 
+CREATE TABLE parameter_profiles (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(63) NOT NULL UNIQUE,
+    parent_profile_id BIGINT REFERENCES parameter_profiles(id)
+);
+
+CREATE TABLE parameter_profile_values (
+    id BIGSERIAL PRIMARY KEY,
+    parameter_profile_id BIGINT NOT NULL REFERENCES parameter_profiles(id) ON DELETE CASCADE,
+    parameter_id BIGINT NOT NULL REFERENCES parameters(id),
+    game_object_id BIGINT NOT NULL REFERENCES game_objects(id),
+    value DOUBLE PRECISION NOT NULL,
+    CONSTRAINT uq_parameter_profile_value
+        UNIQUE (parameter_profile_id, parameter_id, game_object_id)
+);
+
 ALTER TABLE user_cards
     DROP CONSTRAINT user_cards_user_id_fkey,
     ADD CONSTRAINT user_cards_user_id_fkey
@@ -86,7 +103,8 @@ ALTER TABLE deck_cards
 -- Statistic tables
 CREATE TABLE magics (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255),
+    access_type VARCHAR(31) NOT NULL DEFAULT 'DEFAULT'
 );
 
 CREATE TABLE statistic_games (
@@ -95,7 +113,10 @@ CREATE TABLE statistic_games (
     loss_user_id BIGINT NOT NULL,
     duration BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
-    game_type VARCHAR(255) NOT NULL DEFAULT 'PVP'
+    game_type VARCHAR(255) NOT NULL DEFAULT 'PVP',
+    run_type VARCHAR(31) NOT NULL DEFAULT 'LIVE',
+    parameter_profile_id BIGINT,
+    simulation_batch_id BIGINT
 );
 
 CREATE TABLE statistic_game_cards (
@@ -124,4 +145,13 @@ CREATE TABLE magic_cards (
     id BIGSERIAL PRIMARY KEY,
     magic_id BIGINT REFERENCES magics(id),
     card_id BIGINT REFERENCES cards(id)
+);
+
+CREATE TABLE statistic_update_time (
+    id BIGSERIAL PRIMARY KEY,
+    statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE CASCADE,
+    name VARCHAR(31),
+    min_interval_ns BIGINT,
+    max_interval_ns BIGINT,
+    mean_interval_ns DOUBLE PRECISION
 );

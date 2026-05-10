@@ -3,6 +3,7 @@ package com.wordonline.server.statistic.repository;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -25,8 +26,8 @@ public class StatisticRepository {
     private final JdbcClient jdbcClient;
 
     private final static String SAVE_GAME_RESULT = """
-            INSERT INTO statistic_games(win_user_id, loss_user_id, duration, game_type)
-            VALUES(:winUserId, :lossUserId, :duration, :gameType::game_type) RETURNING id;
+            INSERT INTO statistic_games(win_user_id, loss_user_id, duration, game_type, run_type, parameter_profile_id, simulation_batch_id)
+            VALUES(:winUserId, :lossUserId, :duration, :gameType::game_type, :runType, :parameterProfileId, :simulationBatchId) RETURNING id;
             """;
     private final static String SAVE_CARD = """
             INSERT INTO statistic_game_cards(user_id, statistic_game_id, card_id, count)
@@ -43,7 +44,19 @@ public class StatisticRepository {
             """;
 
     public void saveGameResultDto(GameResultDto gameResultDto) {
-        long gameId = saveGame(gameResultDto.sessionType(), gameResultDto.winUserId(), gameResultDto.lossUserId(), gameResultDto.duration());
+        if (gameResultDto == null) {
+            return;
+        }
+
+        long gameId = saveGame(
+                gameResultDto.sessionType(),
+                gameResultDto.runType().name(),
+                gameResultDto.winUserId(),
+                gameResultDto.lossUserId(),
+                gameResultDto.parameterProfileId(),
+                gameResultDto.simulationBatchId(),
+                gameResultDto.duration()
+        );
         saveCard(gameId, gameResultDto.cards());
         saveMagic(gameId, gameResultDto.magics());
         saveUpdateTime(gameId, gameResultDto.updateTimeStatisticMap());
@@ -60,12 +73,21 @@ public class StatisticRepository {
                 .update());
     }
 
-    private long saveGame(SessionType sessionType, long winUserId, long lossUserId, Duration duration) {
+    private long saveGame(SessionType sessionType,
+                          String runType,
+                          long winUserId,
+                          long lossUserId,
+                          Long parameterProfileId,
+                          UUID simulationBatchId,
+                          Duration duration) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient.sql(SAVE_GAME_RESULT)
                 .param("gameType", sessionType.name())
+                .param("runType", runType)
                 .param("winUserId", winUserId)
                 .param("lossUserId", lossUserId)
+                .param("parameterProfileId", parameterProfileId)
+                .param("simulationBatchId", simulationBatchId)
                 .param("duration", duration.toSeconds())
                 .update(keyHolder);
         return keyHolder.getKey().longValue();

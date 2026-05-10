@@ -7,9 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.wordonline.server.deck.dto.CardDto;
+import com.wordonline.server.game.domain.RunType;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.system.GameSystem;
@@ -24,6 +26,9 @@ public class GameResultBuilder {
 
     private long leftUserId;
     private long rightUserId;
+    private RunType runType = RunType.LIVE;
+    private Long parameterProfileId;
+    private UUID simulationBatchId;
     private final List<StatisticCardDto> cardDtos = new ArrayList<>();
     private final List<StatisticMagicDto> magicDtos = new ArrayList<>();
     private final Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap = new HashMap<>();
@@ -58,6 +63,23 @@ public class GameResultBuilder {
         }
     }
 
+    public void replaceCards(long userId, List<CardDto> cardDtos) {
+        removeCards(userId);
+        recordCards(userId, cardDtos);
+    }
+
+    public void removeCards(long userId) {
+        cardDtos().removeIf(cardDto -> cardDto.userId() == userId);
+    }
+
+    public void clearCards() {
+        cardDtos.clear();
+    }
+
+    private List<StatisticCardDto> cardDtos() {
+        return cardDtos;
+    }
+
     public void recordMagic(long userId, long magicId) {
         magicDtos.stream()
                 .filter(magicDto -> magicDto.belongsTo(userId, magicId))
@@ -86,8 +108,11 @@ public class GameResultBuilder {
 
         return new GameResultDto(
                 sessionType,
+                runType,
                 winId,
                 lossId,
+                parameterProfileId,
+                simulationBatchId,
                 duration,
                 cardDtos,
                 magicDtos,

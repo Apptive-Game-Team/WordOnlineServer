@@ -3,7 +3,9 @@ package com.wordonline.server.statistic.dto;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import com.wordonline.server.game.domain.RunType;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.UpdateTimeStatistic;
@@ -13,8 +15,11 @@ import lombok.Getter;
 
 public record GameResultDto(
         SessionType sessionType,
+        RunType runType,
         long winUserId,
         long lossUserId,
+        Long parameterProfileId,
+        UUID simulationBatchId,
         Duration duration,
         List<StatisticCardDto> cards,
         List<StatisticMagicDto> magics,

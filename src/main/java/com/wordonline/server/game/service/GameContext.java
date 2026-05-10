@@ -43,6 +43,7 @@ public class GameContext {
     public void init(SessionObject sessionObject, WordOnlineLoop gameLoop) {
         this.sessionObject = sessionObject;
         this.gameSessionData.initCardDeck(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
+        this.gameSessionData.initMetadata(sessionObject);
         this.resultChecker = new ResultChecker(sessionObject);
         this.objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
         physics = new SimplePhysics(gameSessionData.gameObjects);
