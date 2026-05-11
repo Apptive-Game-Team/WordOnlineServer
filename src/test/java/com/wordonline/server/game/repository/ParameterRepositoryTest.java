@@ -29,7 +29,7 @@ class ParameterRepositoryTest {
                 """).update();
 
         jdbcClient.sql("""
-                INSERT INTO parameter_profile_values(parameter_profile_id, parameter_id, game_object_id, value)
+                INSERT INTO parameter_values(parameter_profile_id, parameter_id, game_object_id, value)
                 VALUES
                     (100, 2, 1, 7.0),
                     (101, 3, 1, 0.9)

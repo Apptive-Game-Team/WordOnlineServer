@@ -16,20 +16,24 @@ public class ParameterRepository {
 
     private final JdbcClient jdbcClient;
 
+    private static final long DEFAULT_PARAMETER_PROFILE_ID = 1L;
+
     private static final String GET_PARAMETER_VALUE = """
             SELECT value
             FROM parameter_values
             JOIN game_objects ON parameter_values.game_object_id = game_objects.id
             JOIN parameters ON parameter_values.parameter_id = parameters.id
-            WHERE game_objects.name = :gameObject AND parameters.name = :parameter;
+            WHERE parameter_values.parameter_profile_id = :parameterProfileId
+              AND game_objects.name = :gameObject
+              AND parameters.name = :parameter;
             """;
 
     private static final String GET_PROFILE_PARAMETER_VALUE = """
-            SELECT ppv.value
-            FROM parameter_profile_values ppv
-            JOIN game_objects ON ppv.game_object_id = game_objects.id
-            JOIN parameters ON ppv.parameter_id = parameters.id
-            WHERE ppv.parameter_profile_id = :parameterProfileId
+            SELECT parameter_values.value
+            FROM parameter_values
+            JOIN game_objects ON parameter_values.game_object_id = game_objects.id
+            JOIN parameters ON parameter_values.parameter_id = parameters.id
+            WHERE parameter_values.parameter_profile_id = :parameterProfileId
               AND game_objects.name = :gameObject
               AND parameters.name = :parameter;
             """;
@@ -43,6 +47,7 @@ public class ParameterRepository {
     public Optional<Double> getParameterValue(String gameObject, String parameter) {
         log.info("[Database] get parameter gameobject: {} | parameter: {}", gameObject.toLowerCase(), parameter);
         return jdbcClient.sql(GET_PARAMETER_VALUE)
+                .param("parameterProfileId", DEFAULT_PARAMETER_PROFILE_ID)
                 .param("gameObject", gameObject.toLowerCase())
                 .param("parameter", parameter)
                 .query(Double.class)
@@ -58,7 +63,7 @@ public class ParameterRepository {
         if (profileValue.isPresent()) {
             return profileValue;
         }
-        return getParameterValue(gameObject, parameter);
+        return getProfileParameterValue(gameObject, parameter, DEFAULT_PARAMETER_PROFILE_ID);
     }
 
     private Optional<Double> getProfileParameterValue(String gameObject, String parameter, Long parameterProfileId) {

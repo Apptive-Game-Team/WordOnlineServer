@@ -58,6 +58,7 @@ CREATE TABLE parameter_values(
     id BIGSERIAL PRIMARY KEY,
     parameter_id BIGINT,
     game_object_id BIGINT,
+    parameter_profile_id BIGINT NOT NULL DEFAULT 1,
     value DOUBLE PRECISION,
     CONSTRAINT fk_game_object
         FOREIGN KEY (game_object_id)
@@ -66,23 +67,13 @@ CREATE TABLE parameter_values(
         FOREIGN KEY (parameter_id)
         REFERENCES parameters(id),
     CONSTRAINT uq_parameter_game_object
-        UNIQUE (parameter_id, game_object_id)
+        UNIQUE (parameter_profile_id, parameter_id, game_object_id)
 );
 
 CREATE TABLE parameter_profiles (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(63) NOT NULL UNIQUE,
     parent_profile_id BIGINT REFERENCES parameter_profiles(id)
-);
-
-CREATE TABLE parameter_profile_values (
-    id BIGSERIAL PRIMARY KEY,
-    parameter_profile_id BIGINT NOT NULL REFERENCES parameter_profiles(id) ON DELETE CASCADE,
-    parameter_id BIGINT NOT NULL REFERENCES parameters(id),
-    game_object_id BIGINT NOT NULL REFERENCES game_objects(id),
-    value DOUBLE PRECISION NOT NULL,
-    CONSTRAINT uq_parameter_profile_value
-        UNIQUE (parameter_profile_id, parameter_id, game_object_id)
 );
 
 -- Statistic tables
@@ -101,7 +92,7 @@ CREATE TABLE statistic_games (
     game_type VARCHAR(255) NOT NULL DEFAULT 'PVP',
     run_type VARCHAR(31) NOT NULL DEFAULT 'LIVE',
     parameter_profile_id BIGINT,
-    simulation_batch_id BIGINT
+    simulation_batch_id UUID
 );
 
 CREATE TABLE statistic_game_cards (
