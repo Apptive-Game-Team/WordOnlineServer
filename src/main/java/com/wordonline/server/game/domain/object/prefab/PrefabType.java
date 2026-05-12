@@ -112,6 +112,7 @@ public enum PrefabType {
 
     MagmaExplosion("magma_explosion_prefab"),
     WaterExplosion("water_explosion_prefab"),
+    RazorGale("razor_gale_prefab"),
 
     // New Control Magic
     WillOWisp("will_o_wisp_prefab"),
