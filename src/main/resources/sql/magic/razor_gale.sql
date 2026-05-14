@@ -80,7 +80,7 @@ parameter_seed_values AS (
     SELECT *
     FROM (
         VALUES
-            ('radius', 2.5),
+            ('radius', 1.5),
             ('damage', 2.0),
             ('duration', 3.0),
             ('attack_interval', 0.5)
