@@ -59,8 +59,8 @@ required_parameters AS (
             ('hp'),
             ('mass'),
             ('radius'),
-            ('effect_radius'),
-            ('effect_interval'),
+            ('attack_range'),
+            ('attack_interval'),
             ('duration')
     ) AS params(parameter_name)
 ),
@@ -89,8 +89,8 @@ parameter_seed_values AS (
             ('bubble_generator', 'hp', 18.0),
             ('bubble_generator', 'mass', 1000.0),
             ('bubble_generator', 'radius', 0.65),
-            ('bubble_generator', 'effect_radius', 4.0),
-            ('bubble_generator', 'effect_interval', 1.0),
+            ('bubble_generator', 'attack_range', 4.0),
+            ('bubble_generator', 'attack_interval', 1.2),
             ('bubble_generator', 'duration', 12.0)
     ) AS seed(game_object_name, parameter_name, parameter_value)
 )
@@ -105,3 +105,11 @@ WHERE NOT EXISTS (
     WHERE pv.game_object_id = tgo.id
       AND pv.parameter_id = tp.id
 );
+
+UPDATE parameter_values pv
+SET value = 2.5
+FROM game_objects go, parameters p
+WHERE pv.game_object_id = go.id
+  AND pv.parameter_id = p.id
+  AND go.name = 'bubble_generator'
+  AND p.name = 'attack_range';
