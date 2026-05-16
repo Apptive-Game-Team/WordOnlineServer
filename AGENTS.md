@@ -18,6 +18,7 @@ The project uses `spring-boot-starter-test`, JUnit Platform, Spring Security tes
 
 ## Commit & Pull Request Guidelines
 Match the recent commit style: short imperative subjects with an optional scope, for example `refactor(component): use addComponent helper` or `feature(deactivebot)`. Keep commits focused on one concern. PRs should include a clear summary, linked issue or task, test notes, and any API or gameplay impact. For protocol, DTO, or debug-visual changes, include sample payloads or screenshots when helpful.
+Name issue branches with the pattern `<issue-label>/<issue-number>`, for example `feature/253`.
 
 ## Configuration & Cleanup
 Do not commit secrets from `.env` or environment-specific values from `application.yml`. Keep generated files and local artifacts out of git; remove stray files such as `.DS_Store` before committing.

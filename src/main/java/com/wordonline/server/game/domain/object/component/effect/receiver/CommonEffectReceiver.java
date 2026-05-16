@@ -98,6 +98,11 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
                         () -> new FrenzyStatusEffect(gameObject, 3f, StatusEffectKey.Frenzy_Receive),
                         EffectApplyPolicy.REFRESH_DURATION,
                         3f);
+            case Bubble -> applyEffect(
+                    StatusEffectKey.Bubble_Receive,
+                    () -> new BubbleStatusEffect(gameObject, 8f, StatusEffectKey.Bubble_Receive),
+                    EffectApplyPolicy.REFRESH_DURATION,
+                    8f);
 
         }
     }
