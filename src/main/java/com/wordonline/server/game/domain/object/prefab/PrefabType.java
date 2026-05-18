@@ -123,6 +123,8 @@ public enum PrefabType {
     ChickenCommando("chicken_commando_prefab"),
     Overgrowth("overgrowth_prefab"),
     Crater("crater_prefab"),
+    BubbleGenerator("bubble_generator_prefab"),
+    ElectricTower("electric_tower_prefab"),
 
     Wall("wall_prefab"),
 

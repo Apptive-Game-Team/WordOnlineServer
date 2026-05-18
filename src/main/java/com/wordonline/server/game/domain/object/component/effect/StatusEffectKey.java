@@ -13,4 +13,5 @@ public enum StatusEffectKey {
     DOT_SandStorm,
     Frenzy_Receive,
     Panic_Receive,
+    Bubble_Receive,
 }

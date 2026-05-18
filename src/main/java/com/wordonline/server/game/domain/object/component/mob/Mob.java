@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.magic.ElementalChart;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
+import com.wordonline.server.game.domain.object.component.DamageInterceptor;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.GaugeComponent;
 import com.wordonline.server.game.domain.object.component.ItemCarrier;
@@ -38,6 +39,12 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
+        for (DamageInterceptor interceptor : gameObject.getComponents(DamageInterceptor.class)) {
+            if (interceptor.beforeDamage(attackInfo)) {
+                return;
+            }
+        }
+
         gameObject.getComponents(BaseStatusEffect.class)
                 .forEach(effect ->
                         attackInfo.getElement().forEach(effect::onAttacked)
