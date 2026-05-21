@@ -83,6 +83,12 @@ public class SessionService {
         GameContext gameContext = sessionObject.getGameContext();
         ResultChecker resultChecker = gameContext.getResultChecker();
         Master loser = resultChecker.getLoser();
+
+        if (loser == null) {
+            log.info("[Session] Session ended with no winner; sessionId: {}", sessionObject.getSessionId());
+            return;
+        }
+
         long winnerId = resultChecker.getWinnerId();
 
         statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
