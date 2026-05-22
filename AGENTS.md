@@ -22,3 +22,15 @@ Name issue branches with the pattern `<issue-label>/<issue-number>`, for example
 
 ## Configuration & Cleanup
 Do not commit secrets from `.env` or environment-specific values from `application.yml`. Keep generated files and local artifacts out of git; remove stray files such as `.DS_Store` before committing.
+
+## Architecture & Game Engine Reference
+
+For in-depth explanations of the server systems, refer to the following developer documentation:
+- **System Overview & Protocols**: [system-overview.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/system-overview.md)
+- **Thread & Session Management**: [session-management.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/session-management.md)
+- **Game Loop Tick & Systems Order**: [game-loop.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/game-loop.md)
+- **GameObjects & Component Lifecycle**: [objects-components.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/objects-components.md)
+- **Prefab Initialization System**: [prefab-system.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/prefab-system.md)
+- **Physics, Collisions & Movement**: [physics-system.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/physics-system.md)
+- **Magic Spell Recipes & Input Flow**: [magic-system.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/magic-system.md)
+- **Database Schema & Parameters**: [database-schema.md](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/database-schema.md)

@@ -17,6 +17,7 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     private final int damage;
     private final float explosionRange;
     private float selfRadius;
+    private boolean isExploded = false;
 
     public SelfDestructMob(GameObject gameObject, int maxHp,
                            float speed, int targetMask, int damage, float attackInterval, float attackRange) {
@@ -66,14 +67,16 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
 
 
     private void explode() {
+        if (isExploded) return;
+        isExploded = true;
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
         getGameContext().getPhysics()
                 .overlapSphereAll(gameObject, explosionRange)
-                .forEach(target -> {
-                    target.getComponentOptional(Mob.class)
-                            .filter(mob -> mob.gameObject.getMaster() == gameObject.getMaster())
-                            .ifPresent(mob -> mob.onDamaged(attackInfo));
-                });
+                .stream()
+                .filter(target -> target != gameObject)
+                .filter(target -> target.hasComponent(Mob.class))
+                .map(target -> target.getComponent(Mob.class))
+                .forEach(mob -> mob.onDamaged(attackInfo));
     }
 
     @RequiredArgsConstructor
