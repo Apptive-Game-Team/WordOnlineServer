@@ -55,6 +55,9 @@ public class SessionServerController {
 
     @GetMapping("/game-sessions")
     public ResponseEntity<RoomListDto> getGameSessions() {
+        if (serverStatusService.getCurrentState().equals(ServerState.ACTIVE)) {
+            sessionService.createBotVsBotSessionIfBelowThreshold();
+        }
         return ResponseEntity.ok(
                 new RoomListDto(sessionService.getAllActiveSessionsInfo(serverUrlProvider.getServerUrl())));
     }

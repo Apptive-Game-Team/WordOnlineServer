@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
@@ -29,6 +30,10 @@ public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
+    private static final long LEFT_BOT_USER_ID = -1L;
+    private static final long RIGHT_BOT_USER_ID = -2L;
+    private static final String BOT_VS_BOT_SESSION_PREFIX = "bot-vs-bot-";
+    private static final int BOT_VS_BOT_SESSION_THRESHOLD = 0;
 
     private final SubmissionPublisher<Integer> onSessionNumChange = new SubmissionPublisher<>();
 
@@ -70,6 +75,26 @@ public class SessionService {
 
         sessions.put(sessionObject.getSessionId(), sessionObject);
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
+    }
+
+    public synchronized void createBotVsBotSessionIfBelowThreshold() {
+        long activeSessions = getActiveSessions();
+        if (activeSessions > BOT_VS_BOT_SESSION_THRESHOLD) {
+            return;
+        }
+
+        String sessionId = BOT_VS_BOT_SESSION_PREFIX + UUID.randomUUID();
+        createSession(new SessionDto(
+                sessionId,
+                LEFT_BOT_USER_ID,
+                RIGHT_BOT_USER_ID,
+                SessionType.Practice,
+                null
+        ));
+        log.info("[Session] Bot vs bot session created; activeSessions: {}, threshold: {}, sessionId: {}",
+                activeSessions,
+                BOT_VS_BOT_SESSION_THRESHOLD,
+                sessionId);
     }
 
     public boolean isSessionActive(String sessionId) {
