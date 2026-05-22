@@ -3,15 +3,20 @@ package com.wordonline.server.game.domain.object.component.mob.detector;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.service.GameContext;
-import com.wordonline.server.game.service.GameLoop;
 
 public class ClosestEnemyDetector implements Detector {
     private final GameContext gameContext;
     private final int targetMask;
+    private final boolean useHorizontalDistance;
 
     public ClosestEnemyDetector(GameContext gameContext, int targetMask) {
+        this(gameContext, targetMask, false);
+    }
+
+    public ClosestEnemyDetector(GameContext gameContext, int targetMask, boolean useHorizontalDistance) {
         this.gameContext = gameContext;
         this.targetMask = targetMask;
+        this.useHorizontalDistance = useHorizontalDistance;
     }
 
     @Override
@@ -24,7 +29,9 @@ public class ClosestEnemyDetector implements Detector {
 
             if((TargetMask.of(target) & targetMask) == 0) continue;
 
-            double distance = self.getPosition().distance(target.getPosition());
+            double distance = useHorizontalDistance
+                    ? self.getPosition().toVector2().distance(target.getPosition().toVector2())
+                    : self.getPosition().distance(target.getPosition());
             if (distance < closestDistance) {
                 closestDistance = distance;
                 closest = target;

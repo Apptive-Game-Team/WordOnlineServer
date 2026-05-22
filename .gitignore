@@ -39,3 +39,6 @@ out/
 ## env ##
 .env
 /.gradle-cache
+
+## Mac
+.DS_Store
