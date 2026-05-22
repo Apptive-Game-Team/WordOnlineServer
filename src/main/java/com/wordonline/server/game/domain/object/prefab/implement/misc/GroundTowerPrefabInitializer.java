@@ -5,8 +5,8 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
-import com.wordonline.server.game.domain.object.component.mob.simple.Cannon;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
@@ -28,12 +28,11 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
         gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_tower", "mass")));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("ground_tower", "radius"), false));
         gameObject.getComponents().add(
-                new Cannon(
+                new Tower(
                         gameObject,
                         (int) parameters.getValue("ground_tower", "hp"),
                         (int) parameters.getValue("ground_tower", "damage"),
                         TargetMask.AIR.bit,
-                        0.2f,
                         (float) parameters.getValue("ground_tower", "attack_interval"),
                         (float) parameters.getValue("ground_tower", "attack_range")
                 ));
