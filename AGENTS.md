@@ -2,6 +2,7 @@
 
 ## Project Structure & Module Organization
 This repository is a Gradle-based Spring Boot server targeting Java 21. Application code lives under `src/main/java/com/wordonline/server`, organized by feature areas such as `auth`, `session`, `game`, `deck`, `debug`, and `server`. Runtime configuration and seed data live in `src/main/resources` (`application.yml`, `messages*.properties`, `sql/`). Test support files currently live in `src/test/resources`; add Java tests under `src/test/java` using the same package structure as the code under test.
+For cross-repo context, see [related-repositories.md](air-file://g9ubn80st39rtru4viru/Users/jeong-yunseong/development/word-online/dev/game-server/docs/related-repositories.md?type=file&root=%252F).
 
 ## Build, Test, and Development Commands
 - `./gradlew build`: compile, run tests, and assemble the app.
