@@ -1,11 +1,14 @@
 package com.wordonline.server.game.domain.magic;
 
 import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 
 @Getter
 @RequiredArgsConstructor
@@ -18,5 +21,14 @@ public abstract class Magic {
 
     public void run(GameContext gameContext, Master master, Vector3 castOrigin, Vector3 position) {
         run(gameContext, master, position);
+    }
+
+    protected Optional<Vector3> findPlayerPosition(GameContext gameContext, Master master) {
+        return gameContext.getActiveGameObjects()
+                .stream()
+                .filter(gameObject -> gameObject.getType() == PrefabType.Player)
+                .filter(gameObject -> gameObject.getMaster() == master)
+                .map(gameObject -> new Vector3(gameObject.getPosition()))
+                .findFirst();
     }
 }

@@ -1,6 +1,5 @@
 package com.wordonline.server.game.domain.magic.implement.shoot;
 
-import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -23,7 +22,7 @@ public class VineFanMagic extends Magic {
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
-        run(gameContext, master, GameConfig.PLAYER_POSITION.get(master), position);
+        run(gameContext, master, findPlayerPosition(gameContext, master).orElse(null), position);
     }
 
     @Override
