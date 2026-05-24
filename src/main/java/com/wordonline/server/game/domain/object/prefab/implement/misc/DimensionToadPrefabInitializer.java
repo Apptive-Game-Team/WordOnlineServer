@@ -21,6 +21,7 @@ public class DimensionToadPrefabInitializer extends PrefabInitializer {
 
     private static final float TADPOLE_SPAWN_INTERVAL_SEC = 10f;
     private static final int INFINITE_TADPOLE_SPAWN_COUNT = 0;
+    private static final float KEEP_DISTANCE_RANGE = 4f;
 
     private final Parameters parameters;
 
@@ -40,7 +41,8 @@ public class DimensionToadPrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 (float) parameters.getValue("dimension_toad", "attack_interval"),
                 (float) parameters.getValue("dimension_toad", "detection_range"),
-                (float) parameters.getValue("dimension_toad", "panic_duration")));
+                (float) parameters.getValue("dimension_toad", "panic_duration"),
+                KEEP_DISTANCE_RANGE));
         gameObject.addComponent(new LimitedSequenceSpawner(
                 gameObject,
                 TADPOLE_SPAWN_INTERVAL_SEC,
