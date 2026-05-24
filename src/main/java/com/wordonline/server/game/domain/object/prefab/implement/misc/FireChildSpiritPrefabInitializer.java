@@ -32,7 +32,7 @@ public class FireChildSpiritPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new ProjectileRangeAttackMob(gameObject,
                 (int) parameters.getValue("fire_child_spirit", "hp"),
                 (float) parameters.getValue("fire_child_spirit", "speed"),
-                TargetMask.GROUND.bit,
+                TargetMask.ANY.bit,
                 (int) parameters.getValue("fire_child_spirit", "damage"),
                 (float) parameters.getValue("fire_child_spirit", "attack_interval"),
                 (float) parameters.getValue("fire_child_spirit", "attack_range"),
