@@ -19,7 +19,7 @@ import java.util.EnumSet;
 @Component("dimension_toad_prefab")
 public class DimensionToadPrefabInitializer extends PrefabInitializer {
 
-    private static final float TADPOLE_SPAWN_INTERVAL_SEC = 5f;
+    private static final float TADPOLE_SPAWN_INTERVAL_SEC = 10f;
     private static final int INFINITE_TADPOLE_SPAWN_COUNT = 0;
     private static final float KEEP_DISTANCE_RANGE = 4f;
 
