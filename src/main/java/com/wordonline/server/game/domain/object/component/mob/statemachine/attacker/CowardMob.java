@@ -224,6 +224,12 @@ public class CowardMob extends AttackMob {
 
         @Override
         public void onUpdate() {
+            GameObject threat = hasPanicked ? null : detectThreat();
+            if (threat != null) {
+                setState(new PanicState(threat));
+                return;
+            }
+
             if (!isValidTarget(target)) {
                 resetTarget();
                 setState(new CowardIdleState());
