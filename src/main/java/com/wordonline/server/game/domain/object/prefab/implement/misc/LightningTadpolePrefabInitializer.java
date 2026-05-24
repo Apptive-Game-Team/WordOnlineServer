@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.CowardMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -31,14 +31,12 @@ public class LightningTadpolePrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("lightning_tadpole", "mass")));
         gameObject.addComponent(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("lightning_tadpole", "radius"), false));
-        gameObject.addComponent(new CowardMob(gameObject,
+        gameObject.addComponent(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("lightning_tadpole", "hp"),
                 (float) parameters.getValue("lightning_tadpole", "speed"),
                 TargetMask.GROUND.bit,
                 (int) parameters.getValue("lightning_tadpole", "damage"),
-                (float) parameters.getValue("lightning_tadpole", "attack_interval"),
-                (float) parameters.getValue("lightning_tadpole", "detection_range"),
-                (float) parameters.getValue("lightning_tadpole", "panic_duration")));
+                (float) parameters.getValue("lightning_tadpole", "attack_interval")));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
