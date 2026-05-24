@@ -37,8 +37,8 @@ Requirements:
 
 Server behavior to mirror visually:
 
-- Fire Lord Spirit summons one Fire Child Spirit per second, capped at five total summons.
-- Dimension Toad alternates Fire Tadpole and Lightning Tadpole summons once per second until the toad is destroyed.
+- Fire Lord Spirit summons one Fire Child Spirit every five seconds, capped at five total summons.
+- Dimension Toad alternates Fire Tadpole and Lightning Tadpole summons every five seconds until the toad is destroyed.
 - Fire Tadpoles and Lightning Tadpoles self-destruct after their timed lifetime expires.
 - Dimension Toad and both tadpoles use coward behavior, so their movement should look skittish or evasive when possible.
 

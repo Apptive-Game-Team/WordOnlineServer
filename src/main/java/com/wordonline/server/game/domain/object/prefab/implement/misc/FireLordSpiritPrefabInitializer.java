@@ -20,7 +20,7 @@ import java.util.EnumSet;
 @Component("fire_lord_spirit_prefab")
 public class FireLordSpiritPrefabInitializer extends PrefabInitializer {
 
-    private static final float CHILD_SPAWN_INTERVAL_SEC = 1f;
+    private static final float CHILD_SPAWN_INTERVAL_SEC = 5f;
     private static final int MAX_CHILD_SPAWN_COUNT = 5;
 
     private final Parameters parameters;
