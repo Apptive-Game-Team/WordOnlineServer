@@ -7,7 +7,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.magic.LimitedSequenceSpawner;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.KeepDistanceMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -22,6 +22,7 @@ public class FireLordSpiritPrefabInitializer extends PrefabInitializer {
 
     private static final float CHILD_SPAWN_INTERVAL_SEC = 5f;
     private static final int MAX_CHILD_SPAWN_COUNT = 5;
+    private static final float KEEP_DISTANCE_RANGE = 4f;
 
     private final Parameters parameters;
 
@@ -35,12 +36,11 @@ public class FireLordSpiritPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_lord_spirit", "mass")));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_lord_spirit", "radius"), false));
-        gameObject.addComponent(new MeleeAttackMob(gameObject,
+        gameObject.addComponent(new KeepDistanceMob(gameObject,
                 (int) parameters.getValue("fire_lord_spirit", "hp"),
                 (float) parameters.getValue("fire_lord_spirit", "speed"),
-                TargetMask.GROUND.bit,
-                (int) parameters.getValue("fire_lord_spirit", "damage"),
-                (float) parameters.getValue("fire_lord_spirit", "attack_interval")));
+                TargetMask.ANY.bit,
+                KEEP_DISTANCE_RANGE));
         gameObject.addComponent(new LimitedSequenceSpawner(
                 gameObject,
                 CHILD_SPAWN_INTERVAL_SEC,
