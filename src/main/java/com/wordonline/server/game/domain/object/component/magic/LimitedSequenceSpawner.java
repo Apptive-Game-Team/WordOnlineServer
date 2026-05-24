@@ -20,7 +20,7 @@ public class LimitedSequenceSpawner extends Component {
                                   PrefabType... prefabTypes) {
         super(gameObject);
         this.spawnIntervalSec = Math.max(0.1f, spawnIntervalSec);
-        this.maxSpawnCount = Math.max(1, maxSpawnCount);
+        this.maxSpawnCount = maxSpawnCount;
         this.prefabTypes = prefabTypes.clone();
     }
 
@@ -30,7 +30,7 @@ public class LimitedSequenceSpawner extends Component {
 
     @Override
     public void update() {
-        if (spawnedCount >= maxSpawnCount || prefabTypes.length == 0) {
+        if ((maxSpawnCount > 0 && spawnedCount >= maxSpawnCount) || prefabTypes.length == 0) {
             return;
         }
 
@@ -51,8 +51,9 @@ public class LimitedSequenceSpawner extends Component {
     }
 
     private Vector3 nextSpawnPosition() {
-        float offsetX = ((spawnedCount % 3) - 1) * SPAWN_OFFSET_STEP;
-        float offsetY = (spawnedCount / 3) * SPAWN_OFFSET_STEP;
+        int slot = spawnedCount % 6;
+        float offsetX = ((slot % 3) - 1) * SPAWN_OFFSET_STEP;
+        float offsetY = ((slot / 3) - 0.5f) * SPAWN_OFFSET_STEP;
         return gameObject.getPosition().plus(offsetX, offsetY, 0);
     }
 }

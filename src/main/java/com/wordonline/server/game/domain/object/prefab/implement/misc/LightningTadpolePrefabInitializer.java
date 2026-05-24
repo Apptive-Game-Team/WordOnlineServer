@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.CowardMob;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 @Component("lightning_tadpole_prefab")
 public class LightningTadpolePrefabInitializer extends PrefabInitializer {
+
+    private static final float TIME_TO_LIVE_SEC = 10f;
 
     private final Parameters parameters;
 
@@ -36,6 +39,7 @@ public class LightningTadpolePrefabInitializer extends PrefabInitializer {
                 (float) parameters.getValue("lightning_tadpole", "attack_interval"),
                 (float) parameters.getValue("lightning_tadpole", "detection_range"),
                 (float) parameters.getValue("lightning_tadpole", "panic_duration")));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

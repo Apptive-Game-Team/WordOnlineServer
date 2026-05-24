@@ -27,16 +27,19 @@ Requirements:
    - Dimension Toad requires `Fire`, `Lightning`, `Spawn`, `Spawn`.
 4. Make Fire Lord Spirit read as a large boss-like fire/wind summon.
 5. Make Fire Child Spirit read as a small fire summon that attacks with ember/fireball projectiles.
-6. Make Dimension Toad read as a fire/lightning cowardly summoner.
-7. Make Fire Tadpole and Lightning Tadpole small, fast coward units with distinct fire and lightning visuals.
-8. Add projectile or hit VFX for Fire Child Spirit using the existing server projectile type `FireShot`.
-9. Reuse existing client animation/state handling for idle, move, attack, damaged, and destroyed states.
-10. Verify all five prefabs can be spawned from frame creation events without missing prefab/type errors.
+6. Make Fire Lord Spirit and Fire Child Spirit read as flying units.
+7. Make Dimension Toad read as a fire/lightning cowardly summoner.
+8. Make Fire Tadpole and Lightning Tadpole small, fast coward units with distinct fire and lightning visuals.
+9. Show tadpoles as temporary units with a lifetime gauge if the client already supports TTL gauges.
+10. Add projectile or hit VFX for Fire Child Spirit using the existing server projectile type `FireShot`.
+11. Reuse existing client animation/state handling for idle, move, attack, damaged, and destroyed states.
+12. Verify all five prefabs can be spawned from frame creation events without missing prefab/type errors.
 
 Server behavior to mirror visually:
 
 - Fire Lord Spirit summons one Fire Child Spirit per second, capped at five total summons.
-- Dimension Toad alternates Fire Tadpole and Lightning Tadpole summons once per second.
+- Dimension Toad alternates Fire Tadpole and Lightning Tadpole summons once per second until the toad is destroyed.
+- Fire Tadpoles and Lightning Tadpoles self-destruct after their timed lifetime expires.
 - Dimension Toad and both tadpoles use coward behavior, so their movement should look skittish or evasive when possible.
 
 Validation:

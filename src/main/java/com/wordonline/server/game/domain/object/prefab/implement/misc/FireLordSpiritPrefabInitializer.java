@@ -1,5 +1,6 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
@@ -32,7 +33,7 @@ public class FireLordSpiritPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_lord_spirit", "mass")));
-        gameObject.addComponent(new ZPhysics(gameObject));
+        gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
         gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_lord_spirit", "radius"), false));
         gameObject.addComponent(new MeleeAttackMob(gameObject,
                 (int) parameters.getValue("fire_lord_spirit", "hp"),

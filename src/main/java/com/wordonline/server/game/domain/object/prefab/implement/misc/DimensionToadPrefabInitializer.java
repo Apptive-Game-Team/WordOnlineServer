@@ -20,7 +20,7 @@ import java.util.EnumSet;
 public class DimensionToadPrefabInitializer extends PrefabInitializer {
 
     private static final float TADPOLE_SPAWN_INTERVAL_SEC = 1f;
-    private static final int MAX_TADPOLE_SPAWN_COUNT = 6;
+    private static final int INFINITE_TADPOLE_SPAWN_COUNT = 0;
 
     private final Parameters parameters;
 
@@ -45,7 +45,7 @@ public class DimensionToadPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new LimitedSequenceSpawner(
                 gameObject,
                 TADPOLE_SPAWN_INTERVAL_SEC,
-                MAX_TADPOLE_SPAWN_COUNT,
+                INFINITE_TADPOLE_SPAWN_COUNT,
                 PrefabType.FireTadpole,
                 PrefabType.LightningTadpole));
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.LIGHTNING));
