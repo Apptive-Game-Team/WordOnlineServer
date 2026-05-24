@@ -47,9 +47,7 @@ public class KeepDistanceMob extends Mob {
         }
 
         double distance = gameObject.getPosition().distance(target.getPosition()) - targetRadius;
-        if (distance < preferredRange - RANGE_TOLERANCE) {
-            moveAwayFromTarget();
-        } else if (distance > preferredRange + RANGE_TOLERANCE) {
+        if (distance > preferredRange + RANGE_TOLERANCE) {
             moveTowardTarget();
         }
     }
@@ -76,10 +74,6 @@ public class KeepDistanceMob extends Mob {
         return target != null
                 && target.getStatus() != Status.Destroyed
                 && target.getMaster() != gameObject.getMaster();
-    }
-
-    private void moveAwayFromTarget() {
-        moveInDirection(gameObject.getPosition().toVector2().subtract(target.getPosition().toVector2()));
     }
 
     private void moveTowardTarget() {
