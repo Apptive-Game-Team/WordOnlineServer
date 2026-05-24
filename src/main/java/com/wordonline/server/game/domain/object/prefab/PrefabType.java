@@ -126,6 +126,12 @@ public enum PrefabType {
     BubbleGenerator("bubble_generator_prefab"),
     ElectricTower("electric_tower_prefab"),
 
+    FireLordSpirit("fire_lord_spirit_prefab"),
+    FireChildSpirit("fire_child_spirit_prefab"),
+    DimensionToad("dimension_toad_prefab"),
+    FireTadpole("fire_tadpole_prefab"),
+    LightningTadpole("lightning_tadpole_prefab"),
+
     Wall("wall_prefab"),
 
     Player("player_prefab");
