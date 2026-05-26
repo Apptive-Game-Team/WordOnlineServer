@@ -1,6 +1,5 @@
 package com.wordonline.server.game.service;
 
-import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
@@ -52,11 +51,21 @@ public class MagicInputHandler {
             gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_MAGIC));
             return new InputResponseDto("Invalid magic.", true, playerData.mana, inputRequestDto.getId(), -1);
-        } else if (GameConfig.PLAYER_POSITION.get(master).distance(inputRequestDto.getPosition()) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
-            log.trace("{}: {} is not valid : too far", master, inputRequestDto.getCards());
-            inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
-            return new InputResponseDto("Target is out of range.", false, playerData.mana, inputRequestDto.getId(), -1);
         }
+
+        Vector3 castOrigin = gameContext.findPlayerGameObject(master)
+                .map(gameObject -> new Vector3(gameObject.getPosition()))
+                .orElse(null);
+        if (castOrigin == null) {
+            log.trace("{}: {} is not valid : caster not found", master, inputRequestDto.getCards());
+            inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
+            return new InputResponseDto("Caster is not found.", false, playerData.mana, inputRequestDto.getId(), -1);
+        }
+        Vector3 castPosition = clampToRange(
+                castOrigin,
+                inputRequestDto.getPosition(),
+                gameContext.getParameters().getValue(magic.magicType.name(), "range")
+        );
 
         boolean valid = playerData.useCards(inputRequestDto.getCards());
 
@@ -66,7 +75,7 @@ public class MagicInputHandler {
             return new InputResponseDto("Insufficient mana.", false, playerData.mana, inputRequestDto.getId(), -1);
         }
 
-        magic.run(gameContext, master, GameConfig.PLAYER_POSITION.get(master), inputRequestDto.getPosition());
+        magic.run(gameContext, master, castOrigin, castPosition);
         gameContext.getGameSessionData().getCardDeck(master).returnCards(inputRequestDto.getCards());
 
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
@@ -94,7 +103,7 @@ public class MagicInputHandler {
                                                 Master master,
                                                 Magic magic,
                                                 Vector3 position) {
-        return handleBotMagicInput(gameContext, master, magic, position, GameConfig.PLAYER_POSITION.get(master));
+        return handleBotMagicInput(gameContext, master, magic, position, null);
     }
 
     public InputResponseDto handleBotMagicInput(GameContext gameContext,
@@ -109,12 +118,20 @@ public class MagicInputHandler {
             return new InputResponseDto("invalid bot magic", false, playerData.mana, -1, -1);
         }
 
-        Vector3 rangeOrigin = castOrigin == null ? GameConfig.PLAYER_POSITION.get(master) : castOrigin;
-        if (rangeOrigin == null ||
-                rangeOrigin.distance(position) > gameContext.getParameters().getValue(magic.magicType.name(), "range")) {
+        Vector3 rangeOrigin = castOrigin == null
+                ? gameContext.findPlayerGameObject(master)
+                        .map(gameObject -> new Vector3(gameObject.getPosition()))
+                        .orElse(null)
+                : castOrigin;
+        if (rangeOrigin == null) {
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
             return new InputResponseDto("invalid place", false, playerData.mana, -1, -1);
         }
+        Vector3 castPosition = clampToRange(
+                rangeOrigin,
+                position,
+                gameContext.getParameters().getValue(magic.magicType.name(), "range")
+        );
 
         int manaCost = (int) gameContext.getParameters().getValue(magic.magicType.name(), "mana_cost");
         if (playerData.mana < manaCost) {
@@ -123,8 +140,17 @@ public class MagicInputHandler {
         }
 
         playerData.mana -= manaCost;
-        magic.run(gameContext, master, rangeOrigin, position);
+        magic.run(gameContext, master, rangeOrigin, castPosition);
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
         return new InputResponseDto(true, playerData.mana, -1, magic.id);
+    }
+
+    private Vector3 clampToRange(Vector3 origin, Vector3 position, double range) {
+        double distance = origin.distance(position);
+        if (distance <= range || distance == 0) {
+            return position;
+        }
+
+        return origin.plus(position.subtract(origin).normalize().multiply((float) range));
     }
 }

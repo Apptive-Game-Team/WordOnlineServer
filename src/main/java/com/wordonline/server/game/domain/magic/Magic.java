@@ -19,4 +19,5 @@ public abstract class Magic {
     public void run(GameContext gameContext, Master master, Vector3 castOrigin, Vector3 position) {
         run(gameContext, master, position);
     }
+
 }

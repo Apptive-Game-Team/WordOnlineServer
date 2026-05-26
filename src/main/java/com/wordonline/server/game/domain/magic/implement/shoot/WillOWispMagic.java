@@ -1,6 +1,5 @@
 package com.wordonline.server.game.domain.magic.implement.shoot;
 
-import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
@@ -19,10 +18,21 @@ public class WillOWispMagic extends Magic {
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
+        run(gameContext, master, gameContext.findPlayerGameObject(master)
+                .map(gameObject -> new Vector3(gameObject.getPosition()))
+                .orElse(null), position);
+    }
+
+    @Override
+    public void run(GameContext gameContext, Master master, Vector3 castOrigin, Vector3 position) {
+        if (castOrigin == null) {
+            return;
+        }
+
         GameObject gameObject = new GameObject(
                 master,
                 PrefabType.WillOWisp,
-                GameConfig.PLAYER_POSITION.get(master),
+                castOrigin,
                 gameContext);
         gameObject.getComponent(MindControlShot.class).setTarget(position);
     }

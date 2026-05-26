@@ -1,6 +1,7 @@
 package com.wordonline.server.game.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.util.Physics;
@@ -63,6 +65,14 @@ public class GameContext {
 
     public List<GameObject> getGameObjects() {
         return gameSessionData.gameObjects;
+    }
+
+    public Optional<GameObject> findPlayerGameObject(Master master) {
+        return getActiveGameObjects()
+                .stream()
+                .filter(gameObject -> gameObject.getType() == PrefabType.Player)
+                .filter(gameObject -> gameObject.getMaster() == master)
+                .findFirst();
     }
 
     public void updateGameObject(GameObject gameObject) {

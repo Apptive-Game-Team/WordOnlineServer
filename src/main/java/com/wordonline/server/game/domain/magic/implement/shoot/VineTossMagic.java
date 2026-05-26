@@ -1,6 +1,5 @@
 package com.wordonline.server.game.domain.magic.implement.shoot;
 
-import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.GameObject;
@@ -26,7 +25,9 @@ public class VineTossMagic extends Magic {
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
-        run(gameContext, master, GameConfig.PLAYER_POSITION.get(master), position);
+        run(gameContext, master, gameContext.findPlayerGameObject(master)
+                .map(gameObject -> new Vector3(gameObject.getPosition()))
+                .orElse(null), position);
     }
 
     public void run(GameContext gameContext, Master master, Vector3 castOrigin, Vector3 targetPosition) {
