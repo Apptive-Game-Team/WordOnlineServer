@@ -20,7 +20,9 @@ public abstract class AbstractShotMagic extends Magic {
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
-        run(gameContext, master, findPlayerPosition(gameContext, master).orElse(null), position);
+        run(gameContext, master, gameContext.findPlayerGameObject(master)
+                .map(gameObject -> new Vector3(gameObject.getPosition()))
+                .orElse(null), position);
     }
 
     @Override

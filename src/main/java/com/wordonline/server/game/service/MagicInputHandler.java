@@ -4,7 +4,6 @@ import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
-import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.input.InputHandleEvent;
@@ -54,7 +53,9 @@ public class MagicInputHandler {
             return new InputResponseDto("Invalid magic.", true, playerData.mana, inputRequestDto.getId(), -1);
         }
 
-        Vector3 castOrigin = findPlayerPosition(gameContext, master);
+        Vector3 castOrigin = gameContext.findPlayerGameObject(master)
+                .map(gameObject -> new Vector3(gameObject.getPosition()))
+                .orElse(null);
         if (castOrigin == null) {
             log.trace("{}: {} is not valid : caster not found", master, inputRequestDto.getCards());
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
@@ -117,7 +118,11 @@ public class MagicInputHandler {
             return new InputResponseDto("invalid bot magic", false, playerData.mana, -1, -1);
         }
 
-        Vector3 rangeOrigin = castOrigin == null ? findPlayerPosition(gameContext, master) : castOrigin;
+        Vector3 rangeOrigin = castOrigin == null
+                ? gameContext.findPlayerGameObject(master)
+                        .map(gameObject -> new Vector3(gameObject.getPosition()))
+                        .orElse(null)
+                : castOrigin;
         if (rangeOrigin == null) {
             inputEventPublisher.submit(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_PLACE));
             return new InputResponseDto("invalid place", false, playerData.mana, -1, -1);
@@ -138,16 +143,6 @@ public class MagicInputHandler {
         magic.run(gameContext, master, rangeOrigin, castPosition);
         inputEventPublisher.submit(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
         return new InputResponseDto(true, playerData.mana, -1, magic.id);
-    }
-
-    private Vector3 findPlayerPosition(GameContext gameContext, Master master) {
-        return gameContext.getActiveGameObjects()
-                .stream()
-                .filter(gameObject -> gameObject.getType() == PrefabType.Player)
-                .filter(gameObject -> gameObject.getMaster() == master)
-                .map(gameObject -> new Vector3(gameObject.getPosition()))
-                .findFirst()
-                .orElse(null);
     }
 
     private Vector3 clampToRange(Vector3 origin, Vector3 position, double range) {
