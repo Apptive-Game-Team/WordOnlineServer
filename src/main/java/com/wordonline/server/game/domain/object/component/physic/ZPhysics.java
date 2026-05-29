@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.IdentityHashMap;
@@ -20,6 +21,7 @@ public class ZPhysics extends Component {
     private float zVelocity;
     @Setter
     private float groundZ = 0f;
+    @Getter
     @Setter
     private float gravity = GameConfig.GRAVITY_ACCEL;
     private float floatingVelocity = GameConfig.DEFAULT_FLOATING_VELOCITY;
