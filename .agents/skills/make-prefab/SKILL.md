@@ -15,6 +15,7 @@ This skill covers the minimum scaffold:
 - create the matching `PrefabInitializer` under `src/main/java/com/wordonline/server/game/domain/object/prefab/implement/...`
 - add supporting component classes when the prefab behavior is not already provided by existing shared components
 - prepare prefab-specific `game_objects`, `parameters`, and `parameter_values` SQL when the prefab needs DB-backed stats
+- prepare prefab tags through `tags` and `game_object_tags` SQL when adding a DB-backed prefab object
 
 Use `make-magic` alongside this skill when the prefab is being introduced as part of a new magic.
 
@@ -27,8 +28,9 @@ Use `make-magic` alongside this skill when the prefab is being introduced as par
 4. Implement the prefab initializer using existing helpers like `addComponent(...)` and `addCollider(...)`.
 5. If the behavior is custom, create a dedicated component in `src/main/java/com/wordonline/server/game/domain/object/component/magic` or the nearest existing component package.
 6. If the prefab needs DB-backed stats, append idempotent parameter SQL to the owning magic file under `src/main/resources/sql/magic/<magic_name>.sql` when this prefab belongs to a magic. Keep pure implementation constants in code when DB tuning is not needed.
-7. For SQL examples and reusable templates, read `references/prefab-parameter-sql.md`.
-8. Verify compilation with `./gradlew compileJava` when possible.
+7. Add prefab tag SQL for every new `game_objects` row. Read `references/prefab-tags.md` and update that file when introducing a new reusable tag.
+8. For SQL examples and reusable templates, read `references/prefab-parameter-sql.md`.
+9. Verify compilation with `./gradlew compileJava` when possible.
 
 ## File Patterns
 
@@ -46,3 +48,4 @@ Use `make-magic` alongside this skill when the prefab is being introduced as par
 - Prefer extending existing shared abstractions over copying large blocks of logic.
 - For parameter SQL, the `game_objects.name` should usually match the prefab or lookup key used in `parameters.getValue(...)`.
 - When this prefab is part of a new magic, keep the magic registration itself in `make-magic`; this skill only owns the prefab side.
+- Do not encode text tags as numeric `parameter_values`. Tags belong in `tags` and `game_object_tags`.
