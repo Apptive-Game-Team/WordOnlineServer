@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.rune;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.Rune;
@@ -23,8 +25,9 @@ public abstract class AbstractRunePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
+        var runeParameters = parameters.object(GameObjectKey.RUNE);
         gameObject.setElement(elementType);
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rune", "radius"), true));
+        gameObject.addCollider(new CircleCollider(gameObject, runeParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.addComponent(new Rune(gameObject));
     }
 

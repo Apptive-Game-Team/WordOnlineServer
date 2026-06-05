@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -28,15 +30,17 @@ public class MagmaSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
+        var fireSpiritParameters = parameters.object(GameObjectKey.FIRE_SPIRIT);
+        var magmaSpiritParameters = parameters.object(GameObjectKey.MAGMA_SPIRIT);
+        gameObject.getComponents().add(new RigidBody(gameObject, fireSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, fireSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new SummonerMob(gameObject,
-                (int) parameters.getValue("magma_spirit", "hp"),
-                (float) parameters.getValue("magma_spirit", "speed"),
+                magmaSpiritParameters.intValue(ParameterKey.HP),
+                magmaSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (float) parameters.getValue("magma_spirit", "attack_interval"),
-                (float) parameters.getValue("magma_spirit", "attack_range"),
+                magmaSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                magmaSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 PrefabType.MagmaFist
         ));
         gameObject.setElement(EnumSet.of(ElementType.FIRE,ElementType.ROCK));

@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -25,15 +27,16 @@ public class RockGolemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_golem", "mass")));
+        var rockGolemParameters = parameters.object(GameObjectKey.ROCK_GOLEM);
+        gameObject.getComponents().add(new RigidBody(gameObject, rockGolemParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_golem", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, rockGolemParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new MeleeAttackMob(gameObject,
-                (int) parameters.getValue("rock_golem", "hp"),
-                (float) parameters.getValue("rock_golem", "speed"),
+                rockGolemParameters.intValue(ParameterKey.HP),
+                rockGolemParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("rock_golem", "damage"),
-                (float) parameters.getValue("rock_golem", "attack_interval")
+                rockGolemParameters.intValue(ParameterKey.DAMAGE),
+                rockGolemParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
         ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

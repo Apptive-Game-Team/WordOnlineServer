@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.subprefab;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.OnStartAttacker;
@@ -26,14 +28,15 @@ public class VinePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine", "radius"), true));
+        var vineParameters = parameters.object(GameObjectKey.VINE);
+        gameObject.addCollider(new CircleCollider(gameObject, vineParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.NATURE);
         gameObject.addComponent(new EffectProvider(gameObject, Effect.Snared));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("vine", "duration")));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, vineParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new OnStartAttacker(
                 gameObject,
-                (float) parameters.getValue("vine", "radius"),
-                (int) parameters.getValue("vine", "damage"),
+                vineParameters.floatValue(ParameterKey.RADIUS),
+                vineParameters.intValue(ParameterKey.DAMAGE),
                 VineSpawnContext.currentTracker()
         ));
     }

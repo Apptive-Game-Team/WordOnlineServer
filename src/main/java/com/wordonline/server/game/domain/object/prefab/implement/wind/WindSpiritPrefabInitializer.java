@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -29,16 +31,17 @@ public class WindSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("wind_spirit", "mass")));
+        var windSpiritParameters = parameters.object(GameObjectKey.WIND_SPIRIT);
+        gameObject.addComponent(new RigidBody(gameObject, windSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("wind_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, windSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new SelfDestructMob(gameObject,
-                (int) parameters.getValue("wind_spirit", "hp"),
-                (float) parameters.getValue("wind_spirit", "speed"),
+                windSpiritParameters.intValue(ParameterKey.HP),
+                windSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.AIR.bit,
-                (int) parameters.getValue("wind_spirit", "damage"),
-                (float) parameters.getValue("wind_spirit", "attack_interval"),
-                (float) parameters.getValue("wind_spirit", "attack_range")));
+                windSpiritParameters.intValue(ParameterKey.DAMAGE),
+                windSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                windSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE)));
         gameObject.setElement(ElementType.WIND);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

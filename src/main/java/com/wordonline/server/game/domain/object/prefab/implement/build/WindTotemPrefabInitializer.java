@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.build;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -27,19 +29,20 @@ public class WindTotemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("wind_totem", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("wind_totem", "radius"), false));
+        var windTotemParameters = parameters.object(GameObjectKey.WIND_TOTEM);
+        gameObject.addComponent(new RigidBody(gameObject, windTotemParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, windTotemParameters.floatValue(ParameterKey.RADIUS), false));
 
         float pushForce = 10;
         float pushRangeX = 6;
         float pushRangeY = 3;
 
-        gameObject.addComponent(new DummyMob(gameObject, (int) parameters.getValue("wind_totem", "hp")));
+        gameObject.addComponent(new DummyMob(gameObject, windTotemParameters.intValue(ParameterKey.HP)));
         gameObject.addComponent(new WindPushComponent(gameObject, pushForce, new Vector3(pushRangeX, pushRangeY, 1.0f)));
 
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,
-                (int)(parameters.getValue("wind_totem", "hp") * parameters.getValue("wind_totem", "attack_interval") / parameters.getValue("wind_totem", "damage"))
+                (int)(windTotemParameters.doubleValue(ParameterKey.HP) * windTotemParameters.doubleValue(ParameterKey.ATTACK_INTERVAL) / windTotemParameters.doubleValue(ParameterKey.DAMAGE))
         ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));

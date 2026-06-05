@@ -154,8 +154,8 @@ public class BehaviorMob extends StateMachineMob {
             if (timer > Detector.DETECTING_INTERVAL) {
                 target = detector.detect(gameObject);
                 if (target != null) {
-                    setState(new MoveState());
                     targetRadius = target.getFirstCircleCollider().get().getRadius();
+                    setState(new MoveState());
                     return;
                 }
                 timer = 0;

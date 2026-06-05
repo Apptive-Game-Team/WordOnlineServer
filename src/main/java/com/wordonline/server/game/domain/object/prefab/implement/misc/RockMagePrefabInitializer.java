@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -27,16 +29,17 @@ public class RockMagePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_mage", "mass")));
+        var rockMageParameters = parameters.object(GameObjectKey.ROCK_MAGE);
+        gameObject.getComponents().add(new RigidBody(gameObject, rockMageParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_mage", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, rockMageParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new DoubleTargetMob(gameObject,
-                (int) parameters.getValue("rock_mage", "hp"),
-                (float) parameters.getValue("rock_mage", "speed"),
+                rockMageParameters.intValue(ParameterKey.HP),
+                rockMageParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.ANY.bit,
-                (int) parameters.getValue("rock_mage", "damage"),
-                (float) parameters.getValue("rock_mage", "attack_interval"),
-                (float) parameters.getValue("rock_mage", "attack_range"),
+                rockMageParameters.intValue(ParameterKey.DAMAGE),
+                rockMageParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                rockMageParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 "RockShot",
                 0.5f
         ));

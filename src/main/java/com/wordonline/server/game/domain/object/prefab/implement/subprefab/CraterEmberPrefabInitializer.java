@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.subprefab;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.CraterEmber;
@@ -22,12 +24,13 @@ public class CraterEmberPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("crater_ember", "radius"), true));
+        var craterEmberParameters = parameters.object(GameObjectKey.CRATER_EMBER);
+        gameObject.addCollider(new CircleCollider(gameObject, craterEmberParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.FIRE);
         gameObject.addComponent(new CraterEmber(
                 gameObject,
-                (int) parameters.getValue("crater_ember", "damage"),
-                (float) parameters.getValue("crater_ember", "attack_range")
+                craterEmberParameters.intValue(ParameterKey.DAMAGE),
+                craterEmberParameters.floatValue(ParameterKey.ATTACK_RANGE)
         ));
     }
 }

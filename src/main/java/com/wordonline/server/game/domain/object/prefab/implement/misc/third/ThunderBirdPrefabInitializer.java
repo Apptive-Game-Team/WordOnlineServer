@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -29,16 +31,17 @@ public class ThunderBirdPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_bird", "mass")));
+        var thunderBirdParameters = parameters.object(GameObjectKey.THUNDER_BIRD);
+        gameObject.getComponents().add(new RigidBody(gameObject, thunderBirdParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("thunder_bird", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, thunderBirdParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new ThunderBirdMob(gameObject,
-                (int) parameters.getValue("thunder_bird", "hp"),
-                (float) parameters.getValue("thunder_bird", "speed"),
+                thunderBirdParameters.intValue(ParameterKey.HP),
+                thunderBirdParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("thunder_bird", "damage"),
-                (float) parameters.getValue("thunder_bird", "attack_interval"),
-                (float) parameters.getValue("thunder_bird", "attack_range")
+                thunderBirdParameters.intValue(ParameterKey.DAMAGE),
+                thunderBirdParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                thunderBirdParameters.floatValue(ParameterKey.ATTACK_RANGE)
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

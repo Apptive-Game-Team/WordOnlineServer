@@ -5,6 +5,7 @@ public enum StatusEffectKey {
     Burn_Receive,
     Wet_Receive,
     Shock_Receive,
+    ShockOverload_Receive,
     Snared_Receive,
     Knockback_Receive,
     DOTHeal_NatureWithWaterField,
@@ -13,4 +14,5 @@ public enum StatusEffectKey {
     DOT_SandStorm,
     Frenzy_Receive,
     Panic_Receive,
+    Bubble_Receive,
 }

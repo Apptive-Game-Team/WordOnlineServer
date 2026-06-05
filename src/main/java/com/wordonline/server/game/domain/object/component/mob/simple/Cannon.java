@@ -5,25 +5,20 @@ import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Status;
-
-import java.util.List;
 
 public class Cannon extends TimedBehaviorMob {
 
     private final static float DEFAULT_ATTACK_DURATION = 0.5f;
-    private final static float AOE_RADIUS = 1f;
 
-    private float timer = 0;
-    private AttackInfo attackInfo;
+    private final AttackInfo attackInfo;
     private final int targetMask;
     private Detector detector;
-    private float attackDuration;
-    private final float attackInterval;
-    private float attackRange;
+    private final float attackDuration;
+    private final float attackRange;
 
     public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask, float attackInterval, float attackRange) {
         this(gameObject, maxHp, damage, targetMask, DEFAULT_ATTACK_DURATION, attackInterval, attackRange);
@@ -31,15 +26,14 @@ public class Cannon extends TimedBehaviorMob {
 
     public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
         super(gameObject, maxHp, 0, attackInterval, null);
-        setBehavior(behavior);
+        setBehavior(this::attack);
         attackInfo = new AttackInfo(damage, ElementType.ROCK);
         this.targetMask = targetMask;
         this.attackDuration = attackDuration;
-        this.attackInterval = attackInterval;
         this.attackRange = attackRange;
     }
 
-    private final Behavior behavior = () -> {
+    private boolean attack() {
         GameObject target = detector.detect(gameObject);
 
         if (target == null) {
@@ -52,20 +46,17 @@ public class Cannon extends TimedBehaviorMob {
             return false;
         }
 
+        Damageable damageable = target.getComponent(Damageable.class);
+        if (damageable == null) {
+            return false;
+        }
+
         getGameContext().getObjectsInfoDtoBuilder()
                 .createProjection(gameObject, target, "RockShot", attackDuration);
-        List<GameObject> victims = getGameContext().overlapSphereAll(target,AOE_RADIUS);
-        for (GameObject victim : victims) {
-            Mob mob = victim.getComponent(Mob.class);
-            if (mob == null) {
-                continue;
-            }
-
-            mob.onDamaged(attackInfo, attackDuration);
-        }        
+        damageable.onDamaged(attackInfo, attackDuration);
         gameObject.setStatus(Status.Attack);
         return true;
-    };
+    }
 
 
     @Override

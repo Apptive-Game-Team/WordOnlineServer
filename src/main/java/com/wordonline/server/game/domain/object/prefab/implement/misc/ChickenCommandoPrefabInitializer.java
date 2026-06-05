@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -29,21 +31,22 @@ public class ChickenCommandoPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("chicken_commando", "mass")));
+        var chickenCommandoParameters = parameters.object(GameObjectKey.CHICKEN_COMMANDO);
+        gameObject.addComponent(new RigidBody(gameObject, chickenCommandoParameters.intValue(ParameterKey.MASS)));
 
         ZPhysics zPhysics = new ZPhysics(gameObject);
         zPhysics.setGravity(FALL_GRAVITY);
         zPhysics.setFallThreshold(Float.MAX_VALUE);
         gameObject.addComponent(zPhysics);
 
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("chicken_commando", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, chickenCommandoParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new ChickenCommandoMob(
                 gameObject,
-                (int) parameters.getValue("chicken_commando", "hp"),
-                (float) parameters.getValue("chicken_commando", "speed"),
+                chickenCommandoParameters.intValue(ParameterKey.HP),
+                chickenCommandoParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("chicken_commando", "damage"),
-                (float) parameters.getValue("chicken_commando", "attack_interval")
+                chickenCommandoParameters.intValue(ParameterKey.DAMAGE),
+                chickenCommandoParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
         ));
         gameObject.setElement(EnumSet.of(ElementType.WIND));
         gameObject.addComponent(new CommonEffectReceiver(gameObject));

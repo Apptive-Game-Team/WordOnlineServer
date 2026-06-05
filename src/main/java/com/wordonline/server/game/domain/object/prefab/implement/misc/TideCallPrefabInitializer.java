@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
@@ -27,11 +29,12 @@ public class TideCallPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
+        var tideCallParameters = parameters.object(GameObjectKey.TIDE_CALL);
 //        gameObject.addCollider(new EdgeCollider(gameObject, gameObject.getPosition().plus(0,2,0),gameObject.getPosition().plus(0,-2,0),true));
         gameObject.addCollider(new CircleCollider(gameObject, 2f,true));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
-        gameObject.getComponents().add(new PushShot(gameObject, (int) parameters.getValue("tide_call", "damage"), (float) parameters.getValue("tide_call", "speed")));
+        gameObject.getComponents().add(new PushShot(gameObject, tideCallParameters.intValue(ParameterKey.DAMAGE), tideCallParameters.floatValue(ParameterKey.SPEED)));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 0.5f));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject,3f));
     }

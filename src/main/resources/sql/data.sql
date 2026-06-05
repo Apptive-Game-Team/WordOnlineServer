@@ -102,17 +102,6 @@ WHERE NOT EXISTS (
     WHERE uc.user_id = u.id AND uc.card_id = 11
 );
 
--- For give all magic to User
-INSERT INTO user_magics(user_id, magic_id)
-SELECT u.id, m.id
-FROM users u, magics m
-WHERE m.access_type = 'DEFAULT' AND
-      NOT EXISTS(
-          SELECT 1
-          FROM user_magics um
-          WHERE um.user_id = u.id AND um.magic_id = m.id
-      );
-
 INSERT INTO pve_scenarios(id, stage_id)
 VALUES
     (11, '1-1'),

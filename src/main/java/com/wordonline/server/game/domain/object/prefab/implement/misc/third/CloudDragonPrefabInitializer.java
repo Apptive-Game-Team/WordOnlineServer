@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.AreaEffectProvider;
@@ -32,23 +34,24 @@ public class CloudDragonPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("cloud_dragon", "mass")));
+        var cloudDragonParameters = parameters.object(GameObjectKey.CLOUD_DRAGON);
+        gameObject.addComponent(new RigidBody(gameObject, cloudDragonParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("cloud_dragon", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, cloudDragonParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new ProjectileRangeAttackMob(gameObject,
-                (int) parameters.getValue("cloud_dragon", "hp"),
-                (float) parameters.getValue("cloud_dragon", "speed"),
+                cloudDragonParameters.intValue(ParameterKey.HP),
+                cloudDragonParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.ANY.bit,
-                (int) parameters.getValue("cloud_dragon", "damage"),
-                (float) parameters.getValue("cloud_dragon", "attack_interval"),
-                (float) parameters.getValue("cloud_dragon", "attack_range"),
+                cloudDragonParameters.intValue(ParameterKey.DAMAGE),
+                cloudDragonParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                cloudDragonParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 "WaterShot",
                 0.5f
         ));
         gameObject.setElement(EnumSet.of(ElementType.WATER, ElementType.WIND));
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
 
-//        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("cloud_dragon", "attack_range"), true));
-        gameObject.addComponent(new AreaEffectProvider(gameObject, 1, (float) parameters.getValue("cloud_dragon", "attack_range"), Effect.Wet));
+//        gameObject.addCollider(new CircleCollider(gameObject, cloudDragonParameters.floatValue(ParameterKey.ATTACK_RANGE), true));
+        gameObject.addComponent(new AreaEffectProvider(gameObject, 1, cloudDragonParameters.floatValue(ParameterKey.ATTACK_RANGE), Effect.Wet));
     }
 }

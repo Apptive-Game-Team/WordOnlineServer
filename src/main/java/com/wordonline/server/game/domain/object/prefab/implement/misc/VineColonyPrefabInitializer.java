@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,15 +27,16 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("vine_colony", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine_colony", "radius"), false));
+        var vineColonyParameters = parameters.object(GameObjectKey.VINE_COLONY);
+        gameObject.getComponents().add(new RigidBody(gameObject, vineColonyParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, vineColonyParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(
                 new SummonMob(
                         gameObject,
-                        (int) parameters.getValue("vine_colony", "hp"),
-                        (int) parameters.getValue("vine_colony", "damage"),
-                        (int) parameters.getValue("vine_colony", "attack_interval"),
-                        (int) parameters.getValue("vine_colony", "attack_range"),
+                        vineColonyParameters.intValue(ParameterKey.HP),
+                        vineColonyParameters.intValue(ParameterKey.DAMAGE),
+                        vineColonyParameters.intValue(ParameterKey.ATTACK_INTERVAL),
+                        vineColonyParameters.intValue(ParameterKey.ATTACK_RANGE),
                         PrefabType.Vine
                 ));
         gameObject.addComponent(new TimedSelfDestroyer(

@@ -1,0 +1,47 @@
+package com.wordonline.server.game.domain.object.prefab.implement.misc;
+
+import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
+import com.wordonline.server.game.domain.magic.ElementType;
+import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
+import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
+import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
+import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import org.springframework.stereotype.Component;
+
+@Component("lightning_tadpole_prefab")
+public class LightningTadpolePrefabInitializer extends PrefabInitializer {
+
+    private static final float TIME_TO_LIVE_SEC = 10f;
+
+    private final Parameters parameters;
+
+    public LightningTadpolePrefabInitializer(Parameters parameters) {
+        super(PrefabType.LightningTadpole);
+        this.parameters = parameters;
+    }
+
+    @Override
+    public void initialize(GameObject gameObject) {
+        var lightningTadpoleParameters = parameters.object(GameObjectKey.LIGHTNING_TADPOLE);
+        gameObject.addComponent(new RigidBody(gameObject, lightningTadpoleParameters.intValue(ParameterKey.MASS)));
+        gameObject.addComponent(new ZPhysics(gameObject));
+        gameObject.addCollider(new CircleCollider(gameObject, lightningTadpoleParameters.floatValue(ParameterKey.RADIUS), false));
+        gameObject.addComponent(new MeleeAttackMob(gameObject,
+                lightningTadpoleParameters.intValue(ParameterKey.HP),
+                lightningTadpoleParameters.floatValue(ParameterKey.SPEED),
+                TargetMask.GROUND.bit,
+                lightningTadpoleParameters.intValue(ParameterKey.DAMAGE),
+                lightningTadpoleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
+        gameObject.setElement(ElementType.LIGHTNING);
+        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+    }
+}

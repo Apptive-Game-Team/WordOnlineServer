@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.RandomAreaSpawner;
@@ -23,11 +25,12 @@ public class MeteorShowerPrefabInitializer extends PrefabInitializer {
     }
 
     public void initialize(GameObject gameObject) {
+        var meteorShowerParameters = parameters.object(GameObjectKey.METEOR_SHOWER);
         gameObject.setElement(elementSet);
         gameObject.getComponents().add(new RandomAreaSpawner(gameObject, PrefabType.MeteorDrop,
-                (int) parameters.getValue("meteor_shower", "duration"),
-                (float) parameters.getValue("meteor_shower", "attack_interval"),
-                (int) parameters.getValue("meteor_shower", "radius")));
+                meteorShowerParameters.intValue(ParameterKey.DURATION),
+                meteorShowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                meteorShowerParameters.intValue(ParameterKey.RADIUS)));
     }
 }
 

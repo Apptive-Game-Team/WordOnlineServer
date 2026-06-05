@@ -113,6 +113,7 @@ public enum PrefabType {
     MagmaExplosion("magma_explosion_prefab"),
     WaterExplosion("water_explosion_prefab"),
     RazorGale("razor_gale_prefab"),
+    ShockOverload("shock_overload_prefab"),
 
     // New Control Magic
     WillOWisp("will_o_wisp_prefab"),
@@ -123,6 +124,16 @@ public enum PrefabType {
     ChickenCommando("chicken_commando_prefab"),
     Overgrowth("overgrowth_prefab"),
     Crater("crater_prefab"),
+    BubbleGenerator("bubble_generator_prefab"),
+    ElectricTower("electric_tower_prefab"),
+
+    FireLordSpirit("fire_lord_spirit_prefab"),
+    BubbleSpirit("bubble_spirit_prefab"),
+    Towerback("towerback_prefab"),
+    FireChildSpirit("fire_child_spirit_prefab"),
+    DimensionToad("dimension_toad_prefab"),
+    FireTadpole("fire_tadpole_prefab"),
+    LightningTadpole("lightning_tadpole_prefab"),
 
     Wall("wall_prefab"),
 
