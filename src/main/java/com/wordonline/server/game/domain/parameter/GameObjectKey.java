@@ -33,6 +33,7 @@ public enum GameObjectKey {
     FIRE_SLIME("fire_slime"),
     FIRE_SUMMON("fire_summon"),
     FIRE_TADPOLE("fire_tadpole"),
+    FRENZY_TOTEM("frenzy_totem"),
     GAME("game"),
     GROUND_CANNON("ground_cannon"),
     GROUND_TOWER("ground_tower"),

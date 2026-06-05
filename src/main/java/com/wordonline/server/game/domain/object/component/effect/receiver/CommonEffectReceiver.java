@@ -2,7 +2,6 @@ package com.wordonline.server.game.domain.object.component.effect.receiver;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.effect.EffectApplyPolicy;
@@ -95,9 +94,9 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
                         0.5f);
             case Frenzy -> applyEffect(
                         StatusEffectKey.Frenzy_Receive,
-                        () -> new FrenzyStatusEffect(gameObject, 3f, StatusEffectKey.Frenzy_Receive),
+                        () -> new FrenzyStatusEffect(gameObject, 10f, StatusEffectKey.Frenzy_Receive),
                         EffectApplyPolicy.REFRESH_DURATION,
-                        3f);
+                        10f);
             case Bubble -> applyEffect(
                     StatusEffectKey.Bubble_Receive,
                     () -> new BubbleStatusEffect(gameObject, 8f, StatusEffectKey.Bubble_Receive),
@@ -114,6 +113,15 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
 
     @Override
     public void onReceive(Effect effect, float duration) {
+        if (effect == Effect.Frenzy) {
+            applyEffect(
+                    StatusEffectKey.Frenzy_Receive,
+                    () -> new FrenzyStatusEffect(gameObject, duration, StatusEffectKey.Frenzy_Receive),
+                    EffectApplyPolicy.REFRESH_DURATION,
+                    duration);
+            return;
+        }
+
         if (effect != Effect.Inspired) {
             onReceive(effect);
             return;
