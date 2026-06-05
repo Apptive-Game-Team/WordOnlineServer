@@ -33,7 +33,9 @@ public enum ParameterKey {
     VINE_SPACING("vine_spacing"),
     VINE_SPAWN_INTERVAL("vine_spawn_interval"),
     Z_FORCE("z_force"),
-    SPEED("speed");
+    SPEED("speed"),
+
+    SUB_ATTACK_RANGE("sub_attack_range");
 
     private final String dbName;
 
