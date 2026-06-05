@@ -2,6 +2,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -26,16 +28,17 @@ public class FireChildSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_child_spirit", "mass")));
+        var fireChildSpiritParameters = parameters.object(GameObjectKey.FIRE_CHILD_SPIRIT);
+        gameObject.addComponent(new RigidBody(gameObject, fireChildSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_child_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, fireChildSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new ProjectileRangeAttackMob(gameObject,
-                (int) parameters.getValue("fire_child_spirit", "hp"),
-                (float) parameters.getValue("fire_child_spirit", "speed"),
+                fireChildSpiritParameters.intValue(ParameterKey.HP),
+                fireChildSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.ANY.bit,
-                (int) parameters.getValue("fire_child_spirit", "damage"),
-                (float) parameters.getValue("fire_child_spirit", "attack_interval"),
-                (float) parameters.getValue("fire_child_spirit", "attack_range"),
+                fireChildSpiritParameters.intValue(ParameterKey.DAMAGE),
+                fireChildSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                fireChildSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 "FireShot",
                 0.4f));
         gameObject.setElement(ElementType.FIRE);

@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.rock;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -26,15 +28,16 @@ public class MiniRockPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("mini_rock", "mass")));
+        var miniRockParameters = parameters.object(GameObjectKey.MINI_ROCK);
+        gameObject.getComponents().add(new RigidBody(gameObject, miniRockParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("mini_rock", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, miniRockParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new Slime(gameObject,
-                (int) parameters.getValue("mini_rock", "hp"),
-                (float) parameters.getValue("mini_rock", "speed"),
+                miniRockParameters.intValue(ParameterKey.HP),
+                miniRockParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("mini_rock", "damage"),
-                (float) parameters.getValue("mini_rock", "attack_interval")));
+                miniRockParameters.intValue(ParameterKey.DAMAGE),
+                miniRockParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }

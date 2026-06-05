@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.rock;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.Spawner;
@@ -22,8 +24,9 @@ public class RockSummonPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("build", "radius"), true));
+        var buildParameters = parameters.object(GameObjectKey.BUILD);
+        gameObject.addCollider(new CircleCollider(gameObject, buildParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.ROCK);
-        gameObject.getComponents().add(new Spawner(gameObject, (int) parameters.getValue("build", "hp"), PrefabType.RockSlime));
+        gameObject.getComponents().add(new Spawner(gameObject, buildParameters.intValue(ParameterKey.HP), PrefabType.RockSlime));
     }
 }

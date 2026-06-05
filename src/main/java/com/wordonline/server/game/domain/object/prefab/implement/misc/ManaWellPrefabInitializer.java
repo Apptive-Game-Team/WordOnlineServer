@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,13 +27,14 @@ public class ManaWellPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("mana_well", "radius"), false));
+        var manaWellParameters = parameters.object(GameObjectKey.MANA_WELL);
+        gameObject.addCollider(new CircleCollider(gameObject, manaWellParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new ManaWellMob(gameObject,
-                (int) parameters.getValue("mana_well", "hp")
+                manaWellParameters.intValue(ParameterKey.HP)
         ));
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,
-                (int)(parameters.getValue("mana_well", "hp") * parameters.getValue("mana_well", "attack_interval") / parameters.getValue("mana_well", "damage"))
+                (int)(manaWellParameters.doubleValue(ParameterKey.HP) * manaWellParameters.doubleValue(ParameterKey.ATTACK_INTERVAL) / manaWellParameters.doubleValue(ParameterKey.DAMAGE))
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING, ElementType.NATURE));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

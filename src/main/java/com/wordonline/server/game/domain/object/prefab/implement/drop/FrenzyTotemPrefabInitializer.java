@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.drop;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.FrenzyTotem;
@@ -20,7 +22,8 @@ public class FrenzyTotemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
+        var dropParameters = parameters.object(GameObjectKey.DROP);
+        gameObject.addCollider(new CircleCollider(gameObject, dropParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.NONE);
         gameObject.getComponents().add(new FrenzyTotem(gameObject));
     }

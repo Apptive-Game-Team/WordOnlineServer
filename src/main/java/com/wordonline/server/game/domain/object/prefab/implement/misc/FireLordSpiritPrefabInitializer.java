@@ -2,6 +2,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -33,12 +35,13 @@ public class FireLordSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_lord_spirit", "mass")));
+        var fireLordSpiritParameters = parameters.object(GameObjectKey.FIRE_LORD_SPIRIT);
+        gameObject.addComponent(new RigidBody(gameObject, fireLordSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_lord_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, fireLordSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new KeepDistanceMob(gameObject,
-                (int) parameters.getValue("fire_lord_spirit", "hp"),
-                (float) parameters.getValue("fire_lord_spirit", "speed"),
+                fireLordSpiritParameters.intValue(ParameterKey.HP),
+                fireLordSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.ANY.bit,
                 KEEP_DISTANCE_RANGE));
         gameObject.addComponent(new LimitedSequenceSpawner(

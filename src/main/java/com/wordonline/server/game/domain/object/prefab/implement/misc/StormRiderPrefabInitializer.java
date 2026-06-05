@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -27,15 +29,16 @@ public class StormRiderPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("storm_rider", "mass")));
+        var stormRiderParameters = parameters.object(GameObjectKey.STORM_RIDER);
+        gameObject.getComponents().add(new RigidBody(gameObject, stormRiderParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("storm_rider", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, stormRiderParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new PlayerPrioMob(gameObject,
-                (int) parameters.getValue("storm_rider", "hp"),
-                (float) parameters.getValue("storm_rider", "speed"),
+                stormRiderParameters.intValue(ParameterKey.HP),
+                stormRiderParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("storm_rider", "damage"),
-                (float) parameters.getValue("storm_rider", "attack_interval")
+                stormRiderParameters.intValue(ParameterKey.DAMAGE),
+                stormRiderParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WATER));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

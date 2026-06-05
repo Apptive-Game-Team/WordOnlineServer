@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,13 +27,14 @@ public class GroundCannonPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_cannon", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("ground_cannon", "radius"), false));
+        var groundCannonParameters = parameters.object(GameObjectKey.GROUND_CANNON);
+        gameObject.getComponents().add(new RigidBody(gameObject, groundCannonParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, groundCannonParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new Cannon(gameObject,
-                (int) parameters.getValue("ground_cannon", "hp"),
-                (int) parameters.getValue("ground_cannon", "damage"), TargetMask.GROUND.bit,
-                (float) parameters.getValue("ground_cannon", "attack_interval"),
-                (float) parameters.getValue("ground_cannon", "attack_range")
+                groundCannonParameters.intValue(ParameterKey.HP),
+                groundCannonParameters.intValue(ParameterKey.DAMAGE), TargetMask.GROUND.bit,
+                groundCannonParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                groundCannonParameters.floatValue(ParameterKey.ATTACK_RANGE)
                 ));
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,

@@ -5,6 +5,8 @@ import java.util.EnumSet;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -28,16 +30,17 @@ public class LifeTreePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("life_tree", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("life_tree", "radius"), true));
+        var lifeTreeParameters = parameters.object(GameObjectKey.LIFE_TREE);
+        gameObject.getComponents().add(new RigidBody(gameObject, lifeTreeParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, lifeTreeParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.getComponents().add(new Totem(gameObject,
-                (int) parameters.getValue("life_tree", "hp"),
-                (int) parameters.getValue("life_tree", "damage"),
-                (float)parameters.getValue("life_tree", "attack_interval"),
-                (float)parameters.getValue("life_tree", "range"),
+                lifeTreeParameters.intValue(ParameterKey.HP),
+                lifeTreeParameters.intValue(ParameterKey.DAMAGE),
+                lifeTreeParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                lifeTreeParameters.floatValue(ParameterKey.RANGE),
                 TargetMask.GROUND.bit));
         gameObject.setElement(EnumSet.of(ElementType.NATURE));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (int) parameters.getValue("life_tree", "duration")));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, lifeTreeParameters.intValue(ParameterKey.DURATION)));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

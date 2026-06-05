@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,16 +27,17 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("ground_tower", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("ground_tower", "radius"), false));
+        var groundTowerParameters = parameters.object(GameObjectKey.GROUND_TOWER);
+        gameObject.getComponents().add(new RigidBody(gameObject, groundTowerParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, groundTowerParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(
                 new Tower(
                         gameObject,
-                        (int) parameters.getValue("ground_tower", "hp"),
-                        (int) parameters.getValue("ground_tower", "damage"),
+                        groundTowerParameters.intValue(ParameterKey.HP),
+                        groundTowerParameters.intValue(ParameterKey.DAMAGE),
                         TargetMask.AIR.bit,
-                        (float) parameters.getValue("ground_tower", "attack_interval"),
-                        (float) parameters.getValue("ground_tower", "attack_range")
+                        groundTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                        groundTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)
                 ));
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,

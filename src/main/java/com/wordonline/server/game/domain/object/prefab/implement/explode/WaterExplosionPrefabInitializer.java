@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.explode;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
@@ -24,18 +26,19 @@ public class WaterExplosionPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
+        var waterExplosionParameters = parameters.object(GameObjectKey.WATER_EXPLOSION);
         gameObject.addCollider(new CircleCollider(
                 gameObject,
-                (float) parameters.getValue("water_explosion", "radius"),
+                waterExplosionParameters.floatValue(ParameterKey.RADIUS),
                 true
         ));
         gameObject.setElement(ElementType.FIRE);
         gameObject.addComponent(new EffectProvider(gameObject, Effect.Burn));
         gameObject.addComponent(new WaterExplode(
                 gameObject,
-                (int) parameters.getValue("water_explosion", "damage"),
-                (float) parameters.getValue("water_explosion", "radius"),
-                (float) parameters.getValue("water_explosion", "z_force")
+                waterExplosionParameters.intValue(ParameterKey.DAMAGE),
+                waterExplosionParameters.floatValue(ParameterKey.RADIUS),
+                waterExplosionParameters.floatValue(ParameterKey.Z_FORCE)
         ));
     }
 }

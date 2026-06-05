@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.subprefab;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.OnStartAttacker;
@@ -26,14 +28,15 @@ public class MagmaFistPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("magma_fist", "radius"), true));
+        var magmaFistParameters = parameters.object(GameObjectKey.MAGMA_FIST);
+        gameObject.addCollider(new CircleCollider(gameObject, magmaFistParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.ROCK));
         gameObject.addComponent(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("magma_fist", "duration")));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, magmaFistParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new OnStartAttacker(
                 gameObject,
-                (float) parameters.getValue("magma_fist", "radius"),
-                (int) parameters.getValue("magma_fist", "damage")
+                magmaFistParameters.floatValue(ParameterKey.RADIUS),
+                magmaFistParameters.intValue(ParameterKey.DAMAGE)
         ));
     }
 }

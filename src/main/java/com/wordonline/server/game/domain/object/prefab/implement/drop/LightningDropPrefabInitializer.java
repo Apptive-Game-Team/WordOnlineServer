@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.drop;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,13 +27,14 @@ public class LightningDropPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        float radius = (float) parameters.getValue("drop", "radius");
+        var dropParameters = parameters.object(GameObjectKey.DROP);
+        float radius = dropParameters.floatValue(ParameterKey.RADIUS);
 
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new LightningStrike(
                 gameObject,
-                (int) parameters.getValue("drop", "damage"),
+                dropParameters.intValue(ParameterKey.DAMAGE),
                 radius
         ));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, STRIKE_VISUAL_DURATION));

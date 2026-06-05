@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc.third;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -27,16 +29,17 @@ public class VineSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("vine_spirit", "mass")));
+        var vineSpiritParameters = parameters.object(GameObjectKey.VINE_SPIRIT);
+        gameObject.getComponents().add(new RigidBody(gameObject, vineSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("vine_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, vineSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new EffectProvideProjectileRangeAttackMob(gameObject,
-                (int) parameters.getValue("vine_spirit", "hp"),
-                (float) parameters.getValue("vine_spirit", "speed"),
+                vineSpiritParameters.intValue(ParameterKey.HP),
+                vineSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.ANY.bit,
-                (int) parameters.getValue("vine_spirit", "damage"),
-                (float) parameters.getValue("vine_spirit", "attack_interval"),
-                (float) parameters.getValue("vine_spirit", "attack_range"),
+                vineSpiritParameters.intValue(ParameterKey.DAMAGE),
+                vineSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                vineSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 Effect.Snared,
                 "NatureShot",
                 0.5f

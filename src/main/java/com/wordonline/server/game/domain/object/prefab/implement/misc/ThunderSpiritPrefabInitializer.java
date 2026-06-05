@@ -2,6 +2,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -28,16 +30,17 @@ public class ThunderSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("thunder_spirit", "mass")));
+        var thunderSpiritParameters = parameters.object(GameObjectKey.THUNDER_SPIRIT);
+        gameObject.getComponents().add(new RigidBody(gameObject, thunderSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("thunder_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, thunderSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
-                (int) parameters.getValue("thunder_spirit", "hp"),
-                (float) parameters.getValue("thunder_spirit", "speed"),
+                thunderSpiritParameters.intValue(ParameterKey.HP),
+                thunderSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("thunder_spirit", "damage"),
-                (float) parameters.getValue("thunder_spirit", "attack_interval"),
-                (float) parameters.getValue("thunder_spirit", "attack_range"),
+                thunderSpiritParameters.intValue(ParameterKey.DAMAGE),
+                thunderSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                thunderSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 "ElectricShot",
                 0.5f
         ));

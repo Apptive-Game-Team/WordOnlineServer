@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.lightning;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -23,9 +25,10 @@ public class ElectricFieldPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field_short", "radius"), true));
+        var fieldShortParameters = parameters.object(GameObjectKey.FIELD_SHORT);
+        gameObject.addCollider(new CircleCollider(gameObject, fieldShortParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field_short", "duration")));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, fieldShortParameters.floatValue(ParameterKey.DURATION)));
     }
 }

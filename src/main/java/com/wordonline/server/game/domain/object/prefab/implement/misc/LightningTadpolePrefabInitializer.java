@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -28,15 +30,16 @@ public class LightningTadpolePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("lightning_tadpole", "mass")));
+        var lightningTadpoleParameters = parameters.object(GameObjectKey.LIGHTNING_TADPOLE);
+        gameObject.addComponent(new RigidBody(gameObject, lightningTadpoleParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("lightning_tadpole", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, lightningTadpoleParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new MeleeAttackMob(gameObject,
-                (int) parameters.getValue("lightning_tadpole", "hp"),
-                (float) parameters.getValue("lightning_tadpole", "speed"),
+                lightningTadpoleParameters.intValue(ParameterKey.HP),
+                lightningTadpoleParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("lightning_tadpole", "damage"),
-                (float) parameters.getValue("lightning_tadpole", "attack_interval")));
+                lightningTadpoleParameters.intValue(ParameterKey.DAMAGE),
+                lightningTadpoleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));

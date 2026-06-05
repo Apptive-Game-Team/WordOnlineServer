@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -30,11 +32,13 @@ public class KnockbackEffectProvider extends EffectProvider {
         Parameters parameters = getGameContext().getParameters();
         if(gameObject.getComponent(Shot.class) != null)
         {
-            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / parameters.getValue("shoot", "radius"));
+            var shootParameters = parameters.object(GameObjectKey.SHOOT);
+            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / shootParameters.doubleValue(ParameterKey.RADIUS));
         }
         else if(gameObject.getComponent(Explode.class) != null)
         {
-            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / parameters.getValue("explode", "radius"));
+            var explodeParameters = parameters.object(GameObjectKey.EXPLODE);
+            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / explodeParameters.doubleValue(ParameterKey.RADIUS));
         }
 
         return 0;

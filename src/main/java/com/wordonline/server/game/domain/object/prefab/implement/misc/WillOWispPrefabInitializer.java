@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.MindControlShot;
@@ -20,8 +22,9 @@ public class WillOWispPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        gameObject.addCollider(new CircleCollider(gameObject, shootParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.NONE);
-        gameObject.getComponents().add(new MindControlShot(gameObject, (float) parameters.getValue("shoot", "speed")));
+        gameObject.getComponents().add(new MindControlShot(gameObject, shootParameters.floatValue(ParameterKey.SPEED)));
     }
 }

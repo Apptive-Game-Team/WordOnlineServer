@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -27,16 +29,17 @@ public class HealingTotemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("healing_totem", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("healing_totem", "radius"), true));
+        var healingTotemParameters = parameters.object(GameObjectKey.HEALING_TOTEM);
+        gameObject.getComponents().add(new RigidBody(gameObject, healingTotemParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, healingTotemParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.getComponents().add(new Totem(gameObject,
-                (int) parameters.getValue("healing_totem", "hp"),
-                (int) parameters.getValue("healing_totem", "damage"),
-                (float)parameters.getValue("healing_totem", "attack_interval"),
-                (float)parameters.getValue("healing_totem", "range"),
+                healingTotemParameters.intValue(ParameterKey.HP),
+                healingTotemParameters.intValue(ParameterKey.DAMAGE),
+                healingTotemParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                healingTotemParameters.floatValue(ParameterKey.RANGE),
                 TargetMask.GROUND.bit));
         gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WATER));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (int) parameters.getValue("healing_totem", "duration")));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, healingTotemParameters.intValue(ParameterKey.DURATION)));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

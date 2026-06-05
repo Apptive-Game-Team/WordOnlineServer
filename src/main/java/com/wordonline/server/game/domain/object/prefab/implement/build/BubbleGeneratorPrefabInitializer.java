@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.build;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,18 +27,20 @@ public class BubbleGeneratorPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("bubble_generator", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("bubble_generator", "radius"), false));
+        var bubbleGeneratorParameters = parameters.object(GameObjectKey.BUBBLE_GENERATOR);
+        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        gameObject.addComponent(new RigidBody(gameObject, bubbleGeneratorParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, bubbleGeneratorParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new BubbleGeneratorMob(
                 gameObject,
-                (int) parameters.getValue("bubble_generator", "hp"),
-                (float) parameters.getValue("bubble_generator", "attack_interval"),
-                (float) parameters.getValue("bubble_generator", "attack_range"),
-                (float) parameters.getValue("shoot", "speed")
+                bubbleGeneratorParameters.intValue(ParameterKey.HP),
+                bubbleGeneratorParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                bubbleGeneratorParameters.floatValue(ParameterKey.ATTACK_RANGE),
+                shootParameters.floatValue(ParameterKey.SPEED)
         ));
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,
-                (float) parameters.getValue("bubble_generator", "duration")
+                bubbleGeneratorParameters.floatValue(ParameterKey.DURATION)
         ));
         gameObject.setElement(ElementType.WATER);
         gameObject.addComponent(new BuildingEffectReceiver(gameObject));

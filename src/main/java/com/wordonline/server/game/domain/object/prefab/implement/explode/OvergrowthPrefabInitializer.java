@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.explode;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.OvergrowthExplosion;
@@ -20,8 +22,9 @@ public class OvergrowthPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        float radius = (float) parameters.getValue("overgrowth", "radius");
-        int summonCount = (int) parameters.getValue("overgrowth", "quantity");
+        var overgrowthParameters = parameters.object(GameObjectKey.OVERGROWTH);
+        float radius = overgrowthParameters.floatValue(ParameterKey.RADIUS);
+        int summonCount = overgrowthParameters.intValue(ParameterKey.QUANTITY);
 
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.NATURE);

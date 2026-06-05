@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -32,16 +34,17 @@ public class DimensionToadPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("dimension_toad", "mass")));
+        var dimensionToadParameters = parameters.object(GameObjectKey.DIMENSION_TOAD);
+        gameObject.addComponent(new RigidBody(gameObject, dimensionToadParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("dimension_toad", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, dimensionToadParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new NonAttackingCowardMob(gameObject,
-                (int) parameters.getValue("dimension_toad", "hp"),
-                (float) parameters.getValue("dimension_toad", "speed"),
+                dimensionToadParameters.intValue(ParameterKey.HP),
+                dimensionToadParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (float) parameters.getValue("dimension_toad", "attack_interval"),
-                (float) parameters.getValue("dimension_toad", "detection_range"),
-                (float) parameters.getValue("dimension_toad", "panic_duration"),
+                dimensionToadParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                dimensionToadParameters.floatValue(ParameterKey.DETECTION_RANGE),
+                dimensionToadParameters.floatValue(ParameterKey.PANIC_DURATION),
                 KEEP_DISTANCE_RANGE));
         gameObject.addComponent(new LimitedSequenceSpawner(
                 gameObject,

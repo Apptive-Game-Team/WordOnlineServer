@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.water;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
@@ -26,15 +28,16 @@ public class WaterSlimePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("slime", "mass")));
+        var slimeParameters = parameters.object(GameObjectKey.SLIME);
+        gameObject.getComponents().add(new RigidBody(gameObject, slimeParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("slime", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, slimeParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new Slime(gameObject,
-                (int) parameters.getValue("slime", "hp"),
-                (float) parameters.getValue("slime", "speed"),
+                slimeParameters.intValue(ParameterKey.HP),
+                slimeParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("slime", "damage"),
-                (float) parameters.getValue("slime", "attack_interval")));
+                slimeParameters.intValue(ParameterKey.DAMAGE),
+                slimeParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

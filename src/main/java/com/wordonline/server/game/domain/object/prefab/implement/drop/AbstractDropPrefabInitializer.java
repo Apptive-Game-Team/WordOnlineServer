@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.drop;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.Drop;
@@ -22,9 +24,10 @@ public abstract class AbstractDropPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("drop", "radius"), true));
+        var dropParameters = parameters.object(GameObjectKey.DROP);
+        gameObject.addCollider(new CircleCollider(gameObject, dropParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(elementType);
-        gameObject.getComponents().add(new Drop(gameObject, (int) parameters.getValue("drop", "damage")));
+        gameObject.getComponents().add(new Drop(gameObject, dropParameters.intValue(ParameterKey.DAMAGE)));
     }
 
     private static PrefabType getPrefabType(ElementType elementType) {
