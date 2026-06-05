@@ -1,14 +1,12 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 
 public class VineToss extends Shot {
-
-    private static final int VINE_COUNT = 6;
-    private static final float VINE_SPACING = 1f;
-    private static final float VINE_SPAWN_INTERVAL = 0.12f;
 
     public VineToss(GameObject gameObject) {
         super(gameObject, 0, 0f);
@@ -16,6 +14,11 @@ public class VineToss extends Shot {
 
     @Override
     public void setTarget(Vector3 targetPosition) {
+        var vineTossParameters = getGameContext().getParameters().object(GameObjectKey.VINE_TOSS);
+        int vineCount = vineTossParameters.intValue(ParameterKey.VINE_COUNT);
+        float vineSpacing = vineTossParameters.floatValue(ParameterKey.VINE_SPACING);
+        float vineSpawnInterval = vineTossParameters.floatValue(ParameterKey.VINE_SPAWN_INTERVAL);
+
         Vector3 direction = targetPosition.subtract(gameObject.getPosition()).normalize();
         if (direction.equals(Vector3.ZERO)) {
             gameObject.destroy();
@@ -23,7 +26,7 @@ public class VineToss extends Shot {
         }
 
         VineHitTracker hitTracker = new VineHitTracker();
-        Vector3 firstPosition = gameObject.getPosition().plus(direction.multiply(VINE_SPACING));
+        Vector3 firstPosition = gameObject.getPosition().plus(direction.multiply(vineSpacing));
         final GameObject[] firstVineRef = new GameObject[1];
         VineSpawnContext.runWithTracker(hitTracker, () ->
                 firstVineRef[0] = new GameObject(gameObject.getMaster(), PrefabType.Vine, firstPosition, getGameContext())
@@ -35,9 +38,9 @@ public class VineToss extends Shot {
                 PrefabType.Vine,
                 firstPosition,
                 direction,
-                VINE_SPACING,
-                VINE_SPAWN_INTERVAL,
-                VINE_COUNT,
+                vineSpacing,
+                vineSpawnInterval,
+                vineCount,
                 hitTracker
         ));
 

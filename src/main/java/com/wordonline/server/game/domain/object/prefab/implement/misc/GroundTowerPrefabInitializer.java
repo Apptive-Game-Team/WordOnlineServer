@@ -39,10 +39,7 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
                         groundTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
                         groundTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)
                 ));
-        gameObject.addComponent(new TimedSelfDestroyer(
-                gameObject,
-                60
-        ));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, groundTowerParameters.floatValue(ParameterKey.DURATION)));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }

@@ -10,7 +10,7 @@ spring:
   sql:
     init:
       schema-locations: classpath:schema-h2.sql
-      data-locations: classpath:data-h2.sql
+      data-locations: classpath:data-h2.sql,classpath:sql/component_parameters.sql
       mode: always
   jpa:
     properties:
@@ -22,4 +22,3 @@ team6515:
       url: http://localhost:8081
 logging:
   discord-webhook-url: http://localhost/webhook
-

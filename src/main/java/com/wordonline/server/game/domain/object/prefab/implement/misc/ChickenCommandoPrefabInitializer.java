@@ -20,8 +20,6 @@ import java.util.EnumSet;
 @Component("chicken_commando_prefab")
 public class ChickenCommandoPrefabInitializer extends PrefabInitializer {
 
-    private static final float FALL_GRAVITY = 3f;
-
     private final Parameters parameters;
 
     public ChickenCommandoPrefabInitializer(Parameters parameters) {
@@ -35,7 +33,7 @@ public class ChickenCommandoPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new RigidBody(gameObject, chickenCommandoParameters.intValue(ParameterKey.MASS)));
 
         ZPhysics zPhysics = new ZPhysics(gameObject);
-        zPhysics.setGravity(FALL_GRAVITY);
+        zPhysics.setGravity(chickenCommandoParameters.floatValue(ParameterKey.FALL_GRAVITY));
         zPhysics.setFallThreshold(Float.MAX_VALUE);
         gameObject.addComponent(zPhysics);
 

@@ -33,12 +33,15 @@ public class WindTotemPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new RigidBody(gameObject, windTotemParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, windTotemParameters.floatValue(ParameterKey.RADIUS), false));
 
-        float pushForce = 10;
-        float pushRangeX = 6;
-        float pushRangeY = 3;
-
         gameObject.addComponent(new DummyMob(gameObject, windTotemParameters.intValue(ParameterKey.HP)));
-        gameObject.addComponent(new WindPushComponent(gameObject, pushForce, new Vector3(pushRangeX, pushRangeY, 1.0f)));
+        gameObject.addComponent(new WindPushComponent(
+                gameObject,
+                windTotemParameters.floatValue(ParameterKey.PUSH_FORCE),
+                new Vector3(
+                        windTotemParameters.floatValue(ParameterKey.PUSH_RANGE_X),
+                        windTotemParameters.floatValue(ParameterKey.PUSH_RANGE_Y),
+                        1.0f
+                )));
 
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,

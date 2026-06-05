@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("lightning_tadpole_prefab")
 public class LightningTadpolePrefabInitializer extends PrefabInitializer {
 
-    private static final float TIME_TO_LIVE_SEC = 10f;
-
     private final Parameters parameters;
 
     public LightningTadpolePrefabInitializer(Parameters parameters) {
@@ -40,7 +38,7 @@ public class LightningTadpolePrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 lightningTadpoleParameters.intValue(ParameterKey.DAMAGE),
                 lightningTadpoleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, lightningTadpoleParameters.floatValue(ParameterKey.DURATION)));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

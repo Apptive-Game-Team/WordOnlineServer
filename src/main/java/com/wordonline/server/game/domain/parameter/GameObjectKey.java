@@ -47,6 +47,7 @@ public enum GameObjectKey {
     THUNDER_BIRD("thunder_bird"),
     THUNDER_SPIRIT("thunder_spirit"),
     TIDE_CALL("tide_call"),
+    VINE_TOSS("vine_toss"),
     TORNADO_STRIKE("tornado_strike"),
     TOWERBACK("towerback"),
     TREE_GOLEM("tree_golem"),
