@@ -17,8 +17,6 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 @Component("leafair_prefab")
 public class LeafairPrefabInitializer extends PrefabInitializer {
 
-    private static final float DEFAULT_TTL_RECOVER_AMOUNT = 3f;
-
     private final Parameters parameters;
 
     public LeafairPrefabInitializer(Parameters parameters) {
@@ -33,6 +31,6 @@ public class LeafairPrefabInitializer extends PrefabInitializer {
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(EnumSet.of(ElementType.NATURE));
         int amount = dropParameters.intValue(ParameterKey.DAMAGE);
-        gameObject.addComponent(new Leafair(gameObject, amount, amount, DEFAULT_TTL_RECOVER_AMOUNT, radius));
+        gameObject.addComponent(new Leafair(gameObject, amount, amount, radius));
     }
 }
