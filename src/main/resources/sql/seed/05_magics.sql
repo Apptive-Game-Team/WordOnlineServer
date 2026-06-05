@@ -33,7 +33,6 @@ VALUES
     (31, 'thunder_spirit'),
     (32, 'fire_spirit'),
     (33, 'rock_shot'),
-    (34, 'rain_cloud'),
     (35, 'lightning_drop'),
     (36, 'wind_explosion'),
     (37, 'rock_explosion'),

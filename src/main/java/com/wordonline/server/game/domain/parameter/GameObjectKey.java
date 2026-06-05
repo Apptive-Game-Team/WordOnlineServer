@@ -57,7 +57,6 @@ public enum GameObjectKey {
     PLAYER("player"),
     RALLYING_TORCH("rallying_torch"),
     RAZOR_GALE("razor_gale"),
-    RAIN_CLOUD("rain_cloud"),
     ROCK_DROP("rock_drop"),
     ROCK_EXPLODE("rock_explode"),
     ROCK_GOLEM("rock_golem"),

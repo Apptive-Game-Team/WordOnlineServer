@@ -127,10 +127,6 @@ SELECT 'fire_drop'
 WHERE NOT EXISTS (SELECT 1 FROM game_objects WHERE name = 'fire_drop');
 
 INSERT INTO game_objects(name)
-SELECT 'rain_cloud'
-WHERE NOT EXISTS (SELECT 1 FROM game_objects WHERE name = 'rain_cloud');
-
-INSERT INTO game_objects(name)
 SELECT 'nature_drop'
 WHERE NOT EXISTS (SELECT 1 FROM game_objects WHERE name = 'nature_drop');
 
@@ -538,7 +534,7 @@ INSERT INTO parameter_values(game_object_id, parameter_id, value)
 SELECT go.id, p.id, 0.5
 FROM game_objects go
 JOIN parameters p ON p.name = 'radius'
-WHERE go.name IN ('fire_explode', 'water_explode', 'leaf_explode', 'rock_explode', 'electric_explode', 'wind_explode', 'magma_explosion', 'shock_overload', 'sand_storm', 'rain_cloud', 'fire_field', 'water_field', 'electric_field', 'leaf_field', 'fire_drop', 'nature_drop', 'rock_drop', 'lightning_drop', 'wind_drop', 'fire_summon', 'electric_summon', 'rock_summon', 'wind_summon')
+WHERE go.name IN ('fire_explode', 'water_explode', 'leaf_explode', 'rock_explode', 'electric_explode', 'wind_explode', 'magma_explosion', 'shock_overload', 'sand_storm', 'fire_field', 'water_field', 'electric_field', 'leaf_field', 'fire_drop', 'nature_drop', 'rock_drop', 'lightning_drop', 'wind_drop', 'fire_summon', 'electric_summon', 'rock_summon', 'wind_summon')
   AND NOT EXISTS (
       SELECT 1
       FROM parameter_values pv
@@ -562,7 +558,7 @@ INSERT INTO parameter_values(game_object_id, parameter_id, value)
 SELECT go.id, p.id, 3
 FROM game_objects go
 JOIN parameters p ON p.name = 'duration'
-WHERE go.name IN ('sand_storm', 'rain_cloud', 'fire_field', 'water_field', 'electric_field', 'leaf_field')
+WHERE go.name IN ('sand_storm', 'fire_field', 'water_field', 'electric_field', 'leaf_field')
   AND NOT EXISTS (
       SELECT 1
       FROM parameter_values pv
@@ -873,8 +869,6 @@ prefab_tag_seed AS (
             ('shock_overload', 'CAT_AoE'),
             ('fire_drop', 'TYPE_Unit'),
             ('fire_drop', 'CAT_AoE'),
-            ('rain_cloud', 'TYPE_Unit'),
-            ('rain_cloud', 'CAT_AoE'),
             ('nature_drop', 'TYPE_Unit'),
             ('nature_drop', 'CAT_AoE'),
             ('rock_drop', 'TYPE_Unit'),
