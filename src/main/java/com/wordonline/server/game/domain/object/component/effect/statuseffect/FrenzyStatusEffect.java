@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.object.component.mob.simple.Cannon;
 import com.wordonline.server.game.domain.object.component.mob.simple.ManaWellMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.PlayerHealthComponent;
 import com.wordonline.server.game.domain.object.component.mob.simple.TimedBehaviorMob;
+import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.mob.simple.Totem;
 import com.wordonline.server.game.domain.object.component.mob.simple.Turret;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
@@ -75,6 +76,11 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
         TimedBehaviorMob timedBehaviorMob = gameObject.getComponent(TimedBehaviorMob.class);
         if (timedBehaviorMob != null) {
             timedBehaviorMob.getAttackInterval().setModifierPercent(modifier);
+        }
+
+        Tower tower = gameObject.getComponent(Tower.class);
+        if (tower != null) {
+            tower.getAttackInterval().setModifierPercent(modifier);
         }
     }
 }

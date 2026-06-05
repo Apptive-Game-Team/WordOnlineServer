@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
@@ -30,10 +31,10 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
         var groundTowerParameters = parameters.object(GameObjectKey.GROUND_TOWER);
         gameObject.getComponents().add(new RigidBody(gameObject, groundTowerParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, groundTowerParameters.floatValue(ParameterKey.RADIUS), false));
+        gameObject.addComponent(new DummyMob(gameObject, groundTowerParameters.intValue(ParameterKey.HP)));
         gameObject.getComponents().add(
                 new Tower(
                         gameObject,
-                        groundTowerParameters.intValue(ParameterKey.HP),
                         groundTowerParameters.intValue(ParameterKey.DAMAGE),
                         TargetMask.AIR.bit,
                         groundTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),

@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.simple.TimedBehaviorMob;
+import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.dto.Effect;
 
@@ -29,6 +30,11 @@ public class InspiredStatusEffect extends BaseStatusEffect {
             timedBehaviorMob.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
         }
 
+        Tower tower = gameObject.getComponent(Tower.class);
+        if (tower != null) {
+            tower.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
+        }
+
         gameObject.setEffect(Effect.Inspired);
     }
 
@@ -46,6 +52,11 @@ public class InspiredStatusEffect extends BaseStatusEffect {
         TimedBehaviorMob timedBehaviorMob = gameObject.getComponent(TimedBehaviorMob.class);
         if (timedBehaviorMob != null) {
             timedBehaviorMob.getAttackInterval().setModifierPercent(0f);
+        }
+
+        Tower tower = gameObject.getComponent(Tower.class);
+        if (tower != null) {
+            tower.getAttackInterval().setModifierPercent(0f);
         }
 
         super.expire();
