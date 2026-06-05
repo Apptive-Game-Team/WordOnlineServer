@@ -43,7 +43,7 @@ public class Totem extends Mob {
         if (timer >= healCooldown) {
             timer = 0;
             //heal circle prefab
-            List<GameObject> objects =  getGameContext().overlapSphereAll(gameObject, healRange);
+            List<GameObject> objects = getGameContext().overlapSphereAll(gameObject, healRange);
             for (GameObject object : objects) {
                 if (gameObject.getMaster() != object.getMaster()) continue;
                 Mob mob = object.getComponent(Mob.class);
