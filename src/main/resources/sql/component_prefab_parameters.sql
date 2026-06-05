@@ -199,7 +199,7 @@ SELECT 'magma_spirit'
 WHERE NOT EXISTS (SELECT 1 FROM game_objects WHERE name = 'magma_spirit');
 
 INSERT INTO parameter_values(game_object_id, parameter_id, value)
-SELECT go.id, p.id, 3
+SELECT go.id, p.id, 10
 FROM game_objects go
 JOIN parameters p ON p.name = 'quantity'
 WHERE go.name IN ('ember_spirit', 'seed_spirit', 'water_slime')
@@ -235,7 +235,7 @@ WHERE go.name IN ('ember_spirit', 'seed_spirit', 'water_slime', 'fire_slime', 'e
   );
 
 INSERT INTO parameter_values(game_object_id, parameter_id, value)
-SELECT go.id, p.id, 8
+SELECT go.id, p.id, 2
 FROM game_objects go
 JOIN parameters p ON p.name = 'hp'
 WHERE go.name IN ('ember_spirit', 'seed_spirit', 'water_slime', 'fire_slime', 'electric_slime', 'leaf_slime', 'rock_slime', 'wind_slime')
@@ -259,7 +259,7 @@ WHERE go.name IN ('ember_spirit', 'seed_spirit', 'water_slime', 'fire_slime', 'e
   );
 
 INSERT INTO parameter_values(game_object_id, parameter_id, value)
-SELECT go.id, p.id, 3
+SELECT go.id, p.id, 1
 FROM game_objects go
 JOIN parameters p ON p.name = 'damage'
 WHERE go.name IN ('ember_spirit', 'seed_spirit', 'water_slime', 'fire_slime', 'electric_slime', 'leaf_slime', 'rock_slime', 'wind_slime')
@@ -785,3 +785,139 @@ WHERE go.name = 'water_explosion'
       WHERE pv.game_object_id = go.id
         AND pv.parameter_id = p.id
   );
+
+WITH required_tags AS (
+    SELECT tag_name
+    FROM (
+        VALUES
+            ('TYPE_Unit'),
+            ('CAT_Small'),
+            ('CAT_Ranged'),
+            ('CAT_Flying'),
+            ('CAT_AoE'),
+            ('CAT_Building')
+    ) AS tags(tag_name)
+),
+inserted_tags AS (
+    INSERT INTO tags(name)
+    SELECT tag_name
+    FROM required_tags rt
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM tags t
+        WHERE t.name = rt.tag_name
+    )
+    RETURNING id, name
+),
+target_tags AS (
+    SELECT id, name FROM inserted_tags
+    UNION ALL
+    SELECT t.id, t.name
+    FROM tags t
+    JOIN required_tags rt ON rt.tag_name = t.name
+),
+prefab_tag_seed AS (
+    SELECT *
+    FROM (
+        VALUES
+            ('ember_spirit', 'TYPE_Unit'),
+            ('ember_spirit', 'CAT_Small'),
+            ('seed_spirit', 'TYPE_Unit'),
+            ('seed_spirit', 'CAT_Small'),
+            ('water_slime', 'TYPE_Unit'),
+            ('water_slime', 'CAT_Small'),
+            ('fire_slime', 'TYPE_Unit'),
+            ('fire_slime', 'CAT_Small'),
+            ('electric_slime', 'TYPE_Unit'),
+            ('electric_slime', 'CAT_Small'),
+            ('leaf_slime', 'TYPE_Unit'),
+            ('leaf_slime', 'CAT_Small'),
+            ('rock_slime', 'TYPE_Unit'),
+            ('rock_slime', 'CAT_Small'),
+            ('wind_slime', 'TYPE_Unit'),
+            ('wind_slime', 'CAT_Small'),
+            ('water_shot', 'TYPE_Unit'),
+            ('water_shot', 'CAT_Ranged'),
+            ('fire_shot', 'TYPE_Unit'),
+            ('fire_shot', 'CAT_Ranged'),
+            ('electric_shot', 'TYPE_Unit'),
+            ('electric_shot', 'CAT_Ranged'),
+            ('rock_rolling', 'TYPE_Unit'),
+            ('rock_rolling', 'CAT_Ranged'),
+            ('wind_blade', 'TYPE_Unit'),
+            ('wind_blade', 'CAT_Ranged'),
+            ('will_o_wisp', 'TYPE_Unit'),
+            ('will_o_wisp', 'CAT_Ranged'),
+            ('bubble_spirit', 'TYPE_Unit'),
+            ('bubble_spirit', 'CAT_Ranged'),
+            ('bubble_spirit', 'CAT_Flying'),
+            ('bubble_generator', 'TYPE_Unit'),
+            ('bubble_generator', 'CAT_Building'),
+            ('fire_explode', 'TYPE_Unit'),
+            ('fire_explode', 'CAT_AoE'),
+            ('water_explode', 'TYPE_Unit'),
+            ('water_explode', 'CAT_AoE'),
+            ('water_explosion', 'TYPE_Unit'),
+            ('water_explosion', 'CAT_AoE'),
+            ('leaf_explode', 'TYPE_Unit'),
+            ('leaf_explode', 'CAT_AoE'),
+            ('rock_explode', 'TYPE_Unit'),
+            ('rock_explode', 'CAT_AoE'),
+            ('electric_explode', 'TYPE_Unit'),
+            ('electric_explode', 'CAT_AoE'),
+            ('wind_explode', 'TYPE_Unit'),
+            ('wind_explode', 'CAT_AoE'),
+            ('magma_explosion', 'TYPE_Unit'),
+            ('magma_explosion', 'CAT_AoE'),
+            ('shock_overload', 'TYPE_Unit'),
+            ('shock_overload', 'CAT_AoE'),
+            ('fire_drop', 'TYPE_Unit'),
+            ('fire_drop', 'CAT_AoE'),
+            ('rain_cloud', 'TYPE_Unit'),
+            ('rain_cloud', 'CAT_AoE'),
+            ('nature_drop', 'TYPE_Unit'),
+            ('nature_drop', 'CAT_AoE'),
+            ('rock_drop', 'TYPE_Unit'),
+            ('rock_drop', 'CAT_AoE'),
+            ('lightning_drop', 'TYPE_Unit'),
+            ('lightning_drop', 'CAT_AoE'),
+            ('leaf_drop', 'TYPE_Unit'),
+            ('leaf_drop', 'CAT_AoE'),
+            ('wind_drop', 'TYPE_Unit'),
+            ('wind_drop', 'CAT_AoE'),
+            ('sand_storm', 'TYPE_Unit'),
+            ('sand_storm', 'CAT_AoE'),
+            ('fire_summon', 'TYPE_Unit'),
+            ('fire_summon', 'CAT_Building'),
+            ('electric_summon', 'TYPE_Unit'),
+            ('electric_summon', 'CAT_Building'),
+            ('rock_summon', 'TYPE_Unit'),
+            ('rock_summon', 'CAT_Building'),
+            ('wind_summon', 'TYPE_Unit'),
+            ('wind_summon', 'CAT_Building'),
+            ('fire_field', 'TYPE_Unit'),
+            ('fire_field', 'CAT_AoE'),
+            ('water_field', 'TYPE_Unit'),
+            ('water_field', 'CAT_AoE'),
+            ('electric_field', 'TYPE_Unit'),
+            ('electric_field', 'CAT_AoE'),
+            ('leaf_field', 'TYPE_Unit'),
+            ('leaf_field', 'CAT_AoE'),
+            ('fire_spirit', 'TYPE_Unit'),
+            ('fire_spirit', 'CAT_Ranged'),
+            ('fire_spirit', 'CAT_Flying'),
+            ('magma_spirit', 'TYPE_Unit'),
+            ('magma_spirit', 'CAT_Ranged')
+    ) AS seed(game_object_name, tag_name)
+)
+INSERT INTO game_object_tags(game_object_id, tag_id)
+SELECT go.id, tt.id
+FROM prefab_tag_seed pts
+JOIN game_objects go ON go.name = pts.game_object_name
+JOIN target_tags tt ON tt.name = pts.tag_name
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM game_object_tags got
+    WHERE got.game_object_id = go.id
+      AND got.tag_id = tt.id
+);
