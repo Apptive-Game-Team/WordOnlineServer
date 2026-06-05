@@ -16,6 +16,7 @@ public enum ParameterKey {
     HP("hp"),
     MASS("mass"),
     MAX_MANA("max_mana"),
+    PROJECTILE_SPEED("projectile_speed"),
     PUSH_FORCE("push_force"),
     PUSH_RANGE_X("push_range_x"),
     PUSH_RANGE_Y("push_range_y"),

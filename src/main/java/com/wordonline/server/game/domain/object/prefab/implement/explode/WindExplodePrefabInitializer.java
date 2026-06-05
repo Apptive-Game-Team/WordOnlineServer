@@ -25,14 +25,13 @@ public class WindExplodePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var explodeParameters = parameters.object(GameObjectKey.EXPLODE);
-        var windShootParameters = parameters.object(GameObjectKey.WIND_SHOOT);
+        var explodeParameters = parameters.object(GameObjectKey.WIND_EXPLODE);
         gameObject.addCollider(new CircleCollider(gameObject, explodeParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new KnockbackEffectProvider(gameObject, Effect.Knockback));
         gameObject.getComponents().add(new Explode(
                 gameObject,
-                windShootParameters.intValue(ParameterKey.DAMAGE),
+                explodeParameters.intValue(ParameterKey.DAMAGE),
                 explodeParameters.floatValue(ParameterKey.RADIUS)));
     }
 }

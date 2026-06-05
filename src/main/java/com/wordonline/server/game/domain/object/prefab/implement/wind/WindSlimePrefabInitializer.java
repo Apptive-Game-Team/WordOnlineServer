@@ -27,7 +27,7 @@ public class WindSlimePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var slimeParameters = parameters.object(GameObjectKey.SLIME);
+        var slimeParameters = parameters.object(GameObjectKey.WIND_SLIME);
         gameObject.getComponents().add(new RigidBody(gameObject, slimeParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, slimeParameters.floatValue(ParameterKey.RADIUS), false));

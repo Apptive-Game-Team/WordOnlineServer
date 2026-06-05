@@ -30,11 +30,10 @@ public class MagmaSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var fireSpiritParameters = parameters.object(GameObjectKey.FIRE_SPIRIT);
         var magmaSpiritParameters = parameters.object(GameObjectKey.MAGMA_SPIRIT);
-        gameObject.getComponents().add(new RigidBody(gameObject, fireSpiritParameters.intValue(ParameterKey.MASS)));
+        gameObject.getComponents().add(new RigidBody(gameObject, magmaSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, fireSpiritParameters.floatValue(ParameterKey.RADIUS), false));
+        gameObject.addCollider(new CircleCollider(gameObject, magmaSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new SummonerMob(gameObject,
                 magmaSpiritParameters.intValue(ParameterKey.HP),
                 magmaSpiritParameters.floatValue(ParameterKey.SPEED),

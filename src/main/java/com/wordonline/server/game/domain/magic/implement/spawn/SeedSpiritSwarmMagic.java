@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 @Component("seed_spirit_swarm")
 public class SeedSpiritSwarmMagic extends AbstractSwarmSpawnMagic {
     public SeedSpiritSwarmMagic(Parameters parameters) {
-        super(PrefabType.SeedSpirit, parameters.object(GameObjectKey.SLIME));
+        super(PrefabType.SeedSpirit, parameters.object(GameObjectKey.SEED_SPIRIT));
     }
 }

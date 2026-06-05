@@ -26,7 +26,7 @@ public class RainCloudPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var sandStormParameters = parameters.object(GameObjectKey.SAND_STORM);
+        var sandStormParameters = parameters.object(GameObjectKey.RAIN_CLOUD);
         gameObject.addCollider(new CircleCollider(gameObject, sandStormParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));

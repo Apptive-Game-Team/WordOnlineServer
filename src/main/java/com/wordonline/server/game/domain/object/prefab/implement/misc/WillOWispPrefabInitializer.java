@@ -22,7 +22,7 @@ public class WillOWispPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        var shootParameters = parameters.object(GameObjectKey.WILL_O_WISP);
         gameObject.addCollider(new CircleCollider(gameObject, shootParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.NONE);
         gameObject.getComponents().add(new MindControlShot(gameObject, shootParameters.floatValue(ParameterKey.SPEED)));

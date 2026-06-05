@@ -28,7 +28,7 @@ public class LeafSlimePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var slimeParameters = parameters.object(GameObjectKey.SLIME);
+        var slimeParameters = parameters.object(getGameObjectKey());
         gameObject.getComponents().add(new RigidBody(gameObject, slimeParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, slimeParameters.floatValue(ParameterKey.RADIUS), false));
@@ -41,5 +41,9 @@ public class LeafSlimePrefabInitializer extends PrefabInitializer {
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.LeafField, 1f));
         gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
+    }
+
+    protected GameObjectKey getGameObjectKey() {
+        return GameObjectKey.LEAF_SLIME;
     }
 }

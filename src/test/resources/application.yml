@@ -10,7 +10,7 @@ spring:
   sql:
     init:
       schema-locations: classpath:schema-h2.sql
-      data-locations: classpath:data-h2.sql,classpath:sql/component_parameters.sql
+      data-locations: classpath:data-h2.sql,classpath:sql/component_prefab_parameters.sql
       mode: always
   jpa:
     properties:

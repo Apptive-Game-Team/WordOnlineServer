@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 @Component("water_slime_swarm")
 public class WaterSlimeSwarmMagic extends AbstractSwarmSpawnMagic {
     public WaterSlimeSwarmMagic(Parameters parameters) {
-        super(PrefabType.WaterSlime, parameters.object(GameObjectKey.SLIME));
+        super(PrefabType.WaterSlime, parameters.object(GameObjectKey.WATER_SLIME));
     }
 }

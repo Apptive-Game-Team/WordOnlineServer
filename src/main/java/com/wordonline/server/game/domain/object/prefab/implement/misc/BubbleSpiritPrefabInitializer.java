@@ -30,7 +30,7 @@ public class BubbleSpiritPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         var bubbleSpiritParameters = parameters.object(GameObjectKey.BUBBLE_SPIRIT);
-        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        var shootParameters = parameters.object(GameObjectKey.BUBBLE_SPIRIT);
         gameObject.addComponent(new RigidBody(gameObject, bubbleSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject, GameConfig.AERIAL_MOB_INIT_HEIGHT));
         gameObject.addCollider(new CircleCollider(gameObject, bubbleSpiritParameters.floatValue(ParameterKey.RADIUS), false));
@@ -40,7 +40,7 @@ public class BubbleSpiritPrefabInitializer extends PrefabInitializer {
                 bubbleSpiritParameters.intValue(ParameterKey.DAMAGE),
                 bubbleSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
                 bubbleSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
-                shootParameters.floatValue(ParameterKey.SPEED)
+                shootParameters.floatValue(ParameterKey.PROJECTILE_SPEED)
         ));
         gameObject.setElement(EnumSet.of(ElementType.WATER, ElementType.WIND));
         gameObject.addComponent(new CommonEffectReceiver(gameObject));

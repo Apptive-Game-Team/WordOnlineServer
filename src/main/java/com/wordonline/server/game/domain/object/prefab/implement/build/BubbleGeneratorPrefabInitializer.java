@@ -28,7 +28,7 @@ public class BubbleGeneratorPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         var bubbleGeneratorParameters = parameters.object(GameObjectKey.BUBBLE_GENERATOR);
-        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        var shootParameters = parameters.object(GameObjectKey.BUBBLE_GENERATOR);
         gameObject.addComponent(new RigidBody(gameObject, bubbleGeneratorParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, bubbleGeneratorParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new BubbleGeneratorMob(
@@ -36,7 +36,7 @@ public class BubbleGeneratorPrefabInitializer extends PrefabInitializer {
                 bubbleGeneratorParameters.intValue(ParameterKey.HP),
                 bubbleGeneratorParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
                 bubbleGeneratorParameters.floatValue(ParameterKey.ATTACK_RANGE),
-                shootParameters.floatValue(ParameterKey.SPEED)
+                shootParameters.floatValue(ParameterKey.PROJECTILE_SPEED)
         ));
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,

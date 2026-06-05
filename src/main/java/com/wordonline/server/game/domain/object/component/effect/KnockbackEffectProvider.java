@@ -29,16 +29,13 @@ public class KnockbackEffectProvider extends EffectProvider {
 
     private float GetProximity(GameObject otherObject)
     {
-        Parameters parameters = getGameContext().getParameters();
         if(gameObject.getComponent(Shot.class) != null)
         {
-            var shootParameters = parameters.object(GameObjectKey.SHOOT);
-            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / shootParameters.doubleValue(ParameterKey.RADIUS));
+            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / gameObject.getFirstCircleCollider().map(collider -> (double) collider.getRadius()).orElse(1d));
         }
         else if(gameObject.getComponent(Explode.class) != null)
         {
-            var explodeParameters = parameters.object(GameObjectKey.EXPLODE);
-            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / explodeParameters.doubleValue(ParameterKey.RADIUS));
+            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / gameObject.getComponent(Explode.class).getRadius());
         }
 
         return 0;

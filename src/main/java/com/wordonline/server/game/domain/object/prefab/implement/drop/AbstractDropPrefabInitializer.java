@@ -24,10 +24,22 @@ public abstract class AbstractDropPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var dropParameters = parameters.object(GameObjectKey.DROP);
+        var dropParameters = parameters.object(getGameObjectKey(elementType));
         gameObject.addCollider(new CircleCollider(gameObject, dropParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(elementType);
         gameObject.getComponents().add(new Drop(gameObject, dropParameters.intValue(ParameterKey.DAMAGE)));
+    }
+
+    private static GameObjectKey getGameObjectKey(ElementType elementType) {
+        return switch (elementType) {
+            case FIRE -> GameObjectKey.FIRE_DROP;
+            case WATER -> GameObjectKey.RAIN_CLOUD;
+            case NATURE -> GameObjectKey.NATURE_DROP;
+            case ROCK -> GameObjectKey.ROCK_DROP;
+            case LIGHTNING -> GameObjectKey.LIGHTNING_DROP;
+            case WIND -> GameObjectKey.WIND_DROP;
+            default -> GameObjectKey.DROP;
+        };
     }
 
     private static PrefabType getPrefabType(ElementType elementType) {

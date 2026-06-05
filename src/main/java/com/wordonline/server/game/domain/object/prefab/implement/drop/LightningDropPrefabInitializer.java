@@ -27,7 +27,7 @@ public class LightningDropPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var dropParameters = parameters.object(GameObjectKey.DROP);
+        var dropParameters = parameters.object(GameObjectKey.LIGHTNING_DROP);
         float radius = dropParameters.floatValue(ParameterKey.RADIUS);
 
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));

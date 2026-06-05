@@ -28,7 +28,7 @@ public class LeafairPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var dropParameters = parameters.object(GameObjectKey.DROP);
+        var dropParameters = parameters.object(GameObjectKey.LEAF_DROP);
         float radius = dropParameters.floatValue(ParameterKey.RADIUS);
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(EnumSet.of(ElementType.NATURE));
