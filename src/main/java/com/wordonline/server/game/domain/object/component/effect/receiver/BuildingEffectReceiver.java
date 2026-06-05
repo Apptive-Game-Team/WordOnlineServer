@@ -31,7 +31,26 @@ public class BuildingEffectReceiver extends CommonEffectReceiver {
                     () -> new DOTStatusEffect(gameObject, 3f, -1, ElementType.NONE, StatusEffectKey.Snared_Receive),
                     EffectApplyPolicy.REFRESH_DURATION,
                     3f);
+            case Inspired -> applyEffect(
+                    StatusEffectKey.Inspired_Receive,
+                    () -> new InspiredStatusEffect(gameObject, 10f, StatusEffectKey.Inspired_Receive),
+                    EffectApplyPolicy.REFRESH_DURATION,
+                    10f);
         }
 
+    }
+
+    @Override
+    public void onReceive(Effect effect, float duration) {
+        if (effect != Effect.Inspired) {
+            onReceive(effect);
+            return;
+        }
+
+        applyEffect(
+                StatusEffectKey.Inspired_Receive,
+                () -> new InspiredStatusEffect(gameObject, duration, StatusEffectKey.Inspired_Receive),
+                EffectApplyPolicy.REFRESH_DURATION,
+                duration);
     }
 }

@@ -103,8 +103,27 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
                     () -> new BubbleStatusEffect(gameObject, 8f, StatusEffectKey.Bubble_Receive),
                     EffectApplyPolicy.REFRESH_DURATION,
                     8f);
+            case Inspired -> applyEffect(
+                    StatusEffectKey.Inspired_Receive,
+                    () -> new InspiredStatusEffect(gameObject, 10f, StatusEffectKey.Inspired_Receive),
+                    EffectApplyPolicy.REFRESH_DURATION,
+                    10f);
 
         }
+    }
+
+    @Override
+    public void onReceive(Effect effect, float duration) {
+        if (effect != Effect.Inspired) {
+            onReceive(effect);
+            return;
+        }
+
+        applyEffect(
+                StatusEffectKey.Inspired_Receive,
+                () -> new InspiredStatusEffect(gameObject, duration, StatusEffectKey.Inspired_Receive),
+                EffectApplyPolicy.REFRESH_DURATION,
+                duration);
     }
 
     @Override

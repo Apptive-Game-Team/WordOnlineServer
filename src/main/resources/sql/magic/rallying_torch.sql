@@ -53,7 +53,8 @@ required_parameters AS (
     FROM (
         VALUES
             ('radius'),
-            ('duration')
+            ('duration'),
+            ('buff_duration')
     ) AS params(parameter_name)
 ),
 inserted_parameters AS (
@@ -79,7 +80,8 @@ parameter_seed_values AS (
     FROM (
         VALUES
             ('radius', 0.6),
-            ('duration', 10.0)
+            ('duration', 10.0),
+            ('buff_duration', 10.0)
     ) AS seed(parameter_name, parameter_value)
 )
 INSERT INTO parameter_values(game_object_id, parameter_id, value)
