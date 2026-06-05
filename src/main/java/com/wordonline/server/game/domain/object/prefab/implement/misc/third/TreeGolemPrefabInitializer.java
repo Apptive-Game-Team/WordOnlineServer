@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.misc.third;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
@@ -28,21 +30,22 @@ public class TreeGolemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("tree_golem", "mass")));
+        var treeGolemParameters = parameters.object(GameObjectKey.TREE_GOLEM);
+        gameObject.addComponent(new RigidBody(gameObject, treeGolemParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("tree_golem", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, treeGolemParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new MeleeAttackMob(gameObject,
-                (int) parameters.getValue("tree_golem", "hp"),
-                (float) parameters.getValue("tree_golem", "speed"),
+                treeGolemParameters.intValue(ParameterKey.HP),
+                treeGolemParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("tree_golem", "damage"),
-                (float) parameters.getValue("tree_golem", "attack_interval")
+                treeGolemParameters.intValue(ParameterKey.DAMAGE),
+                treeGolemParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
         ));
 
         gameObject.addComponent(new SelfHealer(
                 gameObject,
-                (int)  parameters.getValue("tree_golem", "heal_amount"),
-                (float) parameters.getValue("tree_golem", "heal_interval"),
+                treeGolemParameters.intValue(ParameterKey.HEAL_AMOUNT),
+                treeGolemParameters.floatValue(ParameterKey.HEAL_INTERVAL),
                 ElementType.NATURE)
         );
 

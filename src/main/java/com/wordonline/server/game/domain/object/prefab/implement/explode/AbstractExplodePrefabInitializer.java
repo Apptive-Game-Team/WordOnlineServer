@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.explode;
 import java.util.Optional;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
@@ -26,9 +28,10 @@ public abstract class AbstractExplodePrefabInitializer extends PrefabInitializer
 
     @Override
     public void initialize(GameObject gameObject) {
+        var explodeParameters = parameters.object(GameObjectKey.EXPLODE);
         gameObject.addCollider(new CircleCollider(
                 gameObject,
-                (float) parameters.getValue("explode", "radius"),
+                explodeParameters.floatValue(ParameterKey.RADIUS),
                 true
         ));
         gameObject.setElement(elementType);
@@ -38,8 +41,8 @@ public abstract class AbstractExplodePrefabInitializer extends PrefabInitializer
                 );
         gameObject.getComponents().add(new Explode(
                 gameObject,
-                (int) parameters.getValue("explode", "damage"),
-                (float) parameters.getValue("explode", "radius")
+                explodeParameters.intValue(ParameterKey.DAMAGE),
+                explodeParameters.floatValue(ParameterKey.RADIUS)
         ));
     }
 

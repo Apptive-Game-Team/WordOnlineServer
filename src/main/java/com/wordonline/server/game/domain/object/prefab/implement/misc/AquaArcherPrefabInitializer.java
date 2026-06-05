@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -28,16 +30,17 @@ public class AquaArcherPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("aqua_archer", "mass")));
+        var aquaArcherParameters = parameters.object(GameObjectKey.AQUA_ARCHER);
+        gameObject.getComponents().add(new RigidBody(gameObject, aquaArcherParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("aqua_archer", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, aquaArcherParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new ProjectileRangeAttackMob(gameObject,
-                (int) parameters.getValue("aqua_archer", "hp"),
-                (float) parameters.getValue("aqua_archer", "speed"),
+                aquaArcherParameters.intValue(ParameterKey.HP),
+                aquaArcherParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.ANY.bit,
-                (int) parameters.getValue("aqua_archer", "damage"),
-                (float) parameters.getValue("aqua_archer", "attack_interval"),
-                (float) parameters.getValue("aqua_archer", "attack_range"),
+                aquaArcherParameters.intValue(ParameterKey.DAMAGE),
+                aquaArcherParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                aquaArcherParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 "WaterShot",
                 0.5f
         ));

@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.subprefab;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.magic.Drop;
@@ -23,9 +25,10 @@ public class MeteorDropPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("meteor_drop", "radius"), true));
+        var meteorDropParameters = parameters.object(GameObjectKey.METEOR_DROP);
+        gameObject.addCollider(new CircleCollider(gameObject, meteorDropParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.ROCK));
-        gameObject.getComponents().add(new Drop(gameObject, (int) parameters.getValue("meteor_drop", "damage")));
+        gameObject.getComponents().add(new Drop(gameObject, meteorDropParameters.intValue(ParameterKey.DAMAGE)));
     }
 }
 

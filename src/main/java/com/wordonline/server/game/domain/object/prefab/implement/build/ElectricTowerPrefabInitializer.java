@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.build;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -25,21 +27,22 @@ public class ElectricTowerPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("electric_tower", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("electric_tower", "radius"), false));
+        var electricTowerParameters = parameters.object(GameObjectKey.ELECTRIC_TOWER);
+        gameObject.addComponent(new RigidBody(gameObject, electricTowerParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, electricTowerParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new LightningTowerMob(
                 gameObject,
-                (int) parameters.getValue("electric_tower", "hp"),
-                (int) parameters.getValue("electric_tower", "damage"),
-                (int) parameters.getValue("electric_tower", "chain_damage"),
-                (int) parameters.getValue("electric_tower", "chain_count"),
-                (float) parameters.getValue("electric_tower", "attack_interval"),
-                (float) parameters.getValue("electric_tower", "attack_range"),
-                (float) parameters.getValue("electric_tower", "chain_radius")
+                electricTowerParameters.intValue(ParameterKey.HP),
+                electricTowerParameters.intValue(ParameterKey.DAMAGE),
+                electricTowerParameters.intValue(ParameterKey.CHAIN_DAMAGE),
+                electricTowerParameters.intValue(ParameterKey.CHAIN_COUNT),
+                electricTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                electricTowerParameters.floatValue(ParameterKey.ATTACK_RANGE),
+                electricTowerParameters.floatValue(ParameterKey.CHAIN_RADIUS)
         ));
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,
-                (float) parameters.getValue("electric_tower", "duration")
+                electricTowerParameters.floatValue(ParameterKey.DURATION)
         ));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new BuildingEffectReceiver(gameObject));

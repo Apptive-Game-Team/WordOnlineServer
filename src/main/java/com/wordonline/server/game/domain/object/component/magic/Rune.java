@@ -5,6 +5,8 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 
 public class Rune extends Component implements Collidable {
 
@@ -34,10 +36,9 @@ public class Rune extends Component implements Collidable {
     }
 
     private void explode() {
-        float radius = (float) getGameContext().getParameters()
-                .getValue("rune", "attack_range");
-        int damage = (int) getGameContext().getParameters()
-                .getValue("rune", "damage");
+        var runeParameters = getGameContext().getParameters().object(GameObjectKey.RUNE);
+        float radius = runeParameters.floatValue(ParameterKey.ATTACK_RANGE);
+        int damage = runeParameters.intValue(ParameterKey.DAMAGE);
         AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
         getGameContext().getPhysics()
                 .overlapSphereAll(gameObject, radius)

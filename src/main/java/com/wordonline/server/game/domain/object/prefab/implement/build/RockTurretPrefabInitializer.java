@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.build;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -26,16 +28,17 @@ public class RockTurretPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        int hp = (int) parameters.getValue("rock_turret", "hp");
-        gameObject.getComponents().add(new RigidBody(gameObject, (int) parameters.getValue("rock_turret", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("rock_turret", "radius"), false));
+        var rockTurretParameters = parameters.object(GameObjectKey.ROCK_TURRET);
+        int hp = rockTurretParameters.intValue(ParameterKey.HP);
+        gameObject.getComponents().add(new RigidBody(gameObject, rockTurretParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, rockTurretParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(new Turret(gameObject,
                 hp,
-                (int) parameters.getValue("rock_turret", "damage"),
+                rockTurretParameters.intValue(ParameterKey.DAMAGE),
                 TargetMask.GROUND.bit,
                 0.2f,
-                (float) parameters.getValue("rock_turret", "attack_interval"),
-                (float) parameters.getValue("rock_turret", "attack_range")
+                rockTurretParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                rockTurretParameters.floatValue(ParameterKey.ATTACK_RANGE)
         ));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, hp));
         gameObject.setElement(ElementType.ROCK);

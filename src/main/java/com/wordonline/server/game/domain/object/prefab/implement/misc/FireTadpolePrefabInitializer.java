@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -28,15 +30,16 @@ public class FireTadpolePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_tadpole", "mass")));
+        var fireTadpoleParameters = parameters.object(GameObjectKey.FIRE_TADPOLE);
+        gameObject.addComponent(new RigidBody(gameObject, fireTadpoleParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_tadpole", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, fireTadpoleParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new MeleeAttackMob(gameObject,
-                (int) parameters.getValue("fire_tadpole", "hp"),
-                (float) parameters.getValue("fire_tadpole", "speed"),
+                fireTadpoleParameters.intValue(ParameterKey.HP),
+                fireTadpoleParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("fire_tadpole", "damage"),
-                (float) parameters.getValue("fire_tadpole", "attack_interval")));
+                fireTadpoleParameters.intValue(ParameterKey.DAMAGE),
+                fireTadpoleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
         gameObject.setElement(ElementType.FIRE);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));

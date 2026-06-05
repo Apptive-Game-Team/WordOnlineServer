@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
@@ -24,14 +26,15 @@ public class TowerbackPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("towerback", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("towerback", "radius"), false));
+        var towerbackParameters = parameters.object(GameObjectKey.TOWERBACK);
+        gameObject.addComponent(new RigidBody(gameObject, towerbackParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, towerbackParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new Tower(gameObject,
-                (int) parameters.getValue("towerback", "hp"),
-                (int) parameters.getValue("towerback", "damage"),
+                towerbackParameters.intValue(ParameterKey.HP),
+                towerbackParameters.intValue(ParameterKey.DAMAGE),
                 TargetMask.AIR.bit,
-                (float) parameters.getValue("towerback", "attack_interval"),
-                (float) parameters.getValue("towerback", "attack_range")
+                towerbackParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                towerbackParameters.floatValue(ParameterKey.ATTACK_RANGE)
         ));
         gameObject.setElement(ElementType.ROCK);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));

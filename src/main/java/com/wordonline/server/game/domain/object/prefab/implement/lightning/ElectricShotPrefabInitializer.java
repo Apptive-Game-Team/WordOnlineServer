@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.lightning;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
@@ -23,12 +25,13 @@ public class ElectricShotPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("shoot", "radius"), true));
+        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        gameObject.addCollider(new CircleCollider(gameObject, shootParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new Shot(gameObject,
-                (int) parameters.getValue("shoot", "damage"),
-                (float) parameters.getValue("shoot", "speed")
+                shootParameters.intValue(ParameterKey.DAMAGE),
+                shootParameters.floatValue(ParameterKey.SPEED)
         ));
     }
 }

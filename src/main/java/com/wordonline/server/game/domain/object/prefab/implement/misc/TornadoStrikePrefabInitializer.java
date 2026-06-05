@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -26,16 +28,17 @@ public class TornadoStrikePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("tornado_strike", "radius"), true));
+        var tornadoStrikeParameters = parameters.object(GameObjectKey.TORNADO_STRIKE);
+        gameObject.addCollider(new CircleCollider(gameObject, tornadoStrikeParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WIND));
         gameObject.getComponents().add(new Tornado(gameObject,
-                (float) parameters.getValue("tornado_strike", "speed"),
-                (int) parameters.getValue("tornado_strike", "damage"),
-                (float) parameters.getValue("tornado_strike", "radius"),
-                (float) parameters.getValue("tornado_strike", "duration"),
-                (float) parameters.getValue("tornado_strike", "attack_interval")
+                tornadoStrikeParameters.floatValue(ParameterKey.SPEED),
+                tornadoStrikeParameters.intValue(ParameterKey.DAMAGE),
+                tornadoStrikeParameters.floatValue(ParameterKey.RADIUS),
+                tornadoStrikeParameters.floatValue(ParameterKey.DURATION),
+                tornadoStrikeParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
                 ));
 //        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("tornado_strike", "duration")));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, tornadoStrikeParameters.floatValue(ParameterKey.DURATION)));
     }
 }

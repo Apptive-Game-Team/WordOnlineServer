@@ -11,6 +11,8 @@ import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import org.springframework.stereotype.Component;
 
 @Component("zap_mouse_prefab")
@@ -25,17 +27,18 @@ public class ZapMousePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("zap_mouse", "mass")));
+        var zapMouseParameters = parameters.object(GameObjectKey.ZAP_MOUSE);
+        gameObject.addComponent(new RigidBody(gameObject, zapMouseParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("zap_mouse", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, zapMouseParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new CowardMob(gameObject,
-                (int) parameters.getValue("zap_mouse", "hp"),
-                (float) parameters.getValue("zap_mouse", "speed"),
+                zapMouseParameters.intValue(ParameterKey.HP),
+                zapMouseParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (int) parameters.getValue("zap_mouse", "damage"),
-                (float) parameters.getValue("zap_mouse", "attack_interval"),
-                (float) parameters.getValue("zap_mouse", "detection_range"),
-                (float) parameters.getValue("zap_mouse", "panic_duration")));
+                zapMouseParameters.intValue(ParameterKey.DAMAGE),
+                zapMouseParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                zapMouseParameters.floatValue(ParameterKey.DETECTION_RANGE),
+                zapMouseParameters.floatValue(ParameterKey.PANIC_DURATION)));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

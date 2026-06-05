@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.fire;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -23,9 +25,10 @@ public class FireFieldPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("field", "radius"), true));
+        var fieldParameters = parameters.object(GameObjectKey.FIELD);
+        gameObject.addCollider(new CircleCollider(gameObject, fieldParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("field", "duration")));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, fieldParameters.floatValue(ParameterKey.DURATION)));
     }
 }

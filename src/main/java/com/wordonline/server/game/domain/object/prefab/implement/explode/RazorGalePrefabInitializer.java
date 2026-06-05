@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.explode;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -22,14 +24,15 @@ public class RazorGalePrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        float radius = (float) parameters.getValue("razor_gale", "radius");
+        var razorGaleParameters = parameters.object(GameObjectKey.RAZOR_GALE);
+        float radius = razorGaleParameters.floatValue(ParameterKey.RADIUS);
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.WIND);
         gameObject.addComponent(new RazorGale(
                 gameObject,
-                (int) parameters.getValue("razor_gale", "damage"),
+                razorGaleParameters.intValue(ParameterKey.DAMAGE),
                 radius,
-                (float) parameters.getValue("razor_gale", "attack_interval")));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("razor_gale", "duration")));
+                razorGaleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, razorGaleParameters.floatValue(ParameterKey.DURATION)));
     }
 }

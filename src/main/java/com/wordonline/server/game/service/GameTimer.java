@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 
 @Scope("prototype")
 @Component
@@ -15,8 +17,9 @@ public class GameTimer {
     private final long feverTimeDuration;
 
     public GameTimer(Parameters parameters) {
-        duration = (long) parameters.getValue("game", "duration");
-        feverTimeDuration = (long) parameters.getValue("game", "fever_duration");
+        var gameParameters = parameters.object(GameObjectKey.GAME);
+        duration = gameParameters.longValue(ParameterKey.DURATION);
+        feverTimeDuration = gameParameters.longValue(ParameterKey.FEVER_DURATION);
         startTime = System.currentTimeMillis();
         endTime = startTime + duration;
     }

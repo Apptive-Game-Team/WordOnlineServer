@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
@@ -27,7 +29,8 @@ public class ManaCharger {
 
     @PostConstruct
     public void initMaxMana() {
-        MAX_MANA = (int) parameters.getValue("player", "max_mana");
+        var playerParameters = parameters.object(GameObjectKey.PLAYER);
+        MAX_MANA = playerParameters.intValue(ParameterKey.MAX_MANA);
     }
 
     public void updateManaCharge(float deltaValue) {

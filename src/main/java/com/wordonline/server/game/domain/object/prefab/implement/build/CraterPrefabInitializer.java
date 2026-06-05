@@ -3,6 +3,8 @@ package com.wordonline.server.game.domain.object.prefab.implement.build;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
@@ -26,11 +28,12 @@ public class CraterPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("crater", "mass")));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("crater", "radius"), false));
-        gameObject.addComponent(new DummyMob(gameObject, (int) parameters.getValue("crater", "hp")));
-        gameObject.addComponent(new CraterSpawner(gameObject, (float) parameters.getValue("crater", "attack_interval")));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, (float) parameters.getValue("crater", "duration")));
+        var craterParameters = parameters.object(GameObjectKey.CRATER);
+        gameObject.addComponent(new RigidBody(gameObject, craterParameters.intValue(ParameterKey.MASS)));
+        gameObject.addCollider(new CircleCollider(gameObject, craterParameters.floatValue(ParameterKey.RADIUS), false));
+        gameObject.addComponent(new DummyMob(gameObject, craterParameters.intValue(ParameterKey.HP)));
+        gameObject.addComponent(new CraterSpawner(gameObject, craterParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, craterParameters.floatValue(ParameterKey.DURATION)));
         gameObject.setElement(ElementType.FIRE);
         gameObject.addComponent(new BuildingEffectReceiver(gameObject));
     }

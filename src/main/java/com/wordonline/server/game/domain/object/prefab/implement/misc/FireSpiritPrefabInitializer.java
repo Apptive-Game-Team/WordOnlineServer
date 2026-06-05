@@ -1,6 +1,8 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.AreaEffectProvider;
@@ -30,16 +32,17 @@ public class FireSpiritPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        gameObject.addComponent(new RigidBody(gameObject, (int) parameters.getValue("fire_spirit", "mass")));
+        var fireSpiritParameters = parameters.object(GameObjectKey.FIRE_SPIRIT);
+        gameObject.addComponent(new RigidBody(gameObject, fireSpiritParameters.intValue(ParameterKey.MASS)));
         gameObject.addComponent(new ZPhysics(gameObject));
-        gameObject.addCollider(new CircleCollider(gameObject, (float) parameters.getValue("fire_spirit", "radius"), false));
+        gameObject.addCollider(new CircleCollider(gameObject, fireSpiritParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new SprayingAttacker(gameObject,
-                (int) parameters.getValue("fire_spirit", "hp"),
-                (float) parameters.getValue("fire_spirit", "speed"),
+                fireSpiritParameters.intValue(ParameterKey.HP),
+                fireSpiritParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
-                (float) parameters.getValue("fire_spirit", "attack_interval"),
-                (float) parameters.getValue("fire_spirit", "attack_range"),
-                (int) parameters.getValue("fire_spirit", "damage"),
+                fireSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                fireSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
+                fireSpiritParameters.intValue(ParameterKey.DAMAGE),
                 Effect.Burn,
                 "SprayedFlame"
         ));
@@ -48,7 +51,7 @@ public class FireSpiritPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new AreaEffectProvider(
                 gameObject,
                 1f,
-                (float) parameters.getValue("fire_spirit", "attack_range"),
+                fireSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 Effect.Burn
                 ));
     }
