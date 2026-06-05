@@ -15,12 +15,17 @@ import java.util.Set;
 
 public class WindBladeShot extends Shot {
 
+    private static final int DAMAGE_DECAY_NUMERATOR = 2;
+    private static final int DAMAGE_DECAY_DENOMINATOR = 3;
+
     private final float radius;
     private final Set<Integer> piercedTargetIds = new HashSet<>();
+    private int currentDamage;
 
     public WindBladeShot(GameObject gameObject, int damage, float speed, float radius) {
         super(gameObject, damage, speed);
         this.radius = radius;
+        this.currentDamage = damage;
     }
 
     @Override
@@ -47,8 +52,9 @@ public class WindBladeShot extends Shot {
 
         otherObject.setStatus(Status.Damaged);
 
-        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(currentDamage, gameObject.getElement().total());
         damageables.forEach(damageable -> damageable.onDamaged(attackInfo));
+        currentDamage = currentDamage * DAMAGE_DECAY_NUMERATOR / DAMAGE_DECAY_DENOMINATOR;
 
         EffectReceiver effectReceiver = otherObject.getComponent(EffectReceiver.class);
         Vector3 shotDirection = getDirection();
