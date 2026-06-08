@@ -28,7 +28,7 @@ public abstract class AbstractExplodePrefabInitializer extends PrefabInitializer
 
     @Override
     public void initialize(GameObject gameObject) {
-        var explodeParameters = parameters.object(GameObjectKey.EXPLODE);
+        var explodeParameters = parameters.object(getGameObjectKey(elementType));
         gameObject.addCollider(new CircleCollider(
                 gameObject,
                 explodeParameters.floatValue(ParameterKey.RADIUS),
@@ -44,6 +44,18 @@ public abstract class AbstractExplodePrefabInitializer extends PrefabInitializer
                 explodeParameters.intValue(ParameterKey.DAMAGE),
                 explodeParameters.floatValue(ParameterKey.RADIUS)
         ));
+    }
+
+    public static GameObjectKey getGameObjectKey(ElementType elementType) {
+        return switch (elementType) {
+            case FIRE -> GameObjectKey.FIRE_EXPLODE;
+            case ROCK -> GameObjectKey.ROCK_EXPLODE;
+            case WIND -> GameObjectKey.WIND_EXPLODE;
+            case WATER -> GameObjectKey.WATER_EXPLODE;
+            case NATURE -> GameObjectKey.LEAF_EXPLODE;
+            case LIGHTNING -> GameObjectKey.ELECTRIC_EXPLODE;
+            default -> GameObjectKey.EXPLODE;
+        };
     }
 
     public static PrefabType getPrefabType(ElementType elementType) {

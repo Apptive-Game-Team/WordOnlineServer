@@ -11,7 +11,6 @@ import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.DamageInterceptor;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.GaugeComponent;
-import com.wordonline.server.game.domain.object.component.ItemCarrier;
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.BaseStatusEffect;
 import com.wordonline.server.game.dto.frame.GaugeCategory;
 import com.wordonline.server.game.dto.frame.GaugeDto;
@@ -93,6 +92,5 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
         this.maxHp = maxHp;
         this.hp = maxHp;
         this.speed = new Stat(speed);
-        gameObject.getComponents().add(new ItemCarrier(gameObject));
     }
 }

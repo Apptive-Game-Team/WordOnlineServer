@@ -2,18 +2,24 @@ package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.directive.RallyMoveDirective;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
+import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 
 public class RallyingTorch extends MagicComponent {
     private final float duration;
+    private final float buffRadius;
+    private final float buffDuration;
     private boolean landed;
     private float elapsedTime;
 
-    public RallyingTorch(GameObject gameObject, float duration) {
+    public RallyingTorch(GameObject gameObject, float duration, float buffRadius, float buffDuration) {
         super(gameObject);
         this.duration = duration;
+        this.buffRadius = buffRadius;
+        this.buffDuration = buffDuration;
     }
 
     @Override
@@ -36,6 +42,10 @@ public class RallyingTorch extends MagicComponent {
         getGameContext().getGameSessionData().gameObjects.stream()
                 .filter(this::canRally)
                 .forEach(this::applyRally);
+
+        getGameContext().overlapSphereAll(gameObject, buffRadius).stream()
+                .filter(this::canInspire)
+                .forEach(this::applyInspired);
     }
 
     @Override
@@ -71,5 +81,16 @@ public class RallyingTorch extends MagicComponent {
         if (!pending) {
             target.addComponent(new RallyMoveDirective(target, gameObject));
         }
+    }
+
+    private boolean canInspire(GameObject target) {
+        if (target == gameObject) return false;
+        if (gameObject.getMaster() == Master.None) return false;
+        if (target.getMaster() != gameObject.getMaster()) return false;
+        return target.getComponent(EffectReceiver.class) != null;
+    }
+
+    private void applyInspired(GameObject target) {
+        target.getComponent(EffectReceiver.class).onReceive(Effect.Inspired, buffDuration);
     }
 }

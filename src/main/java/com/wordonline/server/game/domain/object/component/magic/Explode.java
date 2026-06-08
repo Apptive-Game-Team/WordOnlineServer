@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Status;
+import lombok.Getter;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class Explode extends MagicComponent {
     public static final float EXPLODE_RADIUS = 3f;
 
     protected final int damage;
+    @Getter
     protected final float radius;
     protected final float delay;
 

@@ -1,17 +1,16 @@
 # Prefab Parameter SQL
 
-Use this when a new prefab needs database-backed stats.
-
-When the prefab belongs to a magic, keep this SQL in that magic's file under `src/main/resources/sql/magic/<magic_name>.sql`.
+Use this when a prefab needs database-backed stats or when a value should be tunable through `parameters`.
 
 ## Rules
 
-- `game_objects.name` should match the prefab name or the key used by `parameters.getValue(...)`.
-- Only add the parameter names required by the implementation.
+- Reuse existing parameter names when possible.
+- Add new parameter names only for values that should be tuned in data.
+- Keep system defaults and shared engine constants in code.
+- `game_objects.name` should match the prefab name or the lookup key used in `parameters.object(...)`.
 - Prefer idempotent SQL so the query can be re-run safely.
-- Keep pure implementation constants in code unless tuning through the database is required.
 
-## Generic Template
+## Template
 
 ```sql
 WITH inserted_game_object AS (

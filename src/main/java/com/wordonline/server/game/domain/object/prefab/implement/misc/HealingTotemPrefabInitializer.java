@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.prefab.implement.misc;
 
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.object.component.Item;
 import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
@@ -38,6 +39,7 @@ public class HealingTotemPrefabInitializer extends PrefabInitializer {
                 healingTotemParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
                 healingTotemParameters.floatValue(ParameterKey.RANGE),
                 TargetMask.GROUND.bit));
+        gameObject.addComponent(new Item(gameObject));
         gameObject.setElement(EnumSet.of(ElementType.NATURE,ElementType.WATER));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, healingTotemParameters.intValue(ParameterKey.DURATION)));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));

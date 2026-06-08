@@ -3,11 +3,11 @@ package com.wordonline.server.game.domain.object.component.magic;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.debug.GizmoCategory;
+import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
-import com.wordonline.server.game.dto.Status;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -20,12 +20,12 @@ public class Tornado extends MagicComponent implements Collidable {
     @Getter
     private Vector3 direction;
     private final int damage;
-    private static final float BONUS_DAMAGE = 0.5f;
+    private static final int BONUS_DAMAGE = 2;
     private static final float HEIGHT = 5f;
     private final float speed;
     private final float radius;
-    private final float duration;
     private final float attackInterval;
+    private float timer = 0;
 
 
     // 회전/상승 파라미터 (필요하면 조정)
@@ -37,12 +37,11 @@ public class Tornado extends MagicComponent implements Collidable {
     private final Map<GameObject, Float> orbits = new HashMap<>();
     private List<GameObject> victimList = new ArrayList<>();
 
-    public Tornado(GameObject gameObject, float speed, int damage, float radius, float duration, float attackInterval) {
+    public Tornado(GameObject gameObject, float speed, int damage, float radius, float attackInterval) {
         super(gameObject);
         this.damage = damage;
         this.speed = speed;
         this.radius = radius;
-        this.duration = duration;
         this.attackInterval = attackInterval;
         setTarget(new Vector3(GameConfig.X_MID,GameConfig.Y_MID,0));
     }
@@ -93,6 +92,21 @@ public class Tornado extends MagicComponent implements Collidable {
 
             // 각도 갱신 저장
             angles.put(victim, angle);
+        }
+
+        // apply damage
+        timer += getGameContext().getDeltaTime();
+
+        if (timer >= attackInterval) {
+            applyDamage();
+            timer = 0f;
+        }
+    }
+
+    public void applyDamage() {
+        for (var victim : victimList) {
+            victim.getComponent(Damageable.class)
+                    .onDamaged(new AttackInfo(damage + BONUS_DAMAGE * victimList.size(), ElementType.WIND));
         }
     }
 

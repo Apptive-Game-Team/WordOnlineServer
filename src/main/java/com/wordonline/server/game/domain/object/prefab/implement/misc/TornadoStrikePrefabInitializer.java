@@ -35,10 +35,8 @@ public class TornadoStrikePrefabInitializer extends PrefabInitializer {
                 tornadoStrikeParameters.floatValue(ParameterKey.SPEED),
                 tornadoStrikeParameters.intValue(ParameterKey.DAMAGE),
                 tornadoStrikeParameters.floatValue(ParameterKey.RADIUS),
-                tornadoStrikeParameters.floatValue(ParameterKey.DURATION),
                 tornadoStrikeParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
                 ));
-//        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));
         gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, tornadoStrikeParameters.floatValue(ParameterKey.DURATION)));
     }
 }

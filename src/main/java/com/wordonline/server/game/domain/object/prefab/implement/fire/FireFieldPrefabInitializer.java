@@ -25,7 +25,7 @@ public class FireFieldPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var fieldParameters = parameters.object(GameObjectKey.FIELD);
+        var fieldParameters = parameters.object(GameObjectKey.FIRE_FIELD);
         gameObject.addCollider(new CircleCollider(gameObject, fieldParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.FIRE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));

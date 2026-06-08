@@ -7,18 +7,22 @@ import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Status;
 
 public class FrenzyTotem extends MagicComponent implements Collidable {
-    private static final int SPEED = 5;
-    private static final float RADIUS = 1.5f;
+    private final float speed;
+    private final float attackRange;
+    private final float buffDuration;
 
     private boolean triggered = false;
 
-    public FrenzyTotem(GameObject gameObject) {
+    public FrenzyTotem(GameObject gameObject, float speed, float attackRange, float buffDuration) {
         super(gameObject);
+        this.speed = speed;
+        this.attackRange = attackRange;
+        this.buffDuration = buffDuration;
     }
 
     @Override
     public void update() {
-        gameObject.setPosition(gameObject.getPosition().plus(0, 0, -SPEED * getGameContext().getDeltaTime()));
+        gameObject.setPosition(gameObject.getPosition().plus(0, 0, -speed * getGameContext().getDeltaTime()));
         if (gameObject.getPosition().getZ() < 0) {
             trigger();
         }
@@ -34,10 +38,10 @@ public class FrenzyTotem extends MagicComponent implements Collidable {
         triggered = true;
 
         gameObject.setStatus(Status.Attack);
-        getGameContext().overlapSphereAll(gameObject, RADIUS).stream()
+        getGameContext().overlapSphereAll(gameObject, attackRange).stream()
                 .map(target -> target.getComponent(EffectReceiver.class))
                 .filter(effectReceiver -> effectReceiver != null)
-                .forEach(effectReceiver -> effectReceiver.onReceive(Effect.Frenzy));
+                .forEach(effectReceiver -> effectReceiver.onReceive(Effect.Frenzy, buffDuration));
         gameObject.destroy();
     }
 }

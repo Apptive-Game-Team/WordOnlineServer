@@ -71,6 +71,8 @@ required_parameters AS (
             ('radius'),
             ('hp'),
             ('damage'),
+            ('sub_damage'),
+            ('sub_speed'),
             ('attack_interval'),
             ('attack_range')
     ) AS params(parameter_name)
@@ -101,6 +103,8 @@ parameter_seed_values AS (
             ('radius', 0.65),
             ('hp', 18.0),
             ('damage', 5.0),
+            ('sub_damage', 3.0),
+            ('sub_speed', 0.325),
             ('attack_interval', 1.0),
             ('attack_range', 5.0)
     ) AS seed(parameter_name, parameter_value)
