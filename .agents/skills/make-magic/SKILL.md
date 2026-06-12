@@ -12,7 +12,8 @@ Use this skill when adding a new magic to `word-online/dev/game-server`.
 This skill covers the minimum scaffold:
 
 - create the `Magic` class under `src/main/java/com/wordonline/server/game/domain/magic/implement/...`
-- prepare one SQL file per magic under `src/main/resources/sql/magic/` for `magics` and `magic_cards`
+- prepare a versioned Flyway migration under `../database/migration/` for
+  `magics` and `magic_cards`
 - use an existing prefab bean or coordinate with `make-prefab` when a new prefab is required
 
 ## Workflow
@@ -23,9 +24,15 @@ This skill covers the minimum scaffold:
 3. Choose the correct base class before writing code:
    `AbstractDropMagic`, `AbstractShotMagic`, `AbstractExplosionMagic`, `AbstractSummonMagic`, or a direct `Magic` subclass when needed.
 4. Point the magic at an existing prefab when possible. If the task needs a new prefab, use `make-prefab` alongside this skill instead of adding prefab wiring here.
-5. Write a dedicated SQL file at `src/main/resources/sql/magic/<magic_name>.sql`. Use the magic bean name as `magics.name`, and use card names exactly as stored in `cards.name` with leading capitals such as `Nature`, `Wind`, and `Drop`.
+5. Write a dedicated migration at
+   `../database/migration/V<next>_<YYYYMMDD>__register_<magic_name>.sql`.
+   Use the magic bean name as `magics.name`, and use card names exactly as
+   stored in `cards.name` with leading capitals such as `Nature`, `Wind`, and
+   `Drop`.
 6. For SQL examples and reusable templates, read `references/magic-sql.md`.
-7. Verify compilation with `./gradlew compileJava` when possible.
+7. Commit and push the database migration before game-server code that depends
+   on it.
+8. Verify compilation with `./gradlew compileJava` when possible.
 
 ## File Patterns
 
@@ -41,5 +48,7 @@ This skill covers the minimum scaffold:
 - `magics.name` must match the Spring magic bean name exactly, for example `leafair`.
 - `cards.name` uses leading-capital card names, for example `Nature`, `Wind`, `Drop`.
 - Do not insert or update `cards` from this workflow. Assume the needed cards already exist.
+- Do not add production SQL under this repository's `src/main/resources`.
+- Keep test-only SQL under `src/test/resources`.
 - Prefer extending existing shared abstractions over copying large blocks of logic.
 - If a new prefab, prefab component, or prefab parameter block is needed, hand that part to `make-prefab`.

@@ -65,7 +65,8 @@ When adding a new magic spell, developers use the following steps:
    - Save the class under the correct element family package (e.g. `domain/magic/implement/drop/`).
    - Annotate with `@Component("magic_name")` in lowercase.
 2. **Database Registration**:
-   - Provide a SQL configuration script under `src/main/resources/sql/magic/<magic_name>.sql`.
+   - Add a versioned Flyway migration under `../database/migration/` and
+     publish it before game-server code that requires the new magic.
    - Seed data into `magics` (naming must match the Spring component name exactly) and link card IDs in `magic_cards`.
    - Register the default gameplay parameters (such as `mana_cost`, `range`, `damage`, `radius`) in `parameter_values`.
 3. **Define a Prefab Type**:

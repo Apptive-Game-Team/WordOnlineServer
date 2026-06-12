@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-This repository is a Gradle-based Spring Boot server targeting Java 21. Application code lives under `src/main/java/com/wordonline/server`, organized by feature areas such as `auth`, `session`, `game`, `deck`, `debug`, and `server`. Runtime configuration and seed data live in `src/main/resources` (`application.yml`, `messages*.properties`, `sql/`). Test support files currently live in `src/test/resources`; add Java tests under `src/test/java` using the same package structure as the code under test.
+This repository is a Gradle-based Spring Boot server targeting Java 21. Application code lives under `src/main/java/com/wordonline/server`, organized by feature areas such as `auth`, `session`, `game`, `deck`, `debug`, and `server`. Runtime configuration lives in `src/main/resources`. Test support files currently live in `src/test/resources`; add Java tests under `src/test/java` using the same package structure as the code under test.
 For cross-repo context, see [related-repositories.md](air-file://g9ubn80st39rtru4viru/Users/jeong-yunseong/development/word-online/dev/game-server/docs/related-repositories.md?type=file&root=%252F).
 
 ## Build, Test, and Development Commands
@@ -23,6 +23,14 @@ Name issue branches with the pattern `<issue-label>/<issue-number>`, for example
 
 ## Configuration & Cleanup
 Do not commit secrets from `.env` or environment-specific values from `application.yml`. Keep generated files and local artifacts out of git; remove stray files such as `.DS_Store` before committing.
+
+## Database Changes
+
+`../database/migration` is the source of truth for the shared game database.
+Do not add production schema, seed, backfill, or gameplay data SQL under
+`src/main/resources`. Add a new versioned Flyway migration in the database
+repository and publish that commit before publishing game-server code that
+depends on it. Test-only H2 fixtures remain under `src/test/resources`.
 
 ## Architecture & Game Engine Reference
 

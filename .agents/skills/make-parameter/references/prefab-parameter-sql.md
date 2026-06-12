@@ -2,6 +2,9 @@
 
 Use this when a prefab needs database-backed stats or when a value should be tunable through `parameters`.
 
+Place the SQL in a new versioned migration under `../database/migration/`.
+Do not add production SQL to the game-server resources.
+
 ## Rules
 
 - Reuse existing parameter names when possible.
@@ -9,6 +12,7 @@ Use this when a prefab needs database-backed stats or when a value should be tun
 - Keep system defaults and shared engine constants in code.
 - `game_objects.name` should match the prefab name or the lookup key used in `parameters.object(...)`.
 - Prefer idempotent SQL so the query can be re-run safely.
+- Use the next unused Flyway version and never edit an applied migration.
 
 ## Template
 
