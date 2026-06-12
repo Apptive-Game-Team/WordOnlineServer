@@ -2,6 +2,8 @@ package com.wordonline.server.deck.service;
 
 import com.wordonline.server.deck.dto.*;
 import com.wordonline.server.deck.repository.DeckRepository;
+import com.wordonline.server.bot.domain.BotParticipant;
+import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.game.domain.magic.CardType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.stream.Stream;
 public class DeckService {
 
     private final DeckRepository deckRepository;
+    private final BotPersonaService botPersonaService;
 
     @Transactional(readOnly = true)
     public List<CardType> getSelectedCards(long userId) {
@@ -25,9 +28,41 @@ public class DeckService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<CardType> getParticipantCards(long participantId) {
+        if (BotParticipant.isBot(participantId)) {
+            return getBotPersonaCards(BotParticipant.personaId(participantId));
+        }
+        return getSelectedCards(participantId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CardType> getBotPersonaCards(long botPersonaId) {
+        long deckId = botPersonaService.findOrDefault(botPersonaId).deckId();
+        if (deckId <= 0) {
+            return List.of();
+        }
+        return mapToCardType(deckRepository.getDeck(deckId));
+    }
+
     public List<CardDto> getDeckCards(long deckId) {
         return mapToCardDto(
                 deckRepository.getDeck(deckId)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<CardDto> getParticipantDeckCards(long participantId) {
+        if (BotParticipant.isBot(participantId)) {
+            long deckId = botPersonaService.findByParticipantIdOrDefault(participantId).deckId();
+            if (deckId <= 0) {
+                return List.of();
+            }
+            return getDeckCards(deckId);
+        }
+        return getDeckCards(
+                deckRepository.getSelectedDeckId(participantId)
+                        .orElseThrow(() -> new IllegalArgumentException("Deck Not Found"))
         );
     }
 

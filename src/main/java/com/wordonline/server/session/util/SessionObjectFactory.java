@@ -54,14 +54,14 @@ public class SessionObjectFactory {
     }
 
     private SessionObject createPvpSessionObject(String sessionId, long uid1, long uid2) {
-        List<CardType> leftCards = deckService.getSelectedCards(uid1);
-        List<CardType> rightCards = deckService.getSelectedCards(uid2);
+        List<CardType> leftCards = deckService.getParticipantCards(uid1);
+        List<CardType> rightCards = deckService.getParticipantCards(uid2);
         return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.PVP);
     }
 
     private SessionObject createPracticeSessionObject(String sessionId, long uid1, long uid2) {
-        List<CardType> leftCards = deckService.getSelectedCards(uid1);
-        List<CardType> rightCards = deckService.getSelectedCards(uid2);
+        List<CardType> leftCards = deckService.getParticipantCards(uid1);
+        List<CardType> rightCards = deckService.getParticipantCards(uid2);
         return new SessionObject(sessionId, uid1, uid2, simpMessagingTemplate, leftCards, rightCards, SessionType.Practice);
     }
 

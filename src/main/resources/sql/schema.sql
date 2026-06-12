@@ -156,6 +156,125 @@ CREATE TABLE magic_cards (
     card_id BIGINT REFERENCES cards(id)
 );
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'bot_tier') THEN
+        CREATE TYPE bot_tier AS ENUM ('INTRO', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'ELITE');
+    END IF;
+END
+$$;
+
+CREATE TABLE IF NOT EXISTS bot_personas (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    tier bot_tier NOT NULL DEFAULT 'BEGINNER',
+    deck_id BIGINT NOT NULL REFERENCES decks(id),
+    thinking_time_ms INT NOT NULL DEFAULT 250,
+    reaction_interval_frames INT NOT NULL DEFAULT 8,
+    counter_aggression DOUBLE PRECISION NOT NULL DEFAULT 0.25,
+    mmr SMALLINT NOT NULL DEFAULT 1000,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT ck_bot_personas_thinking_time CHECK (thinking_time_ms >= 0),
+    CONSTRAINT ck_bot_personas_reaction_interval CHECK (reaction_interval_frames >= 1),
+    CONSTRAINT ck_bot_personas_counter_aggression CHECK (counter_aggression >= 0 AND counter_aggression <= 1)
+);
+
+CREATE TABLE IF NOT EXISTS tags (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(31) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS game_object_tags (
+    game_object_id BIGINT REFERENCES game_objects(id) ON DELETE CASCADE,
+    tag_id BIGINT REFERENCES tags(id) ON DELETE CASCADE,
+    CONSTRAINT uq_game_object_id_tag_id UNIQUE (game_object_id, tag_id)
+);
+
+CREATE TABLE IF NOT EXISTS magic_tags (
+    magic_id BIGINT NOT NULL REFERENCES magics(id) ON DELETE CASCADE,
+    tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (magic_id, tag_id)
+);
+
+CREATE TABLE IF NOT EXISTS tag_counter_rules (
+    id BIGSERIAL PRIMARY KEY,
+    attacker_tag_id BIGINT NOT NULL REFERENCES tags(id),
+    target_tag_id BIGINT NOT NULL REFERENCES tags(id),
+    weight DOUBLE PRECISION NOT NULL DEFAULT 1.0,
+    UNIQUE(attacker_tag_id, target_tag_id)
+);
+
+WITH required_tags AS (
+    SELECT tag_name
+    FROM (
+        VALUES
+            ('TYPE_Unit'),
+            ('CAT_Small'),
+            ('CAT_Ranged'),
+            ('CAT_Flying'),
+            ('CAT_AoE'),
+            ('CAT_Building')
+    ) AS tags(tag_name)
+)
+INSERT INTO tags(name)
+SELECT tag_name
+FROM required_tags rt
+WHERE NOT EXISTS (
+    SELECT 1 FROM tags t WHERE t.name = rt.tag_name
+);
+
+WITH rule_seed AS (
+    SELECT *
+    FROM (
+        VALUES
+            ('CAT_AoE', 'CAT_Small', 1.0)
+    ) AS seed(attacker_tag_name, target_tag_name, weight)
+)
+INSERT INTO tag_counter_rules(attacker_tag_id, target_tag_id, weight)
+SELECT attacker.id, target.id, rs.weight
+FROM rule_seed rs
+JOIN tags attacker ON attacker.name = rs.attacker_tag_name
+JOIN tags target ON target.name = rs.target_tag_name
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM tag_counter_rules tcr
+    WHERE tcr.attacker_tag_id = attacker.id
+      AND tcr.target_tag_id = target.id
+);
+
+WITH magic_tag_seed AS (
+    SELECT *
+    FROM (
+        VALUES
+            ('magma_explosion', 'CAT_AoE'),
+            ('water_explosion', 'CAT_AoE'),
+            ('nature_explosion', 'CAT_AoE'),
+            ('wind_explosion', 'CAT_AoE'),
+            ('rock_explosion', 'CAT_AoE'),
+            ('fire_explosion', 'CAT_AoE'),
+            ('lightning_explosion', 'CAT_AoE'),
+            ('sand_storm', 'CAT_AoE'),
+            ('meteor_shower', 'CAT_AoE'),
+            ('overgrowth', 'CAT_AoE'),
+            ('razor_gale', 'CAT_AoE'),
+            ('shock_overload', 'CAT_AoE'),
+            ('crater', 'CAT_AoE')
+    ) AS seed(magic_name, tag_name)
+)
+INSERT INTO magic_tags(magic_id, tag_id)
+SELECT m.id, t.id
+FROM magic_tag_seed mts
+JOIN magics m ON m.name = mts.magic_name
+JOIN tags t ON t.name = mts.tag_name
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM magic_tags mt
+    WHERE mt.magic_id = m.id
+      AND mt.tag_id = t.id
+);
+
 
 CREATE TABLE statistic_update_time (
     id BIGSERIAL PRIMARY KEY,
