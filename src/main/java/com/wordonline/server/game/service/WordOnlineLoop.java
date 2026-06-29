@@ -1,5 +1,6 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import com.wordonline.server.game.service.system.GameObjectAddRemoteSystem;
 import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
 import com.wordonline.server.game.service.system.PhysicSystem;
 import com.wordonline.server.game.service.system.SyncFrameDataSystem;
+import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,8 @@ public class WordOnlineLoop extends GameLoop {
     private final PhysicSystem physicSystem;
     private final GameObjectAddRemoteSystem gameObjectAddRemoveSystem;
     private final DatabaseMagicParser magicParser;
+    private final BotPersonaService botPersonaService;
+    private final BotCounterEvaluator botCounterEvaluator;
 
     private volatile BotAgent leftBotAgent;
     private volatile BotAgent rightBotAgent;
@@ -44,7 +48,8 @@ public class WordOnlineLoop extends GameLoop {
             FeverTimeSystem feverTimeSystem,
                           GameObjectStateInitialSystem gameObjectStateInitialSystem,
                           ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
-                          GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser) {
+                          GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser,
+                          BotPersonaService botPersonaService, BotCounterEvaluator botCounterEvaluator) {
         super(mmrService, userService, gameContext, parameters);
         this.frameDataSystem = frameDataSystem;
         this.botSystem = botSystem;
@@ -54,6 +59,8 @@ public class WordOnlineLoop extends GameLoop {
         this.physicSystem = physicSystem;
         this.gameObjectAddRemoveSystem = gameObjectAddRemoveSystem;
         this.magicParser = magicParser;
+        this.botPersonaService = botPersonaService;
+        this.botCounterEvaluator = botCounterEvaluator;
     }
 
     @Override
@@ -67,11 +74,21 @@ public class WordOnlineLoop extends GameLoop {
 
     private void initializeBotAgents(SessionObject sessionObject) {
         if(sessionObject.isLeftBot()) {
-            leftBotAgent = new BotAgent(sessionObject, magicParser, Master.LeftPlayer);
+            leftBotAgent = newBotAgent(sessionObject, Master.LeftPlayer, sessionObject.getLeftUserId());
         }
         if(sessionObject.isRightBot()) {
-            rightBotAgent = new BotAgent(sessionObject, magicParser, Master.RightPlayer);
+            rightBotAgent = newBotAgent(sessionObject, Master.RightPlayer, sessionObject.getRightUserId());
         }
+    }
+
+    private BotAgent newBotAgent(SessionObject sessionObject, Master side, long participantId) {
+        return new BotAgent(
+                sessionObject,
+                magicParser,
+                side,
+                botPersonaService.findByParticipantIdOrDefault(participantId),
+                botCounterEvaluator
+        );
     }
 
     public synchronized void activateBotForUser(long userId) {
@@ -87,7 +104,7 @@ public class WordOnlineLoop extends GameLoop {
         if (leftBotAgent != null) {
             return;
         }
-        leftBotAgent = new BotAgent(sessionObject, magicParser, Master.LeftPlayer);
+        leftBotAgent = newBotAgent(sessionObject, Master.LeftPlayer, sessionObject.getLeftUserId());
         log.info("Activated bot control for disconnected user: side={}", Master.LeftPlayer);
     }
 
@@ -95,7 +112,7 @@ public class WordOnlineLoop extends GameLoop {
         if (rightBotAgent != null) {
             return;
         }
-        rightBotAgent = new BotAgent(sessionObject, magicParser, Master.RightPlayer);
+        rightBotAgent = newBotAgent(sessionObject, Master.RightPlayer, sessionObject.getRightUserId());
         log.info("Activated bot control for disconnected user: side={}", Master.RightPlayer);
     }
 
@@ -136,6 +153,7 @@ public class WordOnlineLoop extends GameLoop {
         beforeResultCheck();
 
         if (gameContext.getGameTimer().isEnd()) {
+            resolveTimedOutMatch();
             gameContext.getResultChecker().setEnd();
         }
 
@@ -156,6 +174,24 @@ public class WordOnlineLoop extends GameLoop {
         buildSnapshot();
 
         frameDataSystem.lateUpdate(gameContext);
+    }
+
+    // Timed-out matches need a concrete result so rating/stat pipelines can record the match.
+    private void resolveTimedOutMatch() {
+        if (gameContext.getResultChecker().getLoser() != null) {
+            return;
+        }
+
+        int leftHp = gameContext.getGameSessionData().leftPlayerData.hp;
+        int rightHp = gameContext.getGameSessionData().rightPlayerData.hp;
+        if (leftHp == rightHp) {
+            return;
+        }
+
+        Master loser = leftHp < rightHp ? Master.LeftPlayer : Master.RightPlayer;
+        gameContext.getResultChecker().setLoser(loser);
+        log.info("[GameResult] resolved timed-out match by hp: leftHp={}, rightHp={}, loser={}",
+                leftHp, rightHp, loser);
     }
 
     protected void beforeResultCheck() {

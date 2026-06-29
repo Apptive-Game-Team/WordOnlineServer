@@ -3,7 +3,10 @@ package com.wordonline.server.game.service.system;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
+import com.wordonline.server.game.domain.bot.BotAgent;
+import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -23,15 +26,9 @@ public class BotAgentSystem implements GameSystem {
     private final AtomicBoolean rightBotProcessing = new AtomicBoolean(false);
     private final AtomicInteger frameCounter = new AtomicInteger(0);
 
-    // Bot tick interval: every 8 frames at 20 FPS = 400ms between bot decisions
-    private static final int BOT_TICK_INTERVAL = 8;
-
     @Override
     public void update(GameContext gameContext) {
         int currentFrame = frameCounter.incrementAndGet();
-        if (currentFrame % BOT_TICK_INTERVAL != 0) {
-            return;
-        }
 
         if (gameContext.getGameLoop() == null) {
             log.warn("[BotSystem] GameLoop is null, skipping bot update");
@@ -42,41 +39,35 @@ public class BotAgentSystem implements GameSystem {
         log.trace("[BotSystem] Triggering bot tick at frame {}", currentFrame);
 
         var leftBotAgent = wordOnlineLoop.getLeftBotAgent();
-        if (leftBotAgent != null) {
-            if (leftBotProcessing.compareAndSet(false, true)) {
-                var leftFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto();
-                log.debug("[BotSystem] Submitting Left Bot task");
-                botExecutorService.submit(() -> {
-                    try {
-                        leftBotAgent.onTick(leftFrameInfoDto);
-                    } catch (Exception e) {
-                        log.error("[BotSystem] Left bot agent execution error", e);
-                    } finally {
-                        leftBotProcessing.set(false);
-                    }
-                });
-            } else {
-                log.trace("[BotSystem] Left bot is still processing, skipping this tick");
-            }
-        }
+        submitBotIfNeeded(leftBotAgent, currentFrame, leftBotProcessing, () -> wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto(), "Left");
 
         var rightBotAgent = wordOnlineLoop.getRightBotAgent();
-        if (rightBotAgent != null) {
-            if (rightBotProcessing.compareAndSet(false, true)) {
-                var rightFrameInfoDto = wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto();
-                log.debug("[BotSystem] Submitting Right Bot task");
-                botExecutorService.submit(() -> {
-                    try {
-                        rightBotAgent.onTick(rightFrameInfoDto);
-                    } catch (Exception e) {
-                        log.error("[BotSystem] Right bot agent execution error", e);
-                    } finally {
-                        rightBotProcessing.set(false);
-                    }
-                });
-            } else {
-                log.trace("[BotSystem] Right bot is still processing, skipping this tick");
-            }
+        submitBotIfNeeded(rightBotAgent, currentFrame, rightBotProcessing, () -> wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto(), "Right");
+    }
+
+    private void submitBotIfNeeded(BotAgent botAgent,
+                                   int currentFrame,
+                                   AtomicBoolean processing,
+                                   Supplier<FrameInfoDto> frameSupplier,
+                                   String label) {
+        if (botAgent == null || !botAgent.shouldProcess(currentFrame)) {
+            return;
+        }
+
+        if (processing.compareAndSet(false, true)) {
+            var frameInfoDto = frameSupplier.get();
+            log.debug("[BotSystem] Submitting {} Bot task", label);
+            botExecutorService.submit(() -> {
+                try {
+                    botAgent.onTick(frameInfoDto);
+                } catch (Exception e) {
+                    log.error("[BotSystem] {} bot agent execution error", label, e);
+                } finally {
+                    processing.set(false);
+                }
+            });
+        } else {
+            log.trace("[BotSystem] {} bot is still processing, skipping this tick", label);
         }
     }
 }

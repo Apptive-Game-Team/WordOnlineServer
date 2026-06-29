@@ -114,15 +114,20 @@ public abstract class GameLoop implements Runnable {
 
         long leftId = sessionObject.getLeftUserId();
         long rightId = sessionObject.getRightUserId();
-        ResultType outcomeLeft = (loser == Master.LeftPlayer)
-                ? ResultType.Lose
-                : ResultType.Win;
+        ResultType outcomeLeft;
+        if (loser == Master.LeftPlayer) {
+            outcomeLeft = ResultType.Lose;
+        } else if (loser == Master.RightPlayer) {
+            outcomeLeft = ResultType.Win;
+        } else {
+            outcomeLeft = ResultType.Draw;
+        }
 
         short leftMmr = mmrService.fetchRating(leftId);
         short rightMmr = mmrService.fetchRating(rightId);
         ResultMmrDto mmrDto = new ResultMmrDto(leftMmr, rightMmr, leftMmr, rightMmr);
 
-        if (sessionObject.getSessionType() == SessionType.PVP) {
+        if (sessionObject.getSessionType() == SessionType.PVP || sessionObject.getSessionType() == SessionType.Practice) {
             mmrDto = mmrService.updateMatchResult(leftId, rightId, outcomeLeft);
         }
         gameContext.getResultChecker().broadcastResult(mmrDto);
