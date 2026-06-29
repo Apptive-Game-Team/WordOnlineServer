@@ -7,9 +7,11 @@ import com.wordonline.server.game.dto.CardInfoDto;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 // CardDeck class to manage the deck of cards
@@ -21,8 +23,14 @@ public class CardDeck {
     private final Queue<CardType> cards;
 
     public CardDeck(List<CardType> cards) {
-        Collections.shuffle(cards);
-        this.cards = new ConcurrentLinkedDeque<>(cards);
+        this(cards, System.nanoTime());
+    }
+
+    public CardDeck(List<CardType> cards, long shuffleSeed) {
+        List<CardType> shuffledCards = new ArrayList<>(cards);
+        Collections.shuffle(shuffledCards, new Random(shuffleSeed));
+        this.cards = new ConcurrentLinkedDeque<>(shuffledCards);
+        log.debug("[CardDeck] shuffled {} cards with seed={}", shuffledCards.size(), shuffleSeed);
     }
 
     public void returnCards(List<CardType> cards) {
