@@ -16,7 +16,8 @@ public class SessionObjectFactory {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final DeckService deckService;
 
-    public SessionObjectFactory(SimpMessagingTemplate simpMessagingTemplate, DeckService deckService) {
+    public SessionObjectFactory(SimpMessagingTemplate simpMessagingTemplate,
+                                DeckService deckService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.deckService = deckService;
     }

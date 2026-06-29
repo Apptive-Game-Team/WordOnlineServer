@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -27,6 +28,14 @@ public class UserRepository {
             SELECT mmr
             FROM users
             WHERE id = :userId;
+            """;
+
+    private static final String FIND_BOT_USER_IDS = """
+            SELECT id
+            FROM users
+            WHERE id < 0
+              AND selected_deck_id IS NOT NULL
+            ORDER BY id;
             """;
 
     private static final String SET_MMR = """
@@ -55,6 +64,12 @@ public class UserRepository {
                 .param("userId", userId)
                 .query(Short.class)
                 .optional();
+    }
+
+    public List<Long> findBotUserIds() {
+        return jdbcClient.sql(FIND_BOT_USER_IDS)
+                .query(Long.class)
+                .list();
     }
 
     public void setMmr(long userId, short mmr) {

@@ -60,7 +60,7 @@ public class WordOnlineLoop extends GameLoop {
     public void init(SessionObject sessionObject, Runnable onTerminated) {
         gameContext.init(sessionObject, this);
         super.init(sessionObject, onTerminated);
-        if(sessionObject.getSessionType() == SessionType.Practice) {
+        if(sessionObject.getSessionType() == SessionType.Practice || sessionObject.isLeftBot() || sessionObject.isRightBot()) {
             initializeBotAgents(sessionObject);
         }
     }
@@ -136,6 +136,7 @@ public class WordOnlineLoop extends GameLoop {
         beforeResultCheck();
 
         if (gameContext.getGameTimer().isEnd()) {
+            resolveTimedOutMatch();
             gameContext.getResultChecker().setEnd();
         }
 
@@ -160,5 +161,23 @@ public class WordOnlineLoop extends GameLoop {
 
     protected void beforeResultCheck() {
         // hook for specialized loops (e.g. PVE)
+    }
+
+    // Timed-out matches need a concrete result so rating/stat pipelines can record the match.
+    private void resolveTimedOutMatch() {
+        if (gameContext.getResultChecker().getLoser() != null) {
+            return;
+        }
+
+        int leftHp = gameContext.getGameSessionData().leftPlayerData.hp;
+        int rightHp = gameContext.getGameSessionData().rightPlayerData.hp;
+        if (leftHp == rightHp) {
+            return;
+        }
+
+        Master loser = leftHp < rightHp ? Master.LeftPlayer : Master.RightPlayer;
+        gameContext.getResultChecker().setLoser(loser);
+        log.info("[GameResult] resolved timed-out match by hp: leftHp={}, rightHp={}, loser={}",
+                leftHp, rightHp, loser);
     }
 }

@@ -28,6 +28,13 @@ team6515:
     account:
       url: ${ACCOUNT_SERVER_URL}
 
+wordonline:
+  bot:
+    auto-match:
+      enabled: ${AUTO_BOT_MATCH_ENABLED:true}
+      initial-delay-ms: ${AUTO_BOT_MATCH_INITIAL_DELAY_MS:10000}
+      fixed-delay-ms: ${AUTO_BOT_MATCH_FIXED_DELAY_MS:5000}
+
 jwt:
   public:
     key: ${JWT_PUBLIC_KEY}
