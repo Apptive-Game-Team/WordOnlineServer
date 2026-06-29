@@ -22,6 +22,9 @@ import com.wordonline.server.debug.dto.DebugSpawnPrefabRequestDto;
 import com.wordonline.server.debug.dto.DebugSummonMagicRequestDto;
 import com.wordonline.server.debug.service.DebugService;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.server.service.ServerUrlProvider;
+import com.wordonline.server.session.dto.RoomListDto;
+import com.wordonline.server.session.service.SessionService;
 
 import java.util.List;
 
@@ -36,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DebugController {
 
     private final DebugService debugService;
+    private final SessionService sessionService;
+    private final ServerUrlProvider serverUrlProvider;
 
     @PostMapping("/game/pve/{scenarioId}")
     public ResponseEntity<DebugGameResponseDto> createPveGame(
@@ -109,5 +114,11 @@ public class DebugController {
     @GetMapping("/prefabs")
     public ResponseEntity<List<DebugPrefabInfoDto>> getPrefabs() {
         return ResponseEntity.ok(debugService.getPrefabList());
+    }
+
+    @GetMapping("/game-sessions")
+    public ResponseEntity<RoomListDto> getGameSessions() {
+        return ResponseEntity.ok(
+                new RoomListDto(sessionService.getAllActiveSessionsInfo(serverUrlProvider.getServerUrl())));
     }
 }
