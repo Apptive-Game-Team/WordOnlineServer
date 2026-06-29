@@ -20,9 +20,9 @@ public class ChainShot extends Shot implements Collidable {
     private Vector3 direction;
     private final List<GameObject> hitList = new ArrayList<>();
     private int chainCount;
-    private final float CHAIN_DELAY = 0.4f;
-    private final int CHAIN_DAMAGE_DIVISOR = 2;
-    private final int CHAIN_COUNT_CAP = 5;
+    private static final float CHAIN_DELAY = 0.12f;
+    private static final int CHAIN_DAMAGE_DIVISOR = 2;
+    private static final int CHAIN_COUNT_CAP = 5;
     private boolean isActive = true;
     private float activeTimer;
 

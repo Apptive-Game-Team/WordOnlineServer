@@ -18,6 +18,7 @@ import java.util.Optional;
 @Slf4j
 public class CowardMob extends AttackMob {
     private static final float DEFAULT_ATTACK_RANGE = 0.5f;
+    private static final float PANIC_COOLDOWN = 10f;
     private static final List<TargetCategory> OBJECTIVE_PRIORITY = List.of(
             TargetCategory.BUILDING,
             TargetCategory.PLAYER
@@ -30,7 +31,7 @@ public class CowardMob extends AttackMob {
     private final float panicSpeedMultiplier;
     private Detector objectiveDetector;
     private Detector threatDetector;
-    private boolean hasPanicked;
+    private float panicCooldownRemaining;
 
     public CowardMob(GameObject gameObject, int maxHp, float speed, int targetMask, int damage,
             float attackInterval, float detectionRange, float panicDuration) {
@@ -56,6 +57,14 @@ public class CowardMob extends AttackMob {
         setState(new CowardIdleState());
     }
 
+    @Override
+    public void update() {
+        if (panicCooldownRemaining > 0f) {
+            panicCooldownRemaining = Math.max(0f, panicCooldownRemaining - getGameContext().getDeltaTime());
+        }
+        super.update();
+    }
+
     private float getAttackRange() {
         Optional<CircleCollider> circleCollider = gameObject.getFirstCircleCollider(false);
         return circleCollider.map(collider -> collider.getRadius() + DEFAULT_ATTACK_RANGE)
@@ -63,6 +72,9 @@ public class CowardMob extends AttackMob {
     }
 
     private GameObject detectThreat() {
+        if (panicCooldownRemaining > 0f) {
+            return null;
+        }
         return threatDetector.detect(gameObject);
     }
 
@@ -123,7 +135,7 @@ public class CowardMob extends AttackMob {
                 return;
             }
 
-            GameObject threat = hasPanicked ? null : detectThreat();
+            GameObject threat = detectThreat();
             if (threat != null) {
                 setState(new PanicState(threat));
                 return;
@@ -159,7 +171,7 @@ public class CowardMob extends AttackMob {
 
         @Override
         public void onUpdate() {
-            GameObject threat = hasPanicked ? null : detectThreat();
+            GameObject threat = detectThreat();
             if (threat != null) {
                 setState(new PanicState(threat));
                 return;
@@ -224,7 +236,7 @@ public class CowardMob extends AttackMob {
 
         @Override
         public void onUpdate() {
-            GameObject threat = hasPanicked ? null : detectThreat();
+            GameObject threat = detectThreat();
             if (threat != null) {
                 setState(new PanicState(threat));
                 return;
@@ -290,11 +302,11 @@ public class CowardMob extends AttackMob {
                 log.warn("[CowardPanicMoveSkipped] {} has no RigidBody; skipping panic move", gameObject.getType());
             }
 
-            if (timer < panicDuration && detectThreat() != null) {
+            if (timer < panicDuration) {
                 return;
             }
 
-            hasPanicked = true;
+            panicCooldownRemaining = PANIC_COOLDOWN;
             target = objectiveDetector.detect(gameObject);
             if (target == null) {
                 resetTarget();
