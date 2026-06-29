@@ -2,7 +2,9 @@
 
 Use this when a new magic also needs database registration.
 
-Store each magic in its own file under `src/main/resources/sql/magic/<magic_name>.sql`.
+Store each magic in its own versioned Flyway migration under
+`../database/migration/`, for example
+`V027_20260612__register_magic_name.sql`.
 
 ## Rules
 
@@ -11,6 +13,9 @@ Store each magic in its own file under `src/main/resources/sql/magic/<magic_name
 - Only modify `magics` and `magic_cards`.
 - Assume the required rows already exist in `cards`.
 - Prefer idempotent SQL so the query can be re-run safely.
+- Use the next unused Flyway version. Never edit an applied migration.
+- Publish the database migration before game-server code that requires it.
+- Do not store production SQL under game-server `src/main/resources`.
 
 ## Leafair Example
 

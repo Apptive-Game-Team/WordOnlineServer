@@ -2,6 +2,9 @@
 
 Use this when a new prefab creates or depends on a `game_objects` row.
 
+Add tag changes to a new versioned migration under `../database/migration/`.
+Do not add production SQL to game-server resources.
+
 ## Tables
 
 - `tags`: reusable tag dictionary.
@@ -33,6 +36,7 @@ Category tags:
 - Prefer existing tags. Add a new tag only when the game design needs a reusable category not listed above.
 - If a new reusable tag is introduced, update this file in the same change.
 - Use the gameplay parameter key as `game_objects.name`, usually the key used in `parameters.getValue(...)`.
+- Use the next unused Flyway version and never edit an applied migration.
 
 ## SQL Template
 

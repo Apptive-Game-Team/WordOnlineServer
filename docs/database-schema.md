@@ -6,7 +6,9 @@ This document describes the database schema, key tables, and parameter system us
 
 ## Core Tables
 
-The DB schema is defined in [schema.sql](file:///Users/jeong-yunseong/development/word-online/dev/game-server/src/main/resources/sql/schema.sql). The key gameplay-related tables are described below:
+The shared game DB schema and data migrations are defined in the
+[database repository](../../database/migration). The key gameplay-related
+tables are described below:
 
 ```
                   +------------------+

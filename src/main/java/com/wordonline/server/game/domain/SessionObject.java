@@ -7,13 +7,17 @@ import com.wordonline.server.game.service.CardDeck;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.WordOnlineLoop;
+import com.wordonline.server.game.util.DeckSeedDeriver;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
+@Slf4j
 // this class is used to store the session information
 // it sends the frame information to the client
 public class SessionObject {
@@ -27,6 +31,7 @@ public class SessionObject {
     private final PingChecker pingChecker;
     private final SessionType sessionType;
     private final Long scenarioId;
+    private final long randomSeed;
 
     public Master getUserSide(long userId) {
         if (userId == leftUserId) {
@@ -66,8 +71,13 @@ public class SessionObject {
         this.rightUserId = rightUserId;
         this.template = template;
         this.url = String.format("/game/%s/frameInfos", sessionId);
-        this.leftUserCardDeck = new CardDeck(leftUserCards);
-        this.rightUserCardDeck = new CardDeck(rightUserCards);
+        this.randomSeed = ThreadLocalRandom.current().nextLong();
+        long leftDeckSeed = DeckSeedDeriver.forLeftDeck(randomSeed);
+        long rightDeckSeed = DeckSeedDeriver.forRightDeck(randomSeed);
+        this.leftUserCardDeck = new CardDeck(leftUserCards, leftDeckSeed);
+        this.rightUserCardDeck = new CardDeck(rightUserCards, rightDeckSeed);
+        log.trace("[Session] randomSeed={}, leftDeckSeed={}, rightDeckSeed={}, sessionId={}",
+                randomSeed, leftDeckSeed, rightDeckSeed, sessionId);
         this.pingChecker = new PingChecker(leftUserId, rightUserId,
                 userId -> {
                     Master side = getUserSide(userId);

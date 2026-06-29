@@ -13,4 +13,6 @@ Related repositories:
 - Matchmaking flow starts in `WordOnlineMatching` and hands players off to this server for live game sessions.
 - Client-facing gameplay behavior must stay aligned with `WordOnlineClient`, especially for protocol, DTO, and debug changes.
 - Authentication or member-data changes may require matching updates in `AccountServer`.
-- Schema or seed-data changes should be checked against `WordOnlineDatabase` before treating this repo's SQL files as authoritative.
+- Production schema, seed, and gameplay data changes must be added to
+  `WordOnlineDatabase/migration`; this repository keeps test-only SQL fixtures
+  only.
