@@ -39,7 +39,7 @@ public class TowerbackPrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 towerbackParameters.intValue(ParameterKey.SUB_DAMAGE),
                 towerbackParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
-                towerbackParameters.floatValue(ParameterKey.ATTACK_RANGE)
+                towerbackParameters.floatValue(ParameterKey.SUB_ATTACK_RANGE)
         ));
         gameObject.addComponent(new Tower(
                 gameObject,
