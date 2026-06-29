@@ -153,6 +153,7 @@ public class WordOnlineLoop extends GameLoop {
         beforeResultCheck();
 
         if (gameContext.getGameTimer().isEnd()) {
+            resolveTimedOutMatch();
             gameContext.getResultChecker().setEnd();
         }
 
@@ -173,6 +174,24 @@ public class WordOnlineLoop extends GameLoop {
         buildSnapshot();
 
         frameDataSystem.lateUpdate(gameContext);
+    }
+
+    // Timed-out matches need a concrete result so rating/stat pipelines can record the match.
+    private void resolveTimedOutMatch() {
+        if (gameContext.getResultChecker().getLoser() != null) {
+            return;
+        }
+
+        int leftHp = gameContext.getGameSessionData().leftPlayerData.hp;
+        int rightHp = gameContext.getGameSessionData().rightPlayerData.hp;
+        if (leftHp == rightHp) {
+            return;
+        }
+
+        Master loser = leftHp < rightHp ? Master.LeftPlayer : Master.RightPlayer;
+        gameContext.getResultChecker().setLoser(loser);
+        log.info("[GameResult] resolved timed-out match by hp: leftHp={}, rightHp={}, loser={}",
+                leftHp, rightHp, loser);
     }
 
     protected void beforeResultCheck() {
