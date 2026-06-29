@@ -24,6 +24,13 @@ public class BotPersonaService {
     }
 
     @Transactional(readOnly = true)
+    public List<BotPersona> findEnabled() {
+        return findAll().stream()
+                .filter(BotPersona::enabled)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<BotPersona> findById(long id) {
         return botPersonaRepository.findById(id);
     }

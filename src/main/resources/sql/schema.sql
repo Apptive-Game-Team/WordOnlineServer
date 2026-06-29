@@ -402,3 +402,65 @@ ALTER TABLE magic_cards
 
 
 ALTER TYPE game_type ADD VALUE 'PVE';
+
+INSERT INTO bot_personas(
+    name,
+    tier,
+    deck_id,
+    thinking_time_ms,
+    reaction_interval_frames,
+    counter_aggression,
+    mmr,
+    enabled
+)
+VALUES (
+           'Beginner Bot A',
+           'BEGINNER',
+           128,
+           400,
+           8,
+           0.25,
+           1000,
+           true
+       );
+
+WITH bot_persona_seed AS (
+    SELECT *
+    FROM (
+        VALUES
+            ('Intro Bot A', 'INTRO', 128, 700, 14, 0.05, 800, true),
+            ('Intro Bot B', 'INTRO', 128, 650, 13, 0.10, 850, true),
+            ('Beginner Bot B', 'BEGINNER', 128, 450, 9, 0.25, 1000, true),
+            ('Intermediate Bot A', 'INTERMEDIATE', 128, 350, 7, 0.40, 1100, true),
+            ('Intermediate Bot B', 'INTERMEDIATE', 128, 320, 7, 0.45, 1150, true),
+            ('Advanced Bot A', 'ADVANCED', 128, 260, 5, 0.65, 1250, true),
+            ('Advanced Bot B', 'ADVANCED', 128, 240, 5, 0.70, 1300, true),
+            ('Elite Bot A', 'ELITE', 128, 180, 3, 0.85, 1450, true),
+            ('Elite Bot B', 'ELITE', 128, 160, 3, 0.95, 1500, true)
+    ) AS seed(name, tier, deck_id, thinking_time_ms, reaction_interval_frames, counter_aggression, mmr, enabled)
+)
+INSERT INTO bot_personas(
+    name,
+    tier,
+    deck_id,
+    thinking_time_ms,
+    reaction_interval_frames,
+    counter_aggression,
+    mmr,
+    enabled
+)
+SELECT
+    seed.name,
+    seed.tier::bot_tier,
+    seed.deck_id,
+    seed.thinking_time_ms,
+    seed.reaction_interval_frames,
+    seed.counter_aggression,
+    seed.mmr,
+    seed.enabled
+FROM bot_persona_seed seed
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM bot_personas bp
+    WHERE bp.name = seed.name
+);

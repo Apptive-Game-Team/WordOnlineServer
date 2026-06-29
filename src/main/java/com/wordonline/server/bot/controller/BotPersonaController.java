@@ -5,6 +5,7 @@ import com.wordonline.server.bot.dto.BotPersonaResponseDto;
 import com.wordonline.server.bot.service.BotPersonaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@PreAuthorize("hasAnyAuthority('SUPER_ADMIN', 'WORDONLINE_ADMIN')")
 @RestController
 @RequestMapping("/api/admin/bots")
 @RequiredArgsConstructor
