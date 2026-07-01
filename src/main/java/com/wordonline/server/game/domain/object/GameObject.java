@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 // This class is used to store the game object data
 @Getter
@@ -45,7 +46,7 @@ public class GameObject {
         return status != Status.Initializing;
     }
 
-    private Effect effect;
+    private final List<Effect> effects = new ArrayList<>();
     private final Element element = new Element();
     private Vector3 position;
 
@@ -157,8 +158,31 @@ public class GameObject {
         applyUpdate();
     }
 
-    public void setEffect(Effect effect) {
-        this.effect = effect;
+    public void addEffect(Effect effect) {
+        if (effect == Effect.None || effects.contains(effect)) {
+            return;
+        }
+        effects.add(effect);
+        applyUpdate();
+    }
+
+    public void removeEffect(Effect effect) {
+        if (effects.remove(effect)) {
+            applyUpdate();
+        }
+    }
+
+    public void removeEffects(Predicate<Effect> predicate) {
+        if (effects.removeIf(predicate)) {
+            applyUpdate();
+        }
+    }
+
+    public void clearEffects() {
+        if (effects.isEmpty()) {
+            return;
+        }
+        effects.clear();
         applyUpdate();
     }
 

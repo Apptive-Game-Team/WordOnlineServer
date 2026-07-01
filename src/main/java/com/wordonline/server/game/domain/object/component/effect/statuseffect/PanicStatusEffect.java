@@ -8,13 +8,7 @@ import com.wordonline.server.game.dto.Effect;
 public class PanicStatusEffect extends BaseStatusEffect {
 
     public PanicStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
-        gameObject.setEffect(Effect.Panic);
-    }
-
-    @Override
-    public void start() {
-        gameObject.setEffect(Effect.Panic);
+        super(owner, duration, key, Effect.Panic);
     }
 
     @Override

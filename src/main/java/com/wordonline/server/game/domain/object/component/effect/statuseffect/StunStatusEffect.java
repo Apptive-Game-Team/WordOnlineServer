@@ -22,11 +22,10 @@ public class StunStatusEffect extends BaseStatusEffect {
     }
 
     public StunStatusEffect(GameObject owner, float duration, StatusEffectKey key, Effect effect, float gravityMultiplier) {
-        super(owner, duration, key);
+        super(owner, duration, key, effect);
         this.duration = duration;
         this.effect = effect;
         this.gravityMultiplier = gravityMultiplier;
-        gameObject.setEffect(effect);
     }
 
     @Override

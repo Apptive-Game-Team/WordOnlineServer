@@ -12,7 +12,7 @@ public record SnapshotObjectDto(
         float x, float y, float z,
         String master,
         Status status,
-        Effect effect,
+        List<Effect> effects,
         List<Gizmo> gizmos,
         List<GaugeDto> gauges
 ) {}

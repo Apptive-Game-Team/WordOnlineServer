@@ -13,16 +13,29 @@ public abstract class BaseStatusEffect extends Component {
     protected float remaining;
     @Getter
     protected final StatusEffectKey key;
+    private final Effect visualEffect;
 
     public BaseStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
+        this(owner, duration, key, null);
+    }
+
+    public BaseStatusEffect(GameObject owner, float duration, StatusEffectKey key, Effect visualEffect) {
         super(owner);
         this.initialDuration = duration;
         this.remaining = duration;
         this.key = key;
+        this.visualEffect = visualEffect;
+        if (visualEffect != null) {
+            gameObject.addEffect(visualEffect);
+        }
     }
 
     public void resetDuration() {
         this.remaining = initialDuration;
+    }
+
+    @Override
+    public void start() {
     }
 
     @Override
@@ -37,7 +50,9 @@ public abstract class BaseStatusEffect extends Component {
     public abstract void onAttacked(ElementType attackType);
 
     protected void expire() {
-        gameObject.setEffect(Effect.None);
+        if (visualEffect != null) {
+            gameObject.removeEffect(visualEffect);
+        }
         gameObject.removeComponent(this);
     }
 
@@ -55,5 +70,8 @@ public abstract class BaseStatusEffect extends Component {
 
     @Override
     public void onDestroy() {
+        if (visualEffect != null) {
+            gameObject.removeEffect(visualEffect);
+        }
     }
 }

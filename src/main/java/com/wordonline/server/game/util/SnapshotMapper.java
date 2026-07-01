@@ -19,7 +19,7 @@ public final class SnapshotMapper {
                 p.getX(), p.getY(), p.getZ(),
                 g.getMaster().toString(),
                 g.getStatus(),
-                g.getEffect(),
+                List.copyOf(g.getEffects()),
                 List.copyOf(g.getGizmos()),
                 GaugeExtractor.extractGaugeDto(g)
         );

@@ -24,7 +24,7 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
     private Master originalMaster;
 
     public FrenzyStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
+        super(owner, duration, key, Effect.Frenzy);
     }
 
     @Override
@@ -38,7 +38,6 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
             gameObject.setMaster(Master.None);
         }
 
-        gameObject.setEffect(Effect.Frenzy);
         applyAttackSpeedModifier(ATTACK_INTERVAL_MODIFIER);
     }
 
