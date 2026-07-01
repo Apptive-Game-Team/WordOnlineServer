@@ -12,13 +12,16 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.dto.StatusChangeEvent;
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.util.SynchronousFlowPublisher;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
@@ -56,6 +59,7 @@ public class GameObject {
     private final List<Component> componentsToAdd = new ArrayList<Component>();
     private final List<Component> componentsToRemove = new ArrayList<Component>();
     private final List<Gizmo> gizmos = new ArrayList<Gizmo>();
+    private final SynchronousFlowPublisher<StatusChangeEvent> statusChangePublisher = new SynchronousFlowPublisher<>();
 
     public GameObject(GameObject parent, Master master, PrefabType prefabType) {
         this(master, prefabType, parent.getPosition(), parent.gameContext);
@@ -148,8 +152,23 @@ public class GameObject {
 
     public void setStatus(Status status) {
         if (this.status == Status.Destroyed) return;
+        Status previous = this.status;
+        if (previous == status && !isRepeatableStatus(status)) return;
         this.status = status;
+        publishStatusChange(previous, status);
         applyUpdate();
+    }
+
+    private boolean isRepeatableStatus(Status status) {
+        return status == Status.Attack || status == Status.Hindered;
+    }
+
+    public void subscribeStatusChange(Flow.Subscriber<StatusChangeEvent> subscriber) {
+        statusChangePublisher.subscribe(subscriber);
+    }
+
+    private void publishStatusChange(Status previous, Status current) {
+        statusChangePublisher.publish(new StatusChangeEvent(previous, current));
     }
 
     public void setMaster(Master master) {
@@ -216,6 +235,7 @@ public class GameObject {
     public void onDestroy() {
         for (Component component : components)
             component.onDestroy();
+        statusChangePublisher.close();
     }
 
     public void drawCircle(Vector3 relativePosition, float radius, GizmoCategory category) {
