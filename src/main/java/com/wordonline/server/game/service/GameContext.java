@@ -3,14 +3,13 @@ package com.wordonline.server.game.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.wordonline.server.game.domain.magic.CardType;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.SessionObject;
-import com.wordonline.server.game.domain.SessionType;
-import com.wordonline.server.game.domain.bot.BotAgent;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
@@ -39,6 +38,7 @@ public class GameContext {
     private final MagicInputHandler magicInputHandler;
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
+    private final CardSelectVisualizer cardSelectVisualizer = new CardSelectVisualizer();
 
     private WordOnlineLoop gameLoop;
 
@@ -75,6 +75,10 @@ public class GameContext {
                 .findFirst();
     }
 
+    public Optional<GameObject> findPlayerGameObject(long userId) {
+        return findPlayerGameObject(sessionObject.getUserSide(userId));
+    }
+
     public void updateGameObject(GameObject gameObject) {
         objectsInfoDtoBuilder.updateGameObject(gameObject);
     }
@@ -97,5 +101,19 @@ public class GameContext {
 
     public void incrementFrameNum() {
         this.frameNum++;
+    }
+
+    // =============
+
+    public void selectCard(long userId, CardType card) {
+        cardSelectVisualizer.selectCard(this, userId, card);
+    }
+
+    public void unselectCard(long userId, CardType card) {
+        cardSelectVisualizer.unselectCard(this, userId, card);
+    }
+
+    public void unselectAllCard(long userId) {
+        cardSelectVisualizer.unselectAll(this, userId);
     }
 }

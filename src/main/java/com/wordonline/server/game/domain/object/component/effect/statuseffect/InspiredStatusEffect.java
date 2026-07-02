@@ -15,7 +15,7 @@ public class InspiredStatusEffect extends BaseStatusEffect {
             -ATTACK_SPEED_BONUS_PERCENT / (1f + ATTACK_SPEED_BONUS_PERCENT);
 
     public InspiredStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
+        super(owner, duration, key, Effect.Inspired);
     }
 
     @Override
@@ -34,8 +34,6 @@ public class InspiredStatusEffect extends BaseStatusEffect {
         if (tower != null) {
             tower.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
         }
-
-        gameObject.setEffect(Effect.Inspired);
     }
 
     @Override

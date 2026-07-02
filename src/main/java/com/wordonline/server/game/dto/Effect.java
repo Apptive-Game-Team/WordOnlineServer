@@ -12,5 +12,18 @@ public enum Effect {
     Frenzy,
     Panic,
     Bubble,
-    Inspired
+    Inspired,
+
+    FireIdleAura,
+    FireAttackAura,
+    WaterIdleAura,
+    WaterAttackAura,
+    NatureIdleAura,
+    NatureAttackAura,
+    LightningIdleAura,
+    LightningAttackAura,
+    RockIdleAura,
+    RockAttackAura,
+    WindIdleAura,
+    WindAttackAura
 }

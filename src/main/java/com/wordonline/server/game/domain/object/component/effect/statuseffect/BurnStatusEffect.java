@@ -11,8 +11,7 @@ import com.wordonline.server.game.dto.Effect;
 public class BurnStatusEffect extends BaseStatusEffect {
 
     public BurnStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
-        gameObject.setEffect(Effect.Burn);
+        super(owner, duration, key, Effect.Burn);
     }
 
     @Override

@@ -31,7 +31,12 @@ public class InputController {
     private LocalizationService localizationService;
 
     @MessageMapping("{sessionId}/{userId}")
-    public void handleInput(@DestinationVariable String sessionId, @DestinationVariable long userId, @Payload InputRequestDto inputRequestDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public void handleInput(
+            @DestinationVariable String sessionId,
+            @DestinationVariable long userId,
+            @Payload InputRequestDto inputRequestDto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
         if (userId != principalDetails.getUid()) {
             throw new AuthorizationDeniedException(localizationService.getMessage("error.authorization.denied"));
         }
@@ -42,15 +47,33 @@ public class InputController {
 
         log.trace("input arrived {}", inputRequestDto.getType());
 
-        if (inputRequestDto.getType().equals("ping")) {
-            log.trace("ping arrived {}", userId);
-            sessionObject.getPingChecker().ping(userId);
-            return;
+        switch (inputRequestDto.getType()) {
+            case "useMagic" -> {
+                log.trace("useMagic arrived {}", userId);
+                InputResponseDto responseDto = sessionObject.getGameContext().getMagicInputHandler().handleInput(
+                        sessionObject.getGameContext(), userId, inputRequestDto.toMagicUse()
+                );
+                template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
+            }
+            case "ping" -> {
+                log.trace("ping arrived {}", userId);
+                sessionObject.getPingChecker().ping(userId);
+            }
+            case "selectCard" -> {
+                log.trace("selectCard arrived {}", userId);
+                sessionObject.getGameContext().selectCard(userId, inputRequestDto.toCardSelect().card());
+            }
+            case "unselectCard" -> {
+                log.trace("unselectCard arrived {}", userId);
+                sessionObject.getGameContext().unselectCard(userId, inputRequestDto.toCardUnselect().card());
+            }
+            case "cancelCard" -> {
+                log.trace("cancelCard arrived {}", userId);
+                inputRequestDto.toCardCancel();
+                sessionObject.getGameContext().unselectAllCard(userId);
+            }
+            default -> log.warn("Unknown input type: {}", inputRequestDto.getType());
         }
 
-        InputResponseDto responseDto = sessionObject.getGameContext().getMagicInputHandler().handleInput(
-                sessionObject.getGameContext(), userId, inputRequestDto
-        );
-        template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
     }
 }
