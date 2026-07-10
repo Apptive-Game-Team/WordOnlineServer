@@ -62,7 +62,7 @@ public class MagicInputHandler {
         }
         Vector3 castPosition = clampToRange(
                 castOrigin,
-                inputRequestDto.getPosition(),
+                clampToMapBounds(inputRequestDto.getPosition()),
                 gameContext.getParameters().getValue(magic.magicType.name(), "range")
         );
 
@@ -110,7 +110,7 @@ public class MagicInputHandler {
         }
         Vector3 castPosition = clampToRange(
                 castOrigin,
-                inputRequestDto.getPosition(),
+                clampToMapBounds(inputRequestDto.getPosition()),
                 gameContext.getParameters().getValue(magic.magicType.name(), "range")
         );
 
@@ -176,7 +176,7 @@ public class MagicInputHandler {
         }
         Vector3 castPosition = clampToRange(
                 rangeOrigin,
-                position,
+                clampToMapBounds(position),
                 gameContext.getParameters().getValue(magic.magicType.name(), "range")
         );
 
@@ -199,5 +199,18 @@ public class MagicInputHandler {
         }
 
         return origin.plus(position.subtract(origin).normalize().multiply((float) range));
+    }
+
+    private static final float MAP_MIN_X = 0f;
+    private static final float MAP_MAX_X = 18f;
+    private static final float MAP_MIN_Z = 0f;
+    private static final float MAP_MAX_Z = 10f;
+
+    private Vector3 clampToMapBounds(Vector3 position) {
+        return new Vector3(
+                Math.clamp(position.getX(), MAP_MIN_X, MAP_MAX_X),
+                position.getY(),
+                Math.clamp(position.getZ(), MAP_MIN_Z, MAP_MAX_Z)
+        );
     }
 }
