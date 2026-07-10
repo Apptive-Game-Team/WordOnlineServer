@@ -26,7 +26,7 @@ public class LeafFieldPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var fieldParameters = parameters.object(GameObjectKey.FIELD);
+        var fieldParameters = parameters.object(GameObjectKey.LEAF_FIELD);
         gameObject.addCollider(new CircleCollider(gameObject, fieldParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Snared));

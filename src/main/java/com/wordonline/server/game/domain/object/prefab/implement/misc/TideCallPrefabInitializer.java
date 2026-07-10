@@ -9,9 +9,7 @@ import com.wordonline.server.game.domain.object.component.PathSpawner;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
 import com.wordonline.server.game.domain.object.component.magic.PushShot;
-import com.wordonline.server.game.domain.object.component.magic.Shot;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
-import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Effect;
@@ -30,12 +28,15 @@ public class TideCallPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         var tideCallParameters = parameters.object(GameObjectKey.TIDE_CALL);
-//        gameObject.addCollider(new EdgeCollider(gameObject, gameObject.getPosition().plus(0,2,0),gameObject.getPosition().plus(0,-2,0),true));
-        gameObject.addCollider(new CircleCollider(gameObject, 2f,true));
+        gameObject.addCollider(new CircleCollider(gameObject, tideCallParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Wet));
-        gameObject.getComponents().add(new PushShot(gameObject, tideCallParameters.intValue(ParameterKey.DAMAGE), tideCallParameters.floatValue(ParameterKey.SPEED)));
+        gameObject.getComponents().add(new PushShot(
+                gameObject,
+                tideCallParameters.intValue(ParameterKey.DAMAGE),
+                tideCallParameters.floatValue(ParameterKey.SPEED)
+        ));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 0.5f));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject,3f));
+        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, tideCallParameters.floatValue(ParameterKey.DURATION)));
     }
 }

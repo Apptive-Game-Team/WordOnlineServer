@@ -4,16 +4,18 @@ public record InputResponseDto(
     String type,
     String message,
     boolean valid,
+    InputResultCode resultCode,
     int updatedMana,
     int id,
     long magicId
 ) {
     public InputResponseDto(
-            boolean valid, int updatedMana, int id, long magicId
+            boolean valid, InputResultCode resultCode, int updatedMana, int id, long magicId
     ) {
         this(
                 (valid ? "magic use is valid" : "magic use is not valid"),
                 valid,
+                resultCode,
                 updatedMana,
                 id,
                 magicId
@@ -21,8 +23,8 @@ public record InputResponseDto(
     }
 
     public InputResponseDto(
-            String message, boolean valid, int updatedMana, int id, long magicId
+            String message, boolean valid, InputResultCode resultCode, int updatedMana, int id, long magicId
     ) {
-        this("magicValid", message, valid, updatedMana, id, magicId);
+        this("magicValid", message, valid, resultCode, updatedMana, id, magicId);
     }
 }

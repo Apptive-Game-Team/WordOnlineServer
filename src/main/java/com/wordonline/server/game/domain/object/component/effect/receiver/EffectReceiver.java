@@ -8,6 +8,11 @@ import com.wordonline.server.game.dto.Effect;
 
 public interface EffectReceiver extends Collidable {
     void onReceive(Effect effect);
+
+    default void onReceive(Effect effect, float duration) {
+        onReceive(effect);
+    }
+
     void onReceive(Effect effect, Vector3 direction, float prox);
 
     @Override

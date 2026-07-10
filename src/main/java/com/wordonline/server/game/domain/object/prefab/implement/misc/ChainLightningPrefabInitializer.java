@@ -33,7 +33,8 @@ public class ChainLightningPrefabInitializer extends PrefabInitializer {
         gameObject.getComponents().add(new ChainShot(gameObject,
                 chainLightningParameters.intValue(ParameterKey.DAMAGE),
                 chainLightningParameters.intValue(ParameterKey.SPEED),
-                chainLightningParameters.floatValue(ParameterKey.ATTACK_RANGE)
+                chainLightningParameters.floatValue(ParameterKey.ATTACK_RANGE),
+                chainLightningParameters.intValue(ParameterKey.MIN_DAMAGE)
         ));
     }
 }

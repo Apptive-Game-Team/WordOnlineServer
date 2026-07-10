@@ -23,7 +23,7 @@ public class RockRollingPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var shootParameters = parameters.object(GameObjectKey.SHOOT);
+        var shootParameters = parameters.object(GameObjectKey.ROCK_ROLLING);
         float radius = shootParameters.floatValue(ParameterKey.RADIUS);
         gameObject.addCollider(new CircleCollider(gameObject, radius, true));
         gameObject.setElement(ElementType.ROCK);

@@ -10,12 +10,7 @@ import com.wordonline.server.game.dto.Effect;
 public class BubbleStatusEffect extends BaseStatusEffect implements DamageInterceptor {
 
     public BubbleStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
-    }
-
-    @Override
-    public void start() {
-        gameObject.setEffect(Effect.Bubble);
+        super(owner, duration, key, Effect.Bubble);
     }
 
     @Override

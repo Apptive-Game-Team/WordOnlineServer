@@ -1,13 +1,16 @@
 package com.wordonline.server.game.domain.object.component.mob.simple;
 
+import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 
+import lombok.Getter;
 import lombok.Setter;
 
 public abstract class TimedBehaviorMob extends Mob {
 
-    private final float interval;
+    @Getter
+    private final Stat attackInterval;
 
     @Setter
     private Behavior behavior;
@@ -17,7 +20,7 @@ public abstract class TimedBehaviorMob extends Mob {
     public TimedBehaviorMob(GameObject gameObject, int maxHp,
             float speed, float interval, Behavior behavior) {
         super(gameObject, maxHp, speed);
-        this.interval = interval;
+        this.attackInterval = new Stat(interval);
         this.behavior = behavior;
     }
 
@@ -25,7 +28,7 @@ public abstract class TimedBehaviorMob extends Mob {
     public void update() {
         super.update();
         timer += getGameContext().getDeltaTime();
-        if (timer >= interval) {
+        if (timer >= attackInterval.total()) {
             if (behavior.behave()) {
                 timer = 0;
             }

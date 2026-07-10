@@ -7,13 +7,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
-import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
-import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
 import com.wordonline.server.statistic.repository.StatisticRepository;
@@ -27,7 +25,6 @@ public class StatisticService {
     protected final Map<GameContext, GameResultBuilder> gameResultBuilderMap = new ConcurrentHashMap<>();
     private final StatisticRepository statisticRepository;
     private final DeckService deckService;
-    private final UserRepository userRepository;
 
     public void createBuilder(GameContext gameContext) {
         GameResultBuilder builder = new GameResultBuilder();
@@ -52,9 +49,7 @@ public class StatisticService {
     }
 
     private void saveDeck(long userId, GameResultBuilder builder) {
-        long deckId = userRepository.getSelectedDeckId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Deck Not Found"));
-        List<CardDto> cardDtos = deckService.getDeckCards(deckId);
+        List<CardDto> cardDtos = deckService.getParticipantDeckCards(userId);
         builder.recordCards(userId, cardDtos);
     }
 

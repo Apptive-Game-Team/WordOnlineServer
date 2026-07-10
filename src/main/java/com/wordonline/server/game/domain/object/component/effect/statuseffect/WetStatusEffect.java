@@ -8,8 +8,7 @@ import com.wordonline.server.game.dto.Effect;
 public class WetStatusEffect extends BaseStatusEffect {
 
     public WetStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
-        gameObject.setEffect(Effect.Wet);
+        super(owner, duration, key, Effect.Wet);
     }
 
     @Override

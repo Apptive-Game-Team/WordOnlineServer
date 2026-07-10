@@ -1,6 +1,6 @@
 package com.wordonline.server.game.domain.bot;
 
-import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameLoop;
+import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -21,9 +22,13 @@ public class BotBrain {
     public record InputDecision(List<CardType> playCards, Vector3 target) {}
 
     private final MagicParser magicParser;
+    private final BotCounterEvaluator counterEvaluator;
+    private final BotPersona persona;
 
-    public BotBrain(MagicParser magicParser) {
+    public BotBrain(MagicParser magicParser, BotCounterEvaluator counterEvaluator, BotPersona persona) {
         this.magicParser = magicParser;
+        this.counterEvaluator = counterEvaluator;
+        this.persona = persona;
     }
 
     public InputDecision think(List<GameObject> gameObjectList,
@@ -47,6 +52,8 @@ public class BotBrain {
 
             List<MagicCandidate> offensive = new ArrayList<>();
             List<MagicCandidate> placement = new ArrayList<>();
+            boolean hasMakeableRecipe = false;
+            boolean hasAffordableRecipe = false;
 
             if (!(magicParser instanceof DatabaseMagicParser dbParser)) {
                 log.warn("[Bot {}] magicParser is not DatabaseMagicParser, fallback disabled", botSide);
@@ -67,13 +74,16 @@ public class BotBrain {
                     continue;
                 }
 
+                hasMakeableRecipe = true;
                 double range = loop.parameters.getValue(mainCard.name(), "range");
                 int cost = (int) loop.parameters.getValue(mainCard.name(), "mana_cost");
                 if (cost > mana) {
                     continue;
                 }
 
-                MagicCandidate candidate = new MagicCandidate(recipe, mainCard, range, cost);
+                hasAffordableRecipe = true;
+                double score = scoreCandidate(recipe, mainCard, mana, cost, enemies);
+                MagicCandidate candidate = new MagicCandidate(recipe, mainCard, range, cost, score);
 
                 if (mainCard == CardType.Shoot || mainCard == CardType.Explode) {
                     offensive.add(candidate);
@@ -91,7 +101,7 @@ public class BotBrain {
 
                 if (!usableOffensive.isEmpty()) {
                     GameObject nearest = nearestEnemy(enemies, playerPos);
-                    MagicCandidate chosen = usableOffensive.getFirst();
+                    MagicCandidate chosen = bestCandidate(usableOffensive);
 
                     log.info("[Bot {}] Chose offensive action: {} targeting nearest enemy at {}", botSide, chosen.cards(), nearest.getPosition());
                     return new InputDecision(chosen.cards(), nearest.getPosition());
@@ -101,10 +111,15 @@ public class BotBrain {
             }
 
             if (!placement.isEmpty()) {
-                MagicCandidate chosen = placement.getFirst();
+                MagicCandidate chosen = bestCandidate(placement);
                 Vector3 target = randomPosInRange(playerPos, chosen.range(), botSide);
                 log.info("[Bot {}] Chose placement action: {} at random target {}", botSide, chosen.cards(), target);
                 return new InputDecision(chosen.cards(), target);
+            }
+
+            if (hasMakeableRecipe && !hasAffordableRecipe) {
+                log.debug("[Bot {}] Waiting for mana; makeable recipes exist but none are affordable. mana={}", botSide, mana);
+                return null;
             }
 
             CardType cycleCard = pickCycleCard(cardList, loop, mana);
@@ -198,8 +213,39 @@ public class BotBrain {
         return candidates.get(idx);
     }
 
+    private MagicCandidate bestCandidate(List<MagicCandidate> candidates) {
+        return candidates.stream()
+                .max((a, b) -> Double.compare(a.score(), b.score()))
+                .orElse(candidates.getFirst());
+    }
+
+    private double scoreCandidate(List<CardType> recipe,
+                                  CardType mainCard,
+                                  int mana,
+                                  int cost,
+                                  List<GameObject> enemies) {
+        double baseScore = recipe.size();
+        if (mainCard == CardType.Shoot || mainCard == CardType.Explode) {
+            baseScore += 10.0;
+        } else {
+            baseScore += 5.0;
+        }
+
+        double counterScore = counterEvaluator.evaluate(recipe, enemies) * persona.normalizedCounterAggression();
+        double manaEfficiencyScore = Math.max(0, mana - cost) * 0.01;
+        double tierSkillBonus = switch (persona.tier()) {
+            case INTRO -> 0.0;
+            case BEGINNER -> 0.2;
+            case INTERMEDIATE -> 0.4;
+            case ADVANCED -> 0.7;
+            case ELITE -> 1.0;
+        };
+        return baseScore + counterScore + manaEfficiencyScore + tierSkillBonus;
+    }
+
     private record MagicCandidate(List<CardType> cards,
                                   CardType mainCard,
                                   double range,
-                                  int cost) {}
+                                  int cost,
+                                  double score) {}
 }

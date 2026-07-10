@@ -51,7 +51,7 @@ public class FireSpiritPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new AreaEffectProvider(
                 gameObject,
                 1f,
-                fireSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE),
+                fireSpiritParameters.floatValue(ParameterKey.SUB_ATTACK_RANGE),
                 Effect.Burn
                 ));
     }

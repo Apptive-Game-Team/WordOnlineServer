@@ -1,8 +1,10 @@
 package com.wordonline.server.game.service;
 
+import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
+import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import com.wordonline.server.game.service.pve.PveScenarioInstaller;
 import com.wordonline.server.game.service.pve.PveScenarioRegistry;
 import com.wordonline.server.game.service.system.PveScriptSystem;
@@ -33,11 +35,14 @@ public class PveLoop extends WordOnlineLoop {
                    com.wordonline.server.game.service.system.PhysicSystem physicSystem,
                    com.wordonline.server.game.service.system.GameObjectAddRemoteSystem gameObjectAddRemoveSystem,
                    com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser magicParser,
+                   BotPersonaService botPersonaService,
+                   BotCounterEvaluator botCounterEvaluator,
                    PveScenarioRegistry pveScenarioRegistry,
                    PveScenarioInstaller pveScenarioInstaller,
                    PveScriptSystem pveScriptSystem) {
         super(mmrService, userService, gameContext, parameters, frameDataSystem, botSystem, feverTimeSystem,
-                gameObjectStateInitialSystem, componentUpdateSystem, physicSystem, gameObjectAddRemoveSystem, magicParser);
+                gameObjectStateInitialSystem, componentUpdateSystem, physicSystem, gameObjectAddRemoveSystem, magicParser,
+                botPersonaService, botCounterEvaluator);
         this.pveScenarioRegistry = pveScenarioRegistry;
         this.pveScenarioInstaller = pveScenarioInstaller;
         this.pveScriptSystem = pveScriptSystem;

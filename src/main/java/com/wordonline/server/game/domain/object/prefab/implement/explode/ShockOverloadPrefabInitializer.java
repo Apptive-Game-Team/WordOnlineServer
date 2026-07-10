@@ -23,7 +23,7 @@ public class ShockOverloadPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var explodeParameters = parameters.object(GameObjectKey.EXPLODE);
+        var explodeParameters = parameters.object(GameObjectKey.SHOCK_OVERLOAD);
         gameObject.addCollider(new CircleCollider(
                 gameObject,
                 explodeParameters.floatValue(ParameterKey.RADIUS),

@@ -81,7 +81,7 @@ public class ObjectsInfoDtoBuilder {
         if (updatedObjectDto != null) { // if the object is already in the update list, update it
             updatedObjectDto.setPosition(gameObject.getPosition());
             updatedObjectDto.setStatus(gameObject.getStatus());
-            updatedObjectDto.setEffect(gameObject.getEffect());
+            updatedObjectDto.setEffects(List.copyOf(gameObject.getEffects()));
             updatedObjectDto.setMaster(gameObject.getMaster());
             updatedObjectDto.updateGauges(gameObject);
         } else { // if the object is not in the update list, add it

@@ -15,13 +15,11 @@ import com.wordonline.server.game.dto.Status;
 
 public class Leafair extends Drop {
     private final int healAmount;
-    private final float ttlRecoverAmount;
     private final float radius;
 
-    public Leafair(GameObject gameObject, int damage, int healAmount, float ttlRecoverAmount, float radius) {
+    public Leafair(GameObject gameObject, int damage, int healAmount, float radius) {
         super(gameObject, damage);
         this.healAmount = healAmount;
-        this.ttlRecoverAmount = ttlRecoverAmount;
         this.radius = radius;
     }
 
@@ -72,7 +70,7 @@ public class Leafair extends Drop {
 
         TimedSelfDestroyer timedSelfDestroyer = target.getComponent(TimedSelfDestroyer.class);
         if (timedSelfDestroyer != null) {
-            timedSelfDestroyer.recover(ttlRecoverAmount);
+            timedSelfDestroyer.recover();
             handled = true;
         }
 

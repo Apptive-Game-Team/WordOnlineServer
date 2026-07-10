@@ -10,13 +10,11 @@ public class BotAction {
 
     public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto, Master botSide)
     {
-        long userId = BotSideUtil.getUserId(sessionObject, botSide);
-        
         log.info("[Bot {}] Executing action: {} cards={} target={}", 
                 botSide, inputRequestDto.getType(), inputRequestDto.getCards(), inputRequestDto.getPosition());
                 
-        sessionObject.getGameContext().getMagicInputHandler().handleInput(
-                sessionObject.getGameContext(), userId, inputRequestDto
+        sessionObject.getGameContext().getMagicInputHandler().handleBotPlayerInput(
+                sessionObject.getGameContext(), botSide, inputRequestDto
         );
     }
 }

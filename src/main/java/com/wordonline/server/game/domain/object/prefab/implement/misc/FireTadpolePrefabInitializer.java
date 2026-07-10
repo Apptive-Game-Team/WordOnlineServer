@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("fire_tadpole_prefab")
 public class FireTadpolePrefabInitializer extends PrefabInitializer {
 
-    private static final float TIME_TO_LIVE_SEC = 10f;
-
     private final Parameters parameters;
 
     public FireTadpolePrefabInitializer(Parameters parameters) {
@@ -40,7 +38,7 @@ public class FireTadpolePrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 fireTadpoleParameters.intValue(ParameterKey.DAMAGE),
                 fireTadpoleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, TIME_TO_LIVE_SEC));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, fireTadpoleParameters.floatValue(ParameterKey.DURATION)));
         gameObject.setElement(ElementType.FIRE);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

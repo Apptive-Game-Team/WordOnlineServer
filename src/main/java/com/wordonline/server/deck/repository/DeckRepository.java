@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -39,6 +40,12 @@ public class DeckRepository {
             WHERE decks.id = :deckId;
             """;
 
+    private static final String GET_SELECTED_DECK_ID = """
+            SELECT selected_deck_id
+            FROM users
+            WHERE id = :userId;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public List<CardsDto> getSelectedDeck(long userId) {
@@ -59,5 +66,12 @@ public class DeckRepository {
                                 CardType.valueOf(rs.getString("name")),
                                 rs.getInt("count"))
                 ).list();
+    }
+
+    public Optional<Long> getSelectedDeckId(long userId) {
+        return jdbcClient.sql(GET_SELECTED_DECK_ID)
+                .param("userId", userId)
+                .query(Long.class)
+                .optional();
     }
 }

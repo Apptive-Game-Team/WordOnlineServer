@@ -7,17 +7,24 @@ import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Cannon;
 import com.wordonline.server.game.domain.object.component.mob.simple.ManaWellMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.PlayerHealthComponent;
+import com.wordonline.server.game.domain.object.component.mob.simple.TimedBehaviorMob;
+import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.mob.simple.Totem;
 import com.wordonline.server.game.domain.object.component.mob.simple.Turret;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PVEBossMob;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 
 public class FrenzyStatusEffect extends BaseStatusEffect {
+    private static final float ATTACK_SPEED_BONUS_PERCENT = 0.5f;
+    private static final float ATTACK_INTERVAL_MODIFIER =
+            -ATTACK_SPEED_BONUS_PERCENT / (1f + ATTACK_SPEED_BONUS_PERCENT);
+
     private Master originalMaster;
 
     public FrenzyStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
+        super(owner, duration, key, Effect.Frenzy);
     }
 
     @Override
@@ -31,7 +38,7 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
             gameObject.setMaster(Master.None);
         }
 
-        gameObject.setEffect(Effect.Frenzy);
+        applyAttackSpeedModifier(ATTACK_INTERVAL_MODIFIER);
     }
 
     private boolean isControllableSummon() {
@@ -55,6 +62,24 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
         if (originalMaster != null && gameObject.getMaster() == Master.None) {
             gameObject.setMaster(originalMaster);
         }
+        applyAttackSpeedModifier(0f);
         super.expire();
+    }
+
+    private void applyAttackSpeedModifier(float modifier) {
+        BehaviorMob behaviorMob = gameObject.getComponent(BehaviorMob.class);
+        if (behaviorMob != null) {
+            behaviorMob.getAttackInterval().setModifierPercent(modifier);
+        }
+
+        TimedBehaviorMob timedBehaviorMob = gameObject.getComponent(TimedBehaviorMob.class);
+        if (timedBehaviorMob != null) {
+            timedBehaviorMob.getAttackInterval().setModifierPercent(modifier);
+        }
+
+        Tower tower = gameObject.getComponent(Tower.class);
+        if (tower != null) {
+            tower.getAttackInterval().setModifierPercent(modifier);
+        }
     }
 }

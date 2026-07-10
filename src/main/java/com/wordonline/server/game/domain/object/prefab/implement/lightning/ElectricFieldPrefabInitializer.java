@@ -25,7 +25,7 @@ public class ElectricFieldPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var fieldShortParameters = parameters.object(GameObjectKey.FIELD_SHORT);
+        var fieldShortParameters = parameters.object(GameObjectKey.ELECTRIC_FIELD);
         gameObject.addCollider(new CircleCollider(gameObject, fieldShortParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Shock));

@@ -46,12 +46,13 @@ public class WindPushComponent extends Component {
         for (GameObject target : targets) {
             if (target == gameObject) continue;
             
-            // Push opponent's minions (Mobs)
-            if (target.getMaster() != master && target.hasComponent(Mob.class)) {
-                RigidBody rb = target.getComponent(RigidBody.class);
-                if (rb != null) {
-                    rb.addVelocity(direction.multiply(pushForce));
-                }
+            if (!target.hasComponent(Mob.class)) {
+                continue;
+            }
+
+            RigidBody rb = target.getComponent(RigidBody.class);
+            if (rb != null) {
+                rb.addVelocity(direction.multiply(pushForce));
             }
         }
     }

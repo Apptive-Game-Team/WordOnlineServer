@@ -30,6 +30,8 @@ public class RallyingTorchPrefabInitializer extends PrefabInitializer {
         gameObject.setElement(EnumSet.of(ElementType.FIRE, ElementType.WIND));
         gameObject.addComponent(new RallyingTorch(
                 gameObject,
-                rallyingTorchParameters.floatValue(ParameterKey.DURATION)));
+                rallyingTorchParameters.floatValue(ParameterKey.DURATION),
+                rallyingTorchParameters.floatValue(ParameterKey.RADIUS),
+                rallyingTorchParameters.floatValue(ParameterKey.BUFF_DURATION)));
     }
 }

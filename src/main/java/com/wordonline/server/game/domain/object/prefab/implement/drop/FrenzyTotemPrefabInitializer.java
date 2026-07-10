@@ -22,9 +22,14 @@ public class FrenzyTotemPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
-        var dropParameters = parameters.object(GameObjectKey.DROP);
-        gameObject.addCollider(new CircleCollider(gameObject, dropParameters.floatValue(ParameterKey.RADIUS), true));
+        var frenzyTotemParameters = parameters.object(GameObjectKey.FRENZY_TOTEM);
+        gameObject.addCollider(new CircleCollider(gameObject, frenzyTotemParameters.floatValue(ParameterKey.RADIUS), true));
         gameObject.setElement(ElementType.NONE);
-        gameObject.getComponents().add(new FrenzyTotem(gameObject));
+        gameObject.getComponents().add(new FrenzyTotem(
+                gameObject,
+                frenzyTotemParameters.floatValue(ParameterKey.SPEED),
+                frenzyTotemParameters.floatValue(ParameterKey.ATTACK_RANGE),
+                frenzyTotemParameters.floatValue(ParameterKey.BUFF_DURATION)
+        ));
     }
 }

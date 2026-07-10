@@ -125,3 +125,42 @@ CREATE TABLE magic_cards (
     magic_id BIGINT REFERENCES magics(id),
     card_id BIGINT REFERENCES cards(id)
 );
+
+CREATE TABLE bot_personas (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    tier VARCHAR(20) NOT NULL DEFAULT 'BEGINNER',
+    deck_id BIGINT NOT NULL REFERENCES decks(id),
+    thinking_time_ms INT NOT NULL DEFAULT 250,
+    reaction_interval_frames INT NOT NULL DEFAULT 8,
+    counter_aggression DOUBLE PRECISION NOT NULL DEFAULT 0.25,
+    mmr SMALLINT NOT NULL DEFAULT 1000,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tags (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(31) UNIQUE NOT NULL
+);
+
+CREATE TABLE game_object_tags (
+    game_object_id BIGINT REFERENCES game_objects(id) ON DELETE CASCADE,
+    tag_id BIGINT REFERENCES tags(id) ON DELETE CASCADE,
+    CONSTRAINT uq_game_object_id_tag_id UNIQUE (game_object_id, tag_id)
+);
+
+CREATE TABLE magic_tags (
+    magic_id BIGINT NOT NULL REFERENCES magics(id) ON DELETE CASCADE,
+    tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (magic_id, tag_id)
+);
+
+CREATE TABLE tag_counter_rules (
+    id BIGSERIAL PRIMARY KEY,
+    attacker_tag_id BIGINT NOT NULL REFERENCES tags(id),
+    target_tag_id BIGINT NOT NULL REFERENCES tags(id),
+    weight DOUBLE PRECISION NOT NULL DEFAULT 1.0,
+    UNIQUE(attacker_tag_id, target_tag_id)
+);

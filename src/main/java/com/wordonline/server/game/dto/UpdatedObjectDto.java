@@ -18,7 +18,7 @@ import lombok.Setter;
 public class UpdatedObjectDto {
     private final int id;
     private Status status;
-    private Effect effect;
+    private List<Effect> effects;
     private Master master;
     private Vector3 position;
     private List<GaugeDto> gauges = new ArrayList<>();
@@ -33,7 +33,7 @@ public class UpdatedObjectDto {
         updateGauges(gameObject);
 
         this.status = gameObject.getStatus();
-        this.effect = gameObject.getEffect();
+        this.effects = List.copyOf(gameObject.getEffects());
         this.master = gameObject.getMaster();
         this.position = gameObject.getPosition();
     }

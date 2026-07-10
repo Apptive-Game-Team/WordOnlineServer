@@ -15,6 +15,7 @@ public class LightningStrike extends MagicComponent {
 
     private final AttackInfo attackInfo;
     private final Vector3 boxSize;
+    private boolean triggered;
 
     public LightningStrike(GameObject gameObject, int damage, float radius) {
         super(gameObject);
@@ -25,6 +26,15 @@ public class LightningStrike extends MagicComponent {
     @Override
     public void start() {
         gameObject.drawBox(new Vector3(0, 0, boxSize.getZ() / 2), boxSize, GizmoCategory.AreaOfEffect);
+    }
+
+    @Override
+    public void update() {
+        if (triggered) {
+            return;
+        }
+
+        triggered = true;
         Vector3 position = gameObject.getPosition();
         Vector3 boxCenter = new Vector3(
                 position.getX(),
