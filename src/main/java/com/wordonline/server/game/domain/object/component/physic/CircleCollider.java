@@ -1,7 +1,6 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import lombok.Getter;
 

@@ -20,7 +20,7 @@ public abstract class AbstractSingleSpawnMagic extends Magic {
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
-        Vector3 groundedPosition = new Vector3(position.getX(), position.getY(), 0);
+        Vector3 groundedPosition = new Vector3(position.getX(), 0, position.getZ());
         new GameObject(getMaster(master), prefabType, groundedPosition, gameContext);
     }
 

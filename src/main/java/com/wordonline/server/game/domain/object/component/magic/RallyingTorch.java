@@ -53,13 +53,13 @@ public class RallyingTorch extends MagicComponent {
     }
 
     private void fall() {
-        Vector3 nextPosition = gameObject.getPosition().plus(0, 0, -Drop.SPEED * getGameContext().getDeltaTime());
-        if (nextPosition.getZ() > 0f) {
+        Vector3 nextPosition = gameObject.getPosition().plus(0, -Drop.SPEED * getGameContext().getDeltaTime(), 0);
+        if (nextPosition.getY() > 0f) {
             gameObject.setPosition(nextPosition);
             return;
         }
 
-        gameObject.setPosition(new Vector3(nextPosition.getX(), nextPosition.getY(), 0f));
+        gameObject.setPosition(new Vector3(nextPosition.getX(), 0f, nextPosition.getZ()));
         landed = true;
         elapsedTime = 0f;
     }

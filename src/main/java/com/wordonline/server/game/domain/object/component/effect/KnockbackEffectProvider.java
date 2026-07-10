@@ -1,10 +1,6 @@
 package com.wordonline.server.game.domain.object.component.effect;
 
-import com.wordonline.server.game.domain.Parameters;
-import com.wordonline.server.game.domain.parameter.GameObjectKey;
-import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.magic.Explode;
@@ -31,11 +27,11 @@ public class KnockbackEffectProvider extends EffectProvider {
     {
         if(gameObject.getComponent(Shot.class) != null)
         {
-            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / gameObject.getFirstCircleCollider().map(collider -> (double) collider.getRadius()).orElse(1d));
+            return (float) (gameObject.getPosition().distance(otherObject.getPosition()) / gameObject.getFirstCircleCollider().map(collider -> (double) collider.getRadius()).orElse(1d));
         }
         else if(gameObject.getComponent(Explode.class) != null)
         {
-            return (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / gameObject.getComponent(Explode.class).getRadius());
+            return (float) (gameObject.getPosition().distance(otherObject.getPosition()) / gameObject.getComponent(Explode.class).getRadius());
         }
 
         return 0;

@@ -22,8 +22,8 @@ public class FrenzyTotem extends MagicComponent implements Collidable {
 
     @Override
     public void update() {
-        gameObject.setPosition(gameObject.getPosition().plus(0, 0, -speed * getGameContext().getDeltaTime()));
-        if (gameObject.getPosition().getZ() < 0) {
+        gameObject.setPosition(gameObject.getPosition().plus(0, -speed * getGameContext().getDeltaTime(), 0));
+        if (gameObject.getPosition().getY() < 0) {
             trigger();
         }
     }

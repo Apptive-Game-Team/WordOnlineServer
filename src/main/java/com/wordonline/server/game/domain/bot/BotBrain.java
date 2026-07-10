@@ -181,10 +181,10 @@ public class BotBrain {
         }
 
         double dx = r * Math.cos(theta);
-        double dy = r * Math.sin(theta);
+        double dz = r * Math.sin(theta);
         return new Vector3((float) (center.getX() + dx),
-                (float) (center.getY() + dy),
-                center.getZ());
+                center.getY(),
+                (float) (center.getZ() + dz));
     }
 
     private static CardType findMainCard(List<CardType> combo) {
