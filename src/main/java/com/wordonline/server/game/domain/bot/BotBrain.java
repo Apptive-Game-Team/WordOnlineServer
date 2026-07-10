@@ -52,6 +52,8 @@ public class BotBrain {
 
             List<MagicCandidate> offensive = new ArrayList<>();
             List<MagicCandidate> placement = new ArrayList<>();
+            boolean hasMakeableRecipe = false;
+            boolean hasAffordableRecipe = false;
 
             if (!(magicParser instanceof DatabaseMagicParser dbParser)) {
                 log.warn("[Bot {}] magicParser is not DatabaseMagicParser, fallback disabled", botSide);
@@ -72,12 +74,14 @@ public class BotBrain {
                     continue;
                 }
 
+                hasMakeableRecipe = true;
                 double range = loop.parameters.getValue(mainCard.name(), "range");
                 int cost = (int) loop.parameters.getValue(mainCard.name(), "mana_cost");
                 if (cost > mana) {
                     continue;
                 }
 
+                hasAffordableRecipe = true;
                 double score = scoreCandidate(recipe, mainCard, mana, cost, enemies);
                 MagicCandidate candidate = new MagicCandidate(recipe, mainCard, range, cost, score);
 
@@ -111,6 +115,11 @@ public class BotBrain {
                 Vector3 target = randomPosInRange(playerPos, chosen.range(), botSide);
                 log.info("[Bot {}] Chose placement action: {} at random target {}", botSide, chosen.cards(), target);
                 return new InputDecision(chosen.cards(), target);
+            }
+
+            if (hasMakeableRecipe && !hasAffordableRecipe) {
+                log.debug("[Bot {}] Waiting for mana; makeable recipes exist but none are affordable. mana={}", botSide, mana);
+                return null;
             }
 
             CardType cycleCard = pickCycleCard(cardList, loop, mana);
