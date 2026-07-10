@@ -31,7 +31,7 @@ public class ThunderBirdMob extends BehaviorMob {
 
         if (mob == null) return false;
 
-        if (gameObject.getPosition().getZ() < ATTACKABLE_HEIGHT) {
+        if (gameObject.getPosition().getY() < ATTACKABLE_HEIGHT) {
             setState(new FloatingState());
             return true;
         }
@@ -80,14 +80,14 @@ public class ThunderBirdMob extends BehaviorMob {
 
             if (target.gameObject.getPosition().distance(gameObject.getPosition()) - targetRadius - selfRadius > ATTACK_THRESHOLD) {
 
-                float startZ = startPos.getZ();
-                float lastZ = gameObject.getPosition().getZ();
-                float targetZ = target.gameObject.getPosition().getZ();
+                float startY = startPos.getY();
+                float lastY = gameObject.getPosition().getY();
+                float targetY = target.gameObject.getPosition().getY();
 
-                float t = (lastZ - startZ) / (targetZ - startZ);
+                float t = (lastY - startY) / (targetY - startY);
 
                 Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
-                nextPos.setZ(lastZ);
+                nextPos.setY(lastY);
                 gameObject.setPosition(nextPos);
                 return;
             }
@@ -98,7 +98,7 @@ public class ThunderBirdMob extends BehaviorMob {
     }
 
     private int calculateDamage(Vector3 startPos) {
-        return (int) (damage * (startPos.getZ() - gameObject.getPosition().getZ()) / (ATTACKABLE_HEIGHT - ATTACK_THRESHOLD));
+        return (int) (damage * (startPos.getY() - gameObject.getPosition().getY()) / (ATTACKABLE_HEIGHT - ATTACK_THRESHOLD));
     }
 
     public class FloatingState extends State {
@@ -115,7 +115,7 @@ public class ThunderBirdMob extends BehaviorMob {
 
         @Override
         public void onUpdate() {
-            if (gameObject.getPosition().getZ() < ATTACKABLE_HEIGHT) {
+            if (gameObject.getPosition().getY() < ATTACKABLE_HEIGHT) {
                 return;
             }
 

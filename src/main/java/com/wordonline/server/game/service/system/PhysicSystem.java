@@ -120,7 +120,8 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
             return null;
         }
 
-        if (displacement.getY() <= SAME_PLACE_THRESHOLD && displacement.getX() <= SAME_PLACE_THRESHOLD) {
+        if (Math.abs(displacement.getZ()) <= SAME_PLACE_THRESHOLD
+                && Math.abs(displacement.getX()) <= SAME_PLACE_THRESHOLD) {
             return Vector3.randomUnitVector();
         }
 

@@ -26,8 +26,8 @@ public class GameConfig {
     public static final float FALL_THRESHOLD_VELOCITY = 4f;
     public static final float FALL_THRESHOLD = 0.01f;
 
-    public static final Vector3 LEFT_PLAYER_POSITION = new Vector3(1, 5, 0);
-    public static final Vector3 RIGHT_PLAYER_POSITION = new Vector3(17, 5, 0);
+    public static final Vector3 LEFT_PLAYER_POSITION = new Vector3(1, 0, 5);
+    public static final Vector3 RIGHT_PLAYER_POSITION = new Vector3(17, 0, 5);
     public static final Dictionary<Master, Vector3> PLAYER_POSITION = new Hashtable<>() {{
         put(Master.LeftPlayer, LEFT_PLAYER_POSITION);
         put(Master.RightPlayer, RIGHT_PLAYER_POSITION);

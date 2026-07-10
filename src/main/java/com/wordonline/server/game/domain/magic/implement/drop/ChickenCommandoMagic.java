@@ -23,7 +23,7 @@ public class ChickenCommandoMagic extends Magic {
         float spawnHeight = gameContext.getParameters()
                 .object(GameObjectKey.CHICKEN_COMMANDO)
                 .floatValue(ParameterKey.SPAWN_HEIGHT);
-        Vector3 spawnPosition = new Vector3(position.getX(), position.getY(), spawnHeight);
+        Vector3 spawnPosition = new Vector3(position.getX(), spawnHeight, position.getZ());
         new GameObject(master, PrefabType.ChickenCommando, spawnPosition, gameContext);
     }
 }

@@ -23,7 +23,7 @@ public abstract class AbstractDropMagic extends Magic {
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
         Vector3 vector3 = new Vector3(position.getX(), position.getY(), position.getZ());
-        vector3.setZ(GameConfig.DROP_MAGIC_INITIAL_HEIGHT);
+        vector3.setY(GameConfig.DROP_MAGIC_INITIAL_HEIGHT);
 
         new GameObject(
                 master,
@@ -32,4 +32,3 @@ public abstract class AbstractDropMagic extends Magic {
                 gameContext);
     }
 }
-

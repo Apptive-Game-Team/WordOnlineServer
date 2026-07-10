@@ -29,8 +29,8 @@ public class RollingRock extends Shot {
 
     @Override
     public void setTarget(Vector3 targetPosition) {
-        Vector3 flatTarget = new Vector3(targetPosition.getX(), targetPosition.getY(), 0);
-        Vector3 flatOrigin = new Vector3(gameObject.getPosition().getX(), gameObject.getPosition().getY(), 0);
+        Vector3 flatTarget = new Vector3(targetPosition.getX(), 0, targetPosition.getZ());
+        Vector3 flatOrigin = new Vector3(gameObject.getPosition().getX(), 0, gameObject.getPosition().getZ());
         currentDirection = flatTarget.subtract(flatOrigin).normalize();
     }
 
@@ -49,7 +49,7 @@ public class RollingRock extends Shot {
 
         Vector3 nextPosition = gameObject.getPosition()
                 .plus(currentDirection.multiply(speed * getGameContext().getDeltaTime()));
-        nextPosition = new Vector3(nextPosition.getX(), nextPosition.getY(), 0);
+        nextPosition = new Vector3(nextPosition.getX(), 0, nextPosition.getZ());
 
         BorderBounceResult borderBounceResult = resolveBorderBounce(nextPosition);
         if (borderBounceResult.bounced()) {
@@ -97,7 +97,7 @@ public class RollingRock extends Shot {
             reflected = currentDirection.multiply(-1f);
         }
 
-        currentDirection = new Vector3(reflected.getX(), reflected.getY(), 0).normalize();
+        currentDirection = new Vector3(reflected.getX(), 0, reflected.getZ()).normalize();
         gameObject.setStatus(Status.Attack);
         gameObject.setPosition(gameObject.getPosition().plus(currentDirection.multiply(BOUNCE_SEPARATION)));
     }
@@ -121,13 +121,13 @@ public class RollingRock extends Shot {
     private BorderBounceResult resolveBorderBounce(Vector3 nextPosition) {
         float minX = GameConfig.X_MID - GameConfig.X_BOUND + radius;
         float maxX = GameConfig.X_MID + GameConfig.X_BOUND - radius;
-        float minY = GameConfig.Y_MID - GameConfig.Y_BOUND + radius;
-        float maxY = GameConfig.Y_MID + GameConfig.Y_BOUND - radius;
+        float minZ = GameConfig.Y_MID - GameConfig.Y_BOUND + radius;
+        float maxZ = GameConfig.Y_MID + GameConfig.Y_BOUND - radius;
 
         float nextX = nextPosition.getX();
-        float nextY = nextPosition.getY();
+        float nextZ = nextPosition.getZ();
         float dirX = currentDirection.getX();
-        float dirY = currentDirection.getY();
+        float dirZ = currentDirection.getZ();
         boolean bounced = false;
 
         if (nextX <= minX || nextX >= maxX) {
@@ -137,20 +137,20 @@ public class RollingRock extends Shot {
             bounced = true;
         }
 
-        if (nextY <= minY || nextY >= maxY) {
-            dirY *= -1f;
-            nextY = Math.clamp(nextY, minY, maxY);
-            nextY += dirY > 0 ? BOUNCE_SEPARATION : -BOUNCE_SEPARATION;
+        if (nextZ <= minZ || nextZ >= maxZ) {
+            dirZ *= -1f;
+            nextZ = Math.clamp(nextZ, minZ, maxZ);
+            nextZ += dirZ > 0 ? BOUNCE_SEPARATION : -BOUNCE_SEPARATION;
             bounced = true;
         }
 
         float clampedX = Math.clamp(nextX, minX, maxX);
-        float clampedY = Math.clamp(nextY, minY, maxY);
+        float clampedZ = Math.clamp(nextZ, minZ, maxZ);
 
         return new BorderBounceResult(
                 bounced,
-                new Vector3(dirX, dirY, 0),
-                new Vector3(clampedX, clampedY, 0)
+                new Vector3(dirX, 0, dirZ),
+                new Vector3(clampedX, 0, clampedZ)
         );
     }
 
@@ -158,7 +158,7 @@ public class RollingRock extends Shot {
         Vector3 normal = gameObject.getPosition()
                 .subtract(otherObject.getPosition());
 
-        if (normal.getX() == 0f && normal.getY() == 0f) {
+        if (normal.getX() == 0f && normal.getZ() == 0f) {
             CircleCollider selfCollider = gameObject.getFirstCircleCollider()
                     .orElse(null);
             CircleCollider otherCollider = otherObject.getFirstCircleCollider()
@@ -169,11 +169,11 @@ public class RollingRock extends Shot {
             }
         }
 
-        if (normal == null || (normal.getX() == 0f && normal.getY() == 0f)) {
+        if (normal == null || (normal.getX() == 0f && normal.getZ() == 0f)) {
             return currentDirection.multiply(-1f).normalize();
         }
 
-        return new Vector3(normal.getX(), normal.getY(), 0).normalize();
+        return new Vector3(normal.getX(), 0, normal.getZ()).normalize();
     }
 
     private Vector3 reflect(Vector3 incomingDirection, Vector3 normal) {

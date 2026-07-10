@@ -37,7 +37,7 @@ public class CraterEmber extends MagicComponent implements Collidable {
         startPosition = new Vector3(gameObject.getPosition());
 
         double angle = ThreadLocalRandom.current().nextDouble(0.0, Math.PI * 2.0);
-        horizontalDirection = new Vector3((float) Math.cos(angle), (float) Math.sin(angle), 0f);
+        horizontalDirection = new Vector3((float) Math.cos(angle), 0f, (float) Math.sin(angle));
 
         float distance = ThreadLocalRandom.current().nextFloat(MIN_TRAVEL_DISTANCE, maxTravelDistance);
         landingPosition = startPosition.plus(horizontalDirection.multiply(distance));
@@ -59,9 +59,9 @@ public class CraterEmber extends MagicComponent implements Collidable {
 
         float horizontalDistance = HORIZONTAL_SPEED * elapsed;
         float progress = elapsed / travelDuration;
-        float z = 4f * ARC_PEAK_HEIGHT * progress * (1f - progress);
+        float y = 4f * ARC_PEAK_HEIGHT * progress * (1f - progress);
         Vector3 nextPosition = startPosition.plus(horizontalDirection.multiply(horizontalDistance));
-        gameObject.setPosition(new Vector3(nextPosition.getX(), nextPosition.getY(), Math.max(z, 0f)));
+        gameObject.setPosition(new Vector3(nextPosition.getX(), Math.max(y, 0f), nextPosition.getZ()));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class CraterEmber extends MagicComponent implements Collidable {
 
     private void land() {
         resolved = true;
-        gameObject.setPosition(new Vector3(landingPosition.getX(), landingPosition.getY(), 0f));
+        gameObject.setPosition(new Vector3(landingPosition.getX(), 0f, landingPosition.getZ()));
         new GameObject(Master.None, PrefabType.FireField, gameObject.getPosition(), getGameContext());
         gameObject.destroy();
     }

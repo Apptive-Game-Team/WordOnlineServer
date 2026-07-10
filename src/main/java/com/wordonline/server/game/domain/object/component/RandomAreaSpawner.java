@@ -42,11 +42,11 @@ public class RandomAreaSpawner extends TimedSelfDestroyer {
     }
 
     private Vector2 getRandomVectorInCircle(float radius) {
-        Vector3 center = gameObject.getPosition(); // x,y from your Vector3
+        Vector3 center = gameObject.getPosition();
         double angle = ThreadLocalRandom.current().nextDouble(0.0, Math.PI);
         double dist  = Math.sqrt(ThreadLocalRandom.current().nextDouble()) * radius; // uniform in disk
         float x = (float) (center.getX() + dist * Math.cos(angle));
-        float y = (float) (center.getY() + dist * Math.sin(angle));
+        float y = (float) (center.getZ() + dist * Math.sin(angle));
         return new Vector2(x, y);
     }
 

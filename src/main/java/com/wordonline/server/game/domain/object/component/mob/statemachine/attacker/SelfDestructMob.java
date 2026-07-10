@@ -111,14 +111,14 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
             }
 
             // Move towards target
-            float startZ = startPos.getZ();
-            float lastZ = gameObject.getPosition().getZ();
-            float targetZ = target.gameObject.getPosition().getZ();
+            float startY = startPos.getY();
+            float lastY = gameObject.getPosition().getY();
+            float targetY = target.gameObject.getPosition().getY();
 
-            float t = (lastZ - startZ) / (targetZ - startZ);
+            float t = (lastY - startY) / (targetY - startY);
 
             Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
-            nextPos.setZ(lastZ);
+            nextPos.setY(lastY);
             gameObject.setPosition(nextPos);
 
             // Check if mob is close enough to the target to explode (fallback in case collision event doesn't fire immediately)

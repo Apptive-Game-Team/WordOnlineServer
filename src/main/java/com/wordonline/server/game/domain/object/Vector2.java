@@ -63,14 +63,14 @@ public class Vector2 {
     }
 
     public Vector2(Vector3 vector3) {
-        this(vector3.getX(), vector3.getY());
+        this(vector3.getX(), vector3.getZ());
     }
 
     public Vector3 toVector3() {
-        return new Vector3(x, y, 0);
+        return new Vector3(x, 0, y);
     }
-    public Vector3 toVector3(float z) {
-        return new Vector3(x, y, z);
+    public Vector3 toVector3(float height) {
+        return new Vector3(x, height, y);
     }
 
     public static Vector2 randomUnitVector() {

@@ -30,8 +30,8 @@ public class EdgeCollider extends Collider {
     }
 
     private boolean ccw(Vector3 a, Vector3 b, Vector3 c) {
-        return (c.getY() - a.getY()) * (b.getX() - a.getX()) >
-                (b.getY() - a.getY()) * (c.getX() - a.getX());
+        return (c.getZ() - a.getZ()) * (b.getX() - a.getX()) >
+                (b.getZ() - a.getZ()) * (c.getX() - a.getX());
     }
 
     @Override

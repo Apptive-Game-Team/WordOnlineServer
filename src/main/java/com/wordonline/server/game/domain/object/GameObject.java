@@ -143,7 +143,7 @@ public class GameObject {
 
     public void setPosition(Vector3 position) {
         this.position = position;
-        if (Math.abs(position.getX() - GameConfig.X_MID) > GameConfig.X_BOUND || Math.abs(position.getY() - GameConfig.Y_MID) > GameConfig.Y_BOUND) {
+        if (Math.abs(position.getX() - GameConfig.X_MID) > GameConfig.X_BOUND || Math.abs(position.getZ() - GameConfig.Y_MID) > GameConfig.Y_BOUND) {
             destroy();
             return;
         }
