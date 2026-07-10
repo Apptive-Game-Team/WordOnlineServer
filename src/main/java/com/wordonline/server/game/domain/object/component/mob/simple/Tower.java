@@ -52,7 +52,7 @@ public class Tower extends Component {
 
     @Override
     public void start() {
-        detector = new ClosestEnemyDetector(getGameContext(), targetMask, true);
+        detector = new ClosestEnemyDetector(getGameContext(), targetMask);
         gameObject.drawCircle(Vector3.ZERO, attackRange, GizmoCategory.AttackRange);
     }
 
@@ -79,7 +79,7 @@ public class Tower extends Component {
             return false;
         }
 
-        double distance = gameObject.getPosition().toVector2().distance(target.getPosition().toVector2());
+        double distance = gameObject.getPosition().distance(target.getPosition());
         if (distance > attackRange) {
             return false;
         }

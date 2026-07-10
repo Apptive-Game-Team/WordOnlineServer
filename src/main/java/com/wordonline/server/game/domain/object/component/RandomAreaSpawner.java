@@ -3,7 +3,6 @@ package com.wordonline.server.game.domain.object.component;
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 
@@ -35,19 +34,19 @@ public class RandomAreaSpawner extends TimedSelfDestroyer {
         elapsed += getGameContext().getDeltaTime();
         if (elapsed >= spawnInterval) {
             elapsed -= spawnInterval;
-            Vector3 pos = getRandomVectorInCircle(areaRadius).toVector3(GameConfig.DROP_MAGIC_INITIAL_HEIGHT) ;
+            Vector3 pos = getRandomVectorInCircle(areaRadius).withY(GameConfig.DROP_MAGIC_INITIAL_HEIGHT);
             new GameObject(gameObject.getMaster(), prefabType,
                     pos, getGameContext());
         }
     }
 
-    private Vector2 getRandomVectorInCircle(float radius) {
+    private Vector3 getRandomVectorInCircle(float radius) {
         Vector3 center = gameObject.getPosition();
         double angle = ThreadLocalRandom.current().nextDouble(0.0, Math.PI);
         double dist  = Math.sqrt(ThreadLocalRandom.current().nextDouble()) * radius; // uniform in disk
         float x = (float) (center.getX() + dist * Math.cos(angle));
-        float y = (float) (center.getZ() + dist * Math.sin(angle));
-        return new Vector2(x, y);
+        float z = (float) (center.getZ() + dist * Math.sin(angle));
+        return new Vector3(x, 0, z);
     }
 
 }

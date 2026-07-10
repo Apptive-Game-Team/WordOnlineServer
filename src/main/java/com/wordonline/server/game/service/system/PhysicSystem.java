@@ -1,7 +1,6 @@
 package com.wordonline.server.game.service.system;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;

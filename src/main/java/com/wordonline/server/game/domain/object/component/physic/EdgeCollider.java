@@ -1,7 +1,6 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 
 public class EdgeCollider extends Collider {
@@ -10,11 +9,11 @@ public class EdgeCollider extends Collider {
     private final Vector3 relatedPoint1, relatedPoint2;
 
     public Vector3 getPoint1() {
-        return relatedPoint1.plus(getPosition().toVector2());
+        return relatedPoint1.plus(getPosition().grounded());
     }
 
     public Vector3 getPoint2() {
-        return relatedPoint2.plus(getPosition().toVector2());
+        return relatedPoint2.plus(getPosition().grounded());
     }
 
 

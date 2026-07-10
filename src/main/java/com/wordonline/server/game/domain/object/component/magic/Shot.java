@@ -3,7 +3,6 @@ package com.wordonline.server.game.domain.object.component.magic;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
