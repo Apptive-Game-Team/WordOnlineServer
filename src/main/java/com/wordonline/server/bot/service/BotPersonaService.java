@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @Transactional
@@ -28,6 +29,15 @@ public class BotPersonaService {
         return findAll().stream()
                 .filter(BotPersona::enabled)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<BotPersona> findRandomEnabled() {
+        List<BotPersona> enabled = findEnabled();
+        if (enabled.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(enabled.get(ThreadLocalRandom.current().nextInt(enabled.size())));
     }
 
     @Transactional(readOnly = true)

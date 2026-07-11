@@ -27,6 +27,8 @@
 - [x] **Step 3: Runtime** (scheduler/session/agent가 음수 user ID를 그대로 사용; selected deck/MMR을 user repository에서 조회)
 - [x] **Step 4: Tests** (persona lookup, bot/human deck, MMR, scheduler, CRUD, H2 schema)
 - [x] **Step 5: Rollout / Rollback** (database #8 선행, 구 schema fallback 필요성 판단, app rollback)
+- [x] **Step 6: Debug practice random bot** (`/game/practice`에서 enabled persona 무작위 선택, `SessionType.Practice`, PVE 경로 분리)
+- [x] **Step 7: Debug tests** (랜덤 bot ID 전달, 활성 bot 없음, PVE regression)
 
 ## Validation
 
