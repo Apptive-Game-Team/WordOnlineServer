@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.dto.lockstep.ConfirmedFrameDto;
 import com.wordonline.server.game.dto.lockstep.FrameSubmissionDto;
 import com.wordonline.server.game.dto.lockstep.LockstepAbortDto;
+import com.wordonline.server.game.dto.lockstep.LockstepAbortReason;
 import com.wordonline.server.game.dto.lockstep.LockstepSessionStartDto;
 import com.wordonline.server.game.service.lockstep.FrameResolution;
 import com.wordonline.server.game.service.lockstep.LockstepFrameBuffer;
@@ -59,7 +60,6 @@ public class InputRelayLoop extends GameLoop {
         frameBuffer = new LockstepFrameBuffer(protocolVersion, 1, maximumFutureFrames, participants);
 
         LockstepSessionStartDto start = new LockstepSessionStartDto(
-                "lockstepSessionStart",
                 protocolVersion,
                 simulationVersion,
                 configVersion,
@@ -86,15 +86,14 @@ public class InputRelayLoop extends GameLoop {
         try {
             FrameResolution resolution = frameBuffer.awaitCurrentFrame(frameTimeout);
             if (!resolution.complete()) {
-                abort(resolution.frameNum(), "input-timeout", resolution.missingParticipantIds());
+                abort(resolution.frameNum(), LockstepAbortReason.INPUT_TIMEOUT, resolution.missingParticipantIds());
                 return;
             }
             if (!resolution.hashMatched()) {
-                abort(resolution.frameNum(), "peer-hash-mismatch", resolution.hashes().keySet());
+                abort(resolution.frameNum(), LockstepAbortReason.PEER_HASH_MISMATCH, resolution.hashes().keySet());
                 return;
             }
             sendToPlayersAndSpectators(new ConfirmedFrameDto(
-                    "confirmedFrame",
                     protocolVersion,
                     resolution.frameNum(),
                     resolution.inputs(),
@@ -102,14 +101,14 @@ public class InputRelayLoop extends GameLoop {
                     true));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            abort(gameContext.getFrameNum(), "relay-interrupted", Set.of());
+            abort(gameContext.getFrameNum(), LockstepAbortReason.RELAY_INTERRUPTED, Set.of());
         }
     }
 
-    private void abort(int frameNum, String reason, Set<Long> participants) {
+    private void abort(int frameNum, LockstepAbortReason reason, Set<Long> participants) {
         log.warn("[Lockstep] abort sessionId={}, frame={}, reason={}, participants={}",
                 sessionObject.getSessionId(), frameNum, reason, participants);
-        sendToPlayersAndSpectators(new LockstepAbortDto("lockstepAbort", frameNum, reason, participants));
+        sendToPlayersAndSpectators(new LockstepAbortDto(frameNum, reason, participants));
         close();
     }
 

@@ -2,6 +2,7 @@ package com.wordonline.server.game.service.lockstep;
 
 import com.wordonline.server.game.dto.lockstep.FrameInputDto;
 import com.wordonline.server.game.dto.lockstep.FrameSubmissionDto;
+import com.wordonline.server.game.dto.lockstep.LockstepInputType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -96,6 +97,6 @@ class LockstepFrameBufferTest {
     }
 
     private static FrameInputDto input(int sequence) {
-        return new FrameInputDto(sequence, "useMagic", sequence, List.of(), null);
+        return new FrameInputDto(sequence, LockstepInputType.USE_MAGIC, sequence, List.of(), null);
     }
 }

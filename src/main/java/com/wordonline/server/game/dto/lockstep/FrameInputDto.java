@@ -7,7 +7,7 @@ import java.util.List;
 
 public record FrameInputDto(
         int sequence,
-        String type,
+        LockstepInputType type,
         int id,
         List<CardType> cards,
         Vector3 position

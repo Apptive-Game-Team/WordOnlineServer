@@ -52,7 +52,8 @@ Destination: `/app/game/lockstep/input/{sessionId}/{userId}`
 The authenticated principal must equal the path user ID. The server rejects
 non-participants, wrong protocol versions, late frames, submissions beyond the
 configured future window, duplicate input sequences, and conflicting retries.
-An identical retry is idempotent.
+An identical retry is idempotent. Input `type` is a closed protocol enum;
+version 1 supports `useMagic`.
 
 ## Confirmed frame
 
@@ -79,4 +80,5 @@ hash. PVE and Practice routing will use that behavior in a later rollout.
 The initial implementation does not invent missing inputs or choose an
 authoritative peer. Input timeout, peer-hash mismatch, or relay interruption
 broadcasts `lockstepAbort` and closes the loop. Competitive result/MMR is not
-persisted because no loser is assigned.
+persisted because no loser is assigned. Abort reasons are `input-timeout`,
+`peer-hash-mismatch`, and `relay-interrupted`.
