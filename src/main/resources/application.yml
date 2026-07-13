@@ -34,7 +34,6 @@ jwt:
 
 game:
   lockstep:
-    enabled: ${LOCKSTEP_ENABLED:false}
     protocol-version: ${LOCKSTEP_PROTOCOL_VERSION:1}
     simulation-version: ${LOCKSTEP_SIMULATION_VERSION:}
     config-version: ${LOCKSTEP_CONFIG_VERSION:}

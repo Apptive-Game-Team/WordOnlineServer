@@ -1,10 +1,8 @@
 # Lockstep Relay Protocol v1
 
-Lockstep is disabled by default. Enable it only with non-empty
-`LOCKSTEP_SIMULATION_VERSION` and `LOCKSTEP_CONFIG_VERSION` values. Existing
-sessions continue to use the authoritative state protocol while disabled.
-This rollout enables only PVP sessions. PVE and Practice remain authoritative
-until their deterministic bootstrap contract is implemented.
+All game sessions use the lockstep relay. The server requires non-empty
+`LOCKSTEP_SIMULATION_VERSION` and `LOCKSTEP_CONFIG_VERSION` values. There is no
+authoritative simulation fallback.
 
 ## Session bootstrap
 
@@ -72,8 +70,8 @@ then `sequence`. Spectators receive the result but never block confirmation.
 ```
 
 The server compares peer hashes only. It has no authoritative simulation hash.
-The frame buffer supports a single-human quorum without waiting for a peer
-hash. PVE and Practice routing will use that behavior in a later rollout.
+A single-human PVE or Practice session confirms frames without waiting for a
+peer hash. Its client owns the deterministic bot simulation.
 
 ## Abort policy
 
