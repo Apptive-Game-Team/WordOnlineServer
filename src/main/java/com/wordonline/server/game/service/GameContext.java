@@ -52,6 +52,12 @@ public class GameContext {
         this.gameLoop = gameLoop;
     }
 
+    public void initRelay(SessionObject sessionObject) {
+        this.sessionObject = sessionObject;
+        this.gameSessionData.initCardDeck(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
+        this.resultChecker = new ResultChecker(sessionObject);
+    }
+
     public void setLoser(Master master) {
         resultChecker.setLoser(master);
     }
