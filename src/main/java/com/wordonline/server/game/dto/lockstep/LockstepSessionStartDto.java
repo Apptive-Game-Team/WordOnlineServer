@@ -16,11 +16,13 @@ public record LockstepSessionStartDto(
         long leftUserId,
         long rightUserId,
         List<CardType> leftCards,
-        List<CardType> rightCards
+        List<CardType> rightCards,
+        List<BootstrapEventDto> bootstrapEvents
 ) {
     public LockstepSessionStartDto {
         leftCards = List.copyOf(leftCards);
         rightCards = List.copyOf(rightCards);
+        bootstrapEvents = List.copyOf(bootstrapEvents);
     }
 
     @JsonProperty("type")

@@ -2,6 +2,7 @@ package com.wordonline.server.config;
 
 import com.sun.management.OperatingSystemMXBean;
 import com.wordonline.server.session.service.SessionService;
+import com.wordonline.server.game.service.lockstep.LockstepMetrics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,14 +18,15 @@ public class ApplicationLogger {
     private final long LOGGING_INTERVAL = 1000 * 60 * 1; // 1 min [ms]
 
     private final SessionService sessionService;
+    private final LockstepMetrics lockstepMetrics;
     private final OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
 
     @Scheduled(fixedRate = LOGGING_INTERVAL)
     public void logApplicationHealth() {
 
-        log.info("[Health Check]\n{}\n{}\n{}",
+        log.info("[Health Check]\n{}\n{}\n{}\nLockstep: {}",
                 getCpuLog(), getMemoryLog(),
-                sessionService.getHealthLog());
+                sessionService.getHealthLog(), lockstepMetrics.snapshot());
     }
 
     private String getCpuLog() {

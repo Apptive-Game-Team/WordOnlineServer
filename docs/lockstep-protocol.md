@@ -6,9 +6,24 @@ authoritative simulation fallback.
 
 ## Session bootstrap
 
-Server sends `lockstepSessionStart` to both human player destinations and the
-spectator destination. Negative bot IDs do not receive network messages and do
-not participate in the frame barrier.
+Before simulation starts, each human sends exact version readiness to
+`/app/game/lockstep/ready/{sessionId}/{userId}`.
+
+```json
+{
+  "protocolVersion": 1,
+  "simulationVersion": "client-347",
+  "configVersion": "game-data-sha256"
+}
+```
+
+Any mismatch aborts the session with `version-mismatch`; there is no protocol
+fallback. If the human quorum does not become ready before
+`LOCKSTEP_READY_TIMEOUT_MS`, the server aborts with `ready-timeout`.
+
+After the ready barrier, server sends `lockstepSessionStart` to both human
+player destinations and the spectator destination. Negative bot IDs do not
+receive network messages and do not participate in barriers.
 
 ```json
 {
@@ -22,9 +37,16 @@ not participate in the frame barrier.
   "leftUserId": 10,
   "rightUserId": 20,
   "leftCards": ["Fire"],
-  "rightCards": ["Water"]
+  "rightCards": ["Water"],
+  "bootstrapEvents": [
+    {"sequence": 0, "type": "SPAWN_PLAYER", "master": "LeftPlayer", "position": {"x": 1, "y": 0, "z": 5}, "scenarioId": null},
+    {"sequence": 1, "type": "SPAWN_PLAYER", "master": "RightPlayer", "position": {"x": 17, "y": 0, "z": 5}, "scenarioId": null}
+  ]
 }
 ```
+
+PVE replaces the right-player spawn with ordered `START_PVE_SCENARIO`. Clients
+load that scenario from the versioned deterministic config.
 
 ## Frame submission
 
@@ -79,4 +101,13 @@ The initial implementation does not invent missing inputs or choose an
 authoritative peer. Input timeout, peer-hash mismatch, or relay interruption
 broadcasts `lockstepAbort` and closes the loop. Competitive result/MMR is not
 persisted because no loser is assigned. Abort reasons are `input-timeout`,
-`peer-hash-mismatch`, and `relay-interrupted`.
+`ready-timeout`, `version-mismatch`, `peer-hash-mismatch`,
+`participant-disconnected`, and `relay-interrupted`.
+
+## Disconnect and observability
+
+Frame resume is intentionally unsupported. A human disconnect after session
+start aborts with `participant-disconnected`; reconnecting creates a new game
+session. Structured logs include session start, confirmed frame, and abort.
+`LockstepMetrics` counts started sessions, confirmed frames, and aborts by
+reason for server health reporting.
