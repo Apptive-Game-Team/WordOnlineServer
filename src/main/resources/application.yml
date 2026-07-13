@@ -31,3 +31,12 @@ team6515:
 jwt:
   public:
     key: ${JWT_PUBLIC_KEY}
+
+game:
+  lockstep:
+    protocol-version: ${LOCKSTEP_PROTOCOL_VERSION:1}
+    simulation-version: ${LOCKSTEP_SIMULATION_VERSION:}
+    config-version: ${LOCKSTEP_CONFIG_VERSION:}
+    ready-timeout-ms: ${LOCKSTEP_READY_TIMEOUT_MS:10000}
+    frame-timeout-ms: ${LOCKSTEP_FRAME_TIMEOUT_MS:1000}
+    maximum-future-frames: ${LOCKSTEP_MAXIMUM_FUTURE_FRAMES:2}

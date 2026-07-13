@@ -37,6 +37,10 @@ public class CardDeck {
         this.cards.addAll(cards);
     }
 
+    public List<CardType> snapshot() {
+        return List.copyOf(cards);
+    }
+
     // random pick card and update to Player Data, Frame Info Dto
     public void drawCard(PlayerData player, CardInfoDto cardInfoDto, int frameNum) {
         if (frameNum % ((int) (GameLoop.FPS * cardDrawInterval.total())) != 0)

@@ -53,13 +53,24 @@ public abstract class GameLoop implements Runnable {
     }
 
     protected final void initializeLoop(SessionObject sessionObject, Runnable onTerminated, boolean createRightPlayer) {
+        initializeLoop(sessionObject, onTerminated, true, createRightPlayer);
+    }
+
+    protected final void initializeLoop(SessionObject sessionObject, Runnable onTerminated,
+                                        boolean createLeftPlayer, boolean createRightPlayer) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
 
-        new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
+        if (createLeftPlayer) {
+            new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
+        }
         if (createRightPlayer) {
             new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
         }
+    }
+
+    protected final void initializeRelayLoop(SessionObject sessionObject, Runnable onTerminated) {
+        initializeLoop(sessionObject, onTerminated, false, false);
     }
 
     public void close() {
