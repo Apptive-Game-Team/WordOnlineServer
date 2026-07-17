@@ -1,6 +1,5 @@
 package com.wordonline.server.bot.service;
 
-import com.wordonline.server.bot.domain.BotParticipant;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.server.entity.ServerState;
@@ -55,8 +54,8 @@ public class BotGameScheduler {
         BotPersona rightBot = shuffledBots.get(1);
         SessionDto sessionDto = new SessionDto(
                 SESSION_PREFIX + UUID.randomUUID(),
-                BotParticipant.participantId(leftBot.id()),
-                BotParticipant.participantId(rightBot.id()),
+                leftBot.userId(),
+                rightBot.userId(),
                 SessionType.Practice,
                 null
         );

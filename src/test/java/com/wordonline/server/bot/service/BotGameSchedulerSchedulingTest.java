@@ -57,8 +57,8 @@ class BotGameSchedulerSchedulingTest {
         when(serverStatusService.getCurrentState()).thenReturn(ServerState.ACTIVE);
         when(sessionService.getActiveSessions()).thenReturn(0L);
         when(botPersonaService.findEnabled()).thenReturn(List.of(
-                bot(1, "Intro Bot A"),
-                bot(2, "Beginner Bot A")
+                bot(-1, "Intro Bot A"),
+                bot(-2, "Beginner Bot A")
         ));
 
         await().atMost(Duration.ofSeconds(2))
@@ -70,11 +70,9 @@ class BotGameSchedulerSchedulingTest {
                 id,
                 name,
                 BotTier.BEGINNER,
-                1,
                 250,
                 8,
                 0.25,
-                (short) 1000,
                 true
         );
     }

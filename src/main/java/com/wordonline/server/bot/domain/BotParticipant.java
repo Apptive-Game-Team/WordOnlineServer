@@ -9,14 +9,9 @@ public final class BotParticipant {
         return participantId < 0;
     }
 
-    public static long personaId(long participantId) {
-        if (!isBot(participantId)) {
-            throw new IllegalArgumentException("Participant is not a bot: " + participantId);
+    public static void requireBotUserId(long userId) {
+        if (!isBot(userId)) {
+            throw new IllegalArgumentException("Bot user ID must be negative: " + userId);
         }
-        return -participantId;
-    }
-
-    public static long participantId(long personaId) {
-        return -Math.abs(personaId);
     }
 }
