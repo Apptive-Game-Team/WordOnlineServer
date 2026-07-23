@@ -1,7 +1,7 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
@@ -77,20 +77,20 @@ public class KeepDistanceMob extends Mob {
     }
 
     private void moveTowardTarget() {
-        moveInDirection(target.getPosition().toVector2().subtract(gameObject.getPosition().toVector2()));
+        moveInDirection(target.getPosition().subtract(gameObject.getPosition()).grounded());
     }
 
-    private void moveInDirection(Vector2 direction) {
+    private void moveInDirection(Vector3 direction) {
         if (rigidBody == null) {
             log.warn("[KeepDistanceMoveSkipped] {} has no RigidBody; skipping move update", gameObject.getType());
             return;
         }
 
-        Vector2 normalized = direction.normalize();
-        if (normalized.distance(Vector2.ZERO) == 0) {
+        Vector3 normalized = direction.normalize();
+        if (normalized.distance(Vector3.ZERO) == 0) {
             return;
         }
 
-        rigidBody.addVelocity(normalized.multiply(speed.total()).toVector3());
+        rigidBody.addVelocity(normalized.multiply(speed.total()));
     }
 }

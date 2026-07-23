@@ -40,7 +40,7 @@ public class VineFanMagic extends Magic {
 
         for (int i = 0; i < SHOT_COUNT; i++) {
             double angleDegrees = resolveFanAngleDegrees(i);
-            Vector3 direction = rotateAroundZ(centerDirection, angleDegrees);
+            Vector3 direction = rotateOnGroundPlane(centerDirection, angleDegrees);
             vineTossMagic.run(gameContext, master, castOrigin, castOrigin.plus(direction));
         }
     }
@@ -54,14 +54,14 @@ public class VineFanMagic extends Magic {
         return -FAN_ANGLE_DEGREES / 2.0 + angleStep * index;
     }
 
-    private static Vector3 rotateAroundZ(Vector3 direction, double degrees) {
+    private static Vector3 rotateOnGroundPlane(Vector3 direction, double degrees) {
         double radians = Math.toRadians(degrees);
         double cos = Math.cos(radians);
         double sin = Math.sin(radians);
         return new Vector3(
-                (float) (direction.getX() * cos - direction.getY() * sin),
-                (float) (direction.getX() * sin + direction.getY() * cos),
-                direction.getZ()
+                (float) (direction.getX() * cos - direction.getZ() * sin),
+                direction.getY(),
+                (float) (direction.getX() * sin + direction.getZ() * cos)
         ).normalize();
     }
 }

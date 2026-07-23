@@ -20,12 +20,12 @@ public class LightningStrike extends MagicComponent {
     public LightningStrike(GameObject gameObject, int damage, float radius) {
         super(gameObject);
         this.attackInfo = new AttackInfo(damage, gameObject.getElement().total());
-        this.boxSize = new Vector3(radius * 2, radius * 2, GameConfig.DROP_MAGIC_INITIAL_HEIGHT);
+        this.boxSize = new Vector3(radius * 2, GameConfig.DROP_MAGIC_INITIAL_HEIGHT, radius * 2);
     }
 
     @Override
     public void start() {
-        gameObject.drawBox(new Vector3(0, 0, boxSize.getZ() / 2), boxSize, GizmoCategory.AreaOfEffect);
+        gameObject.drawBox(new Vector3(0, boxSize.getY() / 2, 0), boxSize, GizmoCategory.AreaOfEffect);
     }
 
     @Override
@@ -38,8 +38,8 @@ public class LightningStrike extends MagicComponent {
         Vector3 position = gameObject.getPosition();
         Vector3 boxCenter = new Vector3(
                 position.getX(),
-                position.getY(),
-                boxSize.getZ() / 2
+                boxSize.getY() / 2,
+                position.getZ()
         );
 
         List<GameObject> targets = getGameContext().getPhysics().overlapBoxAll(boxCenter, boxSize);

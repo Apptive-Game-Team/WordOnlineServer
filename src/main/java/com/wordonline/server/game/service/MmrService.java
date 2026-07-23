@@ -1,8 +1,6 @@
 package com.wordonline.server.game.service;
 
 import com.wordonline.server.auth.repository.UserRepository;
-import com.wordonline.server.bot.domain.BotParticipant;
-import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +18,6 @@ public class MmrService {
     private static final short DEFAULT_MMR = 1000;
 
     private final UserRepository userRepository;
-    private final BotPersonaService botPersonaService;
 
     private double expectedScore(int ratingA, int ratingB) {
         return 1.0 / (1.0 + Math.pow(10.0, (ratingB - ratingA) / 400.0));
@@ -39,14 +36,8 @@ public class MmrService {
 
     @Transactional(readOnly = true)
     public RatingRef resolveRatingRef(long participantId) {
-        if (BotParticipant.isBot(participantId)) {
-            long personaId = BotParticipant.personaId(participantId);
-            short rating = botPersonaService.findOrDefault(personaId).mmr();
-            return new RatingRef(participantId, personaId, true, rating);
-        }
-
         short rating = userRepository.getMmr(participantId).orElse(DEFAULT_MMR);
-        return new RatingRef(participantId, participantId, false, rating);
+        return new RatingRef(participantId, participantId, participantId < 0, rating);
     }
 
     ResultMmrDto updateMatchResult(long userIdA, long userIdB, ResultType outcomeA) {
@@ -81,16 +72,12 @@ public class MmrService {
     }
 
     private void saveRating(RatingRef ratingRef, short mmr) {
-        if (ratingRef.bot()) {
-            botPersonaService.setMmr(ratingRef.storageId(), mmr);
-            return;
-        }
         userRepository.setMmr(ratingRef.storageId(), mmr);
     }
 
     private void saveBotRating(RatingRef ratingRef, short mmr) {
         if (ratingRef.bot()) {
-            botPersonaService.setMmr(ratingRef.storageId(), mmr);
+            userRepository.setMmr(ratingRef.storageId(), mmr);
         }
     }
 

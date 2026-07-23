@@ -59,7 +59,7 @@ public class WindBladeShot extends Shot {
         EffectReceiver effectReceiver = otherObject.getComponent(EffectReceiver.class);
         Vector3 shotDirection = getDirection();
         if (effectReceiver != null && shotDirection != null) {
-            float proximity = (float) (gameObject.getPosition().distance(otherObject.getPosition().toVector2()) / radius);
+            float proximity = (float) (gameObject.getPosition().distance(otherObject.getPosition()) / radius);
             effectReceiver.onReceive(Effect.Knockback, shotDirection, proximity);
         }
     }

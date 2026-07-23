@@ -3,7 +3,6 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
@@ -56,7 +55,6 @@ public class BehaviorMob extends StateMachineMob {
     public BehaviorMob(GameObject gameObject, int maxHp, float speed, int targetMask, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
-        //this.pathFinder = new AstarPathFinder(GameConfig.WIDTH,GameConfig.HEIGHT,1f);
         this.detector = new ClosestEnemyDetector(getGameContext(), targetMask);
         this.attackInterval = new Stat(attackInterval);
         this.attackRange = attackRange;
@@ -165,7 +163,7 @@ public class BehaviorMob extends StateMachineMob {
 
     public class MoveState extends State {
         float timer;
-        List<Vector2> path;
+        List<Vector3> path;
         @Override
         public void onEnter() {
             if (!isValidTarget(target)) {
@@ -173,7 +171,7 @@ public class BehaviorMob extends StateMachineMob {
                 setState(new IdleState());
                 return;
             }
-            path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
+            path = pathFinder.findPath(gameObject.getPosition().grounded(), target.getPosition().grounded());
         }
 
         @Override
@@ -190,7 +188,7 @@ public class BehaviorMob extends StateMachineMob {
             }
 
             log.trace("State : {}", currentState);
-            Vector2 currentPosition = gameObject.getPosition().toVector2();
+            Vector3 currentPosition = gameObject.getPosition().grounded();
             log.trace("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
             log.trace("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
             // Check if we reached the next path point
@@ -213,16 +211,16 @@ public class BehaviorMob extends StateMachineMob {
                 if (newTarget != null && newTarget != target) {
                     target = newTarget;
                     targetRadius = newTarget.getFirstCircleCollider().get().getRadius();
-                    path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
+                    path = pathFinder.findPath(gameObject.getPosition().grounded(), target.getPosition().grounded());
                     if (path.isEmpty()) return;
                 }
                 timer = 0f;
             }
 
-            Vector2 nextPoint = path.get(0);
-            Vector2 direction = nextPoint.subtract(currentPosition).normalize();
+            Vector3 nextPoint = path.get(0);
+            Vector3 direction = nextPoint.subtract(currentPosition).grounded().normalize();
 
-            Vector2 velocity = direction.multiply(speed.total());
+            Vector3 velocity = direction.multiply(speed.total());
 
             if (rigidBody == null) {
                 log.warn("[MobMoveSkipped] {} has no RigidBody; skipping move update", gameObject.getType());
@@ -230,14 +228,14 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
 
-            rigidBody.addVelocity(velocity.toVector3());
+            rigidBody.addVelocity(velocity);
         }
     }
 
     public class DirectiveMoveState extends State {
         private MovementDirective directive;
         private Vector3 destination;
-        private List<Vector2> path;
+        private List<Vector3> path;
         private float timer;
 
         public DirectiveMoveState(MovementDirective directive) {
@@ -282,7 +280,7 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
 
-            Vector2 currentPosition = gameObject.getPosition().toVector2();
+            Vector3 currentPosition = gameObject.getPosition().grounded();
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
                 path.remove(0);
                 if (path.isEmpty()) {
@@ -291,9 +289,9 @@ public class BehaviorMob extends StateMachineMob {
                 }
             }
 
-            Vector2 nextPoint = path.get(0);
-            Vector2 direction = nextPoint.subtract(currentPosition).normalize();
-            Vector2 velocity = direction.multiply(speed.total());
+            Vector3 nextPoint = path.get(0);
+            Vector3 direction = nextPoint.subtract(currentPosition).grounded().normalize();
+            Vector3 velocity = direction.multiply(speed.total());
 
             if (rigidBody == null) {
                 log.warn("[MobDirectiveMoveSkipped] {} has no RigidBody; skipping directive move", gameObject.getType());
@@ -301,7 +299,7 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
 
-            rigidBody.addVelocity(velocity.toVector3());
+            rigidBody.addVelocity(velocity);
         }
 
         private void updateDestination() {
@@ -313,7 +311,7 @@ public class BehaviorMob extends StateMachineMob {
             }
 
             destination = moveTarget.get();
-            path = pathFinder.findPath(gameObject.getPosition().toVector2(), destination.toVector2());
+            path = pathFinder.findPath(gameObject.getPosition().grounded(), destination.grounded());
         }
     }
 
@@ -350,5 +348,3 @@ public class BehaviorMob extends StateMachineMob {
         }
     }
 }
-
-

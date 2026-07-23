@@ -1,7 +1,7 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.PanicStatusEffect;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
@@ -153,7 +153,7 @@ public class CowardMob extends AttackMob {
 
     public class CowardMoveState extends State {
         private float timer;
-        private List<Vector2> path;
+        private List<Vector3> path;
 
         @Override
         public void onEnter() {
@@ -162,7 +162,7 @@ public class CowardMob extends AttackMob {
                 setState(new CowardIdleState());
                 return;
             }
-            path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
+            path = pathFinder.findPath(gameObject.getPosition().grounded(), target.getPosition().grounded());
         }
 
         @Override
@@ -183,7 +183,7 @@ public class CowardMob extends AttackMob {
                 return;
             }
 
-            Vector2 currentPosition = gameObject.getPosition().toVector2();
+            Vector3 currentPosition = gameObject.getPosition().grounded();
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
                 path.remove(0);
                 if (path.isEmpty()) {
@@ -203,15 +203,15 @@ public class CowardMob extends AttackMob {
                 if (newTarget != null && newTarget != target) {
                     target = newTarget;
                     targetRadius = newTarget.getFirstCircleCollider().map(CircleCollider::getRadius).orElse(0f);
-                    path = pathFinder.findPath(gameObject.getPosition().toVector2(), target.getPosition().toVector2());
+                    path = pathFinder.findPath(gameObject.getPosition().grounded(), target.getPosition().grounded());
                     if (path.isEmpty()) return;
                 }
                 timer = 0f;
             }
 
-            Vector2 nextPoint = path.get(0);
-            Vector2 direction = nextPoint.subtract(currentPosition).normalize();
-            Vector2 velocity = direction.multiply(speed.total());
+            Vector3 nextPoint = path.get(0);
+            Vector3 direction = nextPoint.subtract(currentPosition).grounded().normalize();
+            Vector3 velocity = direction.multiply(speed.total());
 
             if (rigidBody == null) {
                 log.warn("[MobMoveSkipped] {} has no RigidBody; skipping move update", gameObject.getType());
@@ -219,7 +219,7 @@ public class CowardMob extends AttackMob {
                 return;
             }
 
-            rigidBody.addVelocity(velocity.toVector3());
+            rigidBody.addVelocity(velocity);
         }
     }
 
@@ -263,7 +263,7 @@ public class CowardMob extends AttackMob {
 
     public class PanicState extends State {
         private final GameObject threat;
-        private Vector2 fleeDirection;
+        private Vector3 fleeDirection;
         private float timer;
 
         public PanicState(GameObject threat) {
@@ -274,11 +274,11 @@ public class CowardMob extends AttackMob {
         public void onEnter() {
             timer = 0f;
             fleeDirection = gameObject.getPosition()
-                    .toVector2()
-                    .subtract(threat.getPosition().toVector2())
+                    .subtract(threat.getPosition())
+                    .grounded()
                     .normalize();
-            if (fleeDirection.distance(Vector2.ZERO) == 0) {
-                fleeDirection = Vector2.randomUnitVector();
+            if (fleeDirection.distance(Vector3.ZERO) == 0) {
+                fleeDirection = Vector3.randomUnitVector();
             }
             addPanicEffect();
         }
@@ -296,8 +296,8 @@ public class CowardMob extends AttackMob {
             timer += getGameContext().getDeltaTime();
             RigidBody rb = gameObject.getComponent(RigidBody.class);
             if (rb != null) {
-                Vector2 velocity = fleeDirection.multiply(speed.total() * panicSpeedMultiplier);
-                rb.addVelocity(velocity.toVector3());
+                Vector3 velocity = fleeDirection.multiply(speed.total() * panicSpeedMultiplier);
+                rb.addVelocity(velocity);
             } else {
                 log.warn("[CowardPanicMoveSkipped] {} has no RigidBody; skipping panic move", gameObject.getType());
             }
