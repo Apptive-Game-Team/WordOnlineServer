@@ -2,33 +2,16 @@ package com.wordonline.server.game.domain.object.prefab.implement.fire;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.parameter.GameObjectKey;
-import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
-import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
-import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
-import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
-import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.domain.object.prefab.implement.field.AbstractFieldPrefabInitializer;
 import com.wordonline.server.game.dto.Effect;
 import org.springframework.stereotype.Component;
 
 @Component("fire_field_prefab")
-public class FireFieldPrefabInitializer extends PrefabInitializer {
-
-    private final Parameters parameters;
+public class FireFieldPrefabInitializer extends AbstractFieldPrefabInitializer {
 
     public FireFieldPrefabInitializer(Parameters parameters) {
-        super(PrefabType.FireField);
-        this.parameters = parameters;
-    }
-
-    @Override
-    public void initialize(GameObject gameObject) {
-        var fieldParameters = parameters.object(GameObjectKey.FIRE_FIELD);
-        gameObject.addCollider(new CircleCollider(gameObject, fieldParameters.floatValue(ParameterKey.RADIUS), true));
-        gameObject.setElement(ElementType.FIRE);
-        gameObject.getComponents().add(new EffectProvider(gameObject, Effect.Burn));
-        gameObject.getComponents().add(new TimedSelfDestroyer(gameObject, fieldParameters.floatValue(ParameterKey.DURATION)));
+        super(PrefabType.FireField, ElementType.FIRE, Effect.Burn, GameObjectKey.FIRE_FIELD, parameters);
     }
 }

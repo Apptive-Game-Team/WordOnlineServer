@@ -1,13 +1,8 @@
 package com.wordonline.server.game.domain.object.component.physic;
 
-import com.wordonline.server.game.config.GameConfig;
-import com.wordonline.server.game.domain.AttackInfo;
-import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

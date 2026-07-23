@@ -17,7 +17,7 @@ public class ChickenCommandoMob extends MeleeAttackMob {
 
     @Override
     public void update() {
-        if (gameObject.getPosition().getZ() > GROUNDED_THRESHOLD) {
+        if (gameObject.getPosition().getY() > GROUNDED_THRESHOLD) {
             return;
         }
         super.update();

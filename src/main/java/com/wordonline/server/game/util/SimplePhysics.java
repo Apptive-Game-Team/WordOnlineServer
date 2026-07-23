@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector2;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollidingHelper;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
@@ -56,9 +55,9 @@ public class SimplePhysics implements Physics {
     }
 
     @Override
-    public GameObject raycast(GameObject object, Vector2 direction, float distance) {
-        Vector2 origin = object.getPosition().toVector2();
-        Vector2 dirNorm = direction.normalize();
+    public GameObject raycast(GameObject object, Vector3 direction, float distance) {
+        Vector3 origin = object.getPosition();
+        Vector3 dirNorm = direction.grounded().normalize();
 
         GameObject closest = null;
         double closestDist = distance + 1;
@@ -66,7 +65,7 @@ public class SimplePhysics implements Physics {
         for (GameObject other : gameObjects) {
             if (other == object) continue;
 
-            Vector2 toOther = other.getPosition().toVector2().subtract(origin);
+            Vector3 toOther = other.getPosition().subtract(origin).grounded();
             double projection = toOther.dot(dirNorm);
 
             if (projection < 0 || projection > distance) continue;

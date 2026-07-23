@@ -53,7 +53,7 @@ public class DebugController {
                 principal.memberId,
                 scenarioId
         );
-        return ResponseEntity.ok(debugService.enterPracticeSession(gameRequestDto));
+        return ResponseEntity.ok(debugService.enterPveSession(gameRequestDto));
     }
 
     @PostMapping("/game/{side}") // side = left or right

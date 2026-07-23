@@ -30,7 +30,7 @@ public class Tornado extends MagicComponent implements Collidable {
 
     // 회전/상승 파라미터 (필요하면 조정)
     private static final float ANGULAR_SPEED = (float) Math.toRadians(360f); // 1rev/s = 360deg/s
-    private static final float LIFT_SPEED = 8f;                               // z 상승 속도 (units/s)
+    private static final float LIFT_SPEED = 8f;                               // y-axis lift speed (units/s)
     private static final float MIN_ORBIT_RADIUS = 0.1f;                       // 중심 흡착 방지
     // 각 피해자의 현재 각도와 궤도 반경을 저장 (회전력 유지용)
     private final Map<GameObject, Float> angles = new HashMap<>();
@@ -43,7 +43,7 @@ public class Tornado extends MagicComponent implements Collidable {
         this.speed = speed;
         this.radius = radius;
         this.attackInterval = attackInterval;
-        setTarget(new Vector3(GameConfig.X_MID,GameConfig.Y_MID,0));
+        setTarget(new Vector3(GameConfig.X_MID, 0, GameConfig.Y_MID));
     }
 
     public void setTarget(Vector3 targetPosition) {
@@ -80,13 +80,13 @@ public class Tornado extends MagicComponent implements Collidable {
             // 시계방향: 각도 감소
             angle -= ANGULAR_SPEED * getGameContext().getDeltaTime() ;
 
-            // XY 궤도 위치 갱신
+            // XZ 궤도 위치 갱신
             float newX = center.getX() + (float) Math.cos(angle) * r;
-            float newY = center.getY() + (float) Math.sin(angle) * r;
+            float newZ = center.getZ() + (float) Math.sin(angle) * r;
 
-            // Z 상승 (최대 center.z + HEIGHT 까지)
+            // Y 상승
             Vector3 vp = victim.getPosition();
-            float newZ = vp.getZ() < HEIGHT ? Math.min(vp.getZ() + LIFT_SPEED * getGameContext().getDeltaTime(), HEIGHT) : vp.getZ();
+            float newY = vp.getY() < HEIGHT ? Math.min(vp.getY() + LIFT_SPEED * getGameContext().getDeltaTime(), HEIGHT) : vp.getY();
 
             victim.setPosition(new Vector3(newX, newY, newZ));
 
@@ -123,7 +123,7 @@ public class Tornado extends MagicComponent implements Collidable {
             final Vector3 op = otherObject.getPosition();
 
             // 진입 시 현재 위치 기준으로 초기 각/반경 설정
-            float angle = (float) Math.atan2(center.getY() - op.getY(), center.getX()- op.getX());
+            float angle = (float) Math.atan2(center.getZ() - op.getZ(), center.getX() - op.getX());
             float orbit = Math.max(MIN_ORBIT_RADIUS, (float) center.distance(op));
 
             angles.put(otherObject, angle);

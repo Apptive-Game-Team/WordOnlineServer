@@ -9,6 +9,6 @@ public enum TargetMask {
     TargetMask(int bit) { this.bit = bit; }
 
     public static int of(GameObject target) {
-        return target.getPosition().getZ() >= GameConfig.AERIAL_STANDARD_HEIGHT ? AIR.bit : GROUND.bit;
+        return target.getPosition().getY() >= GameConfig.AERIAL_STANDARD_HEIGHT ? AIR.bit : GROUND.bit;
     }
 }

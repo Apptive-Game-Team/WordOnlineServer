@@ -5,8 +5,6 @@ import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.bot.dto.BotPersonaRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,44 +15,39 @@ import java.util.Optional;
 public class BotPersonaRepository {
 
     private static final String FIND_ALL = """
-            SELECT id, name, tier, deck_id, thinking_time_ms, reaction_interval_frames,
-                   counter_aggression, mmr, enabled
+            SELECT user_id, name, tier, thinking_time_ms, reaction_interval_frames,
+                   counter_aggression, enabled
             FROM bot_personas
-            ORDER BY id;
+            ORDER BY user_id;
             """;
 
     private static final String FIND_BY_ID = """
-            SELECT id, name, tier, deck_id, thinking_time_ms, reaction_interval_frames,
-                   counter_aggression, mmr, enabled
+            SELECT user_id, name, tier, thinking_time_ms, reaction_interval_frames,
+                   counter_aggression, enabled
             FROM bot_personas
-            WHERE id = :id;
+            WHERE user_id = :userId;
             """;
 
     private static final String INSERT = """
-            INSERT INTO bot_personas(name, tier, deck_id, thinking_time_ms, reaction_interval_frames,
-                                     counter_aggression, mmr, enabled)
-            VALUES(:name, :tier::bot_tier, :deckId, :thinkingTimeMs, :reactionIntervalFrames,
-                   :counterAggression, :mmr, :enabled)
-            RETURNING id;
+            INSERT INTO bot_personas(user_id, name, tier, thinking_time_ms, reaction_interval_frames,
+                                     counter_aggression, enabled)
+            VALUES(:userId, :name, :tier::bot_tier, :thinkingTimeMs, :reactionIntervalFrames,
+                   :counterAggression, :enabled);
             """;
 
     private static final String UPDATE = """
             UPDATE bot_personas
             SET name = :name,
                 tier = :tier::bot_tier,
-                deck_id = :deckId,
                 thinking_time_ms = :thinkingTimeMs,
                 reaction_interval_frames = :reactionIntervalFrames,
                 counter_aggression = :counterAggression,
-                mmr = :mmr,
                 enabled = :enabled
-            WHERE id = :id;
+            WHERE user_id = :userId;
             """;
-
-    private static final String SET_MMR = """
-            UPDATE bot_personas
-            SET mmr = :mmr
-            WHERE id = :id;
+    private static final String DELETE = """
+            DELETE FROM bot_personas
+            WHERE user_id = :userId;
             """;
 
     private final JdbcClient jdbcClient;
@@ -65,55 +58,47 @@ public class BotPersonaRepository {
                 .list();
     }
 
-    public Optional<BotPersona> findById(long id) {
+    public Optional<BotPersona> findByUserId(long userId) {
         return jdbcClient.sql(FIND_BY_ID)
-                .param("id", id)
+                .param("userId", userId)
                 .query(this::map)
                 .optional();
     }
 
     public BotPersona create(BotPersonaRequestDto requestDto) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         bind(jdbcClient.sql(INSERT), requestDto)
-                .update(keyHolder);
-        return findById(keyHolder.getKey().longValue())
+                .update();
+        return findByUserId(requestDto.userId())
                 .orElseThrow(() -> new IllegalStateException("Created bot persona not found."));
     }
 
-    public void update(long id, BotPersonaRequestDto requestDto) {
-        bind(jdbcClient.sql(UPDATE).param("id", id), requestDto)
-                .update();
+    public int update(long userId, BotPersonaRequestDto requestDto) {
+        return bind(jdbcClient.sql(UPDATE).param("userId", userId), requestDto).update();
     }
 
-    public void setMmr(long id, short mmr) {
-        jdbcClient.sql(SET_MMR)
-                .param("id", id)
-                .param("mmr", mmr)
-                .update();
+    public int delete(long userId) {
+        return jdbcClient.sql(DELETE).param("userId", userId).update();
     }
 
     private JdbcClient.StatementSpec bind(JdbcClient.StatementSpec spec, BotPersonaRequestDto requestDto) {
         return spec
+                .param("userId", requestDto.userId())
                 .param("name", requestDto.name())
                 .param("tier", requestDto.tier().name())
-                .param("deckId", requestDto.deckId())
                 .param("thinkingTimeMs", requestDto.thinkingTimeMs())
                 .param("reactionIntervalFrames", requestDto.reactionIntervalFrames())
                 .param("counterAggression", requestDto.counterAggression())
-                .param("mmr", requestDto.mmr())
                 .param("enabled", requestDto.enabled() == null || requestDto.enabled());
     }
 
     private BotPersona map(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
         return new BotPersona(
-                rs.getLong("id"),
+                rs.getLong("user_id"),
                 rs.getString("name"),
                 BotTier.valueOf(rs.getString("tier")),
-                rs.getLong("deck_id"),
                 rs.getInt("thinking_time_ms"),
                 rs.getInt("reaction_interval_frames"),
                 rs.getDouble("counter_aggression"),
-                rs.getShort("mmr"),
                 rs.getBoolean("enabled")
         );
     }

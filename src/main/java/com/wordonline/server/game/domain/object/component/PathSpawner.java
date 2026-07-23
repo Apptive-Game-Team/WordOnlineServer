@@ -2,20 +2,20 @@ package com.wordonline.server.game.domain.object.component;
 
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
-import com.wordonline.server.game.domain.object.Vector2;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
 
 public class PathSpawner extends Component {
 
     private final PrefabType prefabType;
     private final float interval;
-    private Vector2 lastSpawnPosition;
+    private Vector3 lastSpawnPosition;
 
     public PathSpawner(GameObject gameObject, PrefabType prefabType, float interval) {
         super(gameObject);
         this.prefabType = prefabType;
         this.interval = interval;
-        this.lastSpawnPosition = gameObject.getPosition().toVector2();
+        this.lastSpawnPosition = gameObject.getPosition();
     }
 
     @Override
@@ -25,7 +25,7 @@ public class PathSpawner extends Component {
     public void update() {
         double distance = gameObject.getPosition().distance(lastSpawnPosition);
         if (distance >= interval) {
-            lastSpawnPosition = gameObject.getPosition().toVector2();
+            lastSpawnPosition = gameObject.getPosition();
             new GameObject(gameObject, Master.None, prefabType);
         }
     }
