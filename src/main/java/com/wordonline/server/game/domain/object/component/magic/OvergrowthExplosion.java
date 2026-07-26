@@ -38,25 +38,11 @@ public class OvergrowthExplosion extends MagicComponent {
         }
 
         Master owner = gameObject.getMaster();
-        int transformedCount = 0;
-
-        for (GameObject target : getGameContext().overlapSphereAll(gameObject, effectRadius)) {
-            if (target == gameObject || target.isDestroyed()) {
-                continue;
-            }
-            if (owner != Master.None && target.getMaster() != owner) {
-                continue;
-            }
-            if (target.getType() != PrefabType.SeedSpirit) {
-                continue;
-            }
-
-            Vector3 targetPosition = new Vector3(target.getPosition());
-            Master targetMaster = target.getMaster();
-            target.destroy();
-            new GameObject(targetMaster, PrefabType.TreeGolem, targetPosition, getGameContext());
-            transformedCount++;
-        }
+        int transformedCount = SeedSpiritEvolver.evolveAlliedSeedSpirits(
+                gameObject,
+                effectRadius,
+                PrefabType.TreeGolem
+        );
 
         if (transformedCount == 0) {
             summonSeedSpirits(owner);

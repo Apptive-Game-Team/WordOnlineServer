@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.OnStartAttacker;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.EffectProvider;
+import com.wordonline.server.game.domain.object.component.magic.OnStartSeedSpiritEvolver;
 import com.wordonline.server.game.domain.object.component.magic.VineSpawnContext;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
@@ -36,6 +37,11 @@ public class GiantVinePrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new TimedSelfDestroyer(
                 gameObject,
                 giantVineParameters.floatValue(ParameterKey.DURATION)
+        ));
+        gameObject.addComponent(new OnStartSeedSpiritEvolver(
+                gameObject,
+                radius,
+                PrefabType.VineSpirit
         ));
         gameObject.addComponent(new OnStartAttacker(
                 gameObject,
