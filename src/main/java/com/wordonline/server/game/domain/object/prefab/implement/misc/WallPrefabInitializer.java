@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
+import com.wordonline.server.game.domain.object.component.physic.WallCollision;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class WallPrefabInitializer extends PrefabInitializer {
         gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(GameConfig.WIDTH, 0, GameConfig.HEIGHT), new Vector3(0, 0, GameConfig.HEIGHT), false));
         gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(GameConfig.WIDTH, 0, GameConfig.HEIGHT), new Vector3(GameConfig.WIDTH, 0, 0), false));
         gameObject.addCollider(new EdgeCollider(gameObject, new Vector3(0, 0, 0), new Vector3(GameConfig.WIDTH, 0, 0), false));
+        gameObject.addComponent(new WallCollision(gameObject));
         gameObject.setElement(ElementType.NONE);
     }
 }
