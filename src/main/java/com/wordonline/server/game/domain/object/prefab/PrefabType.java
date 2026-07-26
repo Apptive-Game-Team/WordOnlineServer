@@ -122,6 +122,8 @@ public enum PrefabType {
     Leafair("leafair_prefab"),
     ChickenCommando("chicken_commando_prefab"),
     Overgrowth("overgrowth_prefab"),
+    GiantVine("giant_vine_prefab"),
+    SeedNest("seed_nest_prefab"),
     Crater("crater_prefab"),
     BubbleGenerator("bubble_generator_prefab"),
     ElectricTower("electric_tower_prefab"),
