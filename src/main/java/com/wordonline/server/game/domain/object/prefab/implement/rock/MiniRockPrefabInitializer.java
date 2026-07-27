@@ -22,7 +22,7 @@ public class MiniRockPrefabInitializer extends PrefabInitializer {
     private final Parameters parameters;
 
     public MiniRockPrefabInitializer(Parameters parameters) {
-        super(PrefabType.RockSlime);
+        super(PrefabType.MiniRock);
         this.parameters = parameters;
     }
 
