@@ -57,8 +57,8 @@ public class VineWorldGrowth extends Component {
             double angle = angleOffset + Math.PI * 2 * index / vineCount;
             Vector3 position = center.plus(
                     (float) Math.cos(angle) * radius,
-                    (float) Math.sin(angle) * radius,
-                    0
+                    0,
+                    (float) Math.sin(angle) * radius
             );
             VineSpawnContext.runWithTracker(
                     smallVineHitTracker,
