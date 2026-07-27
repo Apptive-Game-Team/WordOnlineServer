@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.ElectricDeathEnergy;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.ProjectileRangeAttackMob;
@@ -45,6 +46,7 @@ public class ThunderSpiritPrefabInitializer extends PrefabInitializer {
                 0.5f
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WIND));
+        gameObject.addComponent(new ElectricDeathEnergy(gameObject));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

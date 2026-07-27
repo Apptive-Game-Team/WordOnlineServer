@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.magic.ElementalChart;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.DamageInterceptor;
+import com.wordonline.server.game.domain.object.component.CombatDeathListener;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.GaugeComponent;
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.BaseStatusEffect;
@@ -73,6 +74,8 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
         this.hp -= attackInfo.getDamage() * ElementalChart.computePairwiseProductMultiplier(attackInfo.getElement(),gameObject.getElement().total());
         gameObject.applyUpdate();
         if (this.hp <= 0 && !gameObject.isDestroyed()) {
+            gameObject.getComponents(CombatDeathListener.class)
+                    .forEach(CombatDeathListener::onCombatDeath);
             onDeath();
         }
         else if (this.hp > maxHp) {
