@@ -8,7 +8,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.PathSpawner;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.Slime;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.WaterSlimeRangeAttackMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -29,15 +29,17 @@ public class WaterSlimePrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         var slimeParameters = parameters.object(GameObjectKey.WATER_SLIME);
+        var aquaArcherParameters = parameters.object(GameObjectKey.AQUA_ARCHER);
         gameObject.getComponents().add(new RigidBody(gameObject, slimeParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, slimeParameters.floatValue(ParameterKey.RADIUS), false));
-        gameObject.getComponents().add(new Slime(gameObject,
+        gameObject.getComponents().add(new WaterSlimeRangeAttackMob(gameObject,
                 slimeParameters.intValue(ParameterKey.HP),
                 slimeParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
                 slimeParameters.intValue(ParameterKey.DAMAGE),
-                slimeParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
+                slimeParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                aquaArcherParameters.floatValue(ParameterKey.ATTACK_RANGE)));
         gameObject.getComponents().add(new PathSpawner(gameObject, PrefabType.WaterField, 1f));
         gameObject.setElement(ElementType.WATER);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
