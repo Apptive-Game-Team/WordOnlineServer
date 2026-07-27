@@ -38,9 +38,9 @@ public abstract class AbstractSwarmSpawnMagic extends Magic {
 
         for (int i = 0; i < count; i++) {
             float randomX = (random.nextFloat() * 2 - 1) * range;
-            float randomY = (random.nextFloat() * 2 - 1) * range;
+            float randomZ = (random.nextFloat() * 2 - 1) * range;
 
-            Vector3 spawnPosition = position.plus(randomX, randomY, 0);
+            Vector3 spawnPosition = position.plus(randomX, 0, randomZ);
 
             new GameObject(currentMaster, prefabType, spawnPosition, gameContext);
         }
