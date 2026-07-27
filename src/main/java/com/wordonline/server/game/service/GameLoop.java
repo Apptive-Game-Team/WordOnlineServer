@@ -4,6 +4,7 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
@@ -60,6 +61,7 @@ public abstract class GameLoop implements Runnable {
         if (createRightPlayer) {
             new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
         }
+        new GameObject(Master.None, PrefabType.Wall, Vector3.ZERO, gameContext);
     }
 
     public void close() {
