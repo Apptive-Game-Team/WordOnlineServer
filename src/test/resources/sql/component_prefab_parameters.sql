@@ -198,7 +198,7 @@ INSERT INTO parameter_values(game_object_id, parameter_id, value)
 SELECT go.id, p.id, 10
 FROM game_objects go
 JOIN parameters p ON p.name = 'quantity'
-WHERE go.name IN ('ember_spirit', 'seed_spirit', 'water_slime')
+WHERE go.name IN ('ember_spirit', 'seed_spirit')
   AND NOT EXISTS (
       SELECT 1
       FROM parameter_values pv
@@ -1001,3 +1001,23 @@ WHERE pv.game_object_id = go.id
   AND pv.parameter_id = p.id
   AND go.name = 'dimension_toad'
   AND p.name = 'panic_duration';
+
+INSERT INTO parameter_values(game_object_id, parameter_id, value)
+SELECT go.id, p.id, 3
+FROM game_objects go
+JOIN parameters p ON p.name = 'quantity'
+WHERE go.name = 'water_slime'
+  AND NOT EXISTS (
+      SELECT 1
+      FROM parameter_values pv
+      WHERE pv.game_object_id = go.id
+        AND pv.parameter_id = p.id
+  );
+
+UPDATE parameter_values pv
+SET value = 3
+FROM game_objects go, parameters p
+WHERE pv.game_object_id = go.id
+  AND pv.parameter_id = p.id
+  AND go.name = 'water_slime'
+  AND p.name = 'quantity';
