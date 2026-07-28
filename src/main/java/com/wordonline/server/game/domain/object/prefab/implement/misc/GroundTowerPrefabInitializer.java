@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
@@ -41,6 +42,7 @@ public class GroundTowerPrefabInitializer extends PrefabInitializer {
                         groundTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)
                 ));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, groundTowerParameters.floatValue(ParameterKey.DURATION)));
+        gameObject.addComponent(new RockDeathRemnant(gameObject));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
