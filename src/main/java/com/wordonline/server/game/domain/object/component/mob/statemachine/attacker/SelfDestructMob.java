@@ -112,11 +112,8 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
             }
 
             // Move towards target
-            float startY = startPos.getY();
             float lastY = gameObject.getPosition().getY();
-            float targetY = target.gameObject.getPosition().getY();
-
-            float t = (lastY - startY) / (targetY - startY);
+            float t = diveProgress(startPos, target.gameObject.getPosition().getY());
 
             Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
             nextPos.setY(lastY);
