@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 class RockDeathRemnantTest {
 
     @Test
-    void lethalCombatDamageCreatesOneOwnedMiniRockAtCopiedDeathPosition() {
+    void lethalCombatDamageCreatesOneOwnedRockRemnantAtCopiedDeathPosition() {
         GameContext gameContext = mock(GameContext.class);
         Vector3 deathPosition = new Vector3(3f, 2f, 4f);
         GameObject deadRock = new GameObject(
@@ -43,16 +43,16 @@ class RockDeathRemnantTest {
 
         ArgumentCaptor<GameObject> created = ArgumentCaptor.forClass(GameObject.class);
         verify(gameContext).createGameObject(created.capture());
-        GameObject miniRock = created.getValue();
-        assertThat(miniRock.getType()).isEqualTo(PrefabType.MiniRock);
-        assertThat(miniRock.getMaster()).isEqualTo(Master.LeftPlayer);
-        assertThat(miniRock.getPosition()).isEqualTo(deathPosition);
-        assertThat(miniRock.getPosition()).isNotSameAs(deathPosition);
-        assertThat(miniRock.getGameContext()).isSameAs(gameContext);
+        GameObject remnant = created.getValue();
+        assertThat(remnant.getType()).isEqualTo(PrefabType.RockRemnant);
+        assertThat(remnant.getMaster()).isEqualTo(Master.LeftPlayer);
+        assertThat(remnant.getPosition()).isEqualTo(deathPosition);
+        assertThat(remnant.getPosition()).isNotSameAs(deathPosition);
+        assertThat(remnant.getGameContext()).isSameAs(gameContext);
     }
 
     @Test
-    void repeatedCombatDeathCallbackCreatesOnlyOneMiniRock() {
+    void repeatedCombatDeathCallbackCreatesOnlyOneRockRemnant() {
         GameContext gameContext = mock(GameContext.class);
         GameObject deadRock = new GameObject(
                 Master.RightPlayer,
@@ -70,7 +70,7 @@ class RockDeathRemnantTest {
     }
 
     @Test
-    void directDestroyDoesNotCreateMiniRock() {
+    void directDestroyDoesNotCreateRockRemnant() {
         GameContext gameContext = mock(GameContext.class);
         GameObject deadRock = new GameObject(
                 Master.LeftPlayer,
@@ -88,7 +88,7 @@ class RockDeathRemnantTest {
     }
 
     @Test
-    void outOfBoundsDestroyDoesNotCreateMiniRock() {
+    void outOfBoundsDestroyDoesNotCreateRockRemnant() {
         GameContext gameContext = mock(GameContext.class);
         GameObject deadRock = new GameObject(
                 Master.LeftPlayer,

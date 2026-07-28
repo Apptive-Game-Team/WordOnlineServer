@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.prefab.implement.explode.RockExp
 import com.wordonline.server.game.domain.object.prefab.implement.misc.RockGolemPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.RockMagePrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.MiniRockPrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.implement.rock.RockRemnantPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.RockRollingPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.RockSlimePrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.RockSummonPrefabInitializer;
@@ -29,16 +30,17 @@ import static org.mockito.Mockito.when;
 class RockDeathRemnantPrefabAllowlistTest {
 
     @Test
-    void attachesOnlyToExactRockCreatureAllowlist() {
+    void attachesOnlyToExactRockCreatureAndBuildingAllowlist() {
         Parameters parameters = parameters();
         List<PrefabInitializer> eligible = List.of(
                 new RockGolemPrefabInitializer(parameters),
                 new RockMagePrefabInitializer(parameters),
-                new RockSlimePrefabInitializer(parameters)
+                new RockSlimePrefabInitializer(parameters),
+                new RockTurretPrefabInitializer(parameters)
         );
         List<PrefabInitializer> excluded = List.of(
                 new MiniRockPrefabInitializer(parameters),
-                new RockTurretPrefabInitializer(parameters),
+                new RockRemnantPrefabInitializer(parameters),
                 new RockSummonPrefabInitializer(parameters),
                 new RockRollingPrefabInitializer(parameters),
                 new RockDropPrefabInitializer(parameters),

@@ -104,6 +104,7 @@ public enum PrefabType {
     ZapMouse("zap_mouse_prefab"),
     WindSpirit("wind_spirit_prefab"),
     MiniRock("mini_rock_prefab"),
+    RockRemnant("rock_remnant_prefab"),
 
     LifeTree("life_tree_prefab"),
     RockTurret("rock_turret_prefab"),
