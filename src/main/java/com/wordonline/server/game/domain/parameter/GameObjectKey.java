@@ -57,7 +57,7 @@ public enum GameObjectKey {
     NATURE_EXPLODE("nature_explode"),
     OVERGROWTH("overgrowth"),
     PLAYER("player"),
-    RALLYING_TORCH("rallying_torch"),
+    RALLYING_TOTEM("rallying_totem"),
     RAZOR_GALE("razor_gale"),
     ROCK_DROP("rock_drop"),
     ROCK_EXPLODE("rock_explode"),

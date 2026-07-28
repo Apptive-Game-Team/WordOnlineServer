@@ -12,10 +12,12 @@ public class RallyMoveDirective extends Component implements MovementDirective {
     private static final float ARRIVAL_DISTANCE = 0.8f;
 
     private final GameObject rallyTarget;
+    private final float combatRange;
 
-    public RallyMoveDirective(GameObject gameObject, GameObject rallyTarget) {
+    public RallyMoveDirective(GameObject gameObject, GameObject rallyTarget, float combatRange) {
         super(gameObject);
         this.rallyTarget = rallyTarget;
+        this.combatRange = combatRange;
     }
 
     @Override
@@ -55,5 +57,12 @@ public class RallyMoveDirective extends Component implements MovementDirective {
     @Override
     public boolean suppressCombat() {
         return true;
+    }
+
+    @Override
+    public boolean allowsCombatTarget(GameObject self, GameObject target) {
+        return rallyTarget != null
+                && rallyTarget.getStatus() != Status.Destroyed
+                && rallyTarget.getPosition().distance(target.getPosition()) <= combatRange;
     }
 }

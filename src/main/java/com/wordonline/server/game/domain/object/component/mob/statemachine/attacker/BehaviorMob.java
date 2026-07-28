@@ -99,11 +99,24 @@ public class BehaviorMob extends StateMachineMob {
         }
 
         Optional<MovementDirective> directive = resolveMovementDirective();
-        if (directive.isPresent()
-                && directive.get().suppressCombat()
-                && !(currentState instanceof DirectiveMoveState)) {
-            resetTarget();
-            setState(new DirectiveMoveState(directive.get()));
+        if (directive.isPresent() && directive.get().suppressCombat()) {
+            MovementDirective activeDirective = directive.get();
+            GameObject directiveCombatTarget = detector.detect(
+                    gameObject,
+                    candidate -> activeDirective.allowsCombatTarget(gameObject, candidate));
+
+            if (directiveCombatTarget != null) {
+                boolean shouldEnterCombat = target != directiveCombatTarget
+                        || !(currentState instanceof MoveState || currentState instanceof AttackState);
+                if (shouldEnterCombat) {
+                    target = directiveCombatTarget;
+                    targetRadius = target.getFirstCircleCollider().get().getRadius();
+                    setState(new MoveState());
+                }
+            } else if (!(currentState instanceof DirectiveMoveState)) {
+                resetTarget();
+                setState(new DirectiveMoveState(activeDirective));
+            }
         }
 
         super.update();

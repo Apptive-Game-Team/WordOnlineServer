@@ -8,6 +8,7 @@ import com.wordonline.server.game.service.GameContext;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class MultiEnemyDetector implements Detector {
 
@@ -21,7 +22,12 @@ public class MultiEnemyDetector implements Detector {
 
     @Override
     public GameObject detect(GameObject self) {
-        List<GameObject> list = detectInRange(self, 1, Double.MAX_VALUE);
+        return detect(self, target -> true);
+    }
+
+    @Override
+    public GameObject detect(GameObject self, Predicate<GameObject> filter) {
+        List<GameObject> list = detectInRange(self, 1, Double.MAX_VALUE, filter);
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -29,6 +35,14 @@ public class MultiEnemyDetector implements Detector {
      * 사거리 안의 적을 거리순으로 정렬해서 최대 maxCount개 리턴
      */
     public List<GameObject> detectInRange(GameObject self, int maxCount, double maxRange) {
+        return detectInRange(self, maxCount, maxRange, target -> true);
+    }
+
+    private List<GameObject> detectInRange(
+            GameObject self,
+            int maxCount,
+            double maxRange,
+            Predicate<GameObject> filter) {
         List<GameObject> candidates = new ArrayList<>();
 
         for (GameObject target : gameContext.getGameSessionData().gameObjects) {
@@ -47,6 +61,7 @@ public class MultiEnemyDetector implements Detector {
 
             // 마스크 체크
             if ((TargetMask.of(target) & targetMask) == 0) continue;
+            if (!filter.test(target)) continue;
 
             double distance = self.getPosition().distance(target.getPosition());
             if (distance <= maxRange) {
