@@ -47,7 +47,10 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
         selfRadius = gameObject.getFirstCircleCollider()
                 .orElseThrow()
                 .getRadius();
-        attackRange = selfRadius + ATTACK_THRESHOLD;
+        // BehaviorMob measures the distance to a target in 3D, but a hovering mob can only close
+        // the horizontal gap: it dives once it commits. Without the spawn altitude in the trigger
+        // distance, an aerial self-destruct mob parks on top of a ground target and never commits.
+        attackRange = selfRadius + ATTACK_THRESHOLD + gameObject.getPosition().getY();
         gameObject.drawCircle(Vector3.ZERO, explosionRange, GizmoCategory.AreaOfEffect);
     }
 

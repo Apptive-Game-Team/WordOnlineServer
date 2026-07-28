@@ -1,10 +1,13 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
+import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -12,6 +15,7 @@ import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.util.Physics;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +25,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SelfDestructMobTest {
+
+    private static final float HOVER_HEIGHT = GameConfig.AERIAL_MOB_INIT_HEIGHT;
+    private static final float SELF_RADIUS = 0.3f;
+    private static final float ATTACK_THRESHOLD = 0.3f;
 
     @Test
     void explosionOnlyDamagesActiveEnemies() {
@@ -44,6 +52,34 @@ class SelfDestructMobTest {
         assertThat(damageOf(ally)).isZero();
         assertThat(damageOf(destroyedEnemy)).isZero();
         assertThat(damageOf(windSpirit)).isZero();
+    }
+
+    @Test
+    void commitDistanceCoversTheAltitudeItHasToDive() throws Exception {
+        GameContext gameContext = mock(GameContext.class);
+        GameObject windSpirit = new GameObject(
+                Master.LeftPlayer,
+                PrefabType.WindSpirit,
+                new Vector3(0f, HOVER_HEIGHT, 0f),
+                gameContext);
+        windSpirit.setStatus(Status.Idle);
+        windSpirit.addCollider(new CircleCollider(windSpirit, SELF_RADIUS, false));
+        windSpirit.getComponents().add(new RigidBody(windSpirit, 1));
+        SelfDestructMob mob = new SelfDestructMob(windSpirit, 10, 1f, TargetMask.ANY.bit, 7, 1f, 2f);
+        windSpirit.getComponents().add(mob);
+
+        mob.start();
+
+        // A ground target sits HOVER_HEIGHT below, so a purely horizontal trigger distance can
+        // never be reached and the mob would hover instead of diving.
+        assertThat(attackRangeOf(mob)).isGreaterThan(HOVER_HEIGHT);
+        assertThat(attackRangeOf(mob)).isEqualTo(SELF_RADIUS + ATTACK_THRESHOLD + HOVER_HEIGHT);
+    }
+
+    private float attackRangeOf(SelfDestructMob mob) throws Exception {
+        Field field = BehaviorMob.class.getDeclaredField("attackRange");
+        field.setAccessible(true);
+        return (float) field.get(mob);
     }
 
     private int damageOf(GameObject gameObject) {
