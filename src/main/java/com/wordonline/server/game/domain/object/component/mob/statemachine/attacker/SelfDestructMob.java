@@ -75,6 +75,8 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
                 .overlapSphereAll(gameObject, explosionRange)
                 .stream()
                 .filter(target -> target != gameObject)
+                .filter(GameObject::isActive)
+                .filter(target -> TargetRelation.canAttack(gameObject, target))
                 .filter(target -> target.hasComponent(Mob.class))
                 .map(target -> target.getComponent(Mob.class))
                 .forEach(mob -> mob.onDamaged(attackInfo));
