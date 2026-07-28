@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.domain.object.component.mob.directive.MovementDirective;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.SimplePathFinder;
@@ -78,7 +79,7 @@ public class BehaviorMob extends StateMachineMob {
     protected boolean isValidTarget(GameObject target) {
         return target != null
                 && target.getStatus() != Status.Destroyed
-                && target.getMaster() != gameObject.getMaster();
+                && TargetRelation.canAttack(gameObject, target);
     }
 
     private Optional<MovementDirective> resolveMovementDirective() {

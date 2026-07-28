@@ -39,9 +39,8 @@ public class PriorityEnemyDetector implements Detector {
     }
 
     private boolean isCandidate(GameObject self, GameObject target) {
-        if (target == self) return false;
         if (target.getStatus() == Status.Destroyed) return false;
-        if (target.getMaster() == self.getMaster()) return false;
+        if (!TargetRelation.canAttack(self, target)) return false;
         if (!target.hasComponent(Damageable.class)) return false;
         if ((TargetMask.of(target) & targetMask) == 0) return false;
         if (self.getPosition().distance(target.getPosition()) > maxRange) return false;

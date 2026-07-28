@@ -52,7 +52,7 @@ public class MultiEnemyDetector implements Detector {
             if (target.getStatus() == Status.Destroyed) continue;
 
             // 같은 편 제외
-            if (target.getMaster() == self.getMaster()) continue;
+            if (!TargetRelation.canAttack(self, target)) continue;
 
             // 맞을 수 없는 애 제외 (Damageable 없는 애)
             boolean hasDamageable = target.getComponents().stream()

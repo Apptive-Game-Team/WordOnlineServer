@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
 
     @Override
     public void onCollision(GameObject otherObject) {
-        if (otherObject.getComponent(Mob.class) != null && otherObject.getMaster() != gameObject.getMaster()) { // Only explode if colliding with a valid target
+        if (otherObject.getComponent(Mob.class) != null && TargetRelation.canAttack(gameObject, otherObject)) {
             explode();
             gameObject.destroy();
         }
