@@ -85,6 +85,7 @@ public abstract class GameLoop implements Runnable {
                 update();
             } catch (Exception e) {
                 log.error("[ERROR] {}", e.getMessage(), e);
+                finalizeAfterFailure();
                 break;
             }
 
@@ -105,6 +106,20 @@ public abstract class GameLoop implements Runnable {
             } catch (Exception e) {
                 log.warn("onTerminated failed", e);
             }
+        }
+    }
+
+    // A crashed frame must still deliver a result and release both users from the in-game state.
+    // handleGameEnd() calls close(), so _running still being true means the match was not ended yet.
+    private void finalizeAfterFailure() {
+        if (!_running) {
+            return;
+        }
+        try {
+            gameContext.getResultChecker().setEnd();
+            handleGameEnd();
+        } catch (Exception e) {
+            log.error("failed to finalize match after loop failure", e);
         }
     }
 
