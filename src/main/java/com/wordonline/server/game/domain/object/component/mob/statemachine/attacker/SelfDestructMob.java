@@ -116,7 +116,10 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
             float lastY = gameObject.getPosition().getY();
             float targetY = target.gameObject.getPosition().getY();
 
-            float t = (lastY - startY) / (targetY - startY);
+            // Same-altitude intercept (air vs. air) has no vertical travel to interpolate against,
+            // so dive progress would divide by zero. Home straight at the target instead.
+            float dy = targetY - startY;
+            float t = Math.abs(dy) < 1e-4f ? 1f : (lastY - startY) / dy;
 
             Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
             nextPos.setY(lastY);
