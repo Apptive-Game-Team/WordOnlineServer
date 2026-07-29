@@ -39,6 +39,10 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
 
     @Override
     public void onDamaged(AttackInfo attackInfo) {
+        if (gameObject.isDying()) {
+            return;
+        }
+
         for (DamageInterceptor interceptor : gameObject.getComponents(DamageInterceptor.class)) {
             if (interceptor.beforeDamage(attackInfo)) {
                 return;
@@ -70,17 +74,29 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
     }
 
     public void applyDamage(AttackInfo attackInfo) {
+        if (gameObject.isDying()) {
+            return;
+        }
+
         log.trace("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
         this.hp -= attackInfo.getDamage() * ElementalChart.computePairwiseProductMultiplier(attackInfo.getElement(),gameObject.getElement().total());
         gameObject.applyUpdate();
         if (this.hp <= 0 && !gameObject.isDestroyed()) {
-            gameObject.getComponents(CombatDeathListener.class)
-                    .forEach(CombatDeathListener::onCombatDeath);
-            onDeath();
+            if (AerialDeathFall.tryStart(this)) {
+                return;
+            }
+            completeDeath();
         }
         else if (this.hp > maxHp) {
             this.hp = maxHp;
         }
+    }
+
+    // notifies the combat death listeners and runs the concrete death behavior
+    void completeDeath() {
+        gameObject.getComponents(CombatDeathListener.class)
+                .forEach(CombatDeathListener::onCombatDeath);
+        onDeath();
     }
 
     @Override

@@ -45,6 +45,11 @@ public class GameObject {
         return status == Status.Destroyed;
     }
 
+    // lethally damaged but still simulated: aerial mobs keep falling until they reach the ground
+    public boolean isDying() {
+        return status == Status.Dying;
+    }
+
     public boolean isInitialized() {
         return status != Status.Initializing;
     }
@@ -152,6 +157,8 @@ public class GameObject {
 
     public void setStatus(Status status) {
         if (this.status == Status.Destroyed) return;
+        // a dying object keeps its status until it is actually removed
+        if (this.status == Status.Dying && status != Status.Destroyed) return;
         Status previous = this.status;
         if (previous == status && !isRepeatableStatus(status)) return;
         this.status = status;
@@ -228,8 +235,11 @@ public class GameObject {
     }
 
     public void update() {
-        for (Component component : components)
+        boolean dying = isDying();
+        for (Component component : components) {
+            if (dying && !component.isActiveWhileDying()) continue;
             component.update();
+        }
     }
 
     public void onDestroy() {
