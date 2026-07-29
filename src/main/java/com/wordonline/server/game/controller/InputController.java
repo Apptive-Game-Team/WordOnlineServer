@@ -45,6 +45,10 @@ public class InputController {
 
         if (sessionObject == null) return;
 
+        if (sessionObject.getUserSide(userId) == null) {
+            throw new AuthorizationDeniedException(localizationService.getMessage("error.authorization.denied"));
+        }
+
         log.trace("input arrived {}", inputRequestDto.getType());
 
         switch (inputRequestDto.getType()) {
