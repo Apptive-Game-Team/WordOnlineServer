@@ -17,6 +17,10 @@ public class AerialDeathFall extends Component {
 
     // Returns true when the death is deferred until the mob lands, false for ground mobs.
     static boolean tryStart(Mob mob) {
+        if (!mob.fallsOnDeath()) {
+            return false;
+        }
+
         GameObject gameObject = mob.gameObject;
         ZPhysics zPhysics = gameObject.getComponent(ZPhysics.class);
         if (zPhysics == null || !zPhysics.isAerial()) {

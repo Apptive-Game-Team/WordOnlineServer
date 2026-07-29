@@ -92,6 +92,13 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
         }
     }
 
+    // Whether an aerial mob should fall before it dies. Mobs whose death happens at a point --
+    // an explosion, say -- override this so the effect lands where they died instead of where
+    // the corpse would have come down.
+    protected boolean fallsOnDeath() {
+        return true;
+    }
+
     // notifies the combat death listeners and runs the concrete death behavior
     void completeDeath() {
         gameObject.getComponents(CombatDeathListener.class)

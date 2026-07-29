@@ -116,6 +116,23 @@ class AerialDeathFallTest {
         assertThat(listener.notifications).isOne();
     }
 
+    @Test
+    void aerialMobThatDiesAtAPointIsRemovedWhereItWasHit() {
+        GameContext gameContext = gameContext();
+        GameObject gameObject = aerialObject(gameContext, GameConfig.AERIAL_MOB_INIT_HEIGHT);
+        float deathHeight = gameObject.getPosition().getY();
+        PointDeathMob mob = new PointDeathMob(gameObject, 10);
+        gameObject.addComponent(mob);
+        gameObject.flushComponents();
+        RecordingCombatDeathListener listener = listener(gameObject);
+
+        mob.applyDamage(new AttackInfo(10, ElementType.NONE));
+
+        assertThat(gameObject.getStatus()).isEqualTo(Status.Destroyed);
+        assertThat(listener.notifications).isOne();
+        assertThat(gameObject.getPosition().getY()).isCloseTo(deathHeight, within(0.01f));
+    }
+
     private int simulateUntilDestroyed(GameObject gameObject, ZPhysics zPhysics) {
         int ticks = 0;
         while (!gameObject.isDestroyed() && ticks < MAX_TICKS) {
@@ -224,6 +241,18 @@ class AerialDeathFallTest {
 
         @Override
         public void onDestroy() {
+        }
+    }
+
+    // stands in for SelfDestructMob: its death happens at a point, so it must not drift down first
+    private static class PointDeathMob extends TestMob {
+        private PointDeathMob(GameObject gameObject, int maxHp) {
+            super(gameObject, maxHp);
+        }
+
+        @Override
+        protected boolean fallsOnDeath() {
+            return false;
         }
     }
 
