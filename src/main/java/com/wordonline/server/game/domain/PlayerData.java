@@ -26,12 +26,26 @@ public class PlayerData {
 
     private final Parameters parameters;
 
-    public int mana = 0;
+    public volatile int mana = 0;
     public int hp = MAX_HP;
     public List<CardType> cards = Collections.synchronizedList(new ArrayList<>());
 
+    // charge mana up to max; must stay atomic against card use
+    public synchronized void addMana(int delta, int max) {
+        mana = Math.min(mana + delta, max);
+    }
+
+    // atomic check-and-spend, so two casts cannot both pass the same balance
+    public synchronized boolean spendMana(int cost) {
+        if (mana < cost) {
+            return false;
+        }
+        mana -= cost;
+        return true;
+    }
+
     // validate and add card
-    public boolean addCard(CardType card) {
+    public synchronized boolean addCard(CardType card) {
         if (MAX_CARD_NUM >= cards.size() + 1) {
             cards.add(card);
             return true;
@@ -39,7 +53,7 @@ public class PlayerData {
         return false;
     }
 
-    public boolean validCardsUse(List<CardType> cards) {
+    public synchronized boolean validCardsUse(List<CardType> cards) {
         int totalManaCost = 0;
         List<CardType> tempCards = new ArrayList<>(this.cards);
         for (CardType card : cards) {
@@ -53,7 +67,7 @@ public class PlayerData {
     }
 
     // validate and use cards
-    public boolean useCards(List<CardType> cards) {
+    public synchronized boolean useCards(List<CardType> cards) {
         if (!validCardsUse(cards)) {
             return false;
         }
