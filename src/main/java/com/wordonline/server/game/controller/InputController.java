@@ -72,7 +72,7 @@ public class InputController {
                 inputRequestDto.toCardCancel();
                 sessionObject.getGameContext().unselectAllCard(userId);
             }
-            default -> log.warn("Unknown input type: {}", inputRequestDto.getType());
+            case null, default -> log.warn("Unknown input type: {}", inputRequestDto.getType());
         }
 
     }

@@ -36,6 +36,12 @@ public class MagicInputHandler {
         Master master = gameContext.getSessionObject().getUserSide(userId);
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
+        if (inputRequestDto.getCards() == null || inputRequestDto.getPosition() == null) {
+            log.trace("{}: magic use request is missing cards or position", master);
+            inputEventPublisher.publish(InputHandleEvent.fail(master, InputResultCode.FAIL_INVALID_MAGIC));
+            return new InputResponseDto("Invalid magic.", false, InputResultCode.FAIL_INVALID_MAGIC, playerData.mana, inputRequestDto.getId(), -1);
+        }
+
         if (!playerData.validCardsUse(inputRequestDto.getCards())) {
             log.trace("{}: {} is not valid : cannot use", master, inputRequestDto.getCards());
             inputEventPublisher.publish(InputHandleEvent.fail(master, InputResultCode.FAIL_LACK_OF_CARD));
