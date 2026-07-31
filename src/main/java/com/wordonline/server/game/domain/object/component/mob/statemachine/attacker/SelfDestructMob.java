@@ -51,6 +51,13 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
         gameObject.drawCircle(Vector3.ZERO, explosionRange, GizmoCategory.AreaOfEffect);
     }
 
+    // The blast belongs at the point of self-destruction, so an aerial self-destruct mob dies
+    // where it was hit instead of drifting down and exploding on the ground.
+    @Override
+    protected boolean fallsOnDeath() {
+        return false;
+    }
+
     @Override
     public void onDeath() {
         explode();

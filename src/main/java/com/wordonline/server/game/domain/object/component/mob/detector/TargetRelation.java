@@ -13,6 +13,11 @@ public final class TargetRelation {
             return false;
         }
 
+        // a dying object is already lost, so nobody wastes attacks on it
+        if (target.isDying()) {
+            return false;
+        }
+
         return FrenzyStatusEffect.isActiveOn(self)
                 || target.getMaster() != self.getMaster();
     }
