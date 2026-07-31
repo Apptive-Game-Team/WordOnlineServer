@@ -228,7 +228,8 @@ public class GameObject {
 
     public void start() {
         PrefabProvider.get(type).initialize(this);
-        flushComponents();
+        components.addAll(componentsToAdd);
+        componentsToAdd.clear();
         for (Component component : components)
             component.start();
         setStatus(Status.Idle);

@@ -38,7 +38,7 @@ public class WindSpiritPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new SelfDestructMob(gameObject,
                 windSpiritParameters.intValue(ParameterKey.HP),
                 windSpiritParameters.floatValue(ParameterKey.SPEED),
-                TargetMask.AIR.bit,
+                TargetMask.ANY.bit,
                 windSpiritParameters.intValue(ParameterKey.DAMAGE),
                 windSpiritParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
                 windSpiritParameters.floatValue(ParameterKey.ATTACK_RANGE)));

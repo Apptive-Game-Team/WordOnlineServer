@@ -4,10 +4,14 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
+import com.wordonline.server.game.domain.object.prefab.implement.build.ElectricTowerPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.build.RockTurretPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.drop.RockDropPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.explode.RockExplodePrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.implement.misc.GroundCannonPrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.implement.misc.GroundTowerPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.RockGolemPrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.implement.misc.TowerbackPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.RockMagePrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.MiniRockPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.RockRemnantPrefabInitializer;
@@ -30,20 +34,24 @@ import static org.mockito.Mockito.when;
 class RockDeathRemnantPrefabAllowlistTest {
 
     @Test
-    void attachesOnlyToExactRockCreatureAndBuildingAllowlist() {
+    void attachesOnlyToExactStructureAndRockUnitAllowlist() {
         Parameters parameters = parameters();
         List<PrefabInitializer> eligible = List.of(
                 new RockGolemPrefabInitializer(parameters),
                 new RockMagePrefabInitializer(parameters),
                 new RockSlimePrefabInitializer(parameters),
-                new RockTurretPrefabInitializer(parameters)
+                new MiniRockPrefabInitializer(parameters),
+                new RockDropPrefabInitializer(parameters),
+                new RockTurretPrefabInitializer(parameters),
+                new GroundCannonPrefabInitializer(parameters),
+                new GroundTowerPrefabInitializer(parameters),
+                new ElectricTowerPrefabInitializer(parameters),
+                new TowerbackPrefabInitializer(parameters)
         );
         List<PrefabInitializer> excluded = List.of(
-                new MiniRockPrefabInitializer(parameters),
                 new RockRemnantPrefabInitializer(parameters),
                 new RockSummonPrefabInitializer(parameters),
                 new RockRollingPrefabInitializer(parameters),
-                new RockDropPrefabInitializer(parameters),
                 new RockExplodePrefabInitializer(parameters),
                 new RockRunePrefabInitializer(parameters)
         );
