@@ -75,6 +75,8 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
                 .overlapSphereAll(gameObject, explosionRange)
                 .stream()
                 .filter(target -> target != gameObject)
+                .filter(GameObject::isActive)
+                .filter(target -> TargetRelation.canAttack(gameObject, target))
                 .filter(target -> target.hasComponent(Mob.class))
                 .map(target -> target.getComponent(Mob.class))
                 .forEach(mob -> mob.onDamaged(attackInfo));
@@ -112,11 +114,8 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
             }
 
             // Move towards target
-            float startY = startPos.getY();
             float lastY = gameObject.getPosition().getY();
-            float targetY = target.gameObject.getPosition().getY();
-
-            float t = (lastY - startY) / (targetY - startY);
+            float t = diveProgress(startPos, target.gameObject.getPosition().getY());
 
             Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
             nextPos.setY(lastY);

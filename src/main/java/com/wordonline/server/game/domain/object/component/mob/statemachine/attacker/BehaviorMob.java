@@ -27,6 +27,8 @@ import java.util.function.Predicate;
 @Slf4j
 public class BehaviorMob extends StateMachineMob {
 
+    private static final float DIVE_ALTITUDE_EPSILON = 1e-4f;
+
     PathFinder pathFinder;
     Detector detector;
     GameObject target = null;
@@ -123,6 +125,30 @@ public class BehaviorMob extends StateMachineMob {
         super.update();
     }
 
+    /**
+     * Engagement is decided on the horizontal plane. Mobs path with grounded positions, and a
+     * hovering mob cannot close the vertical gap while it holds its hover height, so charging it
+     * against the attack range would leave aerial mobs circling above ground targets forever.
+     * Ground mobs are unaffected: both sides sit at y = 0.
+     */
+    protected double horizontalDistanceToTarget() {
+        return gameObject.getPosition().grounded().distance(target.getPosition().grounded());
+    }
+
+    /**
+     * Progress of a dive that started at {@code startPos} and ends at {@code targetY}, in the
+     * range Vector3.lerp accepts. A target at the diver's own altitude leaves nothing to descend,
+     * and dividing by that zero gap yields NaN, which {@code Math.clamp} does not filter out.
+     */
+    protected float diveProgress(Vector3 startPos, float targetY) {
+        float altitudeGap = targetY - startPos.getY();
+        if (Math.abs(altitudeGap) <= DIVE_ALTITUDE_EPSILON) {
+            return 1f;
+        }
+
+        return (gameObject.getPosition().getY() - startPos.getY()) / altitudeGap;
+    }
+
     public class StunState extends State {
         private final float duration;
         float timer;
@@ -201,10 +227,17 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
 
+            // Range is checked before the path bookkeeping: a mob that walks onto the last path
+            // point would otherwise drop back to idle without ever testing whether it can attack.
+            if (horizontalDistanceToTarget() - targetRadius <= attackRange - 0.1f) {
+                setState(new AttackState());
+                return;
+            }
+
             log.trace("State : {}", currentState);
             Vector3 currentPosition = gameObject.getPosition().grounded();
             log.trace("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
-            log.trace("Target Distance : {}",gameObject.getPosition().distance(target.getPosition()) - targetRadius);
+            log.trace("Target Distance : {}", horizontalDistanceToTarget() - targetRadius);
             // Check if we reached the next path point
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
                 path.remove(0);
@@ -212,11 +245,6 @@ public class BehaviorMob extends StateMachineMob {
                     setState(new IdleState());
                     return;
                 }
-            }
-
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange - 0.1f) {
-                setState(new AttackState());
-                return;
             }
           
             timer += getGameContext().getDeltaTime();
@@ -349,7 +377,7 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
             timer += getGameContext().getDeltaTime();
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
+            if (horizontalDistanceToTarget() - targetRadius > attackRange) {
                 setState(new MoveState());
             } else if (timer > attackInterval.total()) {
                 timer = 0;
