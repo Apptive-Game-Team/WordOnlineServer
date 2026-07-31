@@ -196,12 +196,11 @@ public class MagicInputHandler {
         );
 
         int manaCost = (int) gameContext.getParameters().getValue(magic.magicType.name(), "mana_cost");
-        if (playerData.mana < manaCost) {
+        if (!playerData.spendMana(manaCost)) {
             inputEventPublisher.publish(InputHandleEvent.fail(master, InputResultCode.FAIL_INSUFFICIENT_MANA));
             return new InputResponseDto("insufficient mana", false, InputResultCode.FAIL_INSUFFICIENT_MANA, playerData.mana, -1, -1);
         }
 
-        playerData.mana -= manaCost;
         magic.run(gameContext, master, rangeOrigin, castPosition);
         inputEventPublisher.publish(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
         return new InputResponseDto(true, InputResultCode.SUCCESS, playerData.mana, -1, magic.id);
