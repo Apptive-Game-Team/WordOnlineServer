@@ -29,6 +29,23 @@ class MiniRockPrefabInitializerTest {
     }
 
     @Test
+    void leavesARemnantWhenKilledInCombat() {
+        Parameters parameters = mock(Parameters.class);
+        GameObjectParameters miniRockParameters = mock(GameObjectParameters.class);
+        when(parameters.object(GameObjectKey.MINI_ROCK)).thenReturn(miniRockParameters);
+        GameObject miniRock = new GameObject(
+                Master.LeftPlayer,
+                PrefabType.MiniRock,
+                Vector3.ZERO,
+                mock(GameContext.class)
+        );
+
+        new MiniRockPrefabInitializer(parameters).initialize(miniRock);
+
+        assertThat(miniRock.getComponentsToAdd()).anyMatch(RockDeathRemnant.class::isInstance);
+    }
+
+    @Test
     void remainsHpBasedSlimeWithSolidCircleCollider() {
         Parameters parameters = mock(Parameters.class);
         GameObjectParameters miniRockParameters = mock(GameObjectParameters.class);
@@ -52,7 +69,5 @@ class MiniRockPrefabInitializerTest {
         assertThat(collider.getRadius()).isEqualTo(0.75f);
         assertThat(collider.isTrigger()).isFalse();
         assertThat(miniRock.getComponents(TimedSelfDestroyer.class)).isEmpty();
-        assertThat(miniRock.getComponents(RockDeathRemnant.class)).isEmpty();
-        assertThat(miniRock.getComponentsToAdd()).noneMatch(RockDeathRemnant.class::isInstance);
     }
 }
