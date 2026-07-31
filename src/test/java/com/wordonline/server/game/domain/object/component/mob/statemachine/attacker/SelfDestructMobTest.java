@@ -1,10 +1,12 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -44,6 +46,39 @@ class SelfDestructMobTest {
         assertThat(damageOf(ally)).isZero();
         assertThat(damageOf(destroyedEnemy)).isZero();
         assertThat(damageOf(windSpirit)).isZero();
+    }
+
+    @Test
+    void sameAltitudeTargetIsInterceptedInsteadOfProducingNaNPosition() {
+        GameContext gameContext = mock(GameContext.class);
+        Physics physics = mock(Physics.class);
+        when(gameContext.getPhysics()).thenReturn(physics);
+
+        GameObject windSpirit = new GameObject(Master.LeftPlayer, PrefabType.WindSpirit,
+                new Vector3(4f, GameConfig.AERIAL_MOB_INIT_HEIGHT, 4f), gameContext);
+        windSpirit.addCollider(new CircleCollider(windSpirit, 0.5f, false));
+        GameObject enemy = new GameObject(Master.RightPlayer, PrefabType.BubbleSpirit,
+                new Vector3(6f, GameConfig.AERIAL_MOB_INIT_HEIGHT, 4f), gameContext);
+        enemy.addCollider(new CircleCollider(enemy, 0.5f, false));
+        enemy.setStatus(Status.Idle);
+
+        SelfDestructMob enemyMob = new SelfDestructMob(
+                enemy, 10, 1f, TargetMask.AIR.bit, 0, 1f, 1f);
+        enemy.getComponents().add(enemyMob);
+        when(physics.overlapSphereAll(any(GameObject.class), anyFloat())).thenReturn(List.of(enemy));
+
+        SelfDestructMob windSpiritMob = new SelfDestructMob(
+                windSpirit, 10, 1f, TargetMask.AIR.bit, 7, 1f, 2f);
+        windSpirit.getComponents().add(windSpiritMob);
+        windSpiritMob.start();
+        windSpiritMob.setState(windSpiritMob.new AttackingState(enemyMob));
+
+        windSpiritMob.update();
+
+        assertThat(windSpirit.getPosition().hasNaN()).isFalse();
+        assertThat(windSpirit.getPosition().getX()).isEqualTo(6f);
+        assertThat(enemyMob.getHp()).isLessThan(10);
+        assertThat(windSpirit.isDestroyed()).isTrue();
     }
 
     private int damageOf(GameObject gameObject) {
