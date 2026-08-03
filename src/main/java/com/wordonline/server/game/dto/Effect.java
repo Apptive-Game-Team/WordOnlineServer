@@ -5,6 +5,7 @@ public enum Effect {
     Burn,
     Wet,
     Shock,
+    Overcharge,
     Snared,
     Knockback,
     LeafFieldHeal,

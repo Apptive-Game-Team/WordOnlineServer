@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.dto.Effect;
 
 public class OverchargeStatusEffect extends BaseStatusEffect {
 
@@ -23,7 +24,7 @@ public class OverchargeStatusEffect extends BaseStatusEffect {
     private Detector detector;
 
     public OverchargeStatusEffect(GameObject owner, float duration, StatusEffectKey key) {
-        super(owner, duration, key);
+        super(owner, duration, key, Effect.Overcharge);
     }
 
     @Override
