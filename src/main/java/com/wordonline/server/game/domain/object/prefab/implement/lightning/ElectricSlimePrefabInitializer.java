@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.ElectricDeathEnergy;
 import com.wordonline.server.game.domain.object.component.effect.receiver.LightningSummonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.Slime;
@@ -38,6 +39,7 @@ public class ElectricSlimePrefabInitializer extends PrefabInitializer {
                 slimeParameters.intValue(ParameterKey.DAMAGE),
                 slimeParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.setElement(ElementType.LIGHTNING);
+        gameObject.addComponent(new ElectricDeathEnergy(gameObject));
         gameObject.getComponents().add(new LightningSummonEffectReceiver(gameObject));
     }
 }

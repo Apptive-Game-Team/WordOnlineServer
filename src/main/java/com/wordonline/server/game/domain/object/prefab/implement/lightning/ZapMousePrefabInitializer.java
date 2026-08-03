@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.prefab.implement.lightning;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.ElectricDeathEnergy;
 import com.wordonline.server.game.domain.object.component.effect.receiver.LightningSummonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.CowardMob;
@@ -40,6 +41,7 @@ public class ZapMousePrefabInitializer extends PrefabInitializer {
                 zapMouseParameters.floatValue(ParameterKey.DETECTION_RANGE),
                 zapMouseParameters.floatValue(ParameterKey.PANIC_DURATION)));
         gameObject.setElement(ElementType.LIGHTNING);
+        gameObject.addComponent(new ElectricDeathEnergy(gameObject));
         gameObject.addComponent(new LightningSummonEffectReceiver(gameObject));
     }
 }

@@ -13,6 +13,7 @@ import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
 
 public class LightningTowerMob extends TimedBehaviorMob {
@@ -78,7 +79,7 @@ public class LightningTowerMob extends TimedBehaviorMob {
 
     private GameObject findNextTarget(GameObject source, List<GameObject> hitTargets) {
         return getGameContext().overlapSphereAll(source, chainRadius).stream()
-                .filter(target -> target.getMaster() != gameObject.getMaster())
+                .filter(target -> TargetRelation.canAttack(gameObject, target))
                 .filter(target -> !hitTargets.contains(target))
                 .filter(target -> !target.getComponents(Damageable.class).isEmpty())
                 .min(Comparator.comparingDouble(target -> target.getPosition().distance(source.getPosition())))

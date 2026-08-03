@@ -4,6 +4,7 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.*;
 import com.wordonline.server.game.dto.frame.SnapshotObjectDto;
@@ -60,6 +61,7 @@ public abstract class GameLoop implements Runnable {
         if (createRightPlayer) {
             new GameObject(Master.RightPlayer, PrefabType.Player, GameConfig.RIGHT_PLAYER_POSITION, gameContext);
         }
+        new GameObject(Master.None, PrefabType.Wall, Vector3.ZERO, gameContext);
     }
 
     public void close() {
@@ -80,9 +82,14 @@ public abstract class GameLoop implements Runnable {
             long startTime = System.currentTimeMillis();
 
             try {
-                update();
+                // ponytail: session-wide lock so input threads cannot mutate game state mid-frame.
+                // Upgrade path: drain casts from a queue at the top of update() if lock contention shows up.
+                synchronized (gameContext) {
+                    update();
+                }
             } catch (Exception e) {
                 log.error("[ERROR] {}", e.getMessage(), e);
+                finalizeAfterFailure();
                 break;
             }
 
@@ -103,6 +110,20 @@ public abstract class GameLoop implements Runnable {
             } catch (Exception e) {
                 log.warn("onTerminated failed", e);
             }
+        }
+    }
+
+    // A crashed frame must still deliver a result and release both users from the in-game state.
+    // handleGameEnd() calls close(), so _running still being true means the match was not ended yet.
+    private void finalizeAfterFailure() {
+        if (!_running) {
+            return;
+        }
+        try {
+            gameContext.getResultChecker().setEnd();
+            handleGameEnd();
+        } catch (Exception e) {
+            log.error("failed to finalize match after loop failure", e);
         }
     }
 

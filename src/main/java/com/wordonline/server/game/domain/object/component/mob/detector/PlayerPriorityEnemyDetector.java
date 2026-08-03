@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.service.GameContext;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class PlayerPriorityEnemyDetector implements Detector {
     private final PriorityEnemyDetector playerDetector;
@@ -20,7 +21,12 @@ public class PlayerPriorityEnemyDetector implements Detector {
 
     @Override
     public GameObject detect(GameObject self) {
-        GameObject player = playerDetector.detect(self);
-        return player != null ? player : closestEnemyDetector.detect(self);
+        return detect(self, target -> true);
+    }
+
+    @Override
+    public GameObject detect(GameObject self, Predicate<GameObject> filter) {
+        GameObject player = playerDetector.detect(self, filter);
+        return player != null ? player : closestEnemyDetector.detect(self, filter);
     }
 }

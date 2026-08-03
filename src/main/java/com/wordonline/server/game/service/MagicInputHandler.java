@@ -32,7 +32,15 @@ public class MagicInputHandler {
         inputEventPublisher.subscribe(subscriber);
     }
 
+    // Runs on the STOMP inbound thread: take the session lock the game loop holds during update()
+    // so card/mana deduction and the whole magic execution cannot interleave with a frame.
     public InputResponseDto handleInput(GameContext gameContext, long userId, MagicUseRequestDto inputRequestDto) {
+        synchronized (gameContext) {
+            return handleInputLocked(gameContext, userId, inputRequestDto);
+        }
+    }
+
+    private InputResponseDto handleInputLocked(GameContext gameContext, long userId, MagicUseRequestDto inputRequestDto) {
         Master master = gameContext.getSessionObject().getUserSide(userId);
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
@@ -81,7 +89,14 @@ public class MagicInputHandler {
         return new InputResponseDto(true, InputResultCode.SUCCESS, playerData.mana, inputRequestDto.getId(), magic.id);
     }
 
+    // Runs on the bot executor thread (BotAgentSystem submits ticks off the loop thread).
     public InputResponseDto handleBotPlayerInput(GameContext gameContext, Master master, InputRequestDto inputRequestDto) {
+        synchronized (gameContext) {
+            return handleBotPlayerInputLocked(gameContext, master, inputRequestDto);
+        }
+    }
+
+    private InputResponseDto handleBotPlayerInputLocked(GameContext gameContext, Master master, InputRequestDto inputRequestDto) {
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
         if (!playerData.validCardsUse(inputRequestDto.getCards())) {
@@ -181,12 +196,11 @@ public class MagicInputHandler {
         );
 
         int manaCost = (int) gameContext.getParameters().getValue(magic.magicType.name(), "mana_cost");
-        if (playerData.mana < manaCost) {
+        if (!playerData.spendMana(manaCost)) {
             inputEventPublisher.publish(InputHandleEvent.fail(master, InputResultCode.FAIL_INSUFFICIENT_MANA));
             return new InputResponseDto("insufficient mana", false, InputResultCode.FAIL_INSUFFICIENT_MANA, playerData.mana, -1, -1);
         }
 
-        playerData.mana -= manaCost;
         magic.run(gameContext, master, rangeOrigin, castPosition);
         inputEventPublisher.publish(new InputHandleEvent(master, InputResultCode.SUCCESS, magic.id));
         return new InputResponseDto(true, InputResultCode.SUCCESS, playerData.mana, -1, magic.id);

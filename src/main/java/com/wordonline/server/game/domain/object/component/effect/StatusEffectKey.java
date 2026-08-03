@@ -5,7 +5,6 @@ public enum StatusEffectKey {
     Burn_Receive,
     Wet_Receive,
     Shock_Receive,
-    Overcharge_Receive,
     ShockOverload_Receive,
     Snared_Receive,
     Knockback_Receive,
@@ -17,4 +16,5 @@ public enum StatusEffectKey {
     Inspired_Receive,
     Panic_Receive,
     Bubble_Receive,
+    Overcharge_Receive,
 }

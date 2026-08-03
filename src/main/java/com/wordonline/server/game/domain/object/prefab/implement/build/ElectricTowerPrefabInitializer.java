@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.BuildingEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.simple.LightningTowerMob;
@@ -44,6 +45,7 @@ public class ElectricTowerPrefabInitializer extends PrefabInitializer {
                 gameObject,
                 electricTowerParameters.floatValue(ParameterKey.DURATION)
         ));
+        gameObject.addComponent(new RockDeathRemnant(gameObject));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new BuildingEffectReceiver(gameObject));
     }

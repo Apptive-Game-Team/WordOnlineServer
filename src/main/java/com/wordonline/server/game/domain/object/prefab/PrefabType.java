@@ -66,7 +66,7 @@ public enum PrefabType {
     RockDrop("rock_drop_prefab"),
     LightningDrop("lightning_drop_prefab"),
     WindDrop("wind_drop_prefab"),
-    RallyingTorch("rallying_torch_prefab"),
+    RallyingTotem("rallying_totem_prefab"),
 
     // rune
     FireRune("fire_rune_prefab"),
@@ -104,6 +104,7 @@ public enum PrefabType {
     ZapMouse("zap_mouse_prefab"),
     WindSpirit("wind_spirit_prefab"),
     MiniRock("mini_rock_prefab"),
+    RockRemnant("rock_remnant_prefab"),
 
     LifeTree("life_tree_prefab"),
     RockTurret("rock_turret_prefab"),
@@ -122,6 +123,8 @@ public enum PrefabType {
     Leafair("leafair_prefab"),
     ChickenCommando("chicken_commando_prefab"),
     Overgrowth("overgrowth_prefab"),
+    GiantVine("giant_vine_prefab"),
+    SeedNest("seed_nest_prefab"),
     Crater("crater_prefab"),
     BubbleGenerator("bubble_generator_prefab"),
     ElectricTower("electric_tower_prefab"),

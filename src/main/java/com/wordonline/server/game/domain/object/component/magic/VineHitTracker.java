@@ -10,4 +10,8 @@ public class VineHitTracker {
     public boolean markIfFirstHit(int gameObjectId) {
         return damagedObjectIds.add(gameObjectId);
     }
+
+    public int hitCount() {
+        return damagedObjectIds.size();
+    }
 }

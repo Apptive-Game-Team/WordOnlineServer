@@ -1,8 +1,6 @@
 package com.wordonline.server.game.domain.object.component.effect.receiver;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.effect.EffectApplyPolicy;
-import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.OverchargeStatusEffect;
 import com.wordonline.server.game.dto.Effect;
 
@@ -21,10 +19,6 @@ public class LightningSummonEffectReceiver extends CommonEffectReceiver {
             return;
         }
 
-        applyEffect(
-                StatusEffectKey.Overcharge_Receive,
-                () -> new OverchargeStatusEffect(gameObject, OVERCHARGE_DURATION, StatusEffectKey.Overcharge_Receive),
-                EffectApplyPolicy.EXTEND_DURATION,
-                OVERCHARGE_DURATION);
+        OverchargeStatusEffect.apply(gameObject, OVERCHARGE_DURATION);
     }
 }

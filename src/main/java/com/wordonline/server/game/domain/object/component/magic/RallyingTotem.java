@@ -1,25 +1,31 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.component.Item;
 import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.directive.RallyMoveDirective;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 
-public class RallyingTorch extends MagicComponent {
+public class RallyingTotem extends MagicComponent {
     private final float duration;
     private final float buffRadius;
     private final float buffDuration;
-    private boolean landed;
+    private final float rallyCombatRange;
     private float elapsedTime;
 
-    public RallyingTorch(GameObject gameObject, float duration, float buffRadius, float buffDuration) {
+    public RallyingTotem(
+            GameObject gameObject,
+            float duration,
+            float buffRadius,
+            float buffDuration,
+            float rallyCombatRange) {
         super(gameObject);
         this.duration = duration;
         this.buffRadius = buffRadius;
         this.buffDuration = buffDuration;
+        this.rallyCombatRange = rallyCombatRange;
     }
 
     @Override
@@ -28,11 +34,6 @@ public class RallyingTorch extends MagicComponent {
 
     @Override
     public void update() {
-        if (!landed) {
-            fall();
-            return;
-        }
-
         elapsedTime += getGameContext().getDeltaTime();
         if (elapsedTime >= duration) {
             gameObject.destroy();
@@ -52,22 +53,12 @@ public class RallyingTorch extends MagicComponent {
     public void onDestroy() {
     }
 
-    private void fall() {
-        Vector3 nextPosition = gameObject.getPosition().plus(0, -Drop.SPEED * getGameContext().getDeltaTime(), 0);
-        if (nextPosition.getY() > 0f) {
-            gameObject.setPosition(nextPosition);
-            return;
-        }
-
-        gameObject.setPosition(new Vector3(nextPosition.getX(), 0f, nextPosition.getZ()));
-        landed = true;
-        elapsedTime = 0f;
-    }
-
     private boolean canRally(GameObject target) {
         if (target == gameObject) return false;
         if (gameObject.getMaster() == Master.None) return false;
         if (target.getMaster() != gameObject.getMaster()) return false;
+        Item item = gameObject.getComponent(Item.class);
+        if (item != null && item.getParent() == target) return false;
         return target.hasComponent(BehaviorMob.class);
     }
 
@@ -79,7 +70,7 @@ public class RallyingTorch extends MagicComponent {
         boolean pending = target.getComponentsToAdd().stream()
                 .anyMatch(RallyMoveDirective.class::isInstance);
         if (!pending) {
-            target.addComponent(new RallyMoveDirective(target, gameObject));
+            target.addComponent(new RallyMoveDirective(target, gameObject, rallyCombatRange));
         }
     }
 

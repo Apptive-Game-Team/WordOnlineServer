@@ -5,7 +5,6 @@ public enum Effect {
     Burn,
     Wet,
     Shock,
-    Overcharge,
     Snared,
     Knockback,
     LeafFieldHeal,
@@ -14,6 +13,7 @@ public enum Effect {
     Panic,
     Bubble,
     Inspired,
+    Overcharge,
 
     FireIdleAura,
     FireAttackAura,

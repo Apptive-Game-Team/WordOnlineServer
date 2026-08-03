@@ -51,6 +51,7 @@ The following error messages are currently localized:
 | error.token.invalid | 유효하지 않은 토큰입니다. | Invalid token. |
 | error.authorization.denied | 접근이 거부되었습니다. | Authorization denied. |
 | error.register.failed | 등록할 수 없습니다. | Can't register. |
+| error.internal | 서버 내부 오류가 발생했습니다. | Internal server error. |
 
 ## Adding New Messages
 

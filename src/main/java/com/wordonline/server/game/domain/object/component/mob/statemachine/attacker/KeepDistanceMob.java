@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Status;
@@ -73,7 +74,7 @@ public class KeepDistanceMob extends Mob {
     private boolean isValidTarget(GameObject target) {
         return target != null
                 && target.getStatus() != Status.Destroyed
-                && target.getMaster() != gameObject.getMaster();
+                && TargetRelation.canAttack(gameObject, target);
     }
 
     private void moveTowardTarget() {

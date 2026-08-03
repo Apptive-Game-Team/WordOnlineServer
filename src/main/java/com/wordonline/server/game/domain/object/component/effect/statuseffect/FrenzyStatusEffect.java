@@ -27,6 +27,15 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
         super(owner, duration, key, Effect.Frenzy);
     }
 
+    public static boolean isActiveOn(GameObject gameObject) {
+        FrenzyStatusEffect effect = gameObject.getComponent(FrenzyStatusEffect.class);
+        return effect != null && effect.isActive();
+    }
+
+    public boolean isActive() {
+        return originalMaster != null && gameObject.getMaster() == Master.None;
+    }
+
     @Override
     public void start() {
         if (originalMaster == null) {
