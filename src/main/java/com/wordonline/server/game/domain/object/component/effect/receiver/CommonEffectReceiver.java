@@ -13,8 +13,6 @@ import java.util.function.Supplier;
 
 public class CommonEffectReceiver extends Component implements EffectReceiver {
 
-    private static final float OVERCHARGE_DURATION = 3f;
-
     public <T extends BaseStatusEffect> T getEffectByKey(StatusEffectKey key) {
         for (Component c : gameObject.getComponents())
             if (c instanceof BaseStatusEffect se && key.equals(se.getKey())) return (T) se;
@@ -44,15 +42,6 @@ public class CommonEffectReceiver extends Component implements EffectReceiver {
 
     @Override
     public void onReceive(Effect effect) {
-        if (effect == Effect.Shock && gameObject.getElement().has(ElementType.LIGHTNING)) {
-            applyEffect(
-                    StatusEffectKey.Overcharge_Receive,
-                    () -> new OverchargeStatusEffect(gameObject, OVERCHARGE_DURATION, StatusEffectKey.Overcharge_Receive),
-                    EffectApplyPolicy.EXTEND_DURATION,
-                    OVERCHARGE_DURATION);
-            return;
-        }
-
         if(EffectImmuneChart.isImmuneTo(gameObject, effect)) return;
 
         switch (effect) {

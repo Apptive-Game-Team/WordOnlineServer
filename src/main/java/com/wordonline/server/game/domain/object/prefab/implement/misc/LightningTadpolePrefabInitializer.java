@@ -6,7 +6,7 @@ import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
-import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.effect.receiver.LightningSummonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
@@ -40,6 +40,6 @@ public class LightningTadpolePrefabInitializer extends PrefabInitializer {
                 lightningTadpoleParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, lightningTadpoleParameters.floatValue(ParameterKey.DURATION)));
         gameObject.setElement(ElementType.LIGHTNING);
-        gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new LightningSummonEffectReceiver(gameObject));
     }
 }

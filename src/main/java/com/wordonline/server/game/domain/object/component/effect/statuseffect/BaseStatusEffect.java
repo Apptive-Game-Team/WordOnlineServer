@@ -10,6 +10,7 @@ import lombok.Getter;
 
 public abstract class BaseStatusEffect extends Component {
     protected float initialDuration;
+    @Getter
     protected float remaining;
     @Getter
     protected final StatusEffectKey key;
