@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.stereotype.Service;
 
 import com.wordonline.server.debug.dto.DebugActionResponseDto;
+import com.wordonline.server.bot.domain.BotPersona;
+import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.debug.dto.DebugGameRequestDto;
 import com.wordonline.server.debug.dto.DebugGameResponseDto;
 import com.wordonline.server.debug.dto.DebugMagicInfoDto;
@@ -37,23 +39,37 @@ public class DebugService {
     private static final AtomicInteger sessionIdCounter = new AtomicInteger(1);
     private static final String DEBUG_SESSION_PREFIX = "debug-";
     private static final String DEBUG_PVE_SESSION_PREFIX = "debug-pve-";
+    private static final String DEBUG_PRACTICE_SESSION_PREFIX = "debug-practice-";
 
     private final SessionService sessionService;
     private final DeckService deckService;
     private final DatabaseMagicParser magicParser;
     private final MagicRepository magicRepository;
+    private final BotPersonaService botPersonaService;
 
     private SessionObject debugSession;
 
     public DebugGameResponseDto enterPracticeSession(DebugGameRequestDto debugGameRequestDto) {
+        BotPersona opponent = botPersonaService.findRandomEnabled()
+                .orElseThrow(() -> new IllegalStateException("No enabled bot persona is available."));
+        DebugGameResponseDto dto = new DebugGameResponseDto(
+                createPracticeDebugSession(debugGameRequestDto.userId(), opponent.userId())
+        );
+        log.info(
+                "Entering practice session userId: {}, botUserId: {}, botName: {}",
+                debugGameRequestDto.userId(),
+                opponent.userId(),
+                opponent.name()
+        );
+        return dto;
+    }
+
+    public DebugGameResponseDto enterPveSession(DebugGameRequestDto debugGameRequestDto) {
         DebugGameResponseDto dto = new DebugGameResponseDto(
                 createPveDebugSession(debugGameRequestDto.userId(), -1, debugGameRequestDto.scenarioId())
         );
-        log.info(
-                "Entering practice session userId: {}, scenarioId: {}",
-                debugGameRequestDto.userId(),
-                debugGameRequestDto.scenarioId()
-        );
+        log.info("Entering PVE debug session userId: {}, scenarioId: {}",
+                debugGameRequestDto.userId(), debugGameRequestDto.scenarioId());
         return dto;
     }
 
@@ -95,6 +111,10 @@ public class DebugService {
 
     private String createPveDebugSession(long uid1, long uid2, Long scenarioId) {
         return createDebugSession(DEBUG_PVE_SESSION_PREFIX, uid1, uid2, SessionType.PVE, scenarioId);
+    }
+
+    private String createPracticeDebugSession(long uid1, long uid2) {
+        return createDebugSession(DEBUG_PRACTICE_SESSION_PREFIX, uid1, uid2, SessionType.Practice, null);
     }
 
     private String createDebugSession(String sessionPrefix, long uid1, long uid2, SessionType sessionType, Long scenarioId) {

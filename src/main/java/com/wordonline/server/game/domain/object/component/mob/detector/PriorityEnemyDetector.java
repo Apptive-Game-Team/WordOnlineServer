@@ -7,6 +7,7 @@ import com.wordonline.server.game.service.GameContext;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class PriorityEnemyDetector implements Detector {
     private final GameContext gameContext;
@@ -23,8 +24,14 @@ public class PriorityEnemyDetector implements Detector {
 
     @Override
     public GameObject detect(GameObject self) {
+        return detect(self, target -> true);
+    }
+
+    @Override
+    public GameObject detect(GameObject self, Predicate<GameObject> filter) {
         return gameContext.getGameSessionData().gameObjects.stream()
                 .filter(target -> isCandidate(self, target))
+                .filter(filter)
                 .min(Comparator
                         .comparingInt((GameObject target) -> priorityIndex(TargetCategory.of(target)))
                         .thenComparingDouble(target -> self.getPosition().distance(target.getPosition())))
@@ -32,9 +39,8 @@ public class PriorityEnemyDetector implements Detector {
     }
 
     private boolean isCandidate(GameObject self, GameObject target) {
-        if (target == self) return false;
         if (target.getStatus() == Status.Destroyed) return false;
-        if (target.getMaster() == self.getMaster()) return false;
+        if (!TargetRelation.canAttack(self, target)) return false;
         if (!target.hasComponent(Damageable.class)) return false;
         if ((TargetMask.of(target) & targetMask) == 0) return false;
         if (self.getPosition().distance(target.getPosition()) > maxRange) return false;

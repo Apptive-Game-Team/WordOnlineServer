@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.ElectricDeathEnergy;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.ThunderBirdMob;
@@ -44,6 +45,7 @@ public class ThunderBirdPrefabInitializer extends PrefabInitializer {
                 thunderBirdParameters.floatValue(ParameterKey.ATTACK_RANGE)
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING));
+        gameObject.addComponent(new ElectricDeathEnergy(gameObject));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

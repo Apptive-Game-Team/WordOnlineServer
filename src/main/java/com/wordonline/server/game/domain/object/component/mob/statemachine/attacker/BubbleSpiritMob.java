@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class BubbleSpiritMob extends BehaviorMob {
         List<GameObject> victims = getGameContext().overlapSphereAll(centerTarget, SPLASH_RADIUS);
 
         for (GameObject candidate : victims) {
-            if (candidate.getMaster() == gameObject.getMaster()) {
+            if (!TargetRelation.canAttack(gameObject, candidate)) {
                 continue;
             }
             if ((TargetMask.of(candidate) & TargetMask.AIR.bit) == 0) {

@@ -6,6 +6,7 @@ import com.wordonline.server.bot.service.BotPersonaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ public class BotPersonaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BotPersonaResponseDto> findById(@PathVariable long id) {
-        return botPersonaService.findById(id)
+        return botPersonaService.findByUserId(id)
                 .map(BotPersonaResponseDto::new)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -48,5 +49,11 @@ public class BotPersonaController {
     public ResponseEntity<BotPersonaResponseDto> update(@PathVariable long id,
                                                         @RequestBody BotPersonaRequestDto requestDto) {
         return ResponseEntity.ok(new BotPersonaResponseDto(botPersonaService.update(id, requestDto)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable long id) {
+        botPersonaService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

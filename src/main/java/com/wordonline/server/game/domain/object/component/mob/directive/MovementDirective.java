@@ -13,4 +13,8 @@ public interface MovementDirective {
     float getArrivalDistance();
 
     boolean suppressCombat();
+
+    default boolean allowsCombatTarget(GameObject self, GameObject target) {
+        return false;
+    }
 }

@@ -1,6 +1,5 @@
 package com.wordonline.server.bot.service;
 
-import com.wordonline.server.bot.domain.BotParticipant;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.SessionType;
@@ -41,8 +40,8 @@ class BotGameSchedulerTest {
 
     @Test
     void createsPracticeSessionWithEnabledBotsWhenIdle() {
-        BotPersona beginner = bot(1, "Beginner Bot");
-        BotPersona advanced = bot(2, "Advanced Bot");
+        BotPersona beginner = bot(-1, "Beginner Bot");
+        BotPersona advanced = bot(-2, "Advanced Bot");
         when(sessionService.getActiveSessions()).thenReturn(0L);
         when(botPersonaService.findEnabled()).thenReturn(List.of(beginner, advanced));
 
@@ -55,8 +54,8 @@ class BotGameSchedulerTest {
         assertThat(sessionDto.sessionId()).startsWith("bot-auto-");
         assertThat(Set.of(sessionDto.uid1(), sessionDto.uid2()))
                 .containsExactlyInAnyOrder(
-                        BotParticipant.participantId(beginner.id()),
-                        BotParticipant.participantId(advanced.id())
+                        beginner.userId(),
+                        advanced.userId()
                 );
         assertThat(sessionDto.uid1()).isNotEqualTo(sessionDto.uid2());
         assertThat(sessionDto.sessionType()).isEqualTo(SessionType.Practice);
@@ -65,7 +64,7 @@ class BotGameSchedulerTest {
 
     @Test
     void skipsWhenOnlyOneEnabledBotPersonaExists() {
-        BotPersona beginner = bot(1, "Beginner Bot");
+        BotPersona beginner = bot(-1, "Beginner Bot");
         when(sessionService.getActiveSessions()).thenReturn(0L);
         when(botPersonaService.findEnabled()).thenReturn(List.of(beginner));
 
@@ -107,11 +106,9 @@ class BotGameSchedulerTest {
                 id,
                 name,
                 BotTier.BEGINNER,
-                1,
                 250,
                 8,
                 0.25,
-                (short) 1000,
                 true
         );
     }

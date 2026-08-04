@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.Slime;
@@ -22,7 +23,7 @@ public class MiniRockPrefabInitializer extends PrefabInitializer {
     private final Parameters parameters;
 
     public MiniRockPrefabInitializer(Parameters parameters) {
-        super(PrefabType.RockSlime);
+        super(PrefabType.MiniRock);
         this.parameters = parameters;
     }
 
@@ -38,6 +39,7 @@ public class MiniRockPrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 miniRockParameters.intValue(ParameterKey.DAMAGE),
                 miniRockParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
+        gameObject.addComponent(new RockDeathRemnant(gameObject));
         gameObject.setElement(ElementType.ROCK);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
