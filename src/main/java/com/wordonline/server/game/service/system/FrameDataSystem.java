@@ -3,8 +3,11 @@ package com.wordonline.server.game.service.system;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import com.wordonline.server.game.dto.CardInfoDto;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
+import com.wordonline.server.game.dto.frame.GameEventDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.service.GameContext;
 
@@ -28,12 +31,15 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
         long remainingTime = gameContext.getGameTimer().getRemainingTimeSeconds();
 
-        leftFrameInfoDto = new FrameInfoDto(remainingTime, leftCardInfo, objectsInfoDto, gameContext.getGameSessionData());
-        rightFrameInfoDto = new FrameInfoDto(remainingTime, rightCardInfo, objectsInfoDto, gameContext.getGameSessionData());
+        List<GameEventDto> events = gameContext.drainEvents();
+
+        leftFrameInfoDto = new FrameInfoDto(remainingTime, leftCardInfo, objectsInfoDto, gameContext.getGameSessionData(), events);
+        rightFrameInfoDto = new FrameInfoDto(remainingTime, rightCardInfo, objectsInfoDto, gameContext.getGameSessionData(), events);
         broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
                 remainingTime,
                 objectsInfoDto,
-                gameContext.getGameSessionData()
+                gameContext.getGameSessionData(),
+                events
         );
 
         // Charge Mana

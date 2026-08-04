@@ -12,7 +12,10 @@ public class AttackInfo {
     private int damage;
     private Set<ElementType> element = new HashSet<>();
     private Effect effect;
-    
+    // id of the GameObject that dealt this hit; 0 when the source is not a single object
+    private int attackerId;
+
+
     public AttackInfo(int damage, ElementType element) {
         this.damage = damage;
         this.element.add(element);
