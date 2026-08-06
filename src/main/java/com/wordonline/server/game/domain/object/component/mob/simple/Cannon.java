@@ -27,7 +27,7 @@ public class Cannon extends TimedBehaviorMob {
     public Cannon(GameObject gameObject, int maxHp, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
         super(gameObject, maxHp, 0, attackInterval, null);
         setBehavior(this::attack);
-        attackInfo = new AttackInfo(damage, ElementType.ROCK);
+        attackInfo = new AttackInfo(damage, ElementType.ROCK).withAttacker(gameObject);
         this.targetMask = targetMask;
         this.attackDuration = attackDuration;
         this.attackRange = attackRange;

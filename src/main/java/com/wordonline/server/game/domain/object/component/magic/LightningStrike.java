@@ -19,7 +19,7 @@ public class LightningStrike extends MagicComponent {
 
     public LightningStrike(GameObject gameObject, int damage, float radius) {
         super(gameObject);
-        this.attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        this.attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         this.boxSize = new Vector3(radius * 2, GameConfig.DROP_MAGIC_INITIAL_HEIGHT, radius * 2);
     }
 

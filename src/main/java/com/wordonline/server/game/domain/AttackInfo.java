@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain;
 
 import com.wordonline.server.game.domain.magic.ElementType;
+import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Effect;
 import lombok.Data;
 
@@ -24,5 +25,10 @@ public class AttackInfo {
     public AttackInfo(int damage, Set<ElementType> elementSet) {
         this.damage = damage;
         this.element = elementSet;
+    }
+
+    public AttackInfo withAttacker(GameObject attacker) {
+        this.attackerId = attacker.getId();
+        return this;
     }
 }

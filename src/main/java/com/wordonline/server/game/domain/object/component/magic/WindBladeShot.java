@@ -52,7 +52,7 @@ public class WindBladeShot extends Shot {
 
         otherObject.setStatus(Status.Damaged);
 
-        AttackInfo attackInfo = new AttackInfo(currentDamage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(currentDamage, gameObject.getElement().total()).withAttacker(gameObject);
         damageables.forEach(damageable -> damageable.onDamaged(attackInfo));
         currentDamage = currentDamage * DAMAGE_DECAY_NUMERATOR / DAMAGE_DECAY_DENOMINATOR;
 

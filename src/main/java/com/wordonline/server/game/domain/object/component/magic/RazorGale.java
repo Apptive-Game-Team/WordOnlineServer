@@ -21,7 +21,7 @@ public class RazorGale extends MagicComponent {
         super(gameObject);
         this.radius = radius;
         this.attackInterval = attackInterval;
-        this.attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        this.attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         this.counter = 0f;
     }
 

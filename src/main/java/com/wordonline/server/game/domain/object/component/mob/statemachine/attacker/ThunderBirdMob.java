@@ -90,7 +90,7 @@ public class ThunderBirdMob extends BehaviorMob {
                 return;
             }
 
-            target.onDamaged(new AttackInfo(calculateDamage(startPos), gameObject.getElement().total()));
+            target.onDamaged(new AttackInfo(calculateDamage(startPos), gameObject.getElement().total()).withAttacker(gameObject));
             setState(new FloatingState());
         }
     }
