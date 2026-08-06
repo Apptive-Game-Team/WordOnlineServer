@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.deck.service.DeckService;
@@ -54,6 +55,7 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
+    @Transactional
     public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
         if (builder == null) {

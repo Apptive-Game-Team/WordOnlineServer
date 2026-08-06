@@ -21,7 +21,7 @@ public class RockDeathRemnant extends Component implements CombatDeathListener {
         consumed = true;
         new GameObject(
                 gameObject.getMaster(),
-                PrefabType.MiniRock,
+                PrefabType.RockRemnant,
                 new Vector3(gameObject.getPosition()),
                 getGameContext()
         );

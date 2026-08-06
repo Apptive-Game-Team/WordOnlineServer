@@ -14,6 +14,11 @@ public abstract class Component {
         return gameObject.getGameContext();
     }
 
+    // components of a dying game object are frozen unless they opt in here
+    public boolean isActiveWhileDying() {
+        return false;
+    }
+
     public abstract void start();
     public abstract void update();
     public abstract void onDestroy();

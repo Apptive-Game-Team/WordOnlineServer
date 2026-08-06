@@ -2,10 +2,12 @@ package com.wordonline.server.statistic.service;
 
 import com.wordonline.server.deck.service.DeckService;
 import com.wordonline.server.game.domain.SessionType;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
 import com.wordonline.server.statistic.repository.StatisticRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -24,5 +26,14 @@ class StatisticServiceTest {
 
         assertThat(service.gameResultBuilderMap).isEmpty();
         verifyNoInteractions(repository);
+    }
+
+    @Test
+    void saveGameResultIsTransactionalSoStatisticInsertsCommitTogether() throws Exception {
+        Transactional annotation = StatisticService.class
+                .getDeclaredMethod("saveGameResult", GameContext.class, Master.class, SessionType.class)
+                .getAnnotation(Transactional.class);
+
+        assertThat(annotation).isNotNull();
     }
 }

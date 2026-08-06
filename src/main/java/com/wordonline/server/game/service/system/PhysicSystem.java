@@ -45,18 +45,23 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         for (int i = 0; i < gameObjects.size(); i++) {
             GameObject a = gameObjects.get(i);
             List<Collidable> collidableAList = a.getComponents(Collidable.class);
-            if (collidableAList.isEmpty() || a.isDestroyed()) continue;
+            if (collidableAList.isEmpty() || !isCollidable(a)) continue;
 
             for (int j = i + 1; j < gameObjects.size(); j++) {
                 GameObject b = gameObjects.get(j);
                 List<Collidable> collidableBList = b.getComponents(Collidable.class);
-                if (collidableBList.isEmpty() || a.isDestroyed()) continue;
+                if (collidableBList.isEmpty() || !isCollidable(b)) continue;
 
                 if (CollisionChecker.isColliding(a, b)) {
                     collidedPairs.add(new Pair<>(a, b));
                 }
             }
         }
+    }
+
+    // a dying object only falls down, it neither pushes nor gets hit by anything
+    private boolean isCollidable(GameObject gameObject) {
+        return !gameObject.isDestroyed() && !gameObject.isDying();
     }
 
     private void applyCollisionsResponses() {

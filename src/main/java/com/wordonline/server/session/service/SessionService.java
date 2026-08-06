@@ -81,6 +81,7 @@ public class SessionService {
 
     private void onLoopTerminated(SessionObject sessionObject) {
         sessions.remove(sessionObject.getSessionId());
+        sessionObject.getPingChecker().close();
         submitSessionNumChange();
 
         GameContext gameContext = sessionObject.getGameContext();
