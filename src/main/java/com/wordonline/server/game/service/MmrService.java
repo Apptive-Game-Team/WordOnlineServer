@@ -40,7 +40,7 @@ public class MmrService {
         return new RatingRef(participantId, participantId, participantId < 0, rating);
     }
 
-    ResultMmrDto updateMatchResult(long userIdA, long userIdB, ResultType outcomeA) {
+    public ResultMmrDto updateMatchResult(long userIdA, long userIdB, ResultType outcomeA) {
         RatingRef ratingRefA = resolveRatingRef(userIdA);
         RatingRef ratingRefB = resolveRatingRef(userIdB);
         short ratingA = ratingRefA.rating();
