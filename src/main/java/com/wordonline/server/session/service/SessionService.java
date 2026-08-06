@@ -69,6 +69,7 @@ public class SessionService {
         thread.start();
 
         sessions.put(sessionObject.getSessionId(), sessionObject);
+        submitSessionNumChange();
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 

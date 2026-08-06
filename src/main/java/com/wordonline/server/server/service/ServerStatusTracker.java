@@ -8,6 +8,7 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.server.entity.ServerState;
@@ -36,6 +37,7 @@ public class ServerStatusTracker {
         @Override
         public void onNext(Integer item) {
             subscription.request(1);
+            publishHeartbeat(item);
             if (item == 0) {
                 onSessionZero();
             }
@@ -65,10 +67,24 @@ public class ServerStatusTracker {
     public void onStart() {
         serverStatusService.setServerStatus(ServerState.ACTIVE);
         sessionService.subscribeSessionNumChange(onSessionNumChange);
+        publishHeartbeat((int) sessionService.getActiveSessions());
+    }
+
+    @Scheduled(fixedDelayString = "${server.heartbeat-interval-ms:10000}")
+    public void heartbeat() {
+        publishHeartbeat((int) sessionService.getActiveSessions());
     }
 
     @PreDestroy
     public void onDestroy() {
         serverStatusService.setServerStatus(ServerState.INACTIVE);
+    }
+
+    private void publishHeartbeat(int sessionCount) {
+        try {
+            serverStatusService.publishHeartbeat(sessionCount);
+        } catch (RuntimeException exception) {
+            log.error("[Server State] Failed to publish heartbeat; sessionCount: {}", sessionCount, exception);
+        }
     }
 }

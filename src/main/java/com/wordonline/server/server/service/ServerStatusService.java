@@ -1,5 +1,7 @@
 package com.wordonline.server.server.service;
 
+import java.time.Instant;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +28,30 @@ public class ServerStatusService {
     @Value("${server.protocol}")
     private String protocol;
 
-    @Getter
-    private ServerState currentState = ServerState.ACTIVE;
+    @Value("${server.max-sessions:100}")
+    private Integer maxSessions;
 
-    public void setServerStatus(ServerState state) {
+    @Getter
+    private volatile ServerState currentState = ServerState.ACTIVE;
+
+    public synchronized void setServerStatus(ServerState state) {
+        publishStatus(state, state == ServerState.INACTIVE ? 0 : null);
+    }
+
+    public synchronized void publishHeartbeat(int sessionCount) {
+        publishStatus(currentState, sessionCount);
+    }
+
+    private void publishStatus(ServerState state, Integer sessionCount) {
         currentState = state;
         Server server = serverRepository.findByDomainAndPort(domain, port)
                 .orElseGet(() -> new Server(protocol, domain, port, ServerType.GAME, state));
         server.setState(state);
+        server.setLastHeartbeatAt(Instant.now());
+        if (sessionCount != null) {
+            server.setSessionCount(sessionCount);
+        }
+        server.setMaxSessions(maxSessions);
         serverRepository.save(server);
     }
 }

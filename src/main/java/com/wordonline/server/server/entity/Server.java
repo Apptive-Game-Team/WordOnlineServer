@@ -1,5 +1,8 @@
 package com.wordonline.server.server.entity;
 
+import java.time.Instant;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,12 +38,23 @@ public class Server {
     @Enumerated(EnumType.STRING)
     private ServerState state;
 
+    @Setter
+    @Column(name = "last_heartbeat_at")
+    private Instant lastHeartbeatAt;
+
+    @Setter
+    @Column(name = "session_count", nullable = false)
+    private Integer sessionCount;
+
+    @Setter
+    @Column(name = "max_sessions", nullable = false)
+    private Integer maxSessions;
+
     public String getUrl() {
         return String.format("%s://%s:%d", protocol, domain, port);
     }
 
     public Server(String protocol, String domain, int port, ServerType serverType, ServerState state) {
-        this(null, protocol, domain, port, serverType, state);
+        this(null, protocol, domain, port, serverType, state, null, 0, 100);
     }
 }
-
