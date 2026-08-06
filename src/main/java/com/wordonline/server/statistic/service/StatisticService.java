@@ -15,6 +15,7 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
+import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.repository.StatisticRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,11 @@ public class StatisticService {
         if (builder == null) {
             return;
         }
-        statisticRepository.saveGameResultDto(builder.build(loser, sessionType));
+        GameResultDto gameResultDto = builder.build(loser, sessionType);
+        if (gameResultDto == null) {
+            return;
+        }
+        statisticRepository.saveGameResultDto(gameResultDto);
     }
 
     public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
