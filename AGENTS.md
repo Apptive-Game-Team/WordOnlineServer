@@ -14,12 +14,36 @@ For cross-repo context, see [related-repositories.md](air-file://g9ubn80st39rtru
 ## Coding Style & Naming Conventions
 Use 4-space indentation and keep files in standard Java package layout. Follow existing naming patterns: `*Controller`, `*Service`, `*Repository`, `*Dto`, `*PrefabInitializer`, and `*System`. Classes use `PascalCase`, methods and fields use `camelCase`, and constants use `UPPER_SNAKE_CASE`. Prefer the helper methods already present on domain objects, such as `addComponent(...)` and `addCollider(...)`, instead of mutating internal lists directly. Lombok is used widely; keep annotations consistent with surrounding code.
 
+### Configuration values
+
+Do not inject individual settings with `@Value`. Group related settings into one `@ConfigurationProperties` class and constructor-inject that object, so the values are type-safe, discoverable in one place, and injectable into tests without reflection.
+
+```java
+@ConfigurationProperties(prefix = "server")
+public record ServerIdentityProperties(String protocol, String domain, Integer externalPort) {}
+```
+
+Register properties classes with `@ConfigurationPropertiesScan` on the application class. Define each default in one place. Annotation arguments that require a string literal, such as `@Scheduled(fixedDelayString = "${...}")`, are the only exception. Existing `@Value` usage inside the scope you are already changing moves to a properties object; do not bulk-refactor beyond that scope.
+
 ## Testing Guidelines
 The project uses `spring-boot-starter-test`, JUnit Platform, Spring Security test support, Awaitility, and H2 for test data. Put unit and integration tests in `src/test/java`, and name them `*Test` or `*IntegrationTest`. Reuse `src/test/resources/application.yml`, `schema-h2.sql`, and `data-h2.sql` for database-backed tests. Run `./gradlew test` before opening a PR.
 
 ## Commit & Pull Request Guidelines
 Match the recent commit style: short imperative subjects with an optional scope, for example `refactor(component): use addComponent helper` or `feature(deactivebot)`. Keep commits focused on one concern. PRs should include a clear summary, linked issue or task, test notes, and any API or gameplay impact. For protocol, DTO, or debug-visual changes, include sample payloads or screenshots when helpful.
 Name issue branches with the pattern `<issue-label>/<issue-number>`, for example `feature/253`.
+
+Every issue and pull request must set an assignee and a label. Do not leave either blank.
+
+- Assignee: `--assignee @me`.
+- Label: use the same value as the branch prefix, so branch `feature/253` carries label `feature`. Check the available labels with `gh label list`; this repo has `feature`, `fix`, `refactor`, `documentation`, and `bug`. Do not invent new labels — ask when none of them fit.
+- Do not attach a project.
+
+```bash
+gh issue create --title "..." --body "..." --assignee @me --label feature
+gh pr create --base <base> --title "..." --body "..." --assignee @me --label feature
+```
+
+Confirm both landed with `gh issue view <n> --json assignees,labels` after creating.
 
 ## Configuration & Cleanup
 Do not commit secrets from `.env` or environment-specific values from `application.yml`. Keep generated files and local artifacts out of git; remove stray files such as `.DS_Store` before committing.
