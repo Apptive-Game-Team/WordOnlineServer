@@ -106,17 +106,26 @@ public class SessionService {
     }
 
     public boolean isSessionActive(String sessionId) {
-        SessionObject session = sessions.get(sessionId);
-        return session != null && session.getGameLoop() != null && session.getGameLoop().is_running();
+        SessionObject sessionObject = sessions.get(sessionId);
+        return sessionObject != null
+                && sessionObject.getGameLoop() != null
+                && sessionObject.getGameLoop().is_running();
     }
 
     private void onLoopTerminated(SessionObject sessionObject) {
         sessions.remove(sessionObject.getSessionId());
+        sessionObject.getPingChecker().close();
         submitSessionNumChange();
 
         GameContext gameContext = sessionObject.getGameContext();
         ResultChecker resultChecker = gameContext.getResultChecker();
         Master loser = resultChecker.getLoser();
+
+        try {
+            statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
+        } catch (Exception e) {
+            log.warn("[Session] Failed to save game statistics; sessionId: {}", sessionObject.getSessionId(), e);
+        }
 
         if (loser == null) {
             log.info("[Session] Session ended with no winner; sessionId: {}", sessionObject.getSessionId());
@@ -124,8 +133,6 @@ public class SessionService {
         }
 
         long winnerId = resultChecker.getWinnerId();
-
-        statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
 
         if (!sessionObject.getSessionId().contains("debug")) {
             if (sessionObject.getSessionType() == SessionType.PVE && loser == Master.RightPlayer) {

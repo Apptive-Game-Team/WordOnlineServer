@@ -4,7 +4,6 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -62,13 +61,9 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
 
     @Override
     protected void expire() {
-        Mob mob = gameObject.getComponent(Mob.class);
-        if (mob != null) {
-            mob.getSpeed().setModifierPercent(0f);
-            ZPhysics zP = gameObject.getComponent(ZPhysics.class);
-            if(zP != null) {
-                zP.addImpulseZ(-KNOCKBACK_POWER_Z * proximity);
-            }
+        ZPhysics zP = gameObject.getComponent(ZPhysics.class);
+        if(zP != null) {
+            zP.addImpulseZ(-KNOCKBACK_POWER_Z * proximity);
         }
         super.expire();
     }

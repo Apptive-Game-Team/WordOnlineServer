@@ -6,6 +6,20 @@ server:
   heartbeat-interval-ms: ${HEARTBEAT_INTERVAL_MS:10000}
   max-sessions: ${MAX_SESSIONS:100}
 
+# Metrics run on their own port so the public app port never serves /actuator.
+# Health and Prometheus endpoints allow unauthenticated scrapes.
+# MANAGEMENT_PORT must stay reachable only from the Prometheus host.
+management:
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
 spring:
   application:
     name: word-online-server

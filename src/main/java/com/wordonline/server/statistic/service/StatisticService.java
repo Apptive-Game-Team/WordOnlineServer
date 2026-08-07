@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.deck.service.DeckService;
@@ -14,6 +15,7 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.GameResultBuilder;
+import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.repository.StatisticRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -53,12 +55,17 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
+    @Transactional
     public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
         if (builder == null) {
             return;
         }
-        statisticRepository.saveGameResultDto(builder.build(loser, sessionType));
+        GameResultDto gameResultDto = builder.build(loser, sessionType);
+        if (gameResultDto == null) {
+            return;
+        }
+        statisticRepository.saveGameResultDto(gameResultDto);
     }
 
     public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
