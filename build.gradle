@@ -55,6 +55,10 @@ dependencies {
 
     //Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Metrics
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {

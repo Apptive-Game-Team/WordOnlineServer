@@ -15,11 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PingChecker {
 
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private static final Map<Long, ScheduledFuture<?>> pingTasks = new ConcurrentHashMap<>();
-    private static final Set<Long> nonPingUsers = ConcurrentHashMap.newKeySet();
     private static final int FIRST_PING_TIMEOUT_THRESHOLD = 30;
     private static final int PING_TIMEOUT_THRESHOLD = 10;
 
+    private final Map<Long, ScheduledFuture<?>> pingTasks = new ConcurrentHashMap<>();
+    private final Set<Long> nonPingUsers = ConcurrentHashMap.newKeySet();
     private final Consumer<Long> onNonPing;
     private final Consumer<Long> onPing;
 
@@ -60,5 +60,12 @@ public class PingChecker {
 
         pingTasks.put(userId, task);
 
+    }
+
+    // cancels every pending timeout owned by this session so they cannot outlive the match
+    public void close() {
+        pingTasks.values().forEach(task -> task.cancel(false));
+        pingTasks.clear();
+        nonPingUsers.clear();
     }
 }
