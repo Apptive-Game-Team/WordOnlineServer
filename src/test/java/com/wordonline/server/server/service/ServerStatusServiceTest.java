@@ -13,8 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
-
+import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.Server;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.entity.ServerType;
@@ -30,11 +29,9 @@ class ServerStatusServiceTest {
 
     @BeforeEach
     void setUp() {
-        serverStatusService = new ServerStatusService(serverRepository);
-        ReflectionTestUtils.setField(serverStatusService, "port", 7777);
-        ReflectionTestUtils.setField(serverStatusService, "domain", "game.example.com");
-        ReflectionTestUtils.setField(serverStatusService, "protocol", "https");
-        ReflectionTestUtils.setField(serverStatusService, "maxSessions", 64);
+        serverStatusService = new ServerStatusService(
+                serverRepository,
+                new ServerIdentityProperties("https", "game.example.com", 7777, 64));
     }
 
     @Test

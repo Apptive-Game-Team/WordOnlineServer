@@ -70,7 +70,7 @@ public class ServerStatusTracker {
         publishHeartbeat((int) sessionService.getActiveSessions());
     }
 
-    @Scheduled(fixedDelayString = "${server.heartbeat-interval-ms:10000}")
+    @Scheduled(fixedDelayString = "${server.heartbeat-interval-ms}")
     public void heartbeat() {
         publishHeartbeat((int) sessionService.getActiveSessions());
     }

@@ -2,9 +2,9 @@ package com.wordonline.server.server.service;
 
 import java.time.Instant;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.Server;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.entity.ServerType;
@@ -18,18 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class ServerStatusService {
 
     private final ServerRepository serverRepository;
-
-    @Value("${server.external-port}")
-    private Integer port;
-
-    @Value("${server.domain}")
-    private String domain;
-
-    @Value("${server.protocol}")
-    private String protocol;
-
-    @Value("${server.max-sessions:100}")
-    private Integer maxSessions;
+    private final ServerIdentityProperties serverIdentityProperties;
 
     @Getter
     private volatile ServerState currentState = ServerState.ACTIVE;
@@ -44,6 +33,10 @@ public class ServerStatusService {
 
     private void publishStatus(ServerState state, Integer sessionCount) {
         currentState = state;
+        String protocol = serverIdentityProperties.protocol();
+        String domain = serverIdentityProperties.domain();
+        Integer port = serverIdentityProperties.externalPort();
+
         Server server = serverRepository.findByDomainAndPort(domain, port)
                 .orElseGet(() -> new Server(protocol, domain, port, ServerType.GAME, state));
         server.setState(state);
@@ -51,7 +44,7 @@ public class ServerStatusService {
         if (sessionCount != null) {
             server.setSessionCount(sessionCount);
         }
-        server.setMaxSessions(maxSessions);
+        server.setMaxSessions(serverIdentityProperties.maxSessions());
         serverRepository.save(server);
     }
 }
