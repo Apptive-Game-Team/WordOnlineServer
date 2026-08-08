@@ -22,20 +22,24 @@ public class ParameterService {
     }
 
     public double getValue(String gameObject, String parameterName) {
+        return findValue(gameObject, parameterName)
+                .orElseThrow(() -> new IllegalArgumentException("Parameter not found: " + gameObject + ", " + parameterName));
+    }
 
+    public double getValueOrDefault(String gameObject, String parameterName, double defaultValue) {
+        return findValue(gameObject, parameterName).orElse(defaultValue);
+    }
+
+    private java.util.Optional<Double> findValue(String gameObject, String parameterName) {
         Map<String, Double> objectParameters = parameterCaches.get(gameObject);
         if (objectParameters != null && objectParameters.containsKey(parameterName)) {
-            return objectParameters.get(parameterName);
+            return java.util.Optional.of(objectParameters.get(parameterName));
         }
 
-
-        Double valueFromDb = parameterRepository.getParameterValue(gameObject, parameterName)
-                .orElseThrow(() -> new IllegalArgumentException("Parameter not found: " + gameObject + ", " + parameterName));
-
-
-        parameterCaches
+        var valueFromDb = parameterRepository.getParameterValue(gameObject, parameterName);
+        valueFromDb.ifPresent(value -> parameterCaches
                 .computeIfAbsent(gameObject, k -> new ConcurrentHashMap<>())
-                .put(parameterName, valueFromDb);
+                .put(parameterName, value));
         return valueFromDb;
     }
 }
