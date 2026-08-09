@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.BehaviorMob;
+import com.wordonline.server.game.domain.object.component.physic.ForcedMovement;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Effect;
@@ -16,6 +17,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     private static final float PROX_MIN           = 0.2f;
     private final Vector3 knockbackDir;
     private final float proximity;
+    private final float massMultiplier;
 
     // 누적 이동 거리
     private float moved = 0f;
@@ -24,12 +26,13 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
         super(owner, KNOCKBACK_DURATION, key, Effect.Knockback);
         this.knockbackDir = dir;
         this.proximity = Math.max(prox, PROX_MIN);
+        this.massMultiplier = ForcedMovement.massMultiplier(owner);
     }
 
     @Override
     public void start() {
         ZPhysics zP = gameObject.getComponent(ZPhysics.class);
-        if(zP != null) zP.addImpulseZ(KNOCKBACK_POWER_Z * proximity);
+        if(zP != null) zP.addImpulseZ(KNOCKBACK_POWER_Z * proximity * massMultiplier);
 
         BehaviorMob behavior = gameObject.getComponent(BehaviorMob.class);
         if (behavior != null) behavior.setStun(KNOCKBACK_DURATION);
@@ -39,7 +42,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     public void update() {
         float dt = getGameContext().getDeltaTime();
         float speed = KNOCKBACK_POWER / KNOCKBACK_DURATION;
-        float step  = speed * dt;
+        float step = speed * dt;
 
         float remain = KNOCKBACK_POWER - moved;
         if (step > remain) step = remain;
@@ -51,7 +54,8 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
         RigidBody rb = gameObject.getComponent(RigidBody.class);
         if(rb != null)
         {
-            rb.addVelocity(knockbackDir.multiply(step).multiply(proximity));
+            float velocity = step / dt;
+            rb.addVelocity(knockbackDir.multiply(velocity * proximity * massMultiplier));
         }
         moved += step;
     }
@@ -63,7 +67,7 @@ public class KnockbackStatusEffect extends BaseStatusEffect {
     protected void expire() {
         ZPhysics zP = gameObject.getComponent(ZPhysics.class);
         if(zP != null) {
-            zP.addImpulseZ(-KNOCKBACK_POWER_Z * proximity);
+            zP.addImpulseZ(-KNOCKBACK_POWER_Z * proximity * massMultiplier);
         }
         super.expire();
     }

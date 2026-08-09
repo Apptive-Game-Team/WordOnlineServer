@@ -5,14 +5,17 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
-import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.component.physic.TimedMassPush;
 import com.wordonline.server.game.dto.Master;
 
 import java.util.List;
 
 public class WindPushComponent extends Component {
+    private static final float PUSH_INTERVAL = 0.5f;
+
     private final float pushForce;
     private final Vector3 boxSize;
+    private float pushTimer;
 
 
     public WindPushComponent(GameObject gameObject, float pushForce, Vector3 boxSize) {
@@ -31,6 +34,10 @@ public class WindPushComponent extends Component {
 
     @Override
     public void update() {
+        pushTimer -= getGameContext().getDeltaTime();
+        if (pushTimer > 0f) return;
+        pushTimer = PUSH_INTERVAL;
+
         Master master = gameObject.getMaster();
         if (master == Master.None) return;
 
@@ -45,15 +52,15 @@ public class WindPushComponent extends Component {
         
         for (GameObject target : targets) {
             if (target == gameObject) continue;
+            if (target.isDestroyed() || target.getMaster() == master) continue;
             
             if (!target.hasComponent(Mob.class)) {
                 continue;
             }
 
-            RigidBody rb = target.getComponent(RigidBody.class);
-            if (rb != null) {
-                rb.addVelocity(direction.multiply(pushForce));
-            }
+            // Keep the push alive through the tick in which the next 0.5-second refresh occurs.
+            float pushDuration = PUSH_INTERVAL + getGameContext().getDeltaTime();
+            TimedMassPush.apply(target, gameObject, direction, pushForce, pushDuration);
         }
     }
 
