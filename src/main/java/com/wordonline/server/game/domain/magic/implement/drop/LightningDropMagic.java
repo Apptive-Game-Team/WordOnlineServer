@@ -8,7 +8,7 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 public class LightningDropMagic extends AbstractDropMagic {
 
     public LightningDropMagic() {
-        super(PrefabType.LightningDrop);
+        super(PrefabType.LightningCloud);
     }
 }
 
