@@ -85,7 +85,7 @@ public class Leafair extends Drop {
 
         target.setStatus(Status.Damaged);
 
-        AttackInfo attackInfo = new AttackInfo(getDamage(), gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(getDamage(), gameObject.getElement().total()).withAttacker(gameObject);
         damageables.forEach(damageable -> damageable.onDamaged(attackInfo));
 
         EffectReceiver effectReceiver = target.getComponent(EffectReceiver.class);

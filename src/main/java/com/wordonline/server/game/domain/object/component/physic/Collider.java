@@ -7,7 +7,6 @@ import com.wordonline.server.game.domain.object.Vector3;
 import lombok.Getter;
 
 public abstract class Collider implements Colliderable {
-    protected final RigidBody rigidBody;
     protected final GameObject gameObject;
     @Getter
     protected final boolean isTrigger;
@@ -19,7 +18,10 @@ public abstract class Collider implements Colliderable {
         return gameObject.getPosition();
     }
 
+    // RigidBody is resolved lazily: prefabs may register it through the deferred
+    // addComponent queue after this collider is constructed
     public float getInvMass() {
+        RigidBody rigidBody = gameObject.getComponent(RigidBody.class);
         if (rigidBody == null) {
             return 0;
         }
@@ -27,6 +29,7 @@ public abstract class Collider implements Colliderable {
     }
 
     public Vector3 getVelocity() {
+        RigidBody rigidBody = gameObject.getComponent(RigidBody.class);
         if (rigidBody == null) {
             return Vector3.ZERO;
         }
@@ -34,7 +37,6 @@ public abstract class Collider implements Colliderable {
     }
 
     protected Collider(GameObject gameObject, boolean isTrigger) {
-        rigidBody = gameObject.getComponent(RigidBody.class);
         this.isTrigger = isTrigger;
         this.gameObject = gameObject;
     }

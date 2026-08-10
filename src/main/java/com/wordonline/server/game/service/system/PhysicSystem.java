@@ -3,6 +3,7 @@ package com.wordonline.server.game.service.system;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
+import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
@@ -45,18 +46,23 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
         for (int i = 0; i < gameObjects.size(); i++) {
             GameObject a = gameObjects.get(i);
             List<Collidable> collidableAList = a.getComponents(Collidable.class);
-            if (collidableAList.isEmpty() || a.isDestroyed()) continue;
+            if (collidableAList.isEmpty() || !isCollidable(a)) continue;
 
             for (int j = i + 1; j < gameObjects.size(); j++) {
                 GameObject b = gameObjects.get(j);
                 List<Collidable> collidableBList = b.getComponents(Collidable.class);
-                if (collidableBList.isEmpty() || a.isDestroyed()) continue;
+                if (collidableBList.isEmpty() || !isCollidable(b)) continue;
 
                 if (CollisionChecker.isColliding(a, b)) {
                     collidedPairs.add(new Pair<>(a, b));
                 }
             }
         }
+    }
+
+    // a dying object only falls down, it neither pushes nor gets hit by anything
+    private boolean isCollidable(GameObject gameObject) {
+        return !gameObject.isDestroyed() && !gameObject.isDying();
     }
 
     private void applyCollisionsResponses() {
@@ -72,6 +78,10 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                             colliderA -> {
                                 gameObjectPair.b().getColliders().stream().filter(Collider::isNotTrigger).forEach(
                                     colliderB -> {
+
+                                        if (!colliderA.isCollidingWish(colliderB)) {
+                                            return;
+                                        }
 
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
@@ -95,7 +105,12 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
 
                                         float impulseMag = - (1 + restitution) * separatingVelocity /
                                               totalInvMass;
-                                        impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
+                                        // Dynamic bodies keep the existing capped response so crowds do not
+                                        // explode apart. Map edges are immovable walls, however, and need the
+                                        // full impulse to cancel fast movement such as a coward's panic flee.
+                                        if (!(colliderA instanceof EdgeCollider || colliderB instanceof EdgeCollider)) {
+                                            impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
+                                        }
 
                                         Vector3 impulse = normal.multiply(impulseMag);
                                         if (invMassA > 0) {

@@ -13,6 +13,7 @@ public enum Effect {
     Panic,
     Bubble,
     Inspired,
+    Overcharge,
 
     FireIdleAura,
     FireAttackAura,

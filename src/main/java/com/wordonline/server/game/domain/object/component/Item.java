@@ -16,6 +16,10 @@ public class Item extends Component {
         super(gameObject);
     }
 
+    public GameObject getParent() {
+        return parent;
+    }
+
     @Override
     public void start() { }
 

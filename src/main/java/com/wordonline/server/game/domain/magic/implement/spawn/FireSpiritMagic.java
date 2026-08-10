@@ -1,11 +1,13 @@
 package com.wordonline.server.game.domain.magic.implement.spawn;
 
+import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import org.springframework.stereotype.Component;
 
 @Component("fire_spirit")
-public class FireSpiritMagic extends AbstractSingleSpawnMagic {
-    public FireSpiritMagic() {
-        super(PrefabType.FireSpirit);
+public class FireSpiritMagic extends AbstractSpawnMagic {
+    public FireSpiritMagic(Parameters parameters) {
+        super(PrefabType.FireSpirit, parameters.object(GameObjectKey.FIRE_SPIRIT));
     }
 }

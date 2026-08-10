@@ -28,7 +28,7 @@ public class Turret extends TimedBehaviorMob {
     public Turret(GameObject gameObject, int maxHp, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
         super(gameObject, maxHp, 0, attackInterval, null);
         setBehavior(behavior);
-        attackInfo = new AttackInfo(damage, ElementType.ROCK);
+        attackInfo = new AttackInfo(damage, ElementType.ROCK).withAttacker(gameObject);
         this.targetMask = targetMask;
         this.attackDuration = attackDuration;
         this.attackRange = attackRange;

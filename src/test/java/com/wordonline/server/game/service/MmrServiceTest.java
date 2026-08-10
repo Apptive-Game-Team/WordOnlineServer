@@ -4,6 +4,7 @@ import com.wordonline.server.auth.repository.UserRepository;
 import com.wordonline.server.game.dto.result.ResultType;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Modifier;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,5 +38,14 @@ class MmrServiceTest {
 
         verify(userRepository, never()).setMmr(org.mockito.ArgumentMatchers.eq(10L), org.mockito.ArgumentMatchers.anyShort());
         verify(userRepository).setMmr(org.mockito.ArgumentMatchers.eq(-7L), org.mockito.ArgumentMatchers.anyShort());
+    }
+
+    @Test
+    void updateMatchResultIsPublicSoClassTransactionalApplies() throws Exception {
+        int modifiers = MmrService.class
+                .getDeclaredMethod("updateMatchResult", long.class, long.class, ResultType.class)
+                .getModifiers();
+
+        assertThat(Modifier.isPublic(modifiers)).isTrue();
     }
 }

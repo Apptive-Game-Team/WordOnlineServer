@@ -20,6 +20,10 @@ public class GameObjectParameters {
         return (int) doubleValue(parameterKey);
     }
 
+    public int intValueOrDefault(ParameterKey parameterKey, int defaultValue) {
+        return (int) parameters.getValueOrDefault(gameObjectKey, parameterKey, defaultValue);
+    }
+
     public long longValue(ParameterKey parameterKey) {
         return (long) doubleValue(parameterKey);
     }

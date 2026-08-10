@@ -8,6 +8,7 @@ import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.game.service.UserService;
 import com.wordonline.server.game.service.UserScenarioService;
+import com.wordonline.server.lobby.client.LobbySessionClient;
 import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
@@ -29,6 +30,7 @@ public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
+    private static final Map<String, String> sessionIdsByAttemptId = new ConcurrentHashMap<>();
 
     private final SubmissionPublisher<Integer> onSessionNumChange = new SubmissionPublisher<>();
 
@@ -37,17 +39,20 @@ public class SessionService {
     private final StatisticService statisticService;
     private final UserService userService;
     private final UserScenarioService userScenarioService;
+    private final LobbySessionClient lobbySessionClient;
 
     public SessionService(SessionObjectFactory sessionObjectFactory,
                           GameLoopFactory gameLoopFactory,
                           StatisticService statisticService,
                           UserService userService,
-                          UserScenarioService userScenarioService) {
+                          UserScenarioService userScenarioService,
+                          LobbySessionClient lobbySessionClient) {
         this.sessionObjectFactory = sessionObjectFactory;
         this.gameLoopFactory = gameLoopFactory;
         this.statisticService = statisticService;
         this.userService = userService;
         this.userScenarioService = userScenarioService;
+        this.lobbySessionClient = lobbySessionClient;
     }
 
     public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
@@ -55,6 +60,33 @@ public class SessionService {
     }
 
     public void createSession(SessionDto sessionDto) {
+        createSessionObject(sessionDto);
+    }
+
+    public synchronized SessionCreationResult createSession(String attemptId, SessionDto sessionDto) {
+        if (attemptId == null || attemptId.isBlank()) {
+            throw new IllegalArgumentException("attemptId must not be blank");
+        }
+
+        String existingSessionId = sessionIdsByAttemptId.get(attemptId);
+        if (existingSessionId != null) {
+            if (!existingSessionId.equals(sessionDto.sessionId())) {
+                throw new IllegalArgumentException("attemptId is already associated with another session");
+            }
+            return new SessionCreationResult(attemptId, existingSessionId, isSessionActive(existingSessionId));
+        }
+
+        SessionObject existingSession = sessions.get(sessionDto.sessionId());
+        if (existingSession != null) {
+            throw new IllegalArgumentException("sessionId already exists");
+        }
+
+        createSessionObject(sessionDto);
+        sessionIdsByAttemptId.put(attemptId, sessionDto.sessionId());
+        return new SessionCreationResult(attemptId, sessionDto.sessionId(), isSessionActive(sessionDto.sessionId()));
+    }
+
+    private void createSessionObject(SessionDto sessionDto) {
         SessionObject sessionObject = sessionObjectFactory.createSessionObject(sessionDto);
         GameLoop loop = gameLoopFactory.create(sessionObject.getSessionType());
 
@@ -65,24 +97,41 @@ public class SessionService {
             statisticService.createBuilder(loop.getGameContext());
         }
 
-        Thread thread = new Thread(loop);
-        thread.start();
-
         sessions.put(sessionObject.getSessionId(), sessionObject);
+        Thread thread = new Thread(loop);
+        try {
+            thread.start();
+        } catch (RuntimeException | Error exception) {
+            sessions.remove(sessionObject.getSessionId(), sessionObject);
+            throw exception;
+        }
+        submitSessionNumChange();
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 
     public boolean isSessionActive(String sessionId) {
-        return sessions.get(sessionId).getGameLoop().is_running();
+        SessionObject sessionObject = sessions.get(sessionId);
+        return sessionObject != null
+                && sessionObject.getGameLoop() != null
+                && sessionObject.getGameLoop().is_running();
     }
 
     private void onLoopTerminated(SessionObject sessionObject) {
         sessions.remove(sessionObject.getSessionId());
+        sessionObject.getPingChecker().close();
         submitSessionNumChange();
 
         GameContext gameContext = sessionObject.getGameContext();
         ResultChecker resultChecker = gameContext.getResultChecker();
         Master loser = resultChecker.getLoser();
+
+        try {
+            statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
+        } catch (Exception e) {
+            log.warn("[Session] Failed to save game statistics; sessionId: {}", sessionObject.getSessionId(), e);
+        }
+
+        notifyLobbySessionEnded(sessionObject);
 
         if (loser == null) {
             log.info("[Session] Session ended with no winner; sessionId: {}", sessionObject.getSessionId());
@@ -90,8 +139,6 @@ public class SessionService {
         }
 
         long winnerId = resultChecker.getWinnerId();
-
-        statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
 
         if (!sessionObject.getSessionId().contains("debug")) {
             if (sessionObject.getSessionType() == SessionType.PVE && loser == Master.RightPlayer) {
@@ -103,6 +150,22 @@ public class SessionService {
         }
 
         log.info("[Session] Session removed; sessionId: {}", sessionObject.getSessionId());
+    }
+
+    // The lobby's match ticket lives in Redis and stays MATCHED until it hears the session ended,
+    // which would silently swallow the player's next queue attempt. The lobby reconciler is the
+    // safety net, so a failed notification is tolerable here; a failed teardown is not.
+    private void notifyLobbySessionEnded(SessionObject sessionObject) {
+        String sessionId = sessionObject.getSessionId();
+        if (sessionId.contains("debug")) {
+            return;
+        }
+
+        try {
+            lobbySessionClient.notifySessionEnded(sessionId);
+        } catch (Exception e) {
+            log.warn("[Session] Failed to notify the lobby of session end; sessionId: {}", sessionId, e);
+        }
     }
 
     public void submitSessionNumChange() {
@@ -131,6 +194,7 @@ public class SessionService {
 
     public void clearSessions() {
         sessions.clear();
+        sessionIdsByAttemptId.clear();
     }
 
     public List<RoomInfoDto> getAllActiveSessionsInfo(String baseUrl) {

@@ -40,7 +40,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public void handleException(Exception e) {
+    public ResponseEntity<String> handleException(Exception e) {
         log.error("[ERROR] {}", e.getMessage(), e);
+        String message = localizationService.getMessage("error.internal");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(message);
     }
 }

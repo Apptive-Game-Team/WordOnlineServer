@@ -17,8 +17,6 @@ public class Slime extends MeleeAttackMob {
             new GameObject(gameObject, Master.None, PrefabType.FireField);
         } else if (gameObject.getElement().nativeHas(ElementType.WATER)) {
             new GameObject(gameObject, Master.None, PrefabType.WaterField);
-        } else if (gameObject.getElement().nativeHas(ElementType.LIGHTNING)) {
-            new GameObject(gameObject, Master.None, PrefabType.ElectricField);
         } else if (gameObject.getElement().nativeHas(ElementType.NATURE)) {
             new GameObject(gameObject, Master.None, PrefabType.LeafField);
         }
