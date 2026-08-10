@@ -30,6 +30,7 @@ public enum PrefabType {
     ElectricSlime("electric_slime_prefab"),
     ElectricSummon("electric_summon_prefab"),
     ElectricField("electric_field_prefab"),
+    LightningCloud("lightning_cloud_prefab"),
 
     // leaf ========================================================
     VineToss("vine_toss_prefab"),

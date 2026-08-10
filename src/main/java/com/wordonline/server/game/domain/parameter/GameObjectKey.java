@@ -45,6 +45,7 @@ public enum GameObjectKey {
     LEAF_SLIME("leaf_slime"),
     LIFE_TREE("life_tree"),
     LIGHTNING_TADPOLE("lightning_tadpole"),
+    LIGHTNING_CLOUD("lightning_cloud"),
     LIGHTNING_DROP("lightning_drop"),
     MAGMA_EXPLOSION("magma_explosion"),
     MAGMA_FIST("magma_fist"),

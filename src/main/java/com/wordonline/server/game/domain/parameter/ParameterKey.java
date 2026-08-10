@@ -6,6 +6,7 @@ public enum ParameterKey {
     BUFF_DURATION("buff_duration"),
     CHAIN_COUNT("chain_count"),
     CHAIN_DAMAGE("chain_damage"),
+    CHAIN_LIGHTNING_COOLDOWN("chain_lightning_cooldown"),
     CHAIN_RADIUS("chain_radius"),
     DAMAGE("damage"),
     DETECTION_RANGE("detection_range"),

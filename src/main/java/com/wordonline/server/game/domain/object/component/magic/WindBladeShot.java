@@ -2,10 +2,7 @@ package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
-import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
-import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 
@@ -18,13 +15,11 @@ public class WindBladeShot extends Shot {
     private static final int DAMAGE_DECAY_NUMERATOR = 2;
     private static final int DAMAGE_DECAY_DENOMINATOR = 3;
 
-    private final float radius;
     private final Set<Integer> piercedTargetIds = new HashSet<>();
     private int currentDamage;
 
-    public WindBladeShot(GameObject gameObject, int damage, float speed, float radius) {
+    public WindBladeShot(GameObject gameObject, int damage, float speed) {
         super(gameObject, damage, speed);
-        this.radius = radius;
         this.currentDamage = damage;
     }
 
@@ -55,12 +50,5 @@ public class WindBladeShot extends Shot {
         AttackInfo attackInfo = new AttackInfo(currentDamage, gameObject.getElement().total()).withAttacker(gameObject);
         damageables.forEach(damageable -> damageable.onDamaged(attackInfo));
         currentDamage = currentDamage * DAMAGE_DECAY_NUMERATOR / DAMAGE_DECAY_DENOMINATOR;
-
-        EffectReceiver effectReceiver = otherObject.getComponent(EffectReceiver.class);
-        Vector3 shotDirection = getDirection();
-        if (effectReceiver != null && shotDirection != null) {
-            float proximity = (float) (gameObject.getPosition().distance(otherObject.getPosition()) / radius);
-            effectReceiver.onReceive(Effect.Knockback, shotDirection, proximity);
-        }
     }
 }

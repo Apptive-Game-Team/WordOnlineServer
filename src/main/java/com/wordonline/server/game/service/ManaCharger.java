@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Scope("prototype")
 @RequiredArgsConstructor
 public class ManaCharger {
-    public final static float MANA_CHARGE_INTERVAL = 0.2f;
+    public final static float MANA_CHARGE_INTERVAL = 0.25f;
     public final static int DEFAULT_MANA_CHARGE_VALUE = 1;
     public static int MAX_MANA;
 

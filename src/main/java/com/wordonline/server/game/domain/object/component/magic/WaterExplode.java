@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.object.component.magic;
 
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.physic.ForcedMovement;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 
 public class WaterExplode extends Explode {
@@ -20,6 +21,7 @@ public class WaterExplode extends Explode {
         super.handleGameObject(targetObject);
 
         targetObject.getComponentOptional(ZPhysics.class)
-                .ifPresent(zPhysics -> zPhysics.addImpulseZ(zForce));
+                .ifPresent(zPhysics -> zPhysics.addImpulseZ(
+                        zForce * ForcedMovement.massMultiplier(targetObject)));
     }
 }

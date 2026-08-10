@@ -29,8 +29,7 @@ public class WindBladePrefabInitializer extends PrefabInitializer {
         gameObject.setElement(ElementType.WIND);
         gameObject.getComponents().add(new WindBladeShot(gameObject,
                 shootParameters.intValue(ParameterKey.DAMAGE),
-                shootParameters.floatValue(ParameterKey.SPEED),
-                radius
+                shootParameters.floatValue(ParameterKey.SPEED)
         ));
     }
 }

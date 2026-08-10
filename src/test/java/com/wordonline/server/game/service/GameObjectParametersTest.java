@@ -57,4 +57,26 @@ class GameObjectParametersTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Parameter not found: zap_mouse, panic_duration");
     }
+
+    @Test
+    void missingOptionalParameterReturnsDefaultValue() {
+        when(parameterRepository.getParameterValue("zap_mouse", "quantity"))
+                .thenReturn(Optional.empty());
+
+        int quantity = parameters.object(GameObjectKey.ZAP_MOUSE)
+                .intValueOrDefault(ParameterKey.QUANTITY, 1);
+
+        assertThat(quantity).isEqualTo(1);
+    }
+
+    @Test
+    void optionalParameterReturnsConfiguredValue() {
+        when(parameterRepository.getParameterValue("zap_mouse", "quantity"))
+                .thenReturn(Optional.of(2.0));
+
+        int quantity = parameters.object(GameObjectKey.ZAP_MOUSE)
+                .intValueOrDefault(ParameterKey.QUANTITY, 1);
+
+        assertThat(quantity).isEqualTo(2);
+    }
 }

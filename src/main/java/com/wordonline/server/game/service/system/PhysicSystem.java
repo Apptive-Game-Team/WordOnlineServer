@@ -3,6 +3,7 @@ package com.wordonline.server.game.service.system;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.Collider;
+import com.wordonline.server.game.domain.object.component.physic.EdgeCollider;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
@@ -78,6 +79,10 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                 gameObjectPair.b().getColliders().stream().filter(Collider::isNotTrigger).forEach(
                                     colliderB -> {
 
+                                        if (!colliderA.isCollidingWish(colliderB)) {
+                                            return;
+                                        }
+
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
 
@@ -100,7 +105,12 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
 
                                         float impulseMag = - (1 + restitution) * separatingVelocity /
                                               totalInvMass;
-                                        impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
+                                        // Dynamic bodies keep the existing capped response so crowds do not
+                                        // explode apart. Map edges are immovable walls, however, and need the
+                                        // full impulse to cancel fast movement such as a coward's panic flee.
+                                        if (!(colliderA instanceof EdgeCollider || colliderB instanceof EdgeCollider)) {
+                                            impulseMag = Math.clamp(impulseMag, -1.0f, 1.0f);
+                                        }
 
                                         Vector3 impulse = normal.multiply(impulseMag);
                                         if (invMassA > 0) {
