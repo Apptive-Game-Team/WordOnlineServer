@@ -50,11 +50,19 @@ public class Server {
     @Column(name = "max_sessions", nullable = false)
     private Integer maxSessions;
 
+    /**
+     * Boot generation of the process that last wrote this row. Nullable: rows written before
+     * the column existed, and rows written by servers that predate this field, carry no id.
+     */
+    @Setter
+    @Column(name = "instance_id", length = 64)
+    private String instanceId;
+
     public String getUrl() {
         return String.format("%s://%s:%d", protocol, domain, port);
     }
 
     public Server(String protocol, String domain, int port, ServerType serverType, ServerState state) {
-        this(null, protocol, domain, port, serverType, state, null, 0, 100);
+        this(null, protocol, domain, port, serverType, state, null, 0, 100, null);
     }
 }

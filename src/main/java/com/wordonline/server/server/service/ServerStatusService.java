@@ -19,6 +19,7 @@ public class ServerStatusService {
 
     private final ServerRepository serverRepository;
     private final ServerIdentityProperties serverIdentityProperties;
+    private final ServerInstanceIdProvider serverInstanceIdProvider;
 
     @Getter
     private volatile ServerState currentState = ServerState.ACTIVE;
@@ -45,6 +46,9 @@ public class ServerStatusService {
             server.setSessionCount(sessionCount);
         }
         server.setMaxSessions(serverIdentityProperties.maxSessions());
+        // Every write, boot and heartbeat alike, so the row always names the process that is
+        // actually holding the sessions. The lobby reads a stale id as "those sessions are gone".
+        server.setInstanceId(serverInstanceIdProvider.getInstanceId());
         serverRepository.save(server);
     }
 }
