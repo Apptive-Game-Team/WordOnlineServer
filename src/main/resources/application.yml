@@ -44,6 +44,15 @@ team6515:
     account:
       url: ${ACCOUNT_SERVER_URL}
 
+# Outbound calls to the lobby. Without LOBBY_BASE_URL the session-ended notification is
+# skipped and the lobby falls back to its reconciler. The service token is issued elsewhere
+# and mounted as a file; never commit its value.
+lobby:
+  base-url: ${LOBBY_BASE_URL:}
+  service-token-path: ${LOBBY_SERVICE_TOKEN_PATH:}
+  request-timeout: ${LOBBY_REQUEST_TIMEOUT_MS:1000}
+  max-attempts: ${LOBBY_MAX_ATTEMPTS:2}
+
 jwt:
   public:
     key: ${JWT_PUBLIC_KEY}

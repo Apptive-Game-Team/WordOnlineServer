@@ -8,6 +8,8 @@ import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.game.service.UserScenarioService;
 import com.wordonline.server.game.service.UserService;
+import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.lobby.client.LobbySessionClient;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
@@ -41,12 +43,15 @@ class SessionServiceTest {
     private final SessionObjectFactory sessionObjectFactory = mock(SessionObjectFactory.class);
     private final GameLoopFactory gameLoopFactory = mock(GameLoopFactory.class);
     private final StatisticService statisticService = mock(StatisticService.class);
+    private final UserService userService = mock(UserService.class);
+    private final LobbySessionClient lobbySessionClient = mock(LobbySessionClient.class);
     private final SessionService sessionService = new SessionService(
             sessionObjectFactory,
             gameLoopFactory,
             statisticService,
-            mock(UserService.class),
-            mock(UserScenarioService.class));
+            userService,
+            mock(UserScenarioService.class),
+            lobbySessionClient);
 
     private SessionDto sessionDto;
     private SessionObject sessionObject;
@@ -98,7 +103,7 @@ class SessionServiceTest {
 
     @Test
     void reportsInactiveForUnknownSessionId() {
-        SessionService service = new SessionService(null, null, null, null, null);
+        SessionService service = new SessionService(null, null, null, null, null, null);
 
         assertThat(service.isSessionActive("no-such-session")).isFalse();
     }
@@ -136,6 +141,37 @@ class SessionServiceTest {
         assertDoesNotThrow(() -> onTerminated.getValue().run());
 
         await().atMost(Duration.ofSeconds(5)).until(() -> publishedCounts.contains(0));
+    }
+
+    @Test
+    void teardownNotifiesLobbyThatTheSessionEnded() {
+        ArgumentCaptor<Runnable> onTerminated = ArgumentCaptor.forClass(Runnable.class);
+        sessionService.createSession("attempt-1", sessionDto);
+        verify(gameLoop).init(eq(sessionObject), onTerminated.capture());
+
+        stubTeardownCollaborators();
+        onTerminated.getValue().run();
+
+        verify(lobbySessionClient).notifySessionEnded(sessionDto.sessionId());
+    }
+
+    @Test
+    void failingLobbyNotificationStillSavesStatisticsAndWins() {
+        ArgumentCaptor<Runnable> onTerminated = ArgumentCaptor.forClass(Runnable.class);
+        sessionService.createSession("attempt-1", sessionDto);
+        verify(gameLoop).init(eq(sessionObject), onTerminated.capture());
+
+        ResultChecker resultChecker = stubTeardownCollaborators();
+        when(resultChecker.getLoser()).thenReturn(Master.RightPlayer);
+        when(resultChecker.getWinnerId()).thenReturn(1L);
+        doThrow(new IllegalStateException("lobby unreachable"))
+                .when(lobbySessionClient).notifySessionEnded(any());
+
+        assertDoesNotThrow(() -> onTerminated.getValue().run());
+
+        verify(statisticService).saveGameResult(any(), eq(Master.RightPlayer), eq(SessionType.PVP));
+        verify(userService).incrementTotalWins(1L);
+        assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
     }
 
     private ResultChecker stubTeardownCollaborators() {
