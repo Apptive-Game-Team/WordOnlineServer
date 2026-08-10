@@ -25,13 +25,16 @@ class ServerStatusServiceTest {
     @Mock
     private ServerRepository serverRepository;
 
+    private final ServerInstanceIdProvider serverInstanceIdProvider = new ServerInstanceIdProvider();
+
     private ServerStatusService serverStatusService;
 
     @BeforeEach
     void setUp() {
         serverStatusService = new ServerStatusService(
                 serverRepository,
-                new ServerIdentityProperties("https", "game.example.com", 7777, 64));
+                new ServerIdentityProperties("https", "game.example.com", 7777, 64),
+                serverInstanceIdProvider);
     }
 
     @Test
@@ -52,6 +55,21 @@ class ServerStatusServiceTest {
         assertThat(saved.getSessionCount()).isEqualTo(7);
         assertThat(saved.getMaxSessions()).isEqualTo(64);
         assertThat(saved.getLastHeartbeatAt()).isAfterOrEqualTo(before);
+        assertThat(saved.getInstanceId()).isEqualTo(serverInstanceIdProvider.getInstanceId());
+    }
+
+    @Test
+    void heartbeatOverwritesAnInstanceIdLeftBehindByAPreviousProcess() {
+        // The row survives the restart; the sessions do not. Leaving the old id in place would
+        // tell the lobby the previous process is still holding them.
+        Server server = new Server("https", "game.example.com", 7777, ServerType.GAME, ServerState.ACTIVE);
+        server.setInstanceId("00000000-0000-0000-0000-00000000dead");
+        when(serverRepository.findByDomainAndPort("game.example.com", 7777)).thenReturn(Optional.of(server));
+
+        serverStatusService.publishHeartbeat(3);
+
+        assertThat(server.getInstanceId()).isEqualTo(serverInstanceIdProvider.getInstanceId());
+        verify(serverRepository).save(server);
     }
 
     @Test
@@ -66,6 +84,7 @@ class ServerStatusServiceTest {
         assertThat(server.getSessionCount()).isZero();
         assertThat(server.getMaxSessions()).isEqualTo(64);
         assertThat(server.getLastHeartbeatAt()).isNotNull();
+        assertThat(server.getInstanceId()).isEqualTo(serverInstanceIdProvider.getInstanceId());
         verify(serverRepository).save(server);
     }
 }

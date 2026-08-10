@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wordonline.server.server.entity.ServerState;
+import com.wordonline.server.server.service.ServerInstanceIdProvider;
 import com.wordonline.server.server.service.ServerStatusService;
 import com.wordonline.server.server.service.ServerUrlProvider;
 import com.wordonline.server.session.dto.CreateSessionRequest;
@@ -31,6 +32,7 @@ public class SessionServerController {
     private final SessionService sessionService;
     private final ServerStatusService serverStatusService;
     private final ServerUrlProvider serverUrlProvider;
+    private final ServerInstanceIdProvider serverInstanceIdProvider;
 
     @PostMapping("/game-sessions")
     public ResponseEntity<SessionReadyResponse> createGameSession(@RequestBody CreateSessionRequest request) {
@@ -45,7 +47,9 @@ public class SessionServerController {
 
     private SessionReadyResponse toResponse(String attemptId, String sessionId, boolean ready) {
         String serverUrl = serverUrlProvider.getServerUrl();
-        return new SessionReadyResponse(attemptId, sessionId, ready, serverUrl, serverUrl + "/ws");
+        return new SessionReadyResponse(
+                attemptId, sessionId, ready, serverUrl, serverUrl + "/ws",
+                serverInstanceIdProvider.getInstanceId());
     }
 
     @GetMapping("/game-sessions/{sessionId}/active")

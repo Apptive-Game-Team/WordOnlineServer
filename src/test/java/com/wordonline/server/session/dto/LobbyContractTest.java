@@ -65,10 +65,21 @@ class LobbyContractTest {
     @Test
     void 이_서버가_보내는_응답이_공유_픽스처와_일치한다() throws IOException {
         SessionReadyResponse response = new SessionReadyResponse(
-                "attempt-1", "session-1", true, "http://localhost:7777", "http://localhost:7777/ws");
+                "attempt-1", "session-1", true, "http://localhost:7777", "http://localhost:7777/ws",
+                "00000000-0000-0000-0000-000000000001");
 
         assertThat(objectMapper.readTree(objectMapper.writeValueAsString(response)))
                 .isEqualTo(objectMapper.readTree(fixture("session-ready-response.json")));
+    }
+
+    @Test
+    void 응답은_세션을_만든_프로세스의_인스턴스_식별자를_싣는다() throws IOException {
+        // The lobby pins this onto the ticket. Without it a restarted server, back on the same
+        // domain and port and passing health checks, leaves the ticket stuck in MATCHED forever.
+        JsonNode json = objectMapper.readTree(fixture("session-ready-response.json"));
+
+        assertThat(json.has("instanceId")).isTrue();
+        assertThat(json.get("instanceId").isTextual()).isTrue();
     }
 
     @Test
