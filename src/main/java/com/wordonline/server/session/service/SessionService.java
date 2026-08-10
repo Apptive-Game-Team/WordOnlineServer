@@ -29,6 +29,7 @@ public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
+    private static final Map<String, String> sessionIdsByAttemptId = new ConcurrentHashMap<>();
 
     private final SubmissionPublisher<Integer> onSessionNumChange = new SubmissionPublisher<>();
 
@@ -55,6 +56,33 @@ public class SessionService {
     }
 
     public void createSession(SessionDto sessionDto) {
+        createSessionObject(sessionDto);
+    }
+
+    public synchronized SessionCreationResult createSession(String attemptId, SessionDto sessionDto) {
+        if (attemptId == null || attemptId.isBlank()) {
+            throw new IllegalArgumentException("attemptId must not be blank");
+        }
+
+        String existingSessionId = sessionIdsByAttemptId.get(attemptId);
+        if (existingSessionId != null) {
+            if (!existingSessionId.equals(sessionDto.sessionId())) {
+                throw new IllegalArgumentException("attemptId is already associated with another session");
+            }
+            return new SessionCreationResult(attemptId, existingSessionId, isSessionActive(existingSessionId));
+        }
+
+        SessionObject existingSession = sessions.get(sessionDto.sessionId());
+        if (existingSession != null) {
+            throw new IllegalArgumentException("sessionId already exists");
+        }
+
+        createSessionObject(sessionDto);
+        sessionIdsByAttemptId.put(attemptId, sessionDto.sessionId());
+        return new SessionCreationResult(attemptId, sessionDto.sessionId(), isSessionActive(sessionDto.sessionId()));
+    }
+
+    private void createSessionObject(SessionDto sessionDto) {
         SessionObject sessionObject = sessionObjectFactory.createSessionObject(sessionDto);
         GameLoop loop = gameLoopFactory.create(sessionObject.getSessionType());
 
@@ -65,10 +93,15 @@ public class SessionService {
             statisticService.createBuilder(loop.getGameContext());
         }
 
-        Thread thread = new Thread(loop);
-        thread.start();
-
         sessions.put(sessionObject.getSessionId(), sessionObject);
+        Thread thread = new Thread(loop);
+        try {
+            thread.start();
+        } catch (RuntimeException | Error exception) {
+            sessions.remove(sessionObject.getSessionId(), sessionObject);
+            throw exception;
+        }
+        submitSessionNumChange();
         log.info("[Session] Session created; sessionId: {}", sessionObject.getSessionId());
     }
 
@@ -139,6 +172,7 @@ public class SessionService {
 
     public void clearSessions() {
         sessions.clear();
+        sessionIdsByAttemptId.clear();
     }
 
     public List<RoomInfoDto> getAllActiveSessionsInfo(String baseUrl) {
