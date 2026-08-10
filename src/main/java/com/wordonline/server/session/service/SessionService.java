@@ -8,6 +8,7 @@ import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.ResultChecker;
 import com.wordonline.server.game.service.UserService;
 import com.wordonline.server.game.service.UserScenarioService;
+import com.wordonline.server.lobby.client.LobbySessionClient;
 import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
@@ -38,17 +39,20 @@ public class SessionService {
     private final StatisticService statisticService;
     private final UserService userService;
     private final UserScenarioService userScenarioService;
+    private final LobbySessionClient lobbySessionClient;
 
     public SessionService(SessionObjectFactory sessionObjectFactory,
                           GameLoopFactory gameLoopFactory,
                           StatisticService statisticService,
                           UserService userService,
-                          UserScenarioService userScenarioService) {
+                          UserScenarioService userScenarioService,
+                          LobbySessionClient lobbySessionClient) {
         this.sessionObjectFactory = sessionObjectFactory;
         this.gameLoopFactory = gameLoopFactory;
         this.statisticService = statisticService;
         this.userService = userService;
         this.userScenarioService = userScenarioService;
+        this.lobbySessionClient = lobbySessionClient;
     }
 
     public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
@@ -127,6 +131,8 @@ public class SessionService {
             log.warn("[Session] Failed to save game statistics; sessionId: {}", sessionObject.getSessionId(), e);
         }
 
+        notifyLobbySessionEnded(sessionObject);
+
         if (loser == null) {
             log.info("[Session] Session ended with no winner; sessionId: {}", sessionObject.getSessionId());
             return;
@@ -144,6 +150,22 @@ public class SessionService {
         }
 
         log.info("[Session] Session removed; sessionId: {}", sessionObject.getSessionId());
+    }
+
+    // The lobby's match ticket lives in Redis and stays MATCHED until it hears the session ended,
+    // which would silently swallow the player's next queue attempt. The lobby reconciler is the
+    // safety net, so a failed notification is tolerable here; a failed teardown is not.
+    private void notifyLobbySessionEnded(SessionObject sessionObject) {
+        String sessionId = sessionObject.getSessionId();
+        if (sessionId.contains("debug")) {
+            return;
+        }
+
+        try {
+            lobbySessionClient.notifySessionEnded(sessionId);
+        } catch (Exception e) {
+            log.warn("[Session] Failed to notify the lobby of session end; sessionId: {}", sessionId, e);
+        }
     }
 
     public void submitSessionNumChange() {
