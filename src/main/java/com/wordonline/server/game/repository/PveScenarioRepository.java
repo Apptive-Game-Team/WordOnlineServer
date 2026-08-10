@@ -49,9 +49,13 @@ public class PveScenarioRepository {
     private final JdbcClient jdbcClient;
 
     public Optional<PveScenario> findById(Long scenarioId) {
+        List<PveInstallObject> installers = findInstallers(scenarioId);
+        if (installers.isEmpty()) {
+            return Optional.empty();
+        }
         return Optional.of(new PveScenario(
                         findObjectives(scenarioId),
-                        findInstallers(scenarioId),
+                        installers,
                         findEvents(scenarioId)
                 ));
     }

@@ -27,4 +27,8 @@ public class Parameters {
     public double getValue(String gameObject, String parameter) {
         return parameterService.getValue(gameObject, parameter);
     }
+
+    public double getValueOrDefault(GameObjectKey gameObject, ParameterKey parameter, double defaultValue) {
+        return parameterService.getValueOrDefault(gameObject.dbName(), parameter.dbName(), defaultValue);
+    }
 }

@@ -1,8 +1,10 @@
 package com.wordonline.server.server.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.time.Instant;
+
 import org.springframework.stereotype.Service;
 
+import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.Server;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.entity.ServerType;
@@ -16,24 +18,37 @@ import lombok.RequiredArgsConstructor;
 public class ServerStatusService {
 
     private final ServerRepository serverRepository;
-
-    @Value("${server.external-port}")
-    private Integer port;
-
-    @Value("${server.domain}")
-    private String domain;
-
-    @Value("${server.protocol}")
-    private String protocol;
+    private final ServerIdentityProperties serverIdentityProperties;
+    private final ServerInstanceIdProvider serverInstanceIdProvider;
 
     @Getter
-    private ServerState currentState = ServerState.ACTIVE;
+    private volatile ServerState currentState = ServerState.ACTIVE;
 
-    public void setServerStatus(ServerState state) {
+    public synchronized void setServerStatus(ServerState state) {
+        publishStatus(state, state == ServerState.INACTIVE ? 0 : null);
+    }
+
+    public synchronized void publishHeartbeat(int sessionCount) {
+        publishStatus(currentState, sessionCount);
+    }
+
+    private void publishStatus(ServerState state, Integer sessionCount) {
         currentState = state;
+        String protocol = serverIdentityProperties.protocol();
+        String domain = serverIdentityProperties.domain();
+        Integer port = serverIdentityProperties.externalPort();
+
         Server server = serverRepository.findByDomainAndPort(domain, port)
                 .orElseGet(() -> new Server(protocol, domain, port, ServerType.GAME, state));
         server.setState(state);
+        server.setLastHeartbeatAt(Instant.now());
+        if (sessionCount != null) {
+            server.setSessionCount(sessionCount);
+        }
+        server.setMaxSessions(serverIdentityProperties.maxSessions());
+        // Every write, boot and heartbeat alike, so the row always names the process that is
+        // actually holding the sessions. The lobby reads a stale id as "those sessions are gone".
+        server.setInstanceId(serverInstanceIdProvider.getInstanceId());
         serverRepository.save(server);
     }
 }

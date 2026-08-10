@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.ElectricDeathEnergy;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.PlayerPrioMob;
@@ -41,6 +42,7 @@ public class StormRiderPrefabInitializer extends PrefabInitializer {
                 stormRiderParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
         ));
         gameObject.setElement(EnumSet.of(ElementType.LIGHTNING,ElementType.WATER));
+        gameObject.addComponent(new ElectricDeathEnergy(gameObject));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

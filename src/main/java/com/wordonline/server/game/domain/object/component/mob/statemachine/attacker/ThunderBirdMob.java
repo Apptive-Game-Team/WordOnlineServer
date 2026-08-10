@@ -76,15 +76,13 @@ public class ThunderBirdMob extends BehaviorMob {
         public void onUpdate() {
             if (target.gameObject.isDestroyed()) {
                 setState(new FloatingState());
+                return;
             }
 
             if (target.gameObject.getPosition().distance(gameObject.getPosition()) - targetRadius - selfRadius > ATTACK_THRESHOLD) {
 
-                float startY = startPos.getY();
                 float lastY = gameObject.getPosition().getY();
-                float targetY = target.gameObject.getPosition().getY();
-
-                float t = (lastY - startY) / (targetY - startY);
+                float t = diveProgress(startPos, target.gameObject.getPosition().getY());
 
                 Vector3 nextPos = Vector3.lerp(startPos, target.gameObject.getPosition(), t);
                 nextPos.setY(lastY);
@@ -92,7 +90,7 @@ public class ThunderBirdMob extends BehaviorMob {
                 return;
             }
 
-            target.onDamaged(new AttackInfo(calculateDamage(startPos), gameObject.getElement().total()));
+            target.onDamaged(new AttackInfo(calculateDamage(startPos), gameObject.getElement().total()).withAttacker(gameObject));
             setState(new FloatingState());
         }
     }

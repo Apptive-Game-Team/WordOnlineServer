@@ -39,7 +39,7 @@ public class Rune extends Component implements Collidable {
         var runeParameters = getGameContext().getParameters().object(GameObjectKey.RUNE);
         float radius = runeParameters.floatValue(ParameterKey.ATTACK_RANGE);
         int damage = runeParameters.intValue(ParameterKey.DAMAGE);
-        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         getGameContext().getPhysics()
                 .overlapSphereAll(gameObject, radius)
                 .forEach(target -> {

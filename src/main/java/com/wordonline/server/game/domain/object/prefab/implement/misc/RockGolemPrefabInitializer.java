@@ -5,9 +5,10 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.MeleeAttackMob;
+import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.RockGolemMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
@@ -31,7 +32,7 @@ public class RockGolemPrefabInitializer extends PrefabInitializer {
         gameObject.getComponents().add(new RigidBody(gameObject, rockGolemParameters.intValue(ParameterKey.MASS)));
         gameObject.getComponents().add(new ZPhysics(gameObject));
         gameObject.addCollider(new CircleCollider(gameObject, rockGolemParameters.floatValue(ParameterKey.RADIUS), false));
-        gameObject.getComponents().add(new MeleeAttackMob(gameObject,
+        gameObject.getComponents().add(new RockGolemMob(gameObject,
                 rockGolemParameters.intValue(ParameterKey.HP),
                 rockGolemParameters.floatValue(ParameterKey.SPEED),
                 TargetMask.GROUND.bit,
@@ -39,6 +40,7 @@ public class RockGolemPrefabInitializer extends PrefabInitializer {
                 rockGolemParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
         ));
         gameObject.setElement(ElementType.ROCK);
+        gameObject.addComponent(new RockDeathRemnant(gameObject));
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
 }

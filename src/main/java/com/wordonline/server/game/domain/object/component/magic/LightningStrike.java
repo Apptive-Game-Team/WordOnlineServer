@@ -8,6 +8,7 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class LightningStrike extends MagicComponent {
 
     public LightningStrike(GameObject gameObject, int damage, float radius) {
         super(gameObject);
-        this.attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        this.attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         this.boxSize = new Vector3(radius * 2, GameConfig.DROP_MAGIC_INITIAL_HEIGHT, radius * 2);
     }
 
@@ -55,5 +56,11 @@ public class LightningStrike extends MagicComponent {
             target.setStatus(Status.Damaged);
             damageables.forEach(damageable -> damageable.onDamaged(attackInfo));
         }
+
+        new GameObject(
+                Master.None,
+                PrefabType.ElectricField,
+                gameObject.getPosition().grounded(),
+                getGameContext());
     }
 }

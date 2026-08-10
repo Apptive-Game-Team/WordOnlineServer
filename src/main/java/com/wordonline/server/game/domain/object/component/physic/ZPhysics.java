@@ -19,6 +19,7 @@ import static java.util.Collections.newSetFromMap;
 public class ZPhysics extends Component {
 
     private float yVelocity;
+    @Getter
     @Setter
     private float groundY = 0f;
     @Getter
@@ -50,6 +51,11 @@ public class ZPhysics extends Component {
 
     public boolean canHover(){
         return isHover && hoverLocks.isEmpty();
+    }
+
+    // an aerial object keeps itself above the ground by hovering, so it has to fall down when it dies
+    public boolean isAerial(){
+        return isHover && hoverY > groundY;
     }
 
     public void lockHover(Object obj){ hoverLocks.add(obj); }

@@ -1,8 +1,24 @@
 server:
-  port: ${PORT}
+  port: ${PORT:7777}
   external-port: ${EXTERNAL_PORT}
   protocol: ${PROTOCOL}
   domain: ${DOMAIN}
+  heartbeat-interval-ms: ${HEARTBEAT_INTERVAL_MS:10000}
+  max-sessions: ${MAX_SESSIONS:100}
+
+# Metrics run on their own port so the public app port never serves /actuator.
+# Health and Prometheus endpoints allow unauthenticated scrapes.
+# MANAGEMENT_PORT must stay reachable only from the Prometheus host.
+management:
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 spring:
   application:
@@ -27,6 +43,15 @@ team6515:
   server:
     account:
       url: ${ACCOUNT_SERVER_URL}
+
+# Outbound calls to the lobby. Without LOBBY_BASE_URL the session-ended notification is
+# skipped and the lobby falls back to its reconciler. The service token is issued elsewhere
+# and mounted as a file; never commit its value.
+lobby:
+  base-url: ${LOBBY_BASE_URL:}
+  service-token-path: ${JWT_FILE_PATH:}
+  request-timeout: ${LOBBY_REQUEST_TIMEOUT_MS:1000}
+  max-attempts: ${LOBBY_MAX_ATTEMPTS:2}
 
 jwt:
   public:

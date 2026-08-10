@@ -76,7 +76,7 @@ public class CraterEmber extends MagicComponent implements Collidable {
         }
 
         otherObject.setStatus(Status.Damaged);
-        mob.onDamaged(new AttackInfo(damage, gameObject.getElement().total()));
+        mob.onDamaged(new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject));
         resolved = true;
         gameObject.destroy();
     }

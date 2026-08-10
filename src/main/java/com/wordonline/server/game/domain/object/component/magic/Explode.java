@@ -38,7 +38,7 @@ public class Explode extends MagicComponent {
         this.radius = radius;
         this.delay = delay;
         this.isRunning = true;
-        attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
     }
 
     @Override

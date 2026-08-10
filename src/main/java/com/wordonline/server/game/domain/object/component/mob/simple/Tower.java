@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
 import lombok.Getter;
 
@@ -43,7 +44,7 @@ public class Tower extends Component {
 
     public Tower(GameObject gameObject, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
         super(gameObject);
-        this.attackInfo = new AttackInfo(damage, ElementType.ROCK);
+        this.attackInfo = new AttackInfo(damage, ElementType.ROCK).withAttacker(gameObject);
         this.targetMask = targetMask;
         this.attackDuration = attackDuration;
         this.attackInterval = new Stat(attackInterval);
@@ -99,7 +100,7 @@ public class Tower extends Component {
     private void applySplashDamage(GameObject centerTarget) {
         List<GameObject> victims = getGameContext().overlapSphereAll(centerTarget, SPLASH_RADIUS);
         for (GameObject candidate : victims) {
-            if (candidate.getMaster() == gameObject.getMaster()) {
+            if (!TargetRelation.canAttack(gameObject, candidate)) {
                 continue;
             }
 
