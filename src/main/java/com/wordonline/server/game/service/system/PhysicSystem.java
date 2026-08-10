@@ -79,6 +79,10 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
                                 gameObjectPair.b().getColliders().stream().filter(Collider::isNotTrigger).forEach(
                                     colliderB -> {
 
+                                        if (!colliderA.isCollidingWish(colliderB)) {
+                                            return;
+                                        }
+
                                         float invMassA = colliderA.getInvMass();
                                         float invMassB = colliderB.getInvMass();
 

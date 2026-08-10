@@ -1,5 +1,6 @@
 package com.wordonline.server.game.service.system;
 
+import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.receiver.LightningSummonEffectReceiver;
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.when;
 class PhysicSystemWallCollisionTest {
 
     @Test
-    void mapWallReflectsCowardDuringActualPanicState() {
+    void fullMapWallKeepsCowardInsideDuringActualPanicState() {
         GameContext gameContext = mock(GameContext.class);
         GameObject unit = new GameObject(
                 Master.LeftPlayer,
@@ -61,7 +62,22 @@ class PhysicSystemWallCollisionTest {
         wall.addCollider(new EdgeCollider(
                 wall,
                 new Vector3(0f, 0f, 0f),
-                new Vector3(0f, 0f, 10f),
+                new Vector3(0f, 0f, GameConfig.HEIGHT),
+                false));
+        wall.addCollider(new EdgeCollider(
+                wall,
+                new Vector3(GameConfig.WIDTH, 0f, GameConfig.HEIGHT),
+                new Vector3(0f, 0f, GameConfig.HEIGHT),
+                false));
+        wall.addCollider(new EdgeCollider(
+                wall,
+                new Vector3(GameConfig.WIDTH, 0f, GameConfig.HEIGHT),
+                new Vector3(GameConfig.WIDTH, 0f, 0f),
+                false));
+        wall.addCollider(new EdgeCollider(
+                wall,
+                new Vector3(0f, 0f, 0f),
+                new Vector3(GameConfig.WIDTH, 0f, 0f),
                 false));
         wall.flushComponents();
         wall.setStatus(Status.Idle);
@@ -69,12 +85,15 @@ class PhysicSystemWallCollisionTest {
         when(gameContext.getActiveGameObjects()).thenReturn(List.of(unit, wall));
         when(gameContext.getDeltaTime()).thenReturn(0.1f);
 
-        unit.update();
-        assertThat(unit.getEffects()).contains(Effect.Panic);
+        PhysicSystem physicSystem = new PhysicSystem();
+        for (int frame = 0; frame < 5; frame++) {
+            unit.update();
+            assertThat(unit.getEffects()).contains(Effect.Panic);
 
-        new PhysicSystem().update(gameContext);
+            physicSystem.update(gameContext);
 
-        assertThat(unit.isDestroyed()).isFalse();
-        assertThat(unit.getPosition().getX()).isGreaterThan(0.4f);
+            assertThat(unit.isDestroyed()).isFalse();
+            assertThat(unit.getPosition().getX()).isGreaterThanOrEqualTo(0f);
+        }
     }
 }
