@@ -80,7 +80,7 @@ public class RollingRock extends Shot {
             return;
         }
 
-        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         otherObject.setStatus(Status.Damaged);
         damageables.forEach(damageable -> damageable.onDamaged(attackInfo));
 

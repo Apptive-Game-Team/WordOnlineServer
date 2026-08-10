@@ -72,7 +72,7 @@ public class LightningTowerMob extends TimedBehaviorMob {
     private void strike(GameObject source, GameObject target, int strikeDamage) {
         getGameContext().getObjectsInfoDtoBuilder()
                 .createProjection(source, target, "ElectricShot", ATTACK_DURATION);
-        AttackInfo attackInfo = new AttackInfo(strikeDamage, ElementType.LIGHTNING);
+        AttackInfo attackInfo = new AttackInfo(strikeDamage, ElementType.LIGHTNING).withAttacker(gameObject);
         target.getComponents(Damageable.class)
                 .forEach(damageable -> damageable.onDamaged(attackInfo, ATTACK_DURATION));
     }

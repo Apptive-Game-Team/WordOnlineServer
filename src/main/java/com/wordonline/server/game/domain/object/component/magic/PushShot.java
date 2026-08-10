@@ -53,7 +53,7 @@ public class PushShot extends Shot implements Collidable {
         if (damageables.isEmpty()) return;
 
         // 첫 충돌 시 딱 한 번 데미지
-        AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo info = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         otherObject.setStatus(Status.Damaged);
         damageables.forEach(d -> d.onDamaged(info));
 

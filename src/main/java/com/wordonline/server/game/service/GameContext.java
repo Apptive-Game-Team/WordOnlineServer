@@ -1,5 +1,6 @@
 package com.wordonline.server.game.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.frame.GameEventDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
 import com.wordonline.server.game.util.Physics;
 import com.wordonline.server.game.util.SimplePhysics;
@@ -39,6 +41,7 @@ public class GameContext {
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
     private final CardSelectVisualizer cardSelectVisualizer = new CardSelectVisualizer();
+    private final List<GameEventDto> events = new ArrayList<>();
 
     private WordOnlineLoop gameLoop;
 
@@ -97,6 +100,20 @@ public class GameContext {
 
     public ObjectsInfoDto getObjectsInfoDto() {
         return objectsInfoDtoBuilder.getObjectsInfoDto();
+    }
+
+    public void addEvent(GameEventDto event) {
+        events.add(event);
+    }
+
+    // drains the events collected since the last frame
+    public List<GameEventDto> drainEvents() {
+        if (events.isEmpty()) {
+            return List.of();
+        }
+        List<GameEventDto> drained = List.copyOf(events);
+        events.clear();
+        return drained;
     }
 
     public void incrementFrameNum() {

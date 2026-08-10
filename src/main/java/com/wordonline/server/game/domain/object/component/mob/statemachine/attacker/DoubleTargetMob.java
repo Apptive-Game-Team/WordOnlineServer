@@ -70,7 +70,7 @@ public class DoubleTargetMob extends BehaviorMob {
 
         target.getComponentOptional(Damageable.class)
                 .ifPresent(damageable -> {
-                    damageable.onDamaged(new AttackInfo(damage, gameObject.getElement().total()));
+                    damageable.onDamaged(new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject));
                     gameObject.setStatus(Status.Attack);
                 });
     }
