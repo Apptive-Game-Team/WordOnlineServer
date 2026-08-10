@@ -60,7 +60,7 @@ public class SprayingAttacker extends BehaviorMob {
     }
 
     private AttackInfo createAttackInfo() {
-        return new AttackInfo(damage, gameObject.getElement().total());
+        return new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
     }
 
     private Set<Mob> getCollidedMobs(float radius, Vector3 direction) {

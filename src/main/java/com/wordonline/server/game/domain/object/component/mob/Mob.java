@@ -13,6 +13,7 @@ import com.wordonline.server.game.domain.object.component.CombatDeathListener;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.domain.object.component.GaugeComponent;
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.BaseStatusEffect;
+import com.wordonline.server.game.dto.frame.GameEventDto;
 import com.wordonline.server.game.dto.frame.GaugeCategory;
 import com.wordonline.server.game.dto.frame.GaugeDto;
 import com.wordonline.server.game.util.MutablePair;
@@ -79,6 +80,9 @@ public abstract class Mob extends Component implements Damageable, GaugeComponen
         }
 
         log.trace("Mob : onDamaged hp: {} damage: {} element: {} ", hp, attackInfo.getDamage(), attackInfo.getElement());
+        if (attackInfo.getAttackerId() != 0 && attackInfo.getDamage() > 0) {
+            getGameContext().addEvent(GameEventDto.hit(attackInfo.getAttackerId(), gameObject.getId()));
+        }
         this.hp -= attackInfo.getDamage() * ElementalChart.computePairwiseProductMultiplier(attackInfo.getElement(),gameObject.getElement().total());
         gameObject.applyUpdate();
         if (this.hp <= 0 && !gameObject.isDestroyed()) {

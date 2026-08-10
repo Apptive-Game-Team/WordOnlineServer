@@ -106,7 +106,7 @@ public class Tornado extends MagicComponent implements Collidable {
     public void applyDamage() {
         for (var victim : victimList) {
             victim.getComponent(Damageable.class)
-                    .onDamaged(new AttackInfo(damage + BONUS_DAMAGE * victimList.size(), ElementType.WIND));
+                    .onDamaged(new AttackInfo(damage + BONUS_DAMAGE * victimList.size(), ElementType.WIND).withAttacker(gameObject));
         }
     }
 

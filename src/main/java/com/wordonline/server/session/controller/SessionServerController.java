@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
 import com.wordonline.server.server.service.ServerUrlProvider;
+import com.wordonline.server.session.dto.CreateSessionRequest;
 import com.wordonline.server.session.dto.SessionLengthDto;
+import com.wordonline.server.session.dto.SessionReadyResponse;
 import com.wordonline.server.session.dto.SimpleBooleanDto;
 import com.wordonline.server.session.service.SessionService;
-import com.wordonline.server.session.dto.SessionDto;
+import com.wordonline.server.session.service.SessionCreationResult;
 import com.wordonline.server.session.dto.RoomListDto;
 
 import lombok.RequiredArgsConstructor;
@@ -31,14 +33,19 @@ public class SessionServerController {
     private final ServerUrlProvider serverUrlProvider;
 
     @PostMapping("/game-sessions")
-    public ResponseEntity<SimpleBooleanDto> createGameSession(@RequestBody SessionDto sessionDto) {
+    public ResponseEntity<SessionReadyResponse> createGameSession(@RequestBody CreateSessionRequest request) {
 
         if (!serverStatusService.getCurrentState().equals(ServerState.ACTIVE)) {
-            return ResponseEntity.badRequest().body(new SimpleBooleanDto(false));
+            return ResponseEntity.badRequest().body(toResponse(request.attemptId(), request.sessionId(), false));
         }
 
-        sessionService.createSession(sessionDto);
-        return ResponseEntity.ok(new SimpleBooleanDto(true));
+        SessionCreationResult result = sessionService.createSession(request.attemptId(), request.toSessionDto());
+        return ResponseEntity.ok(toResponse(result.attemptId(), result.sessionId(), result.ready()));
+    }
+
+    private SessionReadyResponse toResponse(String attemptId, String sessionId, boolean ready) {
+        String serverUrl = serverUrlProvider.getServerUrl();
+        return new SessionReadyResponse(attemptId, sessionId, ready, serverUrl, serverUrl + "/ws");
     }
 
     @GetMapping("/game-sessions/{sessionId}/active")

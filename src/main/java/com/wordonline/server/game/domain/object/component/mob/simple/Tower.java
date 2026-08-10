@@ -44,7 +44,7 @@ public class Tower extends Component {
 
     public Tower(GameObject gameObject, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
         super(gameObject);
-        this.attackInfo = new AttackInfo(damage, ElementType.ROCK);
+        this.attackInfo = new AttackInfo(damage, ElementType.ROCK).withAttacker(gameObject);
         this.targetMask = targetMask;
         this.attackDuration = attackDuration;
         this.attackInterval = new Stat(attackInterval);

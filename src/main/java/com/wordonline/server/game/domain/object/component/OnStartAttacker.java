@@ -25,7 +25,7 @@ public class OnStartAttacker extends Component {
 
     @Override
     public void start() {
-        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         Master owner = gameObject.getMaster();
 
         getGameContext().overlapSphereAll(gameObject, attackRange)

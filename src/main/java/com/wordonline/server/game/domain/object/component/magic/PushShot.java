@@ -37,7 +37,7 @@ public class PushShot extends Shot implements Collidable {
 
         if (!damagedTargetIds.add(otherObject.getId())) return;
 
-        AttackInfo info = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo info = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         otherObject.setStatus(Status.Damaged);
         damageables.forEach(damageable -> damageable.onDamaged(info));
     }

@@ -36,7 +36,7 @@ public class BubbleSpiritMob extends BehaviorMob {
     }
 
     private void applySplashDamage(GameObject centerTarget, float delay) {
-        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         List<GameObject> victims = getGameContext().overlapSphereAll(centerTarget, SPLASH_RADIUS);
 
         for (GameObject candidate : victims) {

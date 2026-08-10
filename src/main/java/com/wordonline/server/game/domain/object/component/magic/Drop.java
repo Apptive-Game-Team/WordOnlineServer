@@ -61,7 +61,7 @@ public class Drop extends Mob implements Collidable {
         direction = 0;
         gameObject.setStatus(Status.Attack);
         otherObject.setStatus(Status.Damaged);
-        damageables.forEach(damageable -> damageable.onDamaged(new AttackInfo(damage, gameObject.getElement().total())));
+        damageables.forEach(damageable -> damageable.onDamaged(new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject)));
 
         gameObject.destroy();
     }

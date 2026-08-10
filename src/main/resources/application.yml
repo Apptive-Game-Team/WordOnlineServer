@@ -3,6 +3,8 @@ server:
   external-port: ${EXTERNAL_PORT}
   protocol: ${PROTOCOL}
   domain: ${DOMAIN}
+  heartbeat-interval-ms: ${HEARTBEAT_INTERVAL_MS:10000}
+  max-sessions: ${MAX_SESSIONS:100}
 
 # Metrics run on their own port so the public app port never serves /actuator.
 # Health and Prometheus endpoints allow unauthenticated scrapes.

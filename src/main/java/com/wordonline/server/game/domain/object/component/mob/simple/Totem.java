@@ -20,7 +20,7 @@ public class Totem extends Mob {
 
     public Totem(GameObject gameObject, int maxHp, int damage, float attackInterval, float range, int targetMask) {
         super(gameObject, maxHp, 0);
-        attackInfo = new AttackInfo(damage, ElementType.NATURE);
+        attackInfo = new AttackInfo(damage, ElementType.NATURE).withAttacker(gameObject);
         this.targetMask = targetMask;
         healCooldown = attackInterval;
         healRange = range;

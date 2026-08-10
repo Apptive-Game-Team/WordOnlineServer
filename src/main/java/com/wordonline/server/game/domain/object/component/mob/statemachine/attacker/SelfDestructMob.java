@@ -77,7 +77,7 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     private void explode() {
         if (isExploded) return;
         isExploded = true;
-        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total());
+        AttackInfo attackInfo = new AttackInfo(damage, gameObject.getElement().total()).withAttacker(gameObject);
         getGameContext().getPhysics()
                 .overlapSphereAll(gameObject, explosionRange)
                 .stream()
