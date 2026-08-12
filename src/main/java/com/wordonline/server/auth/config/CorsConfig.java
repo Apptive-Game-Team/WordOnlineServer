@@ -24,7 +24,8 @@ public class CorsConfig {
                 "https://team6515.itch.io",
                 "https://html-classic.itch.zone",
                 "https://assets-production.game-ping.kr",
-                "https://www.game-ping.kr"));
+                "https://www.game-ping.kr",
+                "https://arcanecasters.theevilent.com"));
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
