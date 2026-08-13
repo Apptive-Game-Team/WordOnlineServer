@@ -10,7 +10,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.wordonline.server.game.domain.SessionType;
-import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.UpdateTimeStatistic;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
@@ -50,13 +49,13 @@ public class StatisticRepository {
     }
 
 
-    private void saveUpdateTime(long gameId, Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap) {
+    private void saveUpdateTime(long gameId, Map<String, UpdateTimeStatistic> updateTimeStatisticMap) {
         updateTimeStatisticMap.forEach((key, value) -> jdbcClient.sql(SAVE_UPDATE_TIME)
                 .param("gameId", gameId)
                 .param("minInterval", value.getMinInterval())
                 .param("maxInterval", value.getMaxInterval())
                 .param("meanInterval", value.getMeanInterval())
-                .param("name", key.getSimpleName())
+                .param("name", key)
                 .update());
     }
 

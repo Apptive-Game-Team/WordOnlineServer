@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.wordonline.server.game.domain.SessionType;
-import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.UpdateTimeStatistic;
 
 import lombok.AllArgsConstructor;
@@ -18,7 +17,7 @@ public record GameResultDto(
         Duration duration,
         List<StatisticCardDto> cards,
         List<StatisticMagicDto> magics,
-        Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap
+        Map<String, UpdateTimeStatistic> updateTimeStatisticMap
 ) {
     public record StatisticCardDto(
             long cardId,
