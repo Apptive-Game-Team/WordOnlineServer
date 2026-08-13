@@ -18,6 +18,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -95,6 +96,40 @@ class BotGameSchedulerTest {
     @Test
     void skipsWhenServerIsNotActive() {
         when(serverStatusService.getCurrentState()).thenReturn(ServerState.INACTIVE);
+
+        scheduler.ensureBotGameWhenIdle();
+
+        verify(sessionService, never()).createSession(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void fillsUpToTargetGamesWhenMoreAreRequested() {
+        ReflectionTestUtils.setField(scheduler, "targetGames", 5);
+        when(sessionService.getActiveSessions()).thenReturn(2L);
+        when(botPersonaService.findEnabled()).thenReturn(List.of(bot(-1, "Beginner Bot"), bot(-2, "Advanced Bot")));
+
+        scheduler.ensureBotGameWhenIdle();
+
+        verify(sessionService, times(3)).createSession(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void createsDistinctSessionIdsWhenFillingSeveralGames() {
+        ReflectionTestUtils.setField(scheduler, "targetGames", 4);
+        when(sessionService.getActiveSessions()).thenReturn(0L);
+        when(botPersonaService.findEnabled()).thenReturn(List.of(bot(-1, "Beginner Bot"), bot(-2, "Advanced Bot")));
+
+        scheduler.ensureBotGameWhenIdle();
+
+        ArgumentCaptor<SessionDto> captor = ArgumentCaptor.forClass(SessionDto.class);
+        verify(sessionService, times(4)).createSession(captor.capture());
+        assertThat(captor.getAllValues()).extracting(SessionDto::sessionId).doesNotHaveDuplicates();
+    }
+
+    @Test
+    void skipsWhenActiveSessionsAlreadyReachTargetGames() {
+        ReflectionTestUtils.setField(scheduler, "targetGames", 3);
+        when(sessionService.getActiveSessions()).thenReturn(3L);
 
         scheduler.ensureBotGameWhenIdle();
 

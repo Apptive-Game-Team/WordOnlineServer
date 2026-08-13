@@ -39,6 +39,16 @@ logging:
 #    com.wordonline.server.game.domain.bot: DEBUG
 #    com.wordonline.server.game.service.system: DEBUG
 
+# Self-play bot games. target-games is the number of sessions the scheduler keeps running;
+# every check interval it tops the server back up to that number. The default of 1 reproduces
+# the original "one bot game while idle" behaviour. Raise both knobs to generate a synthetic
+# load for profiling, e.g. BOT_AUTO_MATCH_TARGET_GAMES=50 BOT_AUTO_MATCH_CHECK_INTERVAL_MS=5000.
+bot:
+  auto-match:
+    enabled: ${BOT_AUTO_MATCH_ENABLED:true}
+    target-games: ${BOT_AUTO_MATCH_TARGET_GAMES:1}
+    check-interval-ms: ${BOT_AUTO_MATCH_CHECK_INTERVAL_MS:60000}
+
 team6515:
   server:
     account:

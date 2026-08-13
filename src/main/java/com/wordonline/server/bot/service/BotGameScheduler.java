@@ -31,13 +31,21 @@ public class BotGameScheduler {
     @Value("${bot.auto-match.enabled:true}")
     private boolean enabled;
 
+    // How many sessions to keep running. At the default of 1 this is the original
+    // "one bot game while the server is idle" behaviour. Raise it to drive a synthetic
+    // load for profiling; the check interval then also controls how fast the server
+    // refills games that have ended.
+    @Value("${bot.auto-match.target-games:1}")
+    private int targetGames = 1;
+
     @Scheduled(fixedDelayString = "${bot.auto-match.check-interval-ms:60000}")
     public void ensureBotGameWhenIdle() {
         if (!enabled || serverStatusService.getCurrentState() != ServerState.ACTIVE) {
             return;
         }
 
-        if (sessionService.getActiveSessions() > 0) {
+        long missingGames = targetGames - sessionService.getActiveSessions();
+        if (missingGames <= 0) {
             return;
         }
 
@@ -47,6 +55,12 @@ public class BotGameScheduler {
             return;
         }
 
+        for (long i = 0; i < missingGames; i++) {
+            createBotGame(bots);
+        }
+    }
+
+    private void createBotGame(List<BotPersona> bots) {
         List<BotPersona> shuffledBots = new ArrayList<>(bots);
         Collections.shuffle(shuffledBots);
 
