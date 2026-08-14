@@ -68,10 +68,19 @@ public class StatisticService {
         statisticRepository.saveGameResultDto(gameResultDto);
     }
 
+    // The statistic name stays the simple class name so rows already recorded for
+    // each GameSystem keep the exact same value in the name column.
     public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
         getGameResultBuilder(gameContext)
                 .ifPresent(builder ->
-                        builder.addInterval(clazz, intervalNs)
+                        builder.addInterval(clazz.getSimpleName(), intervalNs)
+                );
+    }
+
+    public void saveFrameStart(GameContext gameContext, long nowNanos) {
+        getGameResultBuilder(gameContext)
+                .ifPresent(builder ->
+                        builder.recordFrameStart(nowNanos)
                 );
     }
 
