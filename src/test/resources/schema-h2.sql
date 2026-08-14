@@ -95,7 +95,9 @@ CREATE TABLE statistic_games (
     loss_user_id BIGINT NOT NULL,
     duration BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
-    game_type VARCHAR(255) NOT NULL DEFAULT 'PVP'
+    game_type VARCHAR(255) NOT NULL DEFAULT 'PVP',
+    server_version VARCHAR(64) NOT NULL,
+    event_schema_version INT NOT NULL CHECK (event_schema_version > 0)
 );
 
 CREATE TABLE statistic_game_cards (

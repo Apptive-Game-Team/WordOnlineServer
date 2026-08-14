@@ -77,8 +77,15 @@ class StatisticUpdateTimeSchemaTest {
 
     private long insertGame() {
         jdbcClient.sql("""
-                INSERT INTO statistic_games(win_user_id, loss_user_id, duration, game_type)
-                VALUES(1, 2, 300, 'PVP');
+                INSERT INTO statistic_games(
+                    win_user_id,
+                    loss_user_id,
+                    duration,
+                    game_type,
+                    server_version,
+                    event_schema_version
+                )
+                VALUES(1, 2, 300, 'PVP', 'test', 1);
                 """).update();
         return jdbcClient.sql("SELECT MAX(id) FROM statistic_games").query(Long.class).single();
     }

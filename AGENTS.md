@@ -48,6 +48,16 @@ Confirm both landed with `gh issue view <n> --json assignees,labels` after creat
 ## Configuration & Cleanup
 Do not commit secrets from `.env` or environment-specific values from `application.yml`. Keep generated files and local artifacts out of git; remove stray files such as `.DS_Store` before committing.
 
+## Versioning
+
+`version` in `build.gradle` is the game server's single version source. Update
+it in every runtime-behavior change: PATCH for backward-compatible fixes and
+internal changes, MINOR for backward-compatible features, and MAJOR for
+breaking API or protocol changes. Do not bump for documentation, tests, or
+agent-instruction-only changes. Never add a second runtime version or use a
+`-SNAPSHOT` deployable version. Spring Boot build info embeds this value, and
+game statistics persist it as `server_version`.
+
 ## Database Changes
 
 `../database/migration` is the source of truth for the shared game database.
