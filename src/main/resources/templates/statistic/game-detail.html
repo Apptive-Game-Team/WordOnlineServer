@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game timing detail</title>
+    <link rel="stylesheet" th:href="@{/css/statistic.css}">
+</head>
+<body>
+<p><a th:href="@{/admin/statistics}">&larr; Back to statistics</a></p>
+
+<div th:if="${game == null}">
+    <h1>Game not found</h1>
+    <p class="empty">No statistics are recorded for this game id.</p>
+</div>
+
+<div th:if="${game != null}">
+    <h1>Game <span th:text="${game.gameId()}">0</span></h1>
+
+    <section class="summary">
+        <div class="card">
+            <span class="label">Recorded</span>
+            <span class="value" th:text="${#temporals.format(game.createdAt(), 'yyyy-MM-dd HH:mm:ss')}">-</span>
+        </div>
+        <div class="card">
+            <span class="label">Type</span>
+            <span class="value" th:text="${game.gameType()}">-</span>
+        </div>
+        <div class="card">
+            <span class="label">Duration</span>
+            <span class="value" th:text="${game.durationSeconds()} + ' s'">0 s</span>
+        </div>
+        <div class="card">
+            <span class="label">Frame mean</span>
+            <span class="value"
+                  th:classappend="${game.frameMeanIntervalNs() != null and game.frameMeanIntervalNs() > frameBudgetNs} ? 'over-budget' : ''"
+                  th:text="${game.frameMeanIntervalNs() == null} ? 'no data' : ${#numbers.formatDecimal(game.frameMeanIntervalNs() / 1000000.0, 1, 2)} + ' ms'">-</span>
+        </div>
+    </section>
+
+    <h2>Measured names</h2>
+    <p th:if="${timings.isEmpty()}" class="empty">No timing rows recorded for this game.</p>
+    <table th:unless="${timings.isEmpty()}">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Mean (ms)</th>
+            <th>Min (ms)</th>
+            <th>Max (ms)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="timing : ${timings}">
+            <td th:text="${timing.name()}">name</td>
+            <td th:text="${#numbers.formatDecimal(timing.meanIntervalNs() / 1000000.0, 1, 3)}">0</td>
+            <td th:text="${#numbers.formatDecimal(timing.minIntervalNs() / 1000000.0, 1, 3)}">0</td>
+            <td th:text="${#numbers.formatDecimal(timing.maxIntervalNs() / 1000000.0, 1, 3)}">0</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

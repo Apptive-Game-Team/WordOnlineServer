@@ -98,6 +98,10 @@ CREATE TABLE statistic_games (
     game_type VARCHAR(255) NOT NULL DEFAULT 'PVP'
 );
 
+-- Every performance query filters on created_at; production needs this index too.
+CREATE INDEX idx_statistic_games_created_at
+    ON statistic_games(created_at);
+
 CREATE TABLE statistic_game_cards (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,

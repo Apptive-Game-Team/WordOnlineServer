@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Frame timing statistics</title>
+    <link rel="stylesheet" th:href="@{/css/statistic.css}">
+</head>
+<body>
+<h1>Frame timing statistics</h1>
+
+<form method="get" th:action="@{/admin/statistics}" class="filters">
+    <label>
+        From
+        <input type="datetime-local" name="from"
+               th:value="${from == null} ? '' : ${#temporals.format(from, 'yyyy-MM-dd''T''HH:mm')}">
+    </label>
+    <label>
+        To
+        <input type="datetime-local" name="to"
+               th:value="${to == null} ? '' : ${#temporals.format(to, 'yyyy-MM-dd''T''HH:mm')}">
+    </label>
+    <label>
+        Game type
+        <select name="gameType">
+            <option value="" th:selected="${gameType == null}">All types</option>
+            <option th:each="type : ${gameTypes}"
+                    th:value="${type}"
+                    th:text="${type}"
+                    th:selected="${type == gameType}"></option>
+        </select>
+    </label>
+    <input type="hidden" name="name" th:value="${selectedName}">
+    <button type="submit">Apply</button>
+</form>
+
+<p class="hint">
+    Synthetic games written by the bot scheduler are recorded as <code>Practice</code> in these same
+    tables. Filter by game type to keep load-test runs out of the numbers.
+</p>
+
+<section class="summary">
+    <div class="card">
+        <span class="label">Games in range</span>
+        <span class="value" th:text="${games.totalCount()}">0</span>
+    </div>
+    <div class="card" th:if="${frameTiming != null}">
+        <span class="label">Frame interval (median of per-game means)</span>
+        <span class="value"
+              th:classappend="${frameTiming.medianMeanIntervalNs() > frameBudgetNs} ? 'over-budget' : ''"
+              th:text="${#numbers.formatDecimal(frameTiming.medianMeanIntervalNs() / 1000000.0, 1, 2)} + ' ms'">0 ms</span>
+    </div>
+    <div class="card" th:if="${frameTiming != null}">
+        <span class="label">Frame interval (p95 of per-game means)</span>
+        <span class="value"
+              th:classappend="${frameTiming.p95MeanIntervalNs() > frameBudgetNs} ? 'over-budget' : ''"
+              th:text="${#numbers.formatDecimal(frameTiming.p95MeanIntervalNs() / 1000000.0, 1, 2)} + ' ms'">0 ms</span>
+    </div>
+    <div class="card" th:if="${frameTiming != null}">
+        <span class="label">Worst frame interval</span>
+        <span class="value"
+              th:text="${#numbers.formatDecimal(frameTiming.maxIntervalNs() / 1000000.0, 1, 2)} + ' ms'">0 ms</span>
+    </div>
+    <div class="card" th:if="${frameTiming == null}">
+        <span class="label">Frame interval</span>
+        <span class="value">no data</span>
+    </div>
+</section>
+<p class="hint">Budget at 20 FPS is 50.00 ms per frame.</p>
+
+<h2>Per-name timings, slowest first</h2>
+<p th:if="${timings.isEmpty()}" class="empty">No timing statistics recorded in this range.</p>
+<div th:unless="${timings.isEmpty()}">
+    <canvas id="timingChart" height="320"></canvas>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Median of means (ms)</th>
+            <th>p95 of means (ms)</th>
+            <th>Min (ms)</th>
+            <th>Max (ms)</th>
+            <th>Games</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="timing : ${timings}" th:classappend="${timing.name() == selectedName} ? 'selected' : ''">
+            <td th:text="${timing.name()}">name</td>
+            <td th:text="${#numbers.formatDecimal(timing.medianMeanIntervalNs() / 1000000.0, 1, 3)}">0</td>
+            <td th:text="${#numbers.formatDecimal(timing.p95MeanIntervalNs() / 1000000.0, 1, 3)}">0</td>
+            <td th:text="${#numbers.formatDecimal(timing.minIntervalNs() / 1000000.0, 1, 3)}">0</td>
+            <td th:text="${#numbers.formatDecimal(timing.maxIntervalNs() / 1000000.0, 1, 3)}">0</td>
+            <td th:text="${timing.gameCount()}">0</td>
+            <td>
+                <a th:href="@{/admin/statistics(from=${from}, to=${to}, gameType=${gameType}, name=${timing.name()})}">plot</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<h2 th:if="${selectedName != null}">
+    <span th:text="${selectedName}">name</span> over time
+</h2>
+<p th:if="${selectedName != null and series.isEmpty()}" class="empty">No games recorded for this name.</p>
+<canvas th:if="${selectedName != null and !series.isEmpty()}" id="seriesChart" height="320"></canvas>
+
+<h2>Recent games</h2>
+<p th:if="${games.content().isEmpty()}" class="empty">No games in this range.</p>
+<table th:unless="${games.content().isEmpty()}">
+    <thead>
+    <tr>
+        <th>Game</th>
+        <th>Recorded</th>
+        <th>Type</th>
+        <th>Duration (s)</th>
+        <th>Frame mean (ms)</th>
+        <th>Frame max (ms)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="game : ${games.content()}">
+        <td>
+            <a th:href="@{/admin/statistics/games/{id}(id=${game.gameId()})}" th:text="${game.gameId()}">0</a>
+        </td>
+        <td th:text="${#temporals.format(game.createdAt(), 'yyyy-MM-dd HH:mm:ss')}">-</td>
+        <td th:text="${game.gameType()}">-</td>
+        <td th:text="${game.durationSeconds()}">0</td>
+        <td th:classappend="${game.frameMeanIntervalNs() != null and game.frameMeanIntervalNs() > frameBudgetNs} ? 'over-budget' : ''"
+            th:text="${game.frameMeanIntervalNs() == null} ? '-' : ${#numbers.formatDecimal(game.frameMeanIntervalNs() / 1000000.0, 1, 3)}">-</td>
+        <td th:text="${game.frameMaxIntervalNs() == null} ? '-' : ${#numbers.formatDecimal(game.frameMaxIntervalNs() / 1000000.0, 1, 3)}">-</td>
+    </tr>
+    </tbody>
+</table>
+
+<nav class="pagination" th:if="${games.totalPages() > 1}">
+    <a th:if="${games.hasPrevious()}"
+       th:href="@{/admin/statistics(from=${from}, to=${to}, gameType=${gameType}, name=${selectedName}, page=${games.page() - 1}, size=${games.size()})}">Previous</a>
+    <span th:text="'Page ' + (${games.page()} + 1) + ' of ' + ${games.totalPages()}">Page</span>
+    <a th:if="${games.hasNext()}"
+       th:href="@{/admin/statistics(from=${from}, to=${to}, gameType=${gameType}, name=${selectedName}, page=${games.page() + 1}, size=${games.size()})}">Next</a>
+</nav>
+
+<!--
+  Rendered server side so the charts need no second authenticated request. The tables above are the
+  source of truth: if Chart.js fails to load, the page still shows every number.
+-->
+<script id="timingData" type="application/json" th:utext="${timingsJson}">[]</script>
+<script id="seriesData" type="application/json" th:utext="${seriesJson}">[]</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
+        integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4"
+        crossorigin="anonymous"></script>
+<script th:src="@{/js/statistic.js}"></script>
+</body>
+</html>
