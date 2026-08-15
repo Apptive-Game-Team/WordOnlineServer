@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -21,11 +22,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StatisticRepository {
 
+    private static final int EVENT_SCHEMA_VERSION = 1;
+
     private final JdbcClient jdbcClient;
+    private final BuildProperties buildProperties;
 
     private final static String SAVE_GAME_RESULT = """
-            INSERT INTO statistic_games(win_user_id, loss_user_id, duration, game_type)
-            VALUES(:winUserId, :lossUserId, :duration, :gameType::game_type) RETURNING id;
+            INSERT INTO statistic_games(
+                win_user_id,
+                loss_user_id,
+                duration,
+                game_type,
+                server_version,
+                event_schema_version
+            )
+            VALUES(
+                :winUserId,
+                :lossUserId,
+                :duration,
+                :gameType::game_type,
+                :serverVersion,
+                :eventSchemaVersion
+            ) RETURNING id;
             """;
     private final static String SAVE_CARD = """
             INSERT INTO statistic_game_cards(user_id, statistic_game_id, card_id, count)
@@ -66,6 +84,8 @@ public class StatisticRepository {
                 .param("winUserId", winUserId)
                 .param("lossUserId", lossUserId)
                 .param("duration", duration.toSeconds())
+                .param("serverVersion", buildProperties.getVersion())
+                .param("eventSchemaVersion", EVENT_SCHEMA_VERSION)
                 .update(keyHolder);
         return keyHolder.getKey().longValue();
     }
