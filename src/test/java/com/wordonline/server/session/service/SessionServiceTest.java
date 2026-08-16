@@ -14,6 +14,7 @@ import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
+import com.wordonline.server.statistic.service.GameSessionRecordService;
 import com.wordonline.server.statistic.service.StatisticService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,12 +46,14 @@ class SessionServiceTest {
     private final SessionObjectFactory sessionObjectFactory = mock(SessionObjectFactory.class);
     private final GameLoopFactory gameLoopFactory = mock(GameLoopFactory.class);
     private final StatisticService statisticService = mock(StatisticService.class);
+    private final GameSessionRecordService gameSessionRecordService = mock(GameSessionRecordService.class);
     private final UserService userService = mock(UserService.class);
     private final LobbySessionClient lobbySessionClient = mock(LobbySessionClient.class);
     private final SessionService sessionService = new SessionService(
             sessionObjectFactory,
             gameLoopFactory,
             statisticService,
+            gameSessionRecordService,
             userService,
             mock(UserScenarioService.class),
             lobbySessionClient);
@@ -147,7 +150,7 @@ class SessionServiceTest {
 
     @Test
     void reportsInactiveForUnknownSessionId() {
-        SessionService service = new SessionService(null, null, null, null, null, null);
+        SessionService service = new SessionService(null, null, null, null, null, null, null);
 
         assertThat(service.isSessionActive("no-such-session")).isFalse();
     }
@@ -216,6 +219,47 @@ class SessionServiceTest {
         verify(statisticService).saveGameResult(any(), eq(Master.RightPlayer), eq(SessionType.PVP));
         verify(userService).incrementTotalWins(1L);
         assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
+    }
+
+    // The reap and the loop's own finally block race for the same session entry; whoever
+    // wins the map removal owns the teardown, so the zombie's later termination must be a no-op.
+    @Test
+    void reapedSessionSkipsSecondTeardownWhenZombieLoopLaterTerminates() {
+        ArgumentCaptor<Runnable> onTerminated = ArgumentCaptor.forClass(Runnable.class);
+        sessionService.createSession("attempt-1", sessionDto);
+        verify(gameLoop).init(eq(sessionObject), onTerminated.capture());
+
+        stubTeardownCollaborators();
+        when(sessionObject.getLeftUserId()).thenReturn(1L);
+        when(sessionObject.getRightUserId()).thenReturn(2L);
+
+        assertTrue(sessionService.reapStuckSession(sessionObject, "stalled for 10000 ms"));
+
+        verify(statisticService).saveAbandonedGameResult(any(), eq(SessionType.PVP));
+        verify(lobbySessionClient).notifySessionEnded(sessionDto.sessionId());
+        verify(userService).markOnline(1L);
+        verify(userService).markOnline(2L);
+        verify(gameLoop).close();
+        verify(gameLoop).interruptLoopThread();
+        assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
+
+        onTerminated.getValue().run();
+
+        verify(statisticService, times(0)).saveGameResult(any(), any(), any());
+        verify(lobbySessionClient, times(1)).notifySessionEnded(any());
+    }
+
+    @Test
+    void reapReturnsFalseWhenSessionAlreadyEndedNormally() {
+        ArgumentCaptor<Runnable> onTerminated = ArgumentCaptor.forClass(Runnable.class);
+        sessionService.createSession("attempt-1", sessionDto);
+        verify(gameLoop).init(eq(sessionObject), onTerminated.capture());
+
+        stubTeardownCollaborators();
+        onTerminated.getValue().run();
+
+        assertFalse(sessionService.reapStuckSession(sessionObject, "stalled"));
+        verify(statisticService, times(0)).saveAbandonedGameResult(any(), any());
     }
 
     private ResultChecker stubTeardownCollaborators() {
