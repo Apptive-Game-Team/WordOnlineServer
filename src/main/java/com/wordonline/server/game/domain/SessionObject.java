@@ -16,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiConsumer;
 
 @Getter
 @Slf4j
@@ -82,25 +83,11 @@ public class SessionObject {
         this.rightUserCardDeck = new CardDeck(rightUserCards, rightDeckSeed);
         log.trace("[Session] randomSeed={}, leftDeckSeed={}, rightDeckSeed={}, sessionId={}",
                 randomSeed, leftDeckSeed, rightDeckSeed, sessionId);
+        // Both callbacks fire on the PingChecker scheduler thread. Swapping a bot in or out changes
+        // what the next frame ticks, so the work is queued for the loop thread instead of applied here.
         this.pingChecker = new PingChecker(leftUserId, rightUserId,
-                userId -> {
-                    Master side = getUserSide(userId);
-                    if (side == null) {
-                        return;
-                    }
-                    if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
-                        wordOnlineLoop.activateBotForUser(userId);
-                    }
-                },
-                userId -> {
-                    Master side = getUserSide(userId);
-                    if (side == null) {
-                        return;
-                    }
-                    if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
-                        wordOnlineLoop.deactivateBotForUser(userId);
-                    }
-                }
+                userId -> submitBotToggle(userId, "activateBot", WordOnlineLoop::activateBotForUser),
+                userId -> submitBotToggle(userId, "deactivateBot", WordOnlineLoop::deactivateBotForUser)
         );
         this.sessionType = sessionType;
         this.scenarioId = scenarioId;
@@ -123,6 +110,16 @@ public class SessionObject {
                          List<CardType> leftUserCards,
                          List<CardType> rightUserCards) {
         this(sessionId, leftUserId, rightUserId, template, leftUserCards, rightUserCards, SessionType.PVP, null);
+    }
+
+    private void submitBotToggle(long userId, String actionName, BiConsumer<WordOnlineLoop, Long> toggle) {
+        if (getUserSide(userId) == null) {
+            return;
+        }
+        if (gameLoop instanceof WordOnlineLoop wordOnlineLoop) {
+            wordOnlineLoop.getGameContext()
+                    .submitAction(actionName, () -> toggle.accept(wordOnlineLoop, userId));
+        }
     }
 
     // this method is used to send the frame information to the client

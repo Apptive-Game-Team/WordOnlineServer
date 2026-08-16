@@ -32,15 +32,10 @@ public class MagicInputHandler {
         inputEventPublisher.subscribe(subscriber);
     }
 
-    // Runs on the STOMP inbound thread: take the session lock the game loop holds during update()
-    // so card/mana deduction and the whole magic execution cannot interleave with a frame.
+    // Runs on the loop thread. The STOMP inbound thread queues the cast on the game action queue
+    // instead of calling this directly, so card/mana deduction and the whole magic execution can
+    // never interleave with a frame.
     public InputResponseDto handleInput(GameContext gameContext, long userId, MagicUseRequestDto inputRequestDto) {
-        synchronized (gameContext) {
-            return handleInputLocked(gameContext, userId, inputRequestDto);
-        }
-    }
-
-    private InputResponseDto handleInputLocked(GameContext gameContext, long userId, MagicUseRequestDto inputRequestDto) {
         Master master = gameContext.getSessionObject().getUserSide(userId);
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
@@ -95,14 +90,9 @@ public class MagicInputHandler {
         return new InputResponseDto(true, InputResultCode.SUCCESS, playerData.mana, inputRequestDto.getId(), magic.id);
     }
 
-    // Runs on the bot executor thread (BotAgentSystem submits ticks off the loop thread).
+    // Runs on the loop thread. BotAgent decides on the bot executor thread but dispatches through
+    // the game action queue, so the cast itself lands here between frames.
     public InputResponseDto handleBotPlayerInput(GameContext gameContext, Master master, InputRequestDto inputRequestDto) {
-        synchronized (gameContext) {
-            return handleBotPlayerInputLocked(gameContext, master, inputRequestDto);
-        }
-    }
-
-    private InputResponseDto handleBotPlayerInputLocked(GameContext gameContext, Master master, InputRequestDto inputRequestDto) {
         PlayerData playerData = gameContext.getGameSessionData().getPlayerData(master);
 
         if (!playerData.validCardsUse(inputRequestDto.getCards())) {

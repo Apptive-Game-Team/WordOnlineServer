@@ -114,11 +114,11 @@ public abstract class GameLoop implements Runnable {
                 long startTime = System.currentTimeMillis();
 
                 try {
-                    // ponytail: session-wide lock so input threads cannot mutate game state mid-frame.
-                    // Upgrade path: drain casts from a queue at the top of update() if lock contention shows up.
-                    synchronized (gameContext) {
-                        update();
-                    }
+                    // Every write to game state happens on this thread: first the input, bot and
+                    // ping actions other threads queued since the last frame, then the frame itself.
+                    // Nothing else mutates it, so no lock is taken here or anywhere below.
+                    gameContext.drainActions();
+                    update();
                 } catch (Exception e) {
                     log.error("[ERROR] {}", e.getMessage(), e);
                     finalizeAfterFailure();
