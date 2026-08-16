@@ -9,7 +9,9 @@ import java.util.List;
  * Card-level gameplay parameters the bot needs to evaluate a recipe before casting it.
  *
  * <p>Values are read per card type rather than per concrete magic, because the recipe is only
- * resolved into a {@code Magic} once the cast reaches {@code MagicInputHandler}.
+ * resolved into a {@code Magic} once the cast reaches {@code MagicInputHandler}. Damage and radius
+ * are therefore an approximation of the spell that will actually spawn; mana cost is exact, since
+ * {@code PlayerData.useCards} charges the cost of every card in the recipe.
  */
 public final class BotSpellStats {
 
@@ -19,6 +21,12 @@ public final class BotSpellStats {
      */
     static final int UNKNOWN_MANA_COST = 9_999;
 
+    /** Used when a magic card has no {@code damage} row, so blast scoring still ranks by coverage. */
+    static final double UNKNOWN_DAMAGE = 8.0;
+
+    /** Used when a magic card has no {@code radius} row (for example {@code spawn}). */
+    static final double UNKNOWN_BLAST_RADIUS = 0.5;
+
     private final Parameters parameters;
 
     public BotSpellStats(Parameters parameters) {
@@ -27,9 +35,6 @@ public final class BotSpellStats {
 
     /**
      * Total mana the recipe costs, summed over every card, matching what the input handler charges.
-     *
-     * <p>Costing only the magic card made the bot believe every recipe was as cheap as its main
-     * card, so it queued casts it could not pay for and the input handler rejected them.
      */
     public int totalManaCost(List<CardType> recipe) {
         int total = 0;
@@ -45,5 +50,16 @@ public final class BotSpellStats {
     /** Maximum distance from the caster the target position may be. */
     public double castRange(CardType mainCard) {
         return parameters.getValueOrDefault(mainCard.name(), "range", 0.0);
+    }
+
+    /** Radius around the target position that the spell is expected to cover. */
+    public double blastRadius(CardType mainCard) {
+        return parameters.getValueOrDefault(mainCard.name(), "radius", UNKNOWN_BLAST_RADIUS);
+    }
+
+    /** Expected damage applied to each covered target. */
+    public double damagePerTarget(CardType mainCard) {
+        double damage = parameters.getValueOrDefault(mainCard.name(), "damage", UNKNOWN_DAMAGE);
+        return damage > 0 ? damage : UNKNOWN_DAMAGE;
     }
 }

@@ -44,6 +44,14 @@ class BotSpellStatsTest {
         assertThat(spellStats.castRange(CardType.Explode)).isEqualTo(9.0);
     }
 
+    @Test
+    void fallsBackToNeutralDamageWhenTheCardHasNoDamageRow() {
+        when(parameters.getValueOrDefault(eq("Spawn"), eq("damage"), anyDouble()))
+                .thenAnswer(invocation -> invocation.getArgument(2));
+
+        assertThat(spellStats.damagePerTarget(CardType.Spawn)).isEqualTo(BotSpellStats.UNKNOWN_DAMAGE);
+    }
+
     private void manaCost(String card, double cost) {
         when(parameters.getValueOrDefault(eq(card), eq("mana_cost"), anyDouble())).thenReturn(cost);
     }
