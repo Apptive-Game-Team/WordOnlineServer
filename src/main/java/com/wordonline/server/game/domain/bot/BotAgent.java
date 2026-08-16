@@ -76,6 +76,7 @@ public final class BotAgent {
                 botEye.getCardList(),
                 gameLoop,
                 botEye.getMana(),
+                botEye.getEnemyPlayerHp(),
                 botSide);
         
         if(decision != null)

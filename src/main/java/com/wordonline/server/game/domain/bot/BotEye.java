@@ -16,6 +16,7 @@ public class BotEye {
     private final List<GameObject> gameObjectList;
     private final List<CardType> cardList;
     private final int mana;
+    private final int enemyPlayerHp;
 
     public BotEye(GameSessionData data, FrameInfoDto myFrame, Master botSide) {
         var playerData = BotSideUtil.getPlayerData(data, botSide);
@@ -24,5 +25,6 @@ public class BotEye {
             cardList = new ArrayList<>(playerData.cards);
         }
         mana = playerData.mana;
+        enemyPlayerHp = BotSideUtil.getPlayerData(data, BotSideUtil.getEnemySide(botSide)).hp;
     }
 }
