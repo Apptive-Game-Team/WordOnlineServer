@@ -66,3 +66,10 @@ lobby:
 jwt:
   public:
     key: ${JWT_PUBLIC_KEY}
+
+# Loop watchdog. A session whose last completed frame is older than stuck-threshold is
+# reaped: recorded as ABANDONED (with the loop thread's stack trace), reported to the
+# lobby, and removed from the session registry.
+watchdog:
+  check-interval-ms: ${WATCHDOG_CHECK_INTERVAL_MS:5000}
+  stuck-threshold: ${WATCHDOG_STUCK_THRESHOLD:10s}

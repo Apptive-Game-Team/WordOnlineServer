@@ -58,11 +58,20 @@ public class Server {
     @Column(name = "instance_id", length = 64)
     private String instanceId;
 
+    /**
+     * Admin override for the bot scheduler's target session count. Written by the admin server;
+     * mapped read-only here so the whole-row heartbeat save cannot write back a stale value and
+     * undo an admin change made between read and save. {@code null} means no override; the
+     * scheduler falls back to {@code bot.auto-match.target-games}.
+     */
+    @Column(name = "target_bot_sessions", insertable = false, updatable = false)
+    private Integer targetBotSessions;
+
     public String getUrl() {
         return String.format("%s://%s:%d", protocol, domain, port);
     }
 
     public Server(String protocol, String domain, int port, ServerType serverType, ServerState state) {
-        this(null, protocol, domain, port, serverType, state, null, 0, 100, null);
+        this(null, protocol, domain, port, serverType, state, null, 0, 100, null, null);
     }
 }
