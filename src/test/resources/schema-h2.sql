@@ -91,13 +91,33 @@ CREATE TABLE magics (
 
 CREATE TABLE statistic_games (
     id BIGSERIAL PRIMARY KEY,
-    win_user_id BIGINT NOT NULL,
-    loss_user_id BIGINT NOT NULL,
+    outcome VARCHAR(16) NOT NULL DEFAULT 'WIN' CHECK (outcome IN ('WIN', 'DRAW', 'ABANDONED')),
+    win_user_id BIGINT,
+    loss_user_id BIGINT,
     duration BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
     game_type VARCHAR(255) NOT NULL DEFAULT 'PVP',
     server_version VARCHAR(64) NOT NULL,
     event_schema_version INT NOT NULL CHECK (event_schema_version > 0)
+);
+
+CREATE TABLE statistic_game_sessions (
+    id BIGSERIAL PRIMARY KEY,
+    session_id VARCHAR(128) NOT NULL,
+    left_user_id BIGINT NOT NULL,
+    right_user_id BIGINT NOT NULL,
+    game_type VARCHAR(255) NOT NULL,
+    server_domain VARCHAR(255) NOT NULL,
+    server_port INT NOT NULL,
+    server_instance_id VARCHAR(64) NOT NULL,
+    server_version VARCHAR(64) NOT NULL,
+    status VARCHAR(16) NOT NULL DEFAULT 'IN_PROGRESS'
+        CHECK (status IN ('IN_PROGRESS', 'COMPLETED', 'DRAW', 'ABANDONED')),
+    end_reason VARCHAR(32),
+    end_detail TEXT,
+    statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE SET NULL,
+    started_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    ended_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE statistic_game_cards (
