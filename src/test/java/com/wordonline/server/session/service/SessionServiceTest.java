@@ -10,6 +10,7 @@ import com.wordonline.server.game.service.UserScenarioService;
 import com.wordonline.server.game.service.UserService;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.lobby.client.LobbySessionClient;
+import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Flow;
@@ -70,6 +72,7 @@ class SessionServiceTest {
         when(sessionObject.getGameLoop()).thenReturn(gameLoop);
         when(gameLoopFactory.create(sessionDto.sessionType())).thenReturn(gameLoop);
         when(gameLoop.is_running()).thenReturn(true);
+        when(gameLoop.awaitStart(any())).thenReturn(true);
     }
 
     @AfterEach
@@ -94,6 +97,47 @@ class SessionServiceTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> sessionService.createSession("attempt-1", conflicting));
+    }
+
+    @Test
+    void sessionWhoseLoopNeverStartsIsNotReportedReady() {
+        when(gameLoop.awaitStart(any())).thenReturn(false);
+        when(gameLoop.is_running()).thenReturn(false);
+
+        SessionCreationResult result = sessionService.createSession("attempt-1", sessionDto);
+
+        assertFalse(result.ready());
+        assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
+        assertThat(sessionService.getActiveSessions()).isZero();
+        assertThat(sessionService.getAllActiveSessionsInfo("http://game")).isEmpty();
+    }
+
+    // ConcurrentHashMap iteration follows key hash order, so without the explicit sort the room list
+    // would come back in an order unrelated to when the sessions were created.
+    @Test
+    void roomListIsOrderedOldestFirstRegardlessOfMapOrder() {
+        Instant now = Instant.parse("2026-08-16T00:00:00Z");
+        when(sessionObject.getCreatedAt()).thenReturn(now.plusSeconds(60));
+        sessionService.createSession(sessionDto);
+
+        SessionDto olderDto = new SessionDto("session-0", 3L, 4L, SessionType.PVP, null);
+        SessionObject older = mock(SessionObject.class);
+        GameLoop olderLoop = mock(GameLoop.class);
+        when(sessionObjectFactory.createSessionObject(olderDto)).thenReturn(older);
+        when(older.getSessionId()).thenReturn(olderDto.sessionId());
+        when(older.getSessionType()).thenReturn(olderDto.sessionType());
+        when(older.getGameLoop()).thenReturn(olderLoop);
+        when(older.getCreatedAt()).thenReturn(now);
+        when(gameLoopFactory.create(olderDto.sessionType())).thenReturn(olderLoop);
+        when(olderLoop.is_running()).thenReturn(true);
+        sessionService.createSession(olderDto);
+
+        List<RoomInfoDto> rooms = sessionService.getAllActiveSessionsInfo("http://game");
+
+        assertThat(rooms).extracting(RoomInfoDto::sessionId)
+                .containsExactly("session-0", "session-1");
+        assertThat(rooms).extracting(RoomInfoDto::createdAt)
+                .containsExactly(now, now.plusSeconds(60));
     }
 
     @Test
