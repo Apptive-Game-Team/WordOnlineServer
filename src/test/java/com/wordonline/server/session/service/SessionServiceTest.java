@@ -10,9 +10,11 @@ import com.wordonline.server.game.service.UserScenarioService;
 import com.wordonline.server.game.service.UserService;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.lobby.client.LobbySessionClient;
+import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
+import com.wordonline.server.statistic.service.GameSessionRecordService;
 import com.wordonline.server.statistic.service.StatisticService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Flow;
@@ -43,12 +46,14 @@ class SessionServiceTest {
     private final SessionObjectFactory sessionObjectFactory = mock(SessionObjectFactory.class);
     private final GameLoopFactory gameLoopFactory = mock(GameLoopFactory.class);
     private final StatisticService statisticService = mock(StatisticService.class);
+    private final GameSessionRecordService gameSessionRecordService = mock(GameSessionRecordService.class);
     private final UserService userService = mock(UserService.class);
     private final LobbySessionClient lobbySessionClient = mock(LobbySessionClient.class);
     private final SessionService sessionService = new SessionService(
             sessionObjectFactory,
             gameLoopFactory,
             statisticService,
+            gameSessionRecordService,
             userService,
             mock(UserScenarioService.class),
             lobbySessionClient);
@@ -70,6 +75,7 @@ class SessionServiceTest {
         when(sessionObject.getGameLoop()).thenReturn(gameLoop);
         when(gameLoopFactory.create(sessionDto.sessionType())).thenReturn(gameLoop);
         when(gameLoop.is_running()).thenReturn(true);
+        when(gameLoop.awaitStart(any())).thenReturn(true);
     }
 
     @AfterEach
@@ -97,13 +103,54 @@ class SessionServiceTest {
     }
 
     @Test
+    void sessionWhoseLoopNeverStartsIsNotReportedReady() {
+        when(gameLoop.awaitStart(any())).thenReturn(false);
+        when(gameLoop.is_running()).thenReturn(false);
+
+        SessionCreationResult result = sessionService.createSession("attempt-1", sessionDto);
+
+        assertFalse(result.ready());
+        assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
+        assertThat(sessionService.getActiveSessions()).isZero();
+        assertThat(sessionService.getAllActiveSessionsInfo("http://game")).isEmpty();
+    }
+
+    // ConcurrentHashMap iteration follows key hash order, so without the explicit sort the room list
+    // would come back in an order unrelated to when the sessions were created.
+    @Test
+    void roomListIsOrderedOldestFirstRegardlessOfMapOrder() {
+        Instant now = Instant.parse("2026-08-16T00:00:00Z");
+        when(sessionObject.getCreatedAt()).thenReturn(now.plusSeconds(60));
+        sessionService.createSession(sessionDto);
+
+        SessionDto olderDto = new SessionDto("session-0", 3L, 4L, SessionType.PVP, null);
+        SessionObject older = mock(SessionObject.class);
+        GameLoop olderLoop = mock(GameLoop.class);
+        when(sessionObjectFactory.createSessionObject(olderDto)).thenReturn(older);
+        when(older.getSessionId()).thenReturn(olderDto.sessionId());
+        when(older.getSessionType()).thenReturn(olderDto.sessionType());
+        when(older.getGameLoop()).thenReturn(olderLoop);
+        when(older.getCreatedAt()).thenReturn(now);
+        when(gameLoopFactory.create(olderDto.sessionType())).thenReturn(olderLoop);
+        when(olderLoop.is_running()).thenReturn(true);
+        sessionService.createSession(olderDto);
+
+        List<RoomInfoDto> rooms = sessionService.getAllActiveSessionsInfo("http://game");
+
+        assertThat(rooms).extracting(RoomInfoDto::sessionId)
+                .containsExactly("session-0", "session-1");
+        assertThat(rooms).extracting(RoomInfoDto::createdAt)
+                .containsExactly(now, now.plusSeconds(60));
+    }
+
+    @Test
     void missingSessionIsInactive() {
         assertFalse(sessionService.isSessionActive("missing"));
     }
 
     @Test
     void reportsInactiveForUnknownSessionId() {
-        SessionService service = new SessionService(null, null, null, null, null, null);
+        SessionService service = new SessionService(null, null, null, null, null, null, null);
 
         assertThat(service.isSessionActive("no-such-session")).isFalse();
     }
@@ -172,6 +219,47 @@ class SessionServiceTest {
         verify(statisticService).saveGameResult(any(), eq(Master.RightPlayer), eq(SessionType.PVP));
         verify(userService).incrementTotalWins(1L);
         assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
+    }
+
+    // The reap and the loop's own finally block race for the same session entry; whoever
+    // wins the map removal owns the teardown, so the zombie's later termination must be a no-op.
+    @Test
+    void reapedSessionSkipsSecondTeardownWhenZombieLoopLaterTerminates() {
+        ArgumentCaptor<Runnable> onTerminated = ArgumentCaptor.forClass(Runnable.class);
+        sessionService.createSession("attempt-1", sessionDto);
+        verify(gameLoop).init(eq(sessionObject), onTerminated.capture());
+
+        stubTeardownCollaborators();
+        when(sessionObject.getLeftUserId()).thenReturn(1L);
+        when(sessionObject.getRightUserId()).thenReturn(2L);
+
+        assertTrue(sessionService.reapStuckSession(sessionObject, "stalled for 10000 ms"));
+
+        verify(statisticService).saveAbandonedGameResult(any(), eq(SessionType.PVP));
+        verify(lobbySessionClient).notifySessionEnded(sessionDto.sessionId());
+        verify(userService).markOnline(1L);
+        verify(userService).markOnline(2L);
+        verify(gameLoop).close();
+        verify(gameLoop).interruptLoopThread();
+        assertFalse(sessionService.isSessionActive(sessionDto.sessionId()));
+
+        onTerminated.getValue().run();
+
+        verify(statisticService, times(0)).saveGameResult(any(), any(), any());
+        verify(lobbySessionClient, times(1)).notifySessionEnded(any());
+    }
+
+    @Test
+    void reapReturnsFalseWhenSessionAlreadyEndedNormally() {
+        ArgumentCaptor<Runnable> onTerminated = ArgumentCaptor.forClass(Runnable.class);
+        sessionService.createSession("attempt-1", sessionDto);
+        verify(gameLoop).init(eq(sessionObject), onTerminated.capture());
+
+        stubTeardownCollaborators();
+        onTerminated.getValue().run();
+
+        assertFalse(sessionService.reapStuckSession(sessionObject, "stalled"));
+        verify(statisticService, times(0)).saveAbandonedGameResult(any(), any());
     }
 
     private ResultChecker stubTeardownCollaborators() {

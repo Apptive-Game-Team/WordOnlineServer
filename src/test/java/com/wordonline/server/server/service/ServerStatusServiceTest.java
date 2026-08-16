@@ -73,6 +73,25 @@ class ServerStatusServiceTest {
     }
 
     @Test
+    void findTargetBotSessionsReturnsTheAdminOverrideFromTheOwnRow() {
+        Server server = new Server(1L, "https", "game.example.com", 7777, ServerType.GAME,
+                ServerState.ACTIVE, Instant.now(), 0, 64, null, 4);
+        when(serverRepository.findByDomainAndPort("game.example.com", 7777)).thenReturn(Optional.of(server));
+
+        assertThat(serverStatusService.findTargetBotSessions()).contains(4);
+    }
+
+    @Test
+    void findTargetBotSessionsIsEmptyWithoutARowOrOverride() {
+        when(serverRepository.findByDomainAndPort("game.example.com", 7777)).thenReturn(Optional.empty());
+        assertThat(serverStatusService.findTargetBotSessions()).isEmpty();
+
+        Server noOverride = new Server("https", "game.example.com", 7777, ServerType.GAME, ServerState.ACTIVE);
+        when(serverRepository.findByDomainAndPort("game.example.com", 7777)).thenReturn(Optional.of(noOverride));
+        assertThat(serverStatusService.findTargetBotSessions()).isEmpty();
+    }
+
+    @Test
     void inactiveStatusClearsSessionCount() {
         Server server = new Server("https", "game.example.com", 7777, ServerType.GAME, ServerState.ACTIVE);
         server.setSessionCount(5);

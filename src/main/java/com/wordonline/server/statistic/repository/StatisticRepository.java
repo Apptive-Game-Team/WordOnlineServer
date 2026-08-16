@@ -4,13 +4,13 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.wordonline.server.game.domain.SessionType;
-import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.domain.UpdateTimeStatistic;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
@@ -22,11 +22,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StatisticRepository {
 
+    private static final int EVENT_SCHEMA_VERSION = 1;
+
     private final JdbcClient jdbcClient;
+    private final BuildProperties buildProperties;
 
     private final static String SAVE_GAME_RESULT = """
-            INSERT INTO statistic_games(win_user_id, loss_user_id, duration, game_type)
-            VALUES(:winUserId, :lossUserId, :duration, :gameType::game_type) RETURNING id;
+            INSERT INTO statistic_games(
+                outcome,
+                win_user_id,
+                loss_user_id,
+                duration,
+                game_type,
+                server_version,
+                event_schema_version
+            )
+            VALUES(
+                :outcome,
+                :winUserId,
+                :lossUserId,
+                :duration,
+                :gameType::game_type,
+                :serverVersion,
+                :eventSchemaVersion
+            ) RETURNING id;
             """;
     private final static String SAVE_CARD = """
             INSERT INTO statistic_game_cards(user_id, statistic_game_id, card_id, count)
@@ -42,31 +61,35 @@ public class StatisticRepository {
             VALUES(:gameId, :name, :minInterval, :maxInterval, :meanInterval);
             """;
 
-    public void saveGameResultDto(GameResultDto gameResultDto) {
-        long gameId = saveGame(gameResultDto.sessionType(), gameResultDto.winUserId(), gameResultDto.lossUserId(), gameResultDto.duration());
+    public long saveGameResultDto(GameResultDto gameResultDto) {
+        long gameId = saveGame(gameResultDto);
         saveCard(gameId, gameResultDto.cards());
         saveMagic(gameId, gameResultDto.magics());
         saveUpdateTime(gameId, gameResultDto.updateTimeStatisticMap());
+        return gameId;
     }
 
 
-    private void saveUpdateTime(long gameId, Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap) {
+    private void saveUpdateTime(long gameId, Map<String, UpdateTimeStatistic> updateTimeStatisticMap) {
         updateTimeStatisticMap.forEach((key, value) -> jdbcClient.sql(SAVE_UPDATE_TIME)
                 .param("gameId", gameId)
                 .param("minInterval", value.getMinInterval())
                 .param("maxInterval", value.getMaxInterval())
                 .param("meanInterval", value.getMeanInterval())
-                .param("name", key.getSimpleName())
+                .param("name", key)
                 .update());
     }
 
-    private long saveGame(SessionType sessionType, long winUserId, long lossUserId, Duration duration) {
+    private long saveGame(GameResultDto gameResultDto) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient.sql(SAVE_GAME_RESULT)
-                .param("gameType", sessionType.name())
-                .param("winUserId", winUserId)
-                .param("lossUserId", lossUserId)
-                .param("duration", duration.toSeconds())
+                .param("outcome", gameResultDto.outcome().name())
+                .param("gameType", gameResultDto.sessionType().name())
+                .param("winUserId", gameResultDto.winUserId())
+                .param("lossUserId", gameResultDto.lossUserId())
+                .param("duration", gameResultDto.duration().toSeconds())
+                .param("serverVersion", buildProperties.getVersion())
+                .param("eventSchemaVersion", EVENT_SCHEMA_VERSION)
                 .update(keyHolder);
         return keyHolder.getKey().longValue();
     }

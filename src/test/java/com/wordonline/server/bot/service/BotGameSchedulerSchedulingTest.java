@@ -1,5 +1,6 @@
 package com.wordonline.server.bot.service;
 
+import com.wordonline.server.bot.config.BotAutoMatchProperties;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.server.entity.ServerState;
@@ -9,6 +10,7 @@ import com.wordonline.server.session.service.SessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.when;
 @SpringJUnitConfig(classes = BotGameSchedulerSchedulingTest.SchedulingConfig.class)
 @TestPropertySource(properties = {
         "bot.auto-match.enabled=true",
+        "bot.auto-match.target-games=1",
         "bot.auto-match.check-interval-ms=25",
         "server.external-port=7777",
         "server.domain=localhost",
@@ -79,13 +82,15 @@ class BotGameSchedulerSchedulingTest {
 
     @Configuration
     @EnableScheduling
+    @EnableConfigurationProperties(BotAutoMatchProperties.class)
     static class SchedulingConfig {
 
         @Bean
         BotGameScheduler botGameScheduler(SessionService sessionService,
                                           BotPersonaService botPersonaService,
-                                          ServerStatusService serverStatusService) {
-            return new BotGameScheduler(sessionService, botPersonaService, serverStatusService);
+                                          ServerStatusService serverStatusService,
+                                          BotAutoMatchProperties botAutoMatchProperties) {
+            return new BotGameScheduler(sessionService, botPersonaService, serverStatusService, botAutoMatchProperties);
         }
 
         @Bean

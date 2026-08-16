@@ -13,11 +13,15 @@ import com.wordonline.server.session.dto.RoomInfoDto;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.util.GameLoopFactory;
 import com.wordonline.server.session.util.SessionObjectFactory;
+import com.wordonline.server.statistic.domain.GameSessionStatus;
+import com.wordonline.server.statistic.service.GameSessionRecordService;
 import com.wordonline.server.statistic.service.StatisticService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +33,7 @@ import java.util.concurrent.SubmissionPublisher;
 public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
+    private static final Duration SESSION_START_TIMEOUT = Duration.ofSeconds(2);
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
     private static final Map<String, String> sessionIdsByAttemptId = new ConcurrentHashMap<>();
 
@@ -37,6 +42,7 @@ public class SessionService {
     private final SessionObjectFactory sessionObjectFactory;
     private final GameLoopFactory gameLoopFactory;
     private final StatisticService statisticService;
+    private final GameSessionRecordService gameSessionRecordService;
     private final UserService userService;
     private final UserScenarioService userScenarioService;
     private final LobbySessionClient lobbySessionClient;
@@ -44,12 +50,14 @@ public class SessionService {
     public SessionService(SessionObjectFactory sessionObjectFactory,
                           GameLoopFactory gameLoopFactory,
                           StatisticService statisticService,
+                          GameSessionRecordService gameSessionRecordService,
                           UserService userService,
                           UserScenarioService userScenarioService,
                           LobbySessionClient lobbySessionClient) {
         this.sessionObjectFactory = sessionObjectFactory;
         this.gameLoopFactory = gameLoopFactory;
         this.statisticService = statisticService;
+        this.gameSessionRecordService = gameSessionRecordService;
         this.userService = userService;
         this.userScenarioService = userScenarioService;
         this.lobbySessionClient = lobbySessionClient;
@@ -83,7 +91,24 @@ public class SessionService {
 
         createSessionObject(sessionDto);
         sessionIdsByAttemptId.put(attemptId, sessionDto.sessionId());
-        return new SessionCreationResult(attemptId, sessionDto.sessionId(), isSessionActive(sessionDto.sessionId()));
+        return new SessionCreationResult(attemptId, sessionDto.sessionId(), awaitSessionReady(sessionDto.sessionId()));
+    }
+
+    // isSessionActive() is only true once the loop thread is ticking, so the lobby would otherwise
+    // race the thread start and be told a brand new session is not ready. Wait for the first tick
+    // instead; a timeout leaves the session in place and reports not-ready so the lobby can retry
+    // with the same attemptId.
+    private boolean awaitSessionReady(String sessionId) {
+        SessionObject sessionObject = sessions.get(sessionId);
+        if (sessionObject == null || sessionObject.getGameLoop() == null) {
+            return false;
+        }
+
+        boolean started = sessionObject.getGameLoop().awaitStart(SESSION_START_TIMEOUT);
+        if (!started) {
+            log.warn("[Session] Loop did not start within {}; sessionId: {}", SESSION_START_TIMEOUT, sessionId);
+        }
+        return started;
     }
 
     private void createSessionObject(SessionDto sessionDto) {
@@ -95,6 +120,7 @@ public class SessionService {
 
         if (!sessionObject.getSessionId().contains("debug")) {
             statisticService.createBuilder(loop.getGameContext());
+            gameSessionRecordService.recordStart(sessionObject);
         }
 
         sessions.put(sessionObject.getSessionId(), sessionObject);
@@ -103,6 +129,8 @@ public class SessionService {
             thread.start();
         } catch (RuntimeException | Error exception) {
             sessions.remove(sessionObject.getSessionId(), sessionObject);
+            gameSessionRecordService.recordEnd(sessionObject.getSessionId(),
+                    GameSessionStatus.ABANDONED, "START_FAILED", null, null);
             throw exception;
         }
         submitSessionNumChange();
@@ -117,7 +145,14 @@ public class SessionService {
     }
 
     private void onLoopTerminated(SessionObject sessionObject) {
-        sessions.remove(sessionObject.getSessionId());
+        // The watchdog reaps stuck sessions through the same removal; whichever caller
+        // wins the remove owns the teardown, so a zombie loop thread that wakes up after
+        // being reaped must not record a second result or free the users again.
+        if (!sessions.remove(sessionObject.getSessionId(), sessionObject)) {
+            log.info("[Session] Loop terminated after the session was already reaped; sessionId: {}",
+                    sessionObject.getSessionId());
+            return;
+        }
         sessionObject.getPingChecker().close();
         submitSessionNumChange();
 
@@ -125,11 +160,18 @@ public class SessionService {
         ResultChecker resultChecker = gameContext.getResultChecker();
         Master loser = resultChecker.getLoser();
 
+        Long statisticGameId = null;
         try {
-            statisticService.saveGameResult(gameContext, loser, sessionObject.getSessionType());
+            statisticGameId = statisticService
+                    .saveGameResult(gameContext, loser, sessionObject.getSessionType())
+                    .orElse(null);
         } catch (Exception e) {
             log.warn("[Session] Failed to save game statistics; sessionId: {}", sessionObject.getSessionId(), e);
         }
+
+        gameSessionRecordService.recordEnd(sessionObject.getSessionId(),
+                loser == null ? GameSessionStatus.DRAW : GameSessionStatus.COMPLETED,
+                null, null, statisticGameId);
 
         notifyLobbySessionEnded(sessionObject);
 
@@ -150,6 +192,45 @@ public class SessionService {
         }
 
         log.info("[Session] Session removed; sessionId: {}", sessionObject.getSessionId());
+    }
+
+    // Called by the watchdog for a session whose loop stopped ticking. Winning the remove
+    // makes this the owner of the teardown (see onLoopTerminated); everything a normal end
+    // would release is released here, because the loop thread may never run its finally
+    // block. The thread itself is only interrupted best-effort - a synchronized wait
+    // ignores it - so the record, the lobby ticket, and the users must not depend on it.
+    public boolean reapStuckSession(SessionObject sessionObject, String endDetail) {
+        String sessionId = sessionObject.getSessionId();
+        if (!sessions.remove(sessionId, sessionObject)) {
+            return false;
+        }
+        sessionObject.getPingChecker().close();
+        submitSessionNumChange();
+
+        Long statisticGameId = null;
+        try {
+            statisticGameId = statisticService
+                    .saveAbandonedGameResult(sessionObject.getGameContext(), sessionObject.getSessionType())
+                    .orElse(null);
+        } catch (Exception e) {
+            log.warn("[Session] Failed to save abandoned game statistics; sessionId: {}", sessionId, e);
+        }
+
+        gameSessionRecordService.recordEnd(sessionId, GameSessionStatus.ABANDONED,
+                "LOOP_STUCK", endDetail, statisticGameId);
+
+        notifyLobbySessionEnded(sessionObject);
+        userService.markOnline(sessionObject.getLeftUserId());
+        userService.markOnline(sessionObject.getRightUserId());
+
+        GameLoop loop = sessionObject.getGameLoop();
+        if (loop != null) {
+            loop.close();
+            loop.interruptLoopThread();
+        }
+
+        log.error("[Session] Reaped stuck session; sessionId: {}", sessionId);
+        return true;
     }
 
     // The lobby's match ticket lives in Redis and stays MATCHED until it hears the session ended,
@@ -176,6 +257,11 @@ public class SessionService {
         return sessions.get(sessionId);
     }
 
+    // Snapshot for monitoring sweeps; a copy so callers iterate without seeing concurrent changes.
+    public List<SessionObject> getSessionObjects() {
+        return List.copyOf(sessions.values());
+    }
+
     public long getActiveSessions() {
         return sessions.values().stream().filter(s -> s.getGameLoop().is_running()).count();
     }
@@ -197,10 +283,19 @@ public class SessionService {
         sessionIdsByAttemptId.clear();
     }
 
+    // Ordered oldest first. Without an explicit sort the order is ConcurrentHashMap bucket order over
+    // random UUID keys, so "the room near the top of the admin list" would mean nothing reproducible.
     public List<RoomInfoDto> getAllActiveSessionsInfo(String baseUrl) {
         return sessions.values().stream()
                 .filter(s -> s.getGameLoop() != null && s.getGameLoop().is_running())
-                .map(s -> new RoomInfoDto(s.getSessionId(), Long.valueOf(s.getLeftUserId()), Long.valueOf(s.getRightUserId()), baseUrl))
+                .sorted(Comparator.comparing(SessionObject::getCreatedAt)
+                        .thenComparing(SessionObject::getSessionId))
+                .map(s -> new RoomInfoDto(
+                        s.getSessionId(),
+                        Long.valueOf(s.getLeftUserId()),
+                        Long.valueOf(s.getRightUserId()),
+                        baseUrl,
+                        s.getCreatedAt()))
                 .toList();
     }
 }
