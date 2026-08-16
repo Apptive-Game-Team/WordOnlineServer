@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.wordonline.server.game.domain.SessionType;
+import com.wordonline.server.statistic.domain.GameOutcome;
 import com.wordonline.server.statistic.domain.UpdateTimeStatistic;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+// winUserId/lossUserId are null unless outcome is WIN.
 public record GameResultDto(
         SessionType sessionType,
-        long winUserId,
-        long lossUserId,
+        GameOutcome outcome,
+        Long winUserId,
+        Long lossUserId,
         Duration duration,
         List<StatisticCardDto> cards,
         List<StatisticMagicDto> magics,

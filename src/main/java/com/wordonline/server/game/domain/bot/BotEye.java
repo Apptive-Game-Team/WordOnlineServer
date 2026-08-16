@@ -8,7 +8,12 @@ import java.util.List;
 
 // What the bot saw at one frame, frozen. Built on the loop thread and handed to the bot executor,
 // so the brain never touches a live GameObject, card list or mana counter while a frame is running.
-public record BotEye(List<BotVisibleObject> gameObjectList, List<CardType> cardList, int mana) {
+public record BotEye(
+        List<BotVisibleObject> gameObjectList,
+        List<CardType> cardList,
+        int mana,
+        int enemyPlayerHp
+) {
 
     // Must be called on the loop thread.
     public static BotEye observe(GameSessionData data, Master botSide) {
@@ -16,7 +21,8 @@ public record BotEye(List<BotVisibleObject> gameObjectList, List<CardType> cardL
         return new BotEye(
                 data.gameObjects.stream().map(BotVisibleObject::of).toList(),
                 List.copyOf(playerData.cards),
-                playerData.mana
+                playerData.mana,
+                BotSideUtil.getPlayerData(data, BotSideUtil.getEnemySide(botSide)).hp
         );
     }
 }

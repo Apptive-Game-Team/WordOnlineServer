@@ -25,7 +25,8 @@ public class PlayerData {
 
     private final Parameters parameters;
 
-    // Read and written by the loop thread only. The bot sees a copy taken by BotEye.observe.
+    // Mutated only by the loop thread, so the check-then-act methods below need no locking, and
+    // the bot reads a copy taken by BotEye.observe rather than these fields.
     public int mana = 0;
     public int hp = MAX_HP;
     public List<CardType> cards = new ArrayList<>();

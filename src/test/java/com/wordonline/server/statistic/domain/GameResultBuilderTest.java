@@ -67,6 +67,41 @@ class GameResultBuilderTest {
                 .containsOnlyKeys(GameResultBuilder.FRAME_STATISTIC_NAME, "PhysicSystem");
     }
 
+    // The stall interval is recorded when the NEXT frame starts, which for a reaped
+    // session never happens - buildAbandoned must add it explicitly, and outside the
+    // Frame series so the healthy-frame statistics stay clean.
+    @Test
+    void abandonedBuildRecordsTheUnfinishedFrameAsStalledFrame() {
+        GameResultBuilder builder = new GameResultBuilder();
+        long stallNs = 10_000_000_000L;
+
+        builder.recordFrameStart(0L);
+        builder.recordFrameStart(FIFTY_MS_NS);
+
+        GameResultDto dto = builder.buildAbandoned(SessionType.PVP, FIFTY_MS_NS + stallNs);
+
+        assertThat(dto.outcome()).isEqualTo(GameOutcome.ABANDONED);
+        assertThat(dto.winUserId()).isNull();
+        assertThat(dto.lossUserId()).isNull();
+        Map<String, UpdateTimeStatistic> statistics = dto.updateTimeStatisticMap();
+        assertThat(statistics.get(GameResultBuilder.STALLED_FRAME_STATISTIC_NAME).getMaxInterval())
+                .isEqualTo(stallNs);
+        assertThat(statistics.get(GameResultBuilder.FRAME_STATISTIC_NAME).getMaxInterval())
+                .isEqualTo(FIFTY_MS_NS);
+    }
+
+    @Test
+    void drawBuildKeepsResultWithoutWinner() {
+        GameResultBuilder builder = new GameResultBuilder();
+
+        GameResultDto dto = builder.build(null, SessionType.PVP);
+
+        assertThat(dto).isNotNull();
+        assertThat(dto.outcome()).isEqualTo(GameOutcome.DRAW);
+        assertThat(dto.winUserId()).isNull();
+        assertThat(dto.lossUserId()).isNull();
+    }
+
     private Map<String, UpdateTimeStatistic> statisticsOf(GameResultBuilder builder) {
         GameResultDto dto = builder.build(Master.RightPlayer, SessionType.PVP);
         assertThat(dto).isNotNull();
