@@ -35,7 +35,7 @@ public class BotGameScheduler {
             return;
         }
 
-        long missingGames = botAutoMatchProperties.targetGames() - sessionService.getActiveSessions();
+        long missingGames = resolveTargetSessions() - sessionService.getActiveSessions();
         if (missingGames <= 0) {
             return;
         }
@@ -48,6 +48,22 @@ public class BotGameScheduler {
 
         for (long i = 0; i < missingGames; i++) {
             createBotGame(bots);
+        }
+    }
+
+    /**
+     * The admin's per-server override on the {@code servers} row wins over the static
+     * {@code bot.auto-match.target-games} default. A failing database read must not kill the
+     * scheduler, so that also falls back to the configured default.
+     */
+    private int resolveTargetSessions() {
+        try {
+            return serverStatusService.findTargetBotSessions()
+                    .orElseGet(botAutoMatchProperties::targetGames);
+        } catch (RuntimeException exception) {
+            log.warn("[BotGameScheduler] Can't read the target bot session override, using the configured default {}",
+                    botAutoMatchProperties.targetGames(), exception);
+            return botAutoMatchProperties.targetGames();
         }
     }
 

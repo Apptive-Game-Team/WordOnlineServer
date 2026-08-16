@@ -1,6 +1,7 @@
 package com.wordonline.server.server.service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,17 @@ public class ServerStatusService {
 
     public synchronized void setServerStatus(ServerState state) {
         publishStatus(state, state == ServerState.INACTIVE ? 0 : null);
+    }
+
+    /**
+     * The admin's per-server override for the bot scheduler's target session count, read fresh
+     * from this server's own row so a change applies on the next scheduler tick without a
+     * restart. Empty when the row is missing or the admin has not set an override.
+     */
+    public Optional<Integer> findTargetBotSessions() {
+        return serverRepository
+                .findByDomainAndPort(serverIdentityProperties.domain(), serverIdentityProperties.externalPort())
+                .map(Server::getTargetBotSessions);
     }
 
     public synchronized void publishHeartbeat(int sessionCount) {
