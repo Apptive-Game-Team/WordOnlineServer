@@ -31,4 +31,8 @@ public class Parameters {
     public double getValueOrDefault(GameObjectKey gameObject, ParameterKey parameter, double defaultValue) {
         return parameterService.getValueOrDefault(gameObject.dbName(), parameter.dbName(), defaultValue);
     }
+
+    public double getValueOrDefault(String gameObject, String parameter, double defaultValue) {
+        return parameterService.getValueOrDefault(gameObject, parameter, defaultValue);
+    }
 }
