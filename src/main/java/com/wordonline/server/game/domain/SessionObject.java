@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -32,6 +33,9 @@ public class SessionObject {
     private final SessionType sessionType;
     private final Long scenarioId;
     private final long randomSeed;
+    // Session ids are random UUIDs, so a room list ordered by id says nothing about age. The admin
+    // page needs this to tell a session created seconds ago from one that has been running for a while.
+    private final Instant createdAt = Instant.now();
 
     public Master getUserSide(long userId) {
         if (userId == leftUserId) {

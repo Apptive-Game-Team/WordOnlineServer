@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +31,7 @@ import java.util.concurrent.SubmissionPublisher;
 public class SessionService {
 
     private static final Logger log = LoggerFactory.getLogger(SessionService.class);
+    private static final Duration SESSION_START_TIMEOUT = Duration.ofSeconds(2);
     private static final Map<String, SessionObject> sessions = new ConcurrentHashMap<>();
     private static final Map<String, String> sessionIdsByAttemptId = new ConcurrentHashMap<>();
 
@@ -83,7 +86,24 @@ public class SessionService {
 
         createSessionObject(sessionDto);
         sessionIdsByAttemptId.put(attemptId, sessionDto.sessionId());
-        return new SessionCreationResult(attemptId, sessionDto.sessionId(), isSessionActive(sessionDto.sessionId()));
+        return new SessionCreationResult(attemptId, sessionDto.sessionId(), awaitSessionReady(sessionDto.sessionId()));
+    }
+
+    // isSessionActive() is only true once the loop thread is ticking, so the lobby would otherwise
+    // race the thread start and be told a brand new session is not ready. Wait for the first tick
+    // instead; a timeout leaves the session in place and reports not-ready so the lobby can retry
+    // with the same attemptId.
+    private boolean awaitSessionReady(String sessionId) {
+        SessionObject sessionObject = sessions.get(sessionId);
+        if (sessionObject == null || sessionObject.getGameLoop() == null) {
+            return false;
+        }
+
+        boolean started = sessionObject.getGameLoop().awaitStart(SESSION_START_TIMEOUT);
+        if (!started) {
+            log.warn("[Session] Loop did not start within {}; sessionId: {}", SESSION_START_TIMEOUT, sessionId);
+        }
+        return started;
     }
 
     private void createSessionObject(SessionDto sessionDto) {
@@ -197,10 +217,19 @@ public class SessionService {
         sessionIdsByAttemptId.clear();
     }
 
+    // Ordered oldest first. Without an explicit sort the order is ConcurrentHashMap bucket order over
+    // random UUID keys, so "the room near the top of the admin list" would mean nothing reproducible.
     public List<RoomInfoDto> getAllActiveSessionsInfo(String baseUrl) {
         return sessions.values().stream()
                 .filter(s -> s.getGameLoop() != null && s.getGameLoop().is_running())
-                .map(s -> new RoomInfoDto(s.getSessionId(), Long.valueOf(s.getLeftUserId()), Long.valueOf(s.getRightUserId()), baseUrl))
+                .sorted(Comparator.comparing(SessionObject::getCreatedAt)
+                        .thenComparing(SessionObject::getSessionId))
+                .map(s -> new RoomInfoDto(
+                        s.getSessionId(),
+                        Long.valueOf(s.getLeftUserId()),
+                        Long.valueOf(s.getRightUserId()),
+                        baseUrl,
+                        s.getCreatedAt()))
                 .toList();
     }
 }
