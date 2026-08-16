@@ -2,29 +2,27 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.domain.magic.CardType;
-import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.dto.frame.FrameInfoDto;
-import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-public class BotEye {
+// What the bot saw at one frame, frozen. Built on the loop thread and handed to the bot executor,
+// so the brain never touches a live GameObject, card list or mana counter while a frame is running.
+public record BotEye(
+        List<BotVisibleObject> gameObjectList,
+        List<CardType> cardList,
+        int mana,
+        int enemyPlayerHp
+) {
 
-    private final List<GameObject> gameObjectList;
-    private final List<CardType> cardList;
-    private final int mana;
-    private final int enemyPlayerHp;
-
-    public BotEye(GameSessionData data, FrameInfoDto myFrame, Master botSide) {
+    // Must be called on the loop thread.
+    public static BotEye observe(GameSessionData data, Master botSide) {
         var playerData = BotSideUtil.getPlayerData(data, botSide);
-        gameObjectList = new ArrayList<>(data.gameObjects);
-        synchronized (playerData.cards) {
-            cardList = new ArrayList<>(playerData.cards);
-        }
-        mana = playerData.mana;
-        enemyPlayerHp = BotSideUtil.getPlayerData(data, BotSideUtil.getEnemySide(botSide)).hp;
+        return new BotEye(
+                data.gameObjects.stream().map(BotVisibleObject::of).toList(),
+                List.copyOf(playerData.cards),
+                playerData.mana,
+                BotSideUtil.getPlayerData(data, BotSideUtil.getEnemySide(botSide)).hp
+        );
     }
 }

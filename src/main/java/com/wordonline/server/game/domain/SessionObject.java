@@ -136,16 +136,25 @@ public class SessionObject {
         template.convertAndSend(String.format("%s/0", url), data);
     }
 
+    // Called from the debug HTTP endpoint, off the loop thread. The hand and the deck are plain
+    // loop-thread collections now, so resetting them is queued like any other input. The user id
+    // assignment stays inline because callers read it back straight after the call.
     public void setLeftUser(long userId, List<CardType> cards) {
         leftUserId = userId;
-        getGameContext().getGameSessionData().leftPlayerData.cards.clear();
-        getGameContext().getGameSessionData().leftCardDeck.setCards(cards);
+        GameContext gameContext = getGameContext();
+        gameContext.submitAction("setLeftUserDeck", () -> {
+            gameContext.getGameSessionData().leftPlayerData.cards.clear();
+            gameContext.getGameSessionData().leftCardDeck.setCards(cards);
+        });
     }
 
     public void setRightUser(long userId, List<CardType> cards) {
         rightUserId = userId;
-        getGameContext().getGameSessionData().rightPlayerData.cards.clear();
-        getGameContext().getGameSessionData().rightCardDeck.setCards(cards);
+        GameContext gameContext = getGameContext();
+        gameContext.submitAction("setRightUserDeck", () -> {
+            gameContext.getGameSessionData().rightPlayerData.cards.clear();
+            gameContext.getGameSessionData().rightCardDeck.setCards(cards);
+        });
     }
 
     @Override

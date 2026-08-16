@@ -27,7 +27,7 @@ class ThreatAssessmentTest {
         GameObject live = enemy(Master.RightPlayer, new Vector3(6, 0, 5), Status.Idle);
 
         ThreatAssessment threats = ThreatAssessment.observe(
-                List.of(ally, dying, destroyed, live), Master.RightPlayer, DEFENDED, 100);
+                seen(ally, dying, destroyed, live), Master.RightPlayer, DEFENDED, 100);
 
         assertThat(threats.threats()).hasSize(1);
         assertThat(threats.threats().getFirst().objectId()).isEqualTo(live.getId());
@@ -39,7 +39,7 @@ class ThreatAssessmentTest {
         attachMob(wounded, 7);
 
         ThreatAssessment threats = ThreatAssessment.observe(
-                List.of(wounded), Master.RightPlayer, DEFENDED, 100);
+                seen(wounded), Master.RightPlayer, DEFENDED, 100);
 
         assertThat(threats.threats().getFirst().hp()).isEqualTo(7);
     }
@@ -50,7 +50,7 @@ class ThreatAssessmentTest {
         GameObject near = enemy(Master.RightPlayer, new Vector3(3, 0, 5), Status.Idle);
 
         ThreatAssessment threats = ThreatAssessment.observe(
-                List.of(far, near), Master.RightPlayer, DEFENDED, 100);
+                seen(far, near), Master.RightPlayer, DEFENDED, 100);
 
         assertThat(threats.threats().getFirst().objectId()).isEqualTo(near.getId());
     }
@@ -58,10 +58,10 @@ class ThreatAssessmentTest {
     @Test
     void pressureRisesAsEnemiesCloseInAndStaysZeroWhenTheyAreFarAway() {
         ThreatAssessment distant = ThreatAssessment.observe(
-                List.of(enemy(Master.RightPlayer, new Vector3(15, 0, 5), Status.Idle)),
+                seen(enemy(Master.RightPlayer, new Vector3(15, 0, 5), Status.Idle)),
                 Master.RightPlayer, DEFENDED, 100);
         ThreatAssessment atTheDoor = ThreatAssessment.observe(
-                List.of(
+                seen(
                         enemy(Master.RightPlayer, new Vector3(2, 0, 5), Status.Idle),
                         enemy(Master.RightPlayer, new Vector3(2, 0, 6), Status.Idle),
                         enemy(Master.RightPlayer, new Vector3(2, 0, 4), Status.Idle)),
@@ -73,9 +73,9 @@ class ThreatAssessmentTest {
 
     @Test
     void pressureSaturatesAtOneSoAnOverwhelmingPushCannotOutweighEverythingElse() {
-        List<GameObject> swarm = java.util.stream.IntStream.range(0, 8)
+        List<BotVisibleObject> swarm = java.util.stream.IntStream.range(0, 8)
                 .mapToObj(index -> enemy(Master.RightPlayer, new Vector3(2, 0, 2 + index * 0.5f), Status.Idle))
-                .map(GameObject.class::cast)
+                .map(BotVisibleObject::of)
                 .toList();
 
         ThreatAssessment threats = ThreatAssessment.observe(swarm, Master.RightPlayer, DEFENDED, 100);
@@ -86,7 +86,7 @@ class ThreatAssessmentTest {
     @Test
     void reportsTheLaneTheNearbyPressureSitsIn() {
         ThreatAssessment threats = ThreatAssessment.observe(
-                List.of(enemy(Master.RightPlayer, new Vector3(4, 0, 9), Status.Idle)),
+                seen(enemy(Master.RightPlayer, new Vector3(4, 0, 9), Status.Idle)),
                 Master.RightPlayer, DEFENDED, 100);
 
         assertThat(threats.contestedLaneZ()).isEqualTo(9f);
@@ -105,12 +105,17 @@ class ThreatAssessmentTest {
         GameObject core = enemy(Master.RightPlayer, GameConfig.RIGHT_PLAYER_POSITION, Status.Idle, PrefabType.Player);
 
         ThreatAssessment threats = ThreatAssessment.observe(
-                List.of(core), Master.RightPlayer, DEFENDED, 63);
+                seen(core), Master.RightPlayer, DEFENDED, 63);
 
         EnemyThreat observed = threats.threats().getFirst();
         assertThat(observed.playerCore()).isTrue();
         assertThat(observed.hp()).isEqualTo(63);
         assertThat(threats.pressure()).isZero();
+    }
+
+    // The assessment reads the frame snapshot, so the test objects go through it too.
+    private static List<BotVisibleObject> seen(GameObject... gameObjects) {
+        return java.util.Arrays.stream(gameObjects).map(BotVisibleObject::of).toList();
     }
 
     private static GameObject enemy(Master master, Vector3 position, Status status) {

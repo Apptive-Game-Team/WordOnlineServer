@@ -74,8 +74,8 @@ class PlacementPlannerTest {
     }
 
     private static ThreatAssessment observe(Master enemySide, Vector3 defended, Vector3... enemyPositions) {
-        List<GameObject> enemies = Stream.of(enemyPositions)
-                .map(position -> enemy(enemySide, position))
+        List<BotVisibleObject> enemies = Stream.of(enemyPositions)
+                .map(position -> BotVisibleObject.of(enemy(enemySide, position)))
                 .toList();
         return ThreatAssessment.observe(enemies, enemySide, defended, 100);
     }

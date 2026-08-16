@@ -4,11 +4,10 @@ import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
+import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
-import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,13 +59,12 @@ public class BotBrain {
         this.persona = persona;
     }
 
-    public InputDecision think(List<GameObject> gameObjectList,
-                               List<CardType> cardList,
-                               GameLoop loop,
-                               int mana,
-                               int enemyPlayerHp,
-                               Master botSide)
+    // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,
+    // never from a live GameObject; parameters are loaded once per session and read-only after that.
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide)
     {
+        List<CardType> cardList = botEye.cardList();
+        int mana = botEye.mana();
         try {
             log.trace("[Bot {}] Start thinking with cards={}, mana={}", botSide, cardList, mana);
             if (cardList.isEmpty()) {
@@ -79,12 +77,13 @@ public class BotBrain {
 
             Vector3 playerPos = BotSideUtil.getPlayerPosition(botSide);
             Master enemySide = BotSideUtil.getEnemySide(botSide);
-            List<GameObject> enemies = gameObjectList.stream()
-                    .filter(go -> go.getMaster() == enemySide)
+            List<BotVisibleObject> enemies = botEye.gameObjectList().stream()
+                    .filter(go -> go.master() == enemySide)
                     .toList();
 
-            BotSpellStats spellStats = new BotSpellStats(loop.parameters);
-            ThreatAssessment threats = ThreatAssessment.observe(gameObjectList, enemySide, playerPos, enemyPlayerHp);
+            BotSpellStats spellStats = new BotSpellStats(parameters);
+            ThreatAssessment threats = ThreatAssessment.observe(
+                    botEye.gameObjectList(), enemySide, playerPos, botEye.enemyPlayerHp());
             Random random = ThreadLocalRandom.current();
 
             Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
@@ -144,7 +143,7 @@ public class BotBrain {
                                            int cost,
                                            BotSpellStats spellStats,
                                            ThreatAssessment threats,
-                                           List<GameObject> enemies,
+                                           List<BotVisibleObject> enemies,
                                            Vector3 playerPos,
                                            Master botSide,
                                            Random random) {
