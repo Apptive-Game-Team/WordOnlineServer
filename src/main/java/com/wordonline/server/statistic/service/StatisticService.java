@@ -55,17 +55,29 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
+    // Returns the statistic_games id so the caller can link the session lifecycle row,
+    // or empty when this session never had a builder (debug sessions).
     @Transactional
-    public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
+    public Optional<Long> saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
         if (builder == null) {
-            return;
+            return Optional.empty();
         }
         GameResultDto gameResultDto = builder.build(loser, sessionType);
-        if (gameResultDto == null) {
-            return;
+        return Optional.of(statisticRepository.saveGameResultDto(gameResultDto));
+    }
+
+    // Called by the loop watchdog for a session whose loop stalled. Flushes whatever the
+    // builder accumulated up to the stall, including the age of the frame that never
+    // finished, so the degradation is visible in the recorded statistics.
+    @Transactional
+    public Optional<Long> saveAbandonedGameResult(GameContext gameContext, SessionType sessionType) {
+        GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
+        if (builder == null) {
+            return Optional.empty();
         }
-        statisticRepository.saveGameResultDto(gameResultDto);
+        GameResultDto gameResultDto = builder.buildAbandoned(sessionType, System.nanoTime());
+        return Optional.of(statisticRepository.saveGameResultDto(gameResultDto));
     }
 
     // The statistic name stays the simple class name so rows already recorded for
