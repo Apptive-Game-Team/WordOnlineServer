@@ -13,7 +13,7 @@ public class BotAction {
     // thread executes it at the top of the next frame.
     public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto, Master botSide)
     {
-        log.info("[Bot {}] Executing action: {} cards={} target={}",
+        log.debug("[Bot {}] Executing action: {} cards={} target={}",
                 botSide, inputRequestDto.getType(), inputRequestDto.getCards(), inputRequestDto.getPosition());
 
         GameContext gameContext = sessionObject.getGameContext();

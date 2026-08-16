@@ -38,6 +38,18 @@ public abstract class GameLoop implements Runnable {
     private volatile boolean stopRequested = false;
     private final CountDownLatch startSignal = new CountDownLatch(1);
 
+    // The thread ticking this loop, captured on entry so the watchdog can interrupt a
+    // stalled loop and snapshot where it is stuck. close() alone cannot end a loop whose
+    // thread never returns to the while condition.
+    private volatile Thread loopThread;
+
+    // Written by the loop thread once per completed frame and read by monitoring threads.
+    // deltaTime cannot serve that purpose: it holds the last completed frame's duration, so a
+    // loop thread that dies mid-frame keeps reporting a plausible fps forever. The age of this
+    // timestamp is the one signal that keeps moving when the loop does not.
+    @Getter
+    private volatile long lastFrameEndMillis = System.currentTimeMillis();
+
     public static final int FPS = 20;
     public SessionObject sessionObject;
     private Runnable onTerminated;
@@ -96,6 +108,25 @@ public abstract class GameLoop implements Runnable {
         stopRequested = true;
     }
 
+    // Best effort: wakes a thread parked in sleep/wait, but cannot break a synchronized
+    // wait or a runaway loop - callers must not assume the thread actually dies.
+    public void interruptLoopThread() {
+        Thread thread = loopThread;
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+        }
+    }
+
+    // Where the loop thread is right now; the watchdog records this as the primary
+    // evidence of what a stalled loop was blocked on. Empty when the thread is gone.
+    public StackTraceElement[] captureLoopThreadStackTrace() {
+        Thread thread = loopThread;
+        if (thread == null || !thread.isAlive()) {
+            return new StackTraceElement[0];
+        }
+        return thread.getStackTrace();
+    }
+
     @Override
     public void run() {
         runLoop();
@@ -105,6 +136,7 @@ public abstract class GameLoop implements Runnable {
     private void runLoop() {
         long frameDuration = 1000 / FPS;
 
+        loopThread = Thread.currentThread();
         state = LoopState.RUNNING;
         startSignal.countDown();
 
@@ -134,6 +166,7 @@ public abstract class GameLoop implements Runnable {
                     }
                 }
                 gameContext.setDeltaTime((System.currentTimeMillis() - startTime) / 1000.0f);
+                lastFrameEndMillis = System.currentTimeMillis();
             }
         } finally {
             // An Error thrown out of update() escapes the catch above. Without this the thread would

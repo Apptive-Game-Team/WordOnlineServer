@@ -29,6 +29,7 @@ public class StatisticRepository {
 
     private final static String SAVE_GAME_RESULT = """
             INSERT INTO statistic_games(
+                outcome,
                 win_user_id,
                 loss_user_id,
                 duration,
@@ -37,6 +38,7 @@ public class StatisticRepository {
                 event_schema_version
             )
             VALUES(
+                :outcome,
                 :winUserId,
                 :lossUserId,
                 :duration,
@@ -59,11 +61,12 @@ public class StatisticRepository {
             VALUES(:gameId, :name, :minInterval, :maxInterval, :meanInterval);
             """;
 
-    public void saveGameResultDto(GameResultDto gameResultDto) {
-        long gameId = saveGame(gameResultDto.sessionType(), gameResultDto.winUserId(), gameResultDto.lossUserId(), gameResultDto.duration());
+    public long saveGameResultDto(GameResultDto gameResultDto) {
+        long gameId = saveGame(gameResultDto);
         saveCard(gameId, gameResultDto.cards());
         saveMagic(gameId, gameResultDto.magics());
         saveUpdateTime(gameId, gameResultDto.updateTimeStatisticMap());
+        return gameId;
     }
 
 
@@ -77,13 +80,14 @@ public class StatisticRepository {
                 .update());
     }
 
-    private long saveGame(SessionType sessionType, long winUserId, long lossUserId, Duration duration) {
+    private long saveGame(GameResultDto gameResultDto) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcClient.sql(SAVE_GAME_RESULT)
-                .param("gameType", sessionType.name())
-                .param("winUserId", winUserId)
-                .param("lossUserId", lossUserId)
-                .param("duration", duration.toSeconds())
+                .param("outcome", gameResultDto.outcome().name())
+                .param("gameType", gameResultDto.sessionType().name())
+                .param("winUserId", gameResultDto.winUserId())
+                .param("lossUserId", gameResultDto.lossUserId())
+                .param("duration", gameResultDto.duration().toSeconds())
                 .param("serverVersion", buildProperties.getVersion())
                 .param("eventSchemaVersion", EVENT_SCHEMA_VERSION)
                 .update(keyHolder);
