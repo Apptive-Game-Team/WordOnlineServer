@@ -3,11 +3,10 @@ package com.wordonline.server.game.domain.bot;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
+import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
-import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,19 +30,19 @@ public class BotBrain {
         this.persona = persona;
     }
 
-    public InputDecision think(List<GameObject> gameObjectList,
-                               List<CardType> cardList,
-                               GameLoop loop,
-                               int mana,
-                               Master botSide)
+    // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,
+    // never from a live GameObject; parameters are loaded once per session and read-only after that.
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide)
     {
+        List<CardType> cardList = botEye.cardList();
+        int mana = botEye.mana();
         try {
             log.trace("[Bot {}] Start thinking with cards={}, mana={}", botSide, cardList, mana);
             Vector3 playerPos = BotSideUtil.getPlayerPosition(botSide);
             Master enemySide = BotSideUtil.getEnemySide(botSide);
-            
-            List<GameObject> enemies = gameObjectList.stream()
-                    .filter(go -> go.getMaster() == enemySide)
+
+            List<BotVisibleObject> enemies = botEye.gameObjectList().stream()
+                    .filter(go -> go.master() == enemySide)
                     .toList();
 
             if (cardList.isEmpty()) {
@@ -75,8 +74,8 @@ public class BotBrain {
                 }
 
                 hasMakeableRecipe = true;
-                double range = loop.parameters.getValue(mainCard.name(), "range");
-                int cost = (int) loop.parameters.getValue(mainCard.name(), "mana_cost");
+                double range = parameters.getValue(mainCard.name(), "range");
+                int cost = (int) parameters.getValue(mainCard.name(), "mana_cost");
                 if (cost > mana) {
                     continue;
                 }
@@ -96,15 +95,15 @@ public class BotBrain {
                 log.debug("[Bot {}] Found {} offensive candidates and {} enemies", botSide, offensive.size(), enemies.size());
                 List<MagicCandidate> usableOffensive = offensive.stream()
                         .filter(c -> enemies.stream().anyMatch(enemy ->
-                                enemy.getPosition().distance(playerPos) <= c.range()))
+                                enemy.position().distance(playerPos) <= c.range()))
                         .toList();
 
                 if (!usableOffensive.isEmpty()) {
-                    GameObject nearest = nearestEnemy(enemies, playerPos);
+                    BotVisibleObject nearest = nearestEnemy(enemies, playerPos);
                     MagicCandidate chosen = bestCandidate(usableOffensive);
 
-                    log.info("[Bot {}] Chose offensive action: {} targeting nearest enemy at {}", botSide, chosen.cards(), nearest.getPosition());
-                    return new InputDecision(chosen.cards(), nearest.getPosition());
+                    log.info("[Bot {}] Chose offensive action: {} targeting nearest enemy at {}", botSide, chosen.cards(), nearest.position());
+                    return new InputDecision(chosen.cards(), nearest.position());
                 } else {
                     log.debug("[Bot {}] No offensive candidates in range", botSide);
                 }
@@ -122,9 +121,9 @@ public class BotBrain {
                 return null;
             }
 
-            CardType cycleCard = pickCycleCard(cardList, loop, mana);
+            CardType cycleCard = pickCycleCard(cardList, parameters, mana);
             if (cycleCard != null) {
-                double range = loop.parameters.getValue(cycleCard.name(), "range");
+                double range = parameters.getValue(cycleCard.name(), "range");
                 Vector3 target = randomPosInRange(playerPos, range, botSide);
                 log.info("[Bot {}] Chose to cycle card: {} at random target {}", botSide, cycleCard, target);
                 return new InputDecision(List.of(cycleCard), target);
@@ -149,11 +148,11 @@ public class BotBrain {
         return true;
     }
 
-    private static GameObject nearestEnemy(List<GameObject> enemies, Vector3 myPos) {
-        GameObject best = null;
+    private static BotVisibleObject nearestEnemy(List<BotVisibleObject> enemies, Vector3 myPos) {
+        BotVisibleObject best = null;
         double bestD = Double.MAX_VALUE;
         for (var e : enemies) {
-            double d = myPos.distance(e.getPosition());
+            double d = myPos.distance(e.position());
             if (d < bestD) {
                 bestD = d;
                 best = e;
@@ -196,10 +195,10 @@ public class BotBrain {
         return combo.isEmpty() ? null : combo.getFirst();
     }
 
-    private static CardType pickCycleCard(List<CardType> cardList, GameLoop loop, int mana) {
+    private static CardType pickCycleCard(List<CardType> cardList, Parameters parameters, int mana) {
         List<CardType> candidates = new ArrayList<>();
         for (CardType c : cardList) {
-            int cost = (int) loop.parameters.getValue(c.name(), "mana_cost");
+            int cost = (int) parameters.getValue(c.name(), "mana_cost");
             if (cost <= mana) {
                 candidates.add(c);
             }
@@ -223,7 +222,7 @@ public class BotBrain {
                                   CardType mainCard,
                                   int mana,
                                   int cost,
-                                  List<GameObject> enemies) {
+                                  List<BotVisibleObject> enemies) {
         double baseScore = recipe.size();
         if (mainCard == CardType.Shoot || mainCard == CardType.Explode) {
             baseScore += 10.0;

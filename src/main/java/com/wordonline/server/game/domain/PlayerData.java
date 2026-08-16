@@ -4,7 +4,6 @@ import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.service.ManaCharger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.annotation.Scope;
@@ -26,12 +25,10 @@ public class PlayerData {
 
     private final Parameters parameters;
 
-    // Mutated only by the loop thread, so the check-then-act methods below need no locking.
-    // mana stays volatile and cards stays a synchronized list because BotEye still reads both
-    // from the bot executor thread; both become plain fields once the bot reads a snapshot.
-    public volatile int mana = 0;
+    // Read and written by the loop thread only. The bot sees a copy taken by BotEye.observe.
+    public int mana = 0;
     public int hp = MAX_HP;
-    public List<CardType> cards = Collections.synchronizedList(new ArrayList<>());
+    public List<CardType> cards = new ArrayList<>();
 
     // charge mana up to max
     public void addMana(int delta, int max) {
