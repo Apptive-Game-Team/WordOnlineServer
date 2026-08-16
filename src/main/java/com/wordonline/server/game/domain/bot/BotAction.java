@@ -10,7 +10,7 @@ public class BotAction {
 
     public void useCard(SessionObject sessionObject, InputRequestDto inputRequestDto, Master botSide)
     {
-        log.info("[Bot {}] Executing action: {} cards={} target={}", 
+        log.debug("[Bot {}] Executing action: {} cards={} target={}", 
                 botSide, inputRequestDto.getType(), inputRequestDto.getCards(), inputRequestDto.getPosition());
                 
         sessionObject.getGameContext().getMagicInputHandler().handleBotPlayerInput(

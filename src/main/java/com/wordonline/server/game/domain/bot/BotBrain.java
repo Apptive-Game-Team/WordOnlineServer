@@ -13,13 +13,24 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 public class BotBrain {
 
     public record InputDecision(List<CardType> playCards, Vector3 target) {}
+
+    /**
+     * Main cards whose spell lands on a target rather than building the bot's own board.
+     *
+     * <p>{@code Drop} belongs here: it is a ranged area attack, so scattering it over a random
+     * point in the half-disc facing the enemy wasted the cast.
+     */
+    private static final Set<CardType> OFFENSIVE_MAIN_CARDS =
+            EnumSet.of(CardType.Shoot, CardType.Explode, CardType.Drop);
 
     private final MagicParser magicParser;
     private final BotCounterEvaluator counterEvaluator;
@@ -60,6 +71,7 @@ public class BotBrain {
                 return null;
             }
 
+            BotSpellStats spellStats = new BotSpellStats(loop.parameters);
             Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
             List<List<CardType>> sortedRecipes = new ArrayList<>(allRecipes);
             sortedRecipes.sort((a, b) -> Integer.compare(b.size(), a.size()));
@@ -75,8 +87,8 @@ public class BotBrain {
                 }
 
                 hasMakeableRecipe = true;
-                double range = loop.parameters.getValue(mainCard.name(), "range");
-                int cost = (int) loop.parameters.getValue(mainCard.name(), "mana_cost");
+                double range = spellStats.castRange(mainCard);
+                int cost = spellStats.totalManaCost(recipe);
                 if (cost > mana) {
                     continue;
                 }
@@ -85,7 +97,7 @@ public class BotBrain {
                 double score = scoreCandidate(recipe, mainCard, mana, cost, enemies);
                 MagicCandidate candidate = new MagicCandidate(recipe, mainCard, range, cost, score);
 
-                if (mainCard == CardType.Shoot || mainCard == CardType.Explode) {
+                if (OFFENSIVE_MAIN_CARDS.contains(mainCard)) {
                     offensive.add(candidate);
                 } else {
                     placement.add(candidate);
@@ -103,7 +115,7 @@ public class BotBrain {
                     GameObject nearest = nearestEnemy(enemies, playerPos);
                     MagicCandidate chosen = bestCandidate(usableOffensive);
 
-                    log.info("[Bot {}] Chose offensive action: {} targeting nearest enemy at {}", botSide, chosen.cards(), nearest.getPosition());
+                    log.debug("[Bot {}] Chose offensive action: {} targeting nearest enemy at {}", botSide, chosen.cards(), nearest.getPosition());
                     return new InputDecision(chosen.cards(), nearest.getPosition());
                 } else {
                     log.debug("[Bot {}] No offensive candidates in range", botSide);
@@ -113,7 +125,7 @@ public class BotBrain {
             if (!placement.isEmpty()) {
                 MagicCandidate chosen = bestCandidate(placement);
                 Vector3 target = randomPosInRange(playerPos, chosen.range(), botSide);
-                log.info("[Bot {}] Chose placement action: {} at random target {}", botSide, chosen.cards(), target);
+                log.debug("[Bot {}] Chose placement action: {} at random target {}", botSide, chosen.cards(), target);
                 return new InputDecision(chosen.cards(), target);
             }
 
@@ -122,17 +134,17 @@ public class BotBrain {
                 return null;
             }
 
-            CardType cycleCard = pickCycleCard(cardList, loop, mana);
+            CardType cycleCard = pickCycleCard(cardList, spellStats, mana);
             if (cycleCard != null) {
-                double range = loop.parameters.getValue(cycleCard.name(), "range");
+                double range = spellStats.castRange(cycleCard);
                 Vector3 target = randomPosInRange(playerPos, range, botSide);
-                log.info("[Bot {}] Chose to cycle card: {} at random target {}", botSide, cycleCard, target);
+                log.debug("[Bot {}] Chose to cycle card: {} at random target {}", botSide, cycleCard, target);
                 return new InputDecision(List.of(cycleCard), target);
             }
 
             log.trace("[Bot {}] No valid actions found this tick", botSide);
         } catch (Exception e) {
-            log.error("[Bot " + botSide + "] Bot think error", e);
+            log.error("[Bot {}] Bot think error", botSide, e);
         }
         return null;
     }
@@ -196,10 +208,10 @@ public class BotBrain {
         return combo.isEmpty() ? null : combo.getFirst();
     }
 
-    private static CardType pickCycleCard(List<CardType> cardList, GameLoop loop, int mana) {
+    private static CardType pickCycleCard(List<CardType> cardList, BotSpellStats spellStats, int mana) {
         List<CardType> candidates = new ArrayList<>();
         for (CardType c : cardList) {
-            int cost = (int) loop.parameters.getValue(c.name(), "mana_cost");
+            int cost = spellStats.totalManaCost(List.of(c));
             if (cost <= mana) {
                 candidates.add(c);
             }
@@ -225,7 +237,7 @@ public class BotBrain {
                                   int cost,
                                   List<GameObject> enemies) {
         double baseScore = recipe.size();
-        if (mainCard == CardType.Shoot || mainCard == CardType.Explode) {
+        if (OFFENSIVE_MAIN_CARDS.contains(mainCard)) {
             baseScore += 10.0;
         } else {
             baseScore += 5.0;

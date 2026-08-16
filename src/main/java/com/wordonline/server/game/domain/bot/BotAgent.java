@@ -40,7 +40,7 @@ public final class BotAgent {
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
         this.persona = persona;
-        log.info("BotAgent initialized for side: {}, persona: {}", botSide, persona.name());
+        log.debug("BotAgent initialized for side: {}, persona: {}", botSide, persona.name());
     }
 
     public synchronized boolean shouldProcess(int currentFrame) {
@@ -82,7 +82,7 @@ public final class BotAgent {
         {
             long readyAtMillis = System.currentTimeMillis() + persona.normalizedThinkingTimeMs();
             pendingDecision = new PendingDecision(decision, readyAtMillis);
-            log.info("[BotAgent {}] Decision scheduled: {} at {}, readyAt={}", botSide, decision.playCards(), decision.target(), readyAtMillis);
+            log.debug("[BotAgent {}] Decision scheduled: {} at {}, readyAt={}", botSide, decision.playCards(), decision.target(), readyAtMillis);
             dispatchPendingDecisionIfReady();
         } else {
             log.trace("[BotAgent {}] No action decided", botSide);
@@ -97,7 +97,7 @@ public final class BotAgent {
         BotBrain.InputDecision decision = pendingDecision.decision();
         pendingDecision = null;
 
-        log.info("[BotAgent {}] Dispatching decision: {} at {}", botSide, decision.playCards(), decision.target());
+        log.debug("[BotAgent {}] Dispatching decision: {} at {}", botSide, decision.playCards(), decision.target());
         InputRequestDto inputRequestDto = new InputRequestDto();
         inputRequestDto.setType("useMagic");
         inputRequestDto.setId(NEXT_ID.getAndIncrement());
