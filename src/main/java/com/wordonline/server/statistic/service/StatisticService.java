@@ -55,23 +55,44 @@ public class StatisticService {
         builder.recordCards(userId, cardDtos);
     }
 
+    // Returns the statistic_games id so the caller can link the session lifecycle row,
+    // or empty when this session never had a builder (debug sessions).
     @Transactional
-    public void saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
+    public Optional<Long> saveGameResult(GameContext gameContext, Master loser, SessionType sessionType) {
         GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
         if (builder == null) {
-            return;
+            return Optional.empty();
         }
         GameResultDto gameResultDto = builder.build(loser, sessionType);
-        if (gameResultDto == null) {
-            return;
-        }
-        statisticRepository.saveGameResultDto(gameResultDto);
+        return Optional.of(statisticRepository.saveGameResultDto(gameResultDto));
     }
 
+    // Called by the loop watchdog for a session whose loop stalled. Flushes whatever the
+    // builder accumulated up to the stall, including the age of the frame that never
+    // finished, so the degradation is visible in the recorded statistics.
+    @Transactional
+    public Optional<Long> saveAbandonedGameResult(GameContext gameContext, SessionType sessionType) {
+        GameResultBuilder builder = gameResultBuilderMap.remove(gameContext);
+        if (builder == null) {
+            return Optional.empty();
+        }
+        GameResultDto gameResultDto = builder.buildAbandoned(sessionType, System.nanoTime());
+        return Optional.of(statisticRepository.saveGameResultDto(gameResultDto));
+    }
+
+    // The statistic name stays the simple class name so rows already recorded for
+    // each GameSystem keep the exact same value in the name column.
     public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
         getGameResultBuilder(gameContext)
                 .ifPresent(builder ->
-                        builder.addInterval(clazz, intervalNs)
+                        builder.addInterval(clazz.getSimpleName(), intervalNs)
+                );
+    }
+
+    public void saveFrameStart(GameContext gameContext, long nowNanos) {
+        getGameResultBuilder(gameContext)
+                .ifPresent(builder ->
+                        builder.recordFrameStart(nowNanos)
                 );
     }
 

@@ -17,14 +17,39 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 // GameLoop is the main class that runs the game loop
 @Slf4j
 @RequiredArgsConstructor
 public abstract class GameLoop implements Runnable {
+
+    private enum LoopState { CREATED, RUNNING, TERMINATED }
+
+    // The admin room list, the lobby readiness check and the bot scheduler all read is_running(),
+    // so it has to mean "the loop thread is ticking" rather than "a GameLoop object exists".
+    // RUNNING is set from inside the loop thread and cleared in a finally block, so neither the
+    // window before Thread.start() takes effect nor a thread dying on an Error can leave a session
+    // advertising itself as alive.
+    private volatile LoopState state = LoopState.CREATED;
+    private volatile boolean stopRequested = false;
+    private final CountDownLatch startSignal = new CountDownLatch(1);
+
+    // The thread ticking this loop, captured on entry so the watchdog can interrupt a
+    // stalled loop and snapshot where it is stuck. close() alone cannot end a loop whose
+    // thread never returns to the while condition.
+    private volatile Thread loopThread;
+
+    // Written by the loop thread once per completed frame and read by monitoring threads.
+    // deltaTime cannot serve that purpose: it holds the last completed frame's duration, so a
+    // loop thread that dies mid-frame keeps reporting a plausible fps forever. The age of this
+    // timestamp is the one signal that keeps moving when the loop does not.
     @Getter
-    private boolean _running = true;
+    private volatile long lastFrameEndMillis = System.currentTimeMillis();
+
     public static final int FPS = 20;
     public SessionObject sessionObject;
     private Runnable onTerminated;
@@ -64,8 +89,42 @@ public abstract class GameLoop implements Runnable {
         new GameObject(Master.None, PrefabType.Wall, Vector3.ZERO, gameContext);
     }
 
+    public boolean is_running() {
+        return state == LoopState.RUNNING;
+    }
+
+    // Lets the creator wait for the first tick instead of reporting a session ready the moment the
+    // object exists. Returns false on timeout; the caller decides whether that is fatal.
+    public boolean awaitStart(Duration timeout) {
+        try {
+            return startSignal.await(timeout.toMillis(), TimeUnit.MILLISECONDS) && is_running();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
     public void close() {
-        _running = false;
+        stopRequested = true;
+    }
+
+    // Best effort: wakes a thread parked in sleep/wait, but cannot break a synchronized
+    // wait or a runaway loop - callers must not assume the thread actually dies.
+    public void interruptLoopThread() {
+        Thread thread = loopThread;
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+        }
+    }
+
+    // Where the loop thread is right now; the watchdog records this as the primary
+    // evidence of what a stalled loop was blocked on. Empty when the thread is gone.
+    public StackTraceElement[] captureLoopThreadStackTrace() {
+        Thread thread = loopThread;
+        if (thread == null || !thread.isAlive()) {
+            return new StackTraceElement[0];
+        }
+        return thread.getStackTrace();
     }
 
     @Override
@@ -77,46 +136,58 @@ public abstract class GameLoop implements Runnable {
     private void runLoop() {
         long frameDuration = 1000 / FPS;
 
-        while (_running) {
-            gameContext.incrementFrameNum();
-            long startTime = System.currentTimeMillis();
+        loopThread = Thread.currentThread();
+        state = LoopState.RUNNING;
+        startSignal.countDown();
 
-            try {
-                // ponytail: session-wide lock so input threads cannot mutate game state mid-frame.
-                // Upgrade path: drain casts from a queue at the top of update() if lock contention shows up.
-                synchronized (gameContext) {
-                    update();
-                }
-            } catch (Exception e) {
-                log.error("[ERROR] {}", e.getMessage(), e);
-                finalizeAfterFailure();
-                break;
-            }
+        try {
+            while (!stopRequested) {
+                gameContext.incrementFrameNum();
+                long startTime = System.currentTimeMillis();
 
-            long endTime = System.currentTimeMillis();
-            long sleepTime = frameDuration - (endTime - startTime);
-            if (sleepTime > 0) {
                 try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ignored) {
+                    // ponytail: session-wide lock so input threads cannot mutate game state mid-frame.
+                    // Upgrade path: drain casts from a queue at the top of update() if lock contention shows up.
+                    synchronized (gameContext) {
+                        update();
+                    }
+                } catch (Exception e) {
+                    log.error("[ERROR] {}", e.getMessage(), e);
+                    finalizeAfterFailure();
+                    break;
                 }
-            }
-            gameContext.setDeltaTime((System.currentTimeMillis() - startTime) / 1000.0f);
-        }
 
-        if (onTerminated != null) {
-            try {
-                onTerminated.run();
-            } catch (Exception e) {
-                log.warn("onTerminated failed", e);
+                long endTime = System.currentTimeMillis();
+                long sleepTime = frameDuration - (endTime - startTime);
+                if (sleepTime > 0) {
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+                gameContext.setDeltaTime((System.currentTimeMillis() - startTime) / 1000.0f);
+                lastFrameEndMillis = System.currentTimeMillis();
+            }
+        } finally {
+            // An Error thrown out of update() escapes the catch above. Without this the thread would
+            // die while the session stayed in the registry, permanently reported as active.
+            state = LoopState.TERMINATED;
+            startSignal.countDown();
+
+            if (onTerminated != null) {
+                try {
+                    onTerminated.run();
+                } catch (Exception e) {
+                    log.warn("onTerminated failed", e);
+                }
             }
         }
     }
 
     // A crashed frame must still deliver a result and release both users from the in-game state.
-    // handleGameEnd() calls close(), so _running still being true means the match was not ended yet.
+    // handleGameEnd() calls close(), so an unset stopRequested means the match was not ended yet.
     private void finalizeAfterFailure() {
-        if (!_running) {
+        if (stopRequested) {
             return;
         }
         try {

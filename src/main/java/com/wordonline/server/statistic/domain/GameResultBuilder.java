@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import com.wordonline.server.deck.dto.CardDto;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
-import com.wordonline.server.game.service.system.GameSystem;
 import com.wordonline.server.statistic.dto.GameResultDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticCardDto;
 import com.wordonline.server.statistic.dto.GameResultDto.StatisticMagicDto;
@@ -26,14 +25,36 @@ public class GameResultBuilder {
     private long rightUserId;
     private final List<StatisticCardDto> cardDtos = new ArrayList<>();
     private final List<StatisticMagicDto> magicDtos = new ArrayList<>();
-    private final Map<Class<? extends GameSystem>, UpdateTimeStatistic> updateTimeStatisticMap = new HashMap<>();
+    private final Map<String, UpdateTimeStatistic> updateTimeStatisticMap = new HashMap<>();
 
     private final LocalDateTime startTime = LocalDateTime.now();
 
-    public void addInterval(Class<? extends GameSystem> clazz, long interval) {
-        UpdateTimeStatistic statistic = updateTimeStatisticMap.computeIfAbsent(clazz,
+    // Statistic name for the interval between the start of two consecutive frames.
+    // Unlike the per-GameSystem entries this measures scheduling, not CPU work.
+    public static final String FRAME_STATISTIC_NAME = "Frame";
+
+    // Statistic name for the one frame that never finished when the watchdog reaped a
+    // stalled session. Frame intervals are recorded when the NEXT frame starts, so the
+    // stall itself would otherwise be invisible; it is kept out of the Frame series so
+    // the healthy-frame min/max/mean stay uncontaminated.
+    public static final String STALLED_FRAME_STATISTIC_NAME = "StalledFrame";
+
+    private Long lastFrameStartNs;
+
+    public void addInterval(String name, long interval) {
+        UpdateTimeStatistic statistic = updateTimeStatisticMap.computeIfAbsent(name,
                 k -> new UpdateTimeStatistic());
-        statistic.addInterval((int) interval);
+        statistic.addInterval(interval);
+    }
+
+    // The first frame has no predecessor, so there is no interval to record yet.
+    public void recordFrameStart(long nowNanos) {
+        Long previous = lastFrameStartNs;
+        lastFrameStartNs = nowNanos;
+        if (previous == null) {
+            return;
+        }
+        addInterval(FRAME_STATISTIC_NAME, nowNanos - previous);
     }
 
     public void recordCards(long userId, List<CardDto> cardDtos) {
@@ -69,23 +90,31 @@ public class GameResultBuilder {
     }
 
     public GameResultDto build(Master loser, SessionType sessionType) {
-
-        Duration duration = Duration.between(startTime, LocalDateTime.now());
-
-        long winId;
-        long lossId;
         if (loser == Master.RightPlayer) {
-            winId = leftUserId;
-            lossId = rightUserId;
-        } else if (loser == Master.LeftPlayer) {
-            winId = rightUserId;
-            lossId = leftUserId;
-        } else {
-            return null;
+            return build(sessionType, GameOutcome.WIN, leftUserId, rightUserId);
         }
+        if (loser == Master.LeftPlayer) {
+            return build(sessionType, GameOutcome.WIN, rightUserId, leftUserId);
+        }
+        return build(sessionType, GameOutcome.DRAW, null, null);
+    }
+
+    // For sessions the watchdog force-ends: flushes whatever accumulated up to the
+    // stall, so the frame statistics survive as evidence of how the loop degraded.
+    // nowNanos must come from System.nanoTime(), the clock recordFrameStart is fed with.
+    public GameResultDto buildAbandoned(SessionType sessionType, long nowNanos) {
+        if (lastFrameStartNs != null) {
+            addInterval(STALLED_FRAME_STATISTIC_NAME, nowNanos - lastFrameStartNs);
+        }
+        return build(sessionType, GameOutcome.ABANDONED, null, null);
+    }
+
+    private GameResultDto build(SessionType sessionType, GameOutcome outcome, Long winId, Long lossId) {
+        Duration duration = Duration.between(startTime, LocalDateTime.now());
 
         return new GameResultDto(
                 sessionType,
+                outcome,
                 winId,
                 lossId,
                 duration,

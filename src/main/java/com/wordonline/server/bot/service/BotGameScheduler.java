@@ -1,5 +1,6 @@
 package com.wordonline.server.bot.service;
 
+import com.wordonline.server.bot.config.BotAutoMatchProperties;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.server.entity.ServerState;
@@ -8,7 +9,6 @@ import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,17 +27,16 @@ public class BotGameScheduler {
     private final SessionService sessionService;
     private final BotPersonaService botPersonaService;
     private final ServerStatusService serverStatusService;
-
-    @Value("${bot.auto-match.enabled:true}")
-    private boolean enabled;
+    private final BotAutoMatchProperties botAutoMatchProperties;
 
     @Scheduled(fixedDelayString = "${bot.auto-match.check-interval-ms:60000}")
     public void ensureBotGameWhenIdle() {
-        if (!enabled || serverStatusService.getCurrentState() != ServerState.ACTIVE) {
+        if (!botAutoMatchProperties.enabled() || serverStatusService.getCurrentState() != ServerState.ACTIVE) {
             return;
         }
 
-        if (sessionService.getActiveSessions() > 0) {
+        long missingGames = resolveTargetSessions() - sessionService.getActiveSessions();
+        if (missingGames <= 0) {
             return;
         }
 
@@ -47,6 +46,28 @@ public class BotGameScheduler {
             return;
         }
 
+        for (long i = 0; i < missingGames; i++) {
+            createBotGame(bots);
+        }
+    }
+
+    /**
+     * The admin's per-server override on the {@code servers} row wins over the static
+     * {@code bot.auto-match.target-games} default. A failing database read must not kill the
+     * scheduler, so that also falls back to the configured default.
+     */
+    private int resolveTargetSessions() {
+        try {
+            return serverStatusService.findTargetBotSessions()
+                    .orElseGet(botAutoMatchProperties::targetGames);
+        } catch (RuntimeException exception) {
+            log.warn("[BotGameScheduler] Can't read the target bot session override, using the configured default {}",
+                    botAutoMatchProperties.targetGames(), exception);
+            return botAutoMatchProperties.targetGames();
+        }
+    }
+
+    private void createBotGame(List<BotPersona> bots) {
         List<BotPersona> shuffledBots = new ArrayList<>(bots);
         Collections.shuffle(shuffledBots);
 
