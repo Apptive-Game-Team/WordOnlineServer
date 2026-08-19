@@ -67,6 +67,16 @@ jwt:
   public:
     key: ${JWT_PUBLIC_KEY}
 
+# Operational alerts. The webhook is the one the log appender already uses; leaving
+# DISCORD_WEBHOOK_URL unset disables alerting. cooldown is how long an ongoing episode stays
+# quiet after its first message - a server past capacity has dozens of slow loops on every
+# sweep and one problem.
+alert:
+  enabled: ${ALERT_ENABLED:true}
+  discord-webhook-url: ${DISCORD_WEBHOOK_URL:}
+  fps-threshold: ${ALERT_FPS_THRESHOLD:15}
+  cooldown: ${ALERT_COOLDOWN:5m}
+
 # Loop watchdog. A session whose last completed frame is older than stuck-threshold is
 # reaped: recorded as ABANDONED (with the loop thread's stack trace), reported to the
 # lobby, and removed from the session registry.
