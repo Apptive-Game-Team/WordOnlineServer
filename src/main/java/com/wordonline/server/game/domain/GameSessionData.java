@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,11 +18,9 @@ import org.springframework.stereotype.Component;
 public class GameSessionData {
     public final PlayerData leftPlayerData;
     public final PlayerData rightPlayerData;
-    // Bot threads snapshot this list (BotEye) while the loop thread structurally
-    // modifies it every frame (GameObjectAddRemoteSystem), so it must be a
-    // concurrent list. ponytail: copy-on-write costs one array copy per frame;
-    // publish an immutable per-frame snapshot instead if that ever shows up.
-    public final List<GameObject> gameObjects = new CopyOnWriteArrayList<>();
+    // Loop thread only. The bot executor reads a BotEye snapshot taken on the loop thread rather
+    // than this list, so it needs no concurrency guarantees of its own.
+    public final List<GameObject> gameObjects = new ArrayList<>();
     public final List<GameObject> gameObjectsToAdd = new ArrayList<>();
 
     public CardDeck leftCardDeck;

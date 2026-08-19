@@ -3,10 +3,10 @@ package com.wordonline.server.game.service.system;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 import com.wordonline.server.game.domain.bot.BotAgent;
-import com.wordonline.server.game.dto.frame.FrameInfoDto;
+import com.wordonline.server.game.domain.bot.BotEye;
+import com.wordonline.server.game.dto.Master;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,28 +38,31 @@ public class BotAgentSystem implements GameSystem {
         var wordOnlineLoop = gameContext.getGameLoop();
         log.trace("[BotSystem] Triggering bot tick at frame {}", currentFrame);
 
-        var leftBotAgent = wordOnlineLoop.getLeftBotAgent();
-        submitBotIfNeeded(leftBotAgent, currentFrame, leftBotProcessing, () -> wordOnlineLoop.getFrameDataSystem().getLeftFrameInfoDto(), "Left");
+        submitBotIfNeeded(wordOnlineLoop.getLeftBotAgent(), currentFrame, leftBotProcessing,
+                gameContext, Master.LeftPlayer, "Left");
 
-        var rightBotAgent = wordOnlineLoop.getRightBotAgent();
-        submitBotIfNeeded(rightBotAgent, currentFrame, rightBotProcessing, () -> wordOnlineLoop.getFrameDataSystem().getRightFrameInfoDto(), "Right");
+        submitBotIfNeeded(wordOnlineLoop.getRightBotAgent(), currentFrame, rightBotProcessing,
+                gameContext, Master.RightPlayer, "Right");
     }
 
     private void submitBotIfNeeded(BotAgent botAgent,
                                    int currentFrame,
                                    AtomicBoolean processing,
-                                   Supplier<FrameInfoDto> frameSupplier,
+                                   GameContext gameContext,
+                                   Master botSide,
                                    String label) {
         if (botAgent == null || !botAgent.shouldProcess(currentFrame)) {
             return;
         }
 
         if (processing.compareAndSet(false, true)) {
-            var frameInfoDto = frameSupplier.get();
+            // Taken here, on the loop thread, mid-frame but with nothing else mutating game state.
+            // The executor gets an immutable copy and never reaches back into the live objects.
+            BotEye botEye = BotEye.observe(gameContext.getGameSessionData(), botSide);
             log.debug("[BotSystem] Submitting {} Bot task", label);
             botExecutorService.submit(() -> {
                 try {
-                    botAgent.onTick(frameInfoDto);
+                    botAgent.onTick(botEye);
                 } catch (Exception e) {
                     log.error("[BotSystem] {} bot agent execution error", label, e);
                 } finally {

@@ -3,15 +3,17 @@ package com.wordonline.server.game.controller;
 import com.wordonline.server.auth.domain.PrincipalDetails;
 import com.wordonline.server.session.service.SessionService;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.dto.input.InputRequestDto;
 import com.wordonline.server.game.dto.input.InputResponseDto;
+import com.wordonline.server.game.dto.input.MagicUseRequestDto;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.service.LocalizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -23,9 +25,6 @@ public class InputController {
 
     @Autowired
     private SessionService sessionService;
-
-    @Autowired
-    private SimpMessagingTemplate template;
 
     @Autowired
     private LocalizationService localizationService;
@@ -51,13 +50,20 @@ public class InputController {
 
         log.trace("input arrived {}", inputRequestDto.getType());
 
+        // This runs on a STOMP inbound thread. Anything that touches game state is queued for the
+        // loop thread; the request payload is converted here so a malformed one is rejected with an
+        // exception on this thread rather than logged out of a queued action.
+        GameContext gameContext = sessionObject.getGameContext();
+
         switch (inputRequestDto.getType()) {
             case "useMagic" -> {
                 log.trace("useMagic arrived {}", userId);
-                InputResponseDto responseDto = sessionObject.getGameContext().getMagicInputHandler().handleInput(
-                        sessionObject.getGameContext(), userId, inputRequestDto.toMagicUse()
-                );
-                template.convertAndSend(String.format("/game/%s/frameInfos/%s", sessionId, userId), responseDto);
+                MagicUseRequestDto magicUse = inputRequestDto.toMagicUse();
+                gameContext.submitAction("useMagic", () -> {
+                    InputResponseDto responseDto = gameContext.getMagicInputHandler()
+                            .handleInput(gameContext, userId, magicUse);
+                    sessionObject.sendFrameInfo(userId, responseDto);
+                });
             }
             case "ping" -> {
                 log.trace("ping arrived {}", userId);
@@ -65,16 +71,18 @@ public class InputController {
             }
             case "selectCard" -> {
                 log.trace("selectCard arrived {}", userId);
-                sessionObject.getGameContext().selectCard(userId, inputRequestDto.toCardSelect().card());
+                CardType card = inputRequestDto.toCardSelect().card();
+                gameContext.submitAction("selectCard", () -> gameContext.selectCard(userId, card));
             }
             case "unselectCard" -> {
                 log.trace("unselectCard arrived {}", userId);
-                sessionObject.getGameContext().unselectCard(userId, inputRequestDto.toCardUnselect().card());
+                CardType card = inputRequestDto.toCardUnselect().card();
+                gameContext.submitAction("unselectCard", () -> gameContext.unselectCard(userId, card));
             }
             case "cancelCard" -> {
                 log.trace("cancelCard arrived {}", userId);
                 inputRequestDto.toCardCancel();
-                sessionObject.getGameContext().unselectAllCard(userId);
+                gameContext.submitAction("cancelCard", () -> gameContext.unselectAllCard(userId));
             }
             case null, default -> log.warn("Unknown input type: {}", inputRequestDto.getType());
         }

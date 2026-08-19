@@ -2,7 +2,7 @@ package com.wordonline.server.game.service.bot;
 
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.bot.BotVisibleObject;
 import com.wordonline.server.game.repository.TagRepository;
 import com.wordonline.server.game.service.MagicMetadataService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class BotCounterEvaluator {
     private final MagicMetadataService magicMetadataService;
     private final TagRepository tagRepository;
 
-    public double evaluate(List<CardType> recipe, List<GameObject> enemies) {
+    public double evaluate(List<CardType> recipe, List<BotVisibleObject> enemies) {
         try {
             Magic magic = magicMetadataService.findMagic(recipe).orElse(null);
             if (magic == null || magic.id <= 0 || enemies.isEmpty()) {
@@ -33,8 +33,8 @@ public class BotCounterEvaluator {
             }
 
             double score = 0.0;
-            for (GameObject enemy : enemies) {
-                Set<String> targetTags = tagRepository.getGameObjectTags(enemy.getType());
+            for (BotVisibleObject enemy : enemies) {
+                Set<String> targetTags = tagRepository.getGameObjectTags(enemy.type());
                 score += tagRepository.getCounterWeight(magicTags, targetTags);
             }
             return score;
