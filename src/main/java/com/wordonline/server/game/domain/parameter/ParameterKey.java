@@ -28,6 +28,7 @@ public enum ParameterKey {
     RADIUS("radius"),
     RANGE("range"),
     SPAWN_HEIGHT("spawn_height"),
+    SPAWN_INTERVAL("spawn_interval"),
     SUB_DAMAGE("sub_damage"),
     SUB_SPEED("sub_speed"),
     VINE_COUNT("vine_count"),
