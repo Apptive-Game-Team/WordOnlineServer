@@ -3,12 +3,14 @@ package com.wordonline.server.bot.service;
 import com.wordonline.server.bot.config.BotAutoMatchProperties;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.SessionType;
+import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
 import com.wordonline.server.session.dto.SessionDto;
 import com.wordonline.server.session.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,8 @@ public class BotGameScheduler {
     private final BotPersonaService botPersonaService;
     private final ServerStatusService serverStatusService;
     private final BotAutoMatchProperties botAutoMatchProperties;
+    private final ServerIdentityProperties serverIdentityProperties;
+    private final SweepProperties sweepProperties;
 
     @Scheduled(fixedDelayString = "${bot.auto-match.check-interval-ms:60000}")
     public void ensureBotGameWhenIdle() {
@@ -35,7 +39,14 @@ public class BotGameScheduler {
             return;
         }
 
-        long missingGames = resolveTargetSessions() - sessionService.getActiveSessions();
+        long activeSessions = sessionService.getActiveSessions();
+        int capacity = capacity();
+        if (activeSessions >= capacity) {
+            // Nothing this sweep can do, so it does not pay for the target override read.
+            return;
+        }
+
+        long missingGames = Math.min(resolveTargetSessions(), capacity) - activeSessions;
         if (missingGames <= 0) {
             return;
         }
@@ -46,9 +57,24 @@ public class BotGameScheduler {
             return;
         }
 
-        for (long i = 0; i < missingGames; i++) {
+        // Ramp up over several sweeps instead of creating the whole shortfall in one go. Each
+        // session costs a deck query, a record insert, an object graph and a Thread.start, all
+        // synchronous on the scheduler thread, and the loop watchdog shares that pool.
+        long sessionsThisSweep = Math.min(missingGames, sweepProperties.maxSessionsPerSweep());
+        for (long i = 0; i < sessionsThisSweep; i++) {
             createBotGame(bots);
         }
+    }
+
+    /**
+     * The capacity this server publishes to the {@code servers} table. The admin's target
+     * override is clamped to it, because a box measured to hold about a hundred sessions will
+     * still obey a target of two hundred and fall over. A missing value means no clamp; the
+     * property has a default, so that only happens in a context that does not bind it.
+     */
+    private int capacity() {
+        Integer maxSessions = serverIdentityProperties.maxSessions();
+        return maxSessions == null ? Integer.MAX_VALUE : maxSessions;
     }
 
     /**
@@ -64,6 +90,23 @@ public class BotGameScheduler {
             log.warn("[BotGameScheduler] Can't read the target bot session override, using the configured default {}",
                     botAutoMatchProperties.targetGames(), exception);
             return botAutoMatchProperties.targetGames();
+        }
+    }
+
+    /**
+     * How many sessions one sweep may create. This belongs with the other
+     * {@code bot.auto-match} settings and shares their prefix, so the key is
+     * {@code bot.auto-match.max-sessions-per-sweep}.
+     */
+    @ConfigurationProperties(prefix = "bot.auto-match")
+    public record SweepProperties(Integer maxSessionsPerSweep) {
+
+        private static final int FALLBACK_MAX_SESSIONS_PER_SWEEP = 5;
+
+        public SweepProperties {
+            maxSessionsPerSweep = maxSessionsPerSweep == null || maxSessionsPerSweep < 1
+                    ? FALLBACK_MAX_SESSIONS_PER_SWEEP
+                    : maxSessionsPerSweep;
         }
     }
 
