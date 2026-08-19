@@ -1,9 +1,6 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
-import java.util.Optional;
-
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 
 public class MeleeAttackMob extends AttackMob {
 
@@ -11,17 +8,5 @@ public class MeleeAttackMob extends AttackMob {
 
     public MeleeAttackMob(GameObject gameObject, int maxHp, float speed, int targetMask, int damage, float attackInterval) {
         super(gameObject, maxHp, speed, targetMask, damage, attackInterval, DEFAULT_ATTACK_RANGE);
-    }
-
-    @Override
-    public void start() {
-        super.start();
-        attackRange = getAttackRange();
-    }
-
-    private float getAttackRange() {
-        Optional<CircleCollider> circleCollider = gameObject.getFirstCircleCollider(false);
-        return circleCollider.map(collider -> collider.getRadius() + DEFAULT_ATTACK_RANGE)
-                .orElse(DEFAULT_ATTACK_RANGE);
     }
 }

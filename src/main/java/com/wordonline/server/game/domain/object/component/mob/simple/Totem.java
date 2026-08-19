@@ -7,8 +7,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Status;
-
-import java.util.List;
+import com.wordonline.server.game.util.CombatRange;
 
 public class Totem extends Mob {
 
@@ -43,8 +42,8 @@ public class Totem extends Mob {
         if (timer >= healCooldown) {
             timer = 0;
             //heal circle prefab
-            List<GameObject> objects = getGameContext().overlapSphereAll(gameObject, healRange);
-            for (GameObject object : objects) {
+            for (GameObject object : getGameContext().getGameSessionData().gameObjects) {
+                if (!object.isActive() || !CombatRange.contains(gameObject, object, healRange)) continue;
                 if (gameObject.getMaster() != object.getMaster()) continue;
                 Mob mob = object.getComponent(Mob.class);
                 if(mob != null){

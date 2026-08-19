@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 
 import java.util.List;
 
@@ -107,7 +108,6 @@ public class VineWitchMob extends PVEBossMob {
             return false;
         }
 
-        double distanceToTarget = gameObject.getPosition().distance(rageTarget.getPosition()) - targetRadius;
-        return distanceToTarget <= attackRange;
+        return CombatRange.contains(gameObject, rageTarget, attackRange);
     }
 }

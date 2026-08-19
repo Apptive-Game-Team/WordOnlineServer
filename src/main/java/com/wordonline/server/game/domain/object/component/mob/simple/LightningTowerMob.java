@@ -15,6 +15,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 
 public class LightningTowerMob extends TimedBehaviorMob {
 
@@ -45,8 +46,11 @@ public class LightningTowerMob extends TimedBehaviorMob {
     }
 
     private boolean attack() {
-        GameObject target = detector.detect(gameObject);
-        if (target == null || target.getPosition().distance(gameObject.getPosition()) > attackRange) {
+        GameObject target = detector.detect(
+                gameObject,
+                candidate -> CombatRange.contains(gameObject, candidate, attackRange)
+        );
+        if (target == null) {
             return false;
         }
 

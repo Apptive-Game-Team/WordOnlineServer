@@ -12,6 +12,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEn
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 import lombok.Getter;
 
 import java.util.List;
@@ -74,14 +75,12 @@ public class Tower extends Component {
     }
 
     private boolean attack() {
-        GameObject target = detector.detect(gameObject);
+        GameObject target = detector.detect(
+                gameObject,
+                candidate -> CombatRange.contains(gameObject, candidate, attackRange)
+        );
 
         if (target == null) {
-            return false;
-        }
-
-        double distance = gameObject.getPosition().distance(target.getPosition());
-        if (distance > attackRange) {
             return false;
         }
 

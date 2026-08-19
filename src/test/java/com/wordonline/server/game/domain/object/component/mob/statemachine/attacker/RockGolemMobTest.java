@@ -38,7 +38,7 @@ class RockGolemMobTest {
         when(rockGolem.getPosition()).thenReturn(new Vector3(1f, 0f, 1f));
         when(rockGolem.getElement()).thenReturn(rock);
         when(target.getMaster()).thenReturn(Master.RightPlayer);
-        when(target.getPosition()).thenReturn(new Vector3(1.18f, 2f, 1.24f));
+        when(target.getPosition()).thenReturn(new Vector3(1.18f, 0f, 1.24f));
         when(target.getComponent(Damageable.class)).thenReturn(damageable);
         when(target.getComponent(EffectReceiver.class)).thenReturn(effectReceiver);
         when(gameContext.getDeltaTime()).thenReturn(1.1f);

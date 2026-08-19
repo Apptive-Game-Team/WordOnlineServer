@@ -26,9 +26,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * An aerial mob can only close the horizontal gap to a ground target: hover height keeps the 3D
- * distance at or above {@link GameConfig#AERIAL_MOB_INIT_HEIGHT}. Engagement therefore has to be
- * decided on horizontal distance, or the mob parks on top of its target and never attacks.
+ * Attack range is a cylinder: horizontal edge distance and vertical center distance must each be
+ * within the configured range.
  */
 class AerialEngagementTest {
 
@@ -50,7 +49,7 @@ class AerialEngagementTest {
     }
 
     @Test
-    void hoveringMobAttacksAGroundTargetItIsStandingOver() {
+    void hoveringMobCannotAttackWhenVerticalGapExceedsRange() {
         GameObject groundTarget = groundTarget();
         GameObject flyer = aerialObject();
         TestAerialMob mob = new TestAerialMob(flyer, groundTarget);
@@ -59,9 +58,7 @@ class AerialEngagementTest {
 
         runFrames(mob, 40);
 
-        assertThat(mob.attacked)
-                .as("aerial mob hovering directly over its target must engage")
-                .isTrue();
+        assertThat(mob.attacked).isFalse();
     }
 
     @Test
