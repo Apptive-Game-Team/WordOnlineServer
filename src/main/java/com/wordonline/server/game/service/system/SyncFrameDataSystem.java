@@ -1,5 +1,7 @@
 package com.wordonline.server.game.service.system;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -40,12 +42,19 @@ public class SyncFrameDataSystem extends FrameDataSystem {
             );
 
             // Broadcast sync info to spectators (userId = 0)
-            // Use left player's snapshot as the canonical state for spectators
+            // Use left player's snapshot as the canonical state for spectators, minus the hand:
+            // SnapshotResponseDto carries myCards, so sending the left player's snapshot as it
+            // stands hands every spectator that player's cards. createBroadcastDto zeroes
+            // updatedMana for the same reason.
             if (getBroadcastFrameInfoDto() != null) {
                 gameContext.getSessionObject().broadcastFrameInfo(
-                        getBroadcastFrameInfoDto().toSyncDto(leftSnapshotResponseDto)
+                        getBroadcastFrameInfoDto().toSyncDto(withoutHand(leftSnapshotResponseDto))
                 );
             }
         }
+    }
+
+    private static SnapshotResponseDto withoutHand(SnapshotResponseDto snapshotResponseDto) {
+        return new SnapshotResponseDto(snapshotResponseDto.frame(), snapshotResponseDto.objects(), List.of());
     }
 }
