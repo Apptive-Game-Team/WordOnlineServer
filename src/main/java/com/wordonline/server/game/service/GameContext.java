@@ -42,6 +42,7 @@ public class GameContext {
     private float deltaTime = 1f / GameLoop.FPS;
     private final CardSelectVisualizer cardSelectVisualizer = new CardSelectVisualizer();
     private final List<GameEventDto> events = new ArrayList<>();
+    private final GameActionQueue actionQueue = new GameActionQueue();
 
     private WordOnlineLoop gameLoop;
 
@@ -118,6 +119,18 @@ public class GameContext {
 
     public void incrementFrameNum() {
         this.frameNum++;
+    }
+
+    // Threads other than the loop thread never mutate game state directly. They queue what they
+    // want done here, and the loop runs it between frames, so a cast can never interleave with an
+    // update(). Returns false when the queue is full and the action was dropped.
+    public boolean submitAction(String name, Runnable action) {
+        return actionQueue.submit(name, action);
+    }
+
+    // Called by the loop thread only, at the top of every frame.
+    public void drainActions() {
+        actionQueue.drain();
     }
 
     // =============

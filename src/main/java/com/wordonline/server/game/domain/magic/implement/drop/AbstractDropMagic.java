@@ -14,16 +14,22 @@ import com.wordonline.server.game.service.GameContext;
 public abstract class AbstractDropMagic extends Magic {
 
     private final PrefabType prefabType;
+    private final float initialHeight;
 
     public AbstractDropMagic(PrefabType prefabType) {
+        this(prefabType, GameConfig.DROP_MAGIC_INITIAL_HEIGHT);
+    }
+
+    protected AbstractDropMagic(PrefabType prefabType, float initialHeight) {
         super(CardType.Drop);
         this.prefabType = prefabType;
+        this.initialHeight = initialHeight;
     }
 
     @Override
     public void run(GameContext gameContext, Master master, Vector3 position) {
         Vector3 vector3 = new Vector3(position.getX(), position.getY(), position.getZ());
-        vector3.setY(GameConfig.DROP_MAGIC_INITIAL_HEIGHT);
+        vector3.setY(initialHeight);
 
         new GameObject(
                 master,

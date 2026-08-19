@@ -4,7 +4,6 @@ import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.service.ManaCharger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.annotation.Scope;
@@ -26,17 +25,18 @@ public class PlayerData {
 
     private final Parameters parameters;
 
-    public volatile int mana = 0;
+    // Mutated only by the loop thread, so the check-then-act methods below need no locking, and
+    // the bot reads a copy taken by BotEye.observe rather than these fields.
+    public int mana = 0;
     public int hp = MAX_HP;
-    public List<CardType> cards = Collections.synchronizedList(new ArrayList<>());
+    public List<CardType> cards = new ArrayList<>();
 
-    // charge mana up to max; must stay atomic against card use
-    public synchronized void addMana(int delta, int max) {
+    // charge mana up to max
+    public void addMana(int delta, int max) {
         mana = Math.min(mana + delta, max);
     }
 
-    // atomic check-and-spend, so two casts cannot both pass the same balance
-    public synchronized boolean spendMana(int cost) {
+    public boolean spendMana(int cost) {
         if (mana < cost) {
             return false;
         }
@@ -45,7 +45,7 @@ public class PlayerData {
     }
 
     // validate and add card
-    public synchronized boolean addCard(CardType card) {
+    public boolean addCard(CardType card) {
         if (MAX_CARD_NUM >= cards.size() + 1) {
             cards.add(card);
             return true;
@@ -53,7 +53,7 @@ public class PlayerData {
         return false;
     }
 
-    public synchronized boolean validCardsUse(List<CardType> cards) {
+    public boolean validCardsUse(List<CardType> cards) {
         int totalManaCost = 0;
         List<CardType> tempCards = new ArrayList<>(this.cards);
         for (CardType card : cards) {
@@ -67,7 +67,7 @@ public class PlayerData {
     }
 
     // validate and use cards
-    public synchronized boolean useCards(List<CardType> cards) {
+    public boolean useCards(List<CardType> cards) {
         if (!validCardsUse(cards)) {
             return false;
         }

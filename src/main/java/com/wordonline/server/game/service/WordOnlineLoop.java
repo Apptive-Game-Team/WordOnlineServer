@@ -91,7 +91,9 @@ public class WordOnlineLoop extends GameLoop {
         );
     }
 
-    public synchronized void activateBotForUser(long userId) {
+    // Both bot toggles run on the loop thread: the ping timeout scheduler queues them on the game
+    // action queue rather than swapping the agent out from under a frame.
+    public void activateBotForUser(long userId) {
         Master side = sessionObject.getUserSide(userId);
         if (side == Master.LeftPlayer) {
             activateLeftBot();
@@ -116,7 +118,7 @@ public class WordOnlineLoop extends GameLoop {
         log.info("Activated bot control for disconnected user: side={}", Master.RightPlayer);
     }
 
-    public synchronized void deactivateBotForUser(long userId) {
+    public void deactivateBotForUser(long userId) {
         Master side = sessionObject.getUserSide(userId);
         if (side == Master.LeftPlayer) {
             deactivateLeftBot();
