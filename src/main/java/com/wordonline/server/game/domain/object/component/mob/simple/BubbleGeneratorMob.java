@@ -11,6 +11,7 @@ import com.wordonline.server.game.domain.object.component.effect.receiver.Effect
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.BaseStatusEffect;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 
 public class BubbleGeneratorMob extends TimedBehaviorMob {
 
@@ -42,8 +43,10 @@ public class BubbleGeneratorMob extends TimedBehaviorMob {
     }
 
     private GameObject findTarget() {
-        return getGameContext().overlapSphereAll(gameObject, attackRange).stream()
+        return getGameContext().getGameSessionData().gameObjects.stream()
                 .filter(target -> target != gameObject)
+                .filter(GameObject::isActive)
+                .filter(target -> CombatRange.contains(gameObject, target, attackRange))
                 .filter(target -> target.getMaster() == gameObject.getMaster())
                 .filter(target -> target.getComponent(EffectReceiver.class) != null)
                 .filter(target -> !target.getComponents(Damageable.class).isEmpty())

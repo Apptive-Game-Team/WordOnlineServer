@@ -11,9 +11,9 @@ import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFin
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import lombok.extern.slf4j.Slf4j;
+import com.wordonline.server.game.util.CombatRange;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 public class CowardMob extends AttackMob {
@@ -53,7 +53,6 @@ public class CowardMob extends AttackMob {
         objectiveDetector = new PriorityEnemyDetector(getGameContext(), targetMask, Double.MAX_VALUE, OBJECTIVE_PRIORITY);
         threatDetector = new PriorityEnemyDetector(getGameContext(), targetMask, detectionRange, THREAT_PRIORITY);
         detector = objectiveDetector;
-        attackRange = getAttackRange();
         setState(new CowardIdleState());
     }
 
@@ -63,12 +62,6 @@ public class CowardMob extends AttackMob {
             panicCooldownRemaining = Math.max(0f, panicCooldownRemaining - getGameContext().getDeltaTime());
         }
         super.update();
-    }
-
-    private float getAttackRange() {
-        Optional<CircleCollider> circleCollider = gameObject.getFirstCircleCollider(false);
-        return circleCollider.map(collider -> collider.getRadius() + DEFAULT_ATTACK_RANGE)
-                .orElse(DEFAULT_ATTACK_RANGE);
     }
 
     private GameObject detectThreat() {
@@ -89,7 +82,7 @@ public class CowardMob extends AttackMob {
                 .map(CircleCollider::getRadius)
                 .orElse(0f);
 
-        if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange) {
+        if (CombatRange.contains(gameObject, target, attackRange)) {
             setState(new CowardAttackState());
         } else {
             setState(new CowardMoveState());
@@ -192,7 +185,7 @@ public class CowardMob extends AttackMob {
                 }
             }
 
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius <= attackRange - 0.1f) {
+            if (CombatRange.contains(gameObject, target, Math.max(0f, attackRange - 0.1f))) {
                 setState(new CowardAttackState());
                 return;
             }
@@ -249,7 +242,7 @@ public class CowardMob extends AttackMob {
             }
 
             timer += getGameContext().getDeltaTime();
-            if (gameObject.getPosition().distance(target.getPosition()) - targetRadius > attackRange) {
+            if (!CombatRange.contains(gameObject, target, attackRange)) {
                 setState(new CowardMoveState());
             } else if (timer > attackInterval.total()) {
                 timer = 0f;

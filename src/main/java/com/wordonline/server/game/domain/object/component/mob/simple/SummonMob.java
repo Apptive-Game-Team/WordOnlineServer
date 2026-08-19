@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEn
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.util.CombatRange;
 
 public class SummonMob extends TimedBehaviorMob {
 
@@ -15,17 +16,16 @@ public class SummonMob extends TimedBehaviorMob {
     private Detector detector;
 
     private final Behavior behavior = () -> {
-        GameObject target = detector.detect(gameObject);
+        GameObject target = detector.detect(
+                gameObject,
+                candidate -> CombatRange.contains(gameObject, candidate, attackRange)
+        );
 
         if (target == null) {
             return false;
         }
 
         Vector3 position = target.getPosition();
-
-        if (gameObject.getPosition().distance(position) > attackRange) {
-            return false;
-        }
 
         new GameObject(
                 gameObject.getMaster(),

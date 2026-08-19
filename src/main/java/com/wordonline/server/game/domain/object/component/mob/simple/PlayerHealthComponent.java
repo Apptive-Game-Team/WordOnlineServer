@@ -7,7 +7,6 @@ import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Master;
 
 public class PlayerHealthComponent extends Mob {
-    private static final int MAX_HEALTH = 100;
     private PlayerData playerData;
 
     @Override
@@ -34,8 +33,8 @@ public class PlayerHealthComponent extends Mob {
         getGameContext().setLoser(gameObject.getMaster());
     }
 
-    public PlayerHealthComponent(GameObject gameObject) {
-        super(gameObject, MAX_HEALTH, 0);
+    public PlayerHealthComponent(GameObject gameObject, int maxHealth) {
+        super(gameObject, maxHealth, 0);
 
         if (gameObject.getMaster() == Master.LeftPlayer) {
             playerData = getGameContext().getGameSessionData().leftPlayerData;
@@ -43,5 +42,6 @@ public class PlayerHealthComponent extends Mob {
         if (gameObject.getMaster() == Master.RightPlayer) {
             playerData = getGameContext().getGameSessionData().rightPlayerData;
         }
+        playerData.hp = maxHealth;
     }
 }

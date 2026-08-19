@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component.mob.statemachine.atta
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
@@ -72,6 +73,7 @@ class SummonerMobTest {
                 new Vector3(8f, 0f, 11f),
                 gameContext
         );
+        target.addCollider(new CircleCollider(target, 6f, false));
         clearInvocations(gameContext);
         when(gameContext.getDeltaTime()).thenReturn(1.1f);
 

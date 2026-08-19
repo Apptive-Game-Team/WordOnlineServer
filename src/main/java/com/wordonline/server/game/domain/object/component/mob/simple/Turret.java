@@ -10,6 +10,7 @@ import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 
 public class Turret extends TimedBehaviorMob {
 
@@ -35,15 +36,12 @@ public class Turret extends TimedBehaviorMob {
     }
 
     private final Behavior behavior = () -> {
-        GameObject target = detector.detect(gameObject);
+        GameObject target = detector.detect(
+                gameObject,
+                candidate -> CombatRange.contains(gameObject, candidate, attackRange)
+        );
 
         if (target == null) {
-            return false;
-        }
-
-        double distance = target.getPosition().distance(gameObject.getPosition());
-
-        if (distance > attackRange) {
             return false;
         }
 

@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.util.CombatRange;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -63,8 +64,7 @@ public class MultiEnemyDetector implements Detector {
             if ((TargetMask.of(target) & targetMask) == 0) continue;
             if (!filter.test(target)) continue;
 
-            double distance = self.getPosition().distance(target.getPosition());
-            if (distance <= maxRange) {
+            if (CombatRange.contains(self, target, maxRange)) {
                 candidates.add(target);
             }
         }
