@@ -18,6 +18,7 @@ import com.wordonline.server.game.util.SynchronousFlowPublisher;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -106,17 +107,25 @@ public class GameObject {
         }
     }
 
+    // indexed loops instead of streams: these run about 160 times per frame per session in the
+    // physics broad phase alone, and the stream pipeline allocated a dozen objects per call
     public <T> boolean hasComponent(Class<T> clazz) {
-        return components.stream()
-                .anyMatch(clazz::isInstance);
+        for (int i = 0; i < components.size(); i++) {
+            if (clazz.isInstance(components.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public <T> T getComponent(Class<T> clazz) {
-        return components.stream()
-                .filter(clazz::isInstance)
-                .map(clazz::cast)
-                .findFirst()
-                .orElse(null);
+        for (int i = 0; i < components.size(); i++) {
+            Component component = components.get(i);
+            if (clazz.isInstance(component)) {
+                return clazz.cast(component);
+            }
+        }
+        return null;
     }
 
     public <T> Optional<T> getComponentOptional(Class<T> clazz) {
@@ -124,10 +133,18 @@ public class GameObject {
     }
 
     public <T> List<T> getComponents(Class<T> clazz) {
-        return components.stream()
-                .filter(clazz::isInstance)
-                .map(clazz::cast)
-                .toList();
+        List<T> matched = null;
+        for (int i = 0; i < components.size(); i++) {
+            Component component = components.get(i);
+            if (clazz.isInstance(component)) {
+                if (matched == null) {
+                    matched = new ArrayList<>();
+                }
+                matched.add(clazz.cast(component));
+            }
+        }
+        // the no-match case is the common one, so it allocates nothing at all
+        return matched == null ? List.of() : Collections.unmodifiableList(matched);
     }
 
     public void addComponent(Component component)
