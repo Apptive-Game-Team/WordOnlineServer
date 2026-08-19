@@ -9,6 +9,7 @@ import com.wordonline.server.game.dto.CardInfoDto;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.GameEventDto;
 import com.wordonline.server.game.dto.frame.ObjectsInfoDto;
+import com.wordonline.server.game.domain.SessionObject;
 import com.wordonline.server.game.service.GameContext;
 
 import lombok.Getter;
@@ -20,6 +21,9 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
     private FrameInfoDto leftFrameInfoDto;
     private FrameInfoDto rightFrameInfoDto;
+    // Null whenever the session has no spectator subscribed: the broadcast payload is not worth
+    // assembling for a message the broker would drop. Checked again every frame, so a spectator
+    // that subscribes mid match is served from the next frame on.
     private FrameInfoDto broadcastFrameInfoDto;
 
     @Override
@@ -35,12 +39,14 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
 
         leftFrameInfoDto = new FrameInfoDto(remainingTime, leftCardInfo, objectsInfoDto, gameContext.getGameSessionData(), events);
         rightFrameInfoDto = new FrameInfoDto(remainingTime, rightCardInfo, objectsInfoDto, gameContext.getGameSessionData(), events);
-        broadcastFrameInfoDto = FrameInfoDto.createBroadcastDto(
-                remainingTime,
-                objectsInfoDto,
-                gameContext.getGameSessionData(),
-                events
-        );
+        broadcastFrameInfoDto = hasSpectators(gameContext)
+                ? FrameInfoDto.createBroadcastDto(
+                        remainingTime,
+                        objectsInfoDto,
+                        gameContext.getGameSessionData(),
+                        events
+                )
+                : null;
 
         // Charge Mana
         gameContext.getGameSessionData().leftPlayerData.manaCharger.chargeMana(gameContext.getGameSessionData().leftPlayerData, leftFrameInfoDto, gameContext.getFrameNum());
@@ -67,6 +73,13 @@ public class FrameDataSystem implements EarlyUpdateSystem, LateUpdateSystem {
                 rightFrameInfoDto
         );
 
-        gameContext.getSessionObject().broadcastFrameInfo(broadcastFrameInfoDto);
+        if (broadcastFrameInfoDto != null) {
+            gameContext.getSessionObject().broadcastFrameInfo(broadcastFrameInfoDto);
+        }
+    }
+
+    protected static boolean hasSpectators(GameContext gameContext) {
+        SessionObject sessionObject = gameContext.getSessionObject();
+        return sessionObject != null && sessionObject.hasSpectators();
     }
 }

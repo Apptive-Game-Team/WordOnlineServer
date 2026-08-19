@@ -40,9 +40,11 @@ public class SyncFrameDataSystem extends FrameDataSystem {
 
             // Broadcast sync info to spectators (userId = 0)
             // Use left player's snapshot as the canonical state for spectators
-            gameContext.getSessionObject().broadcastFrameInfo(
-                    getBroadcastFrameInfoDto().toSyncDto(leftSnapshotResponseDto)
-            );
+            if (getBroadcastFrameInfoDto() != null) {
+                gameContext.getSessionObject().broadcastFrameInfo(
+                        getBroadcastFrameInfoDto().toSyncDto(leftSnapshotResponseDto)
+                );
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.WordOnlineLoop;
 import com.wordonline.server.game.util.DeckSeedDeriver;
+import com.wordonline.server.websocket.SpectatorSubscriptionRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,11 @@ public class SessionObject {
 
     @Setter
     private GameLoop gameLoop;
+
+    // Wired by GameLoop.initializeLoop. Written on the session creation thread and read by the
+    // loop thread every frame, so it is volatile; a session with no registry has no spectators.
+    @Setter
+    private volatile SpectatorSubscriptionRegistry spectatorSubscriptionRegistry;
 
     public GameContext getGameContext() {
         return gameLoop.getGameContext();
@@ -141,7 +147,18 @@ public class SessionObject {
 
     // this method is used to broadcast frame information to spectators (userId = 0)
     public void broadcastFrameInfo(Object data) {
+        if (!hasSpectators()) {
+            return;
+        }
         template.convertAndSend(broadcastDestination, data);
+    }
+
+    // convertAndSend serializes the payload before it reaches the broker, and the broker channel
+    // dispatches inline on the game loop thread, so a broadcast with no subscriber costs a full
+    // JSON encode per frame and is then dropped. Callers check this before building the payload.
+    public boolean hasSpectators() {
+        SpectatorSubscriptionRegistry registry = spectatorSubscriptionRegistry;
+        return registry != null && registry.hasSubscribers(broadcastDestination);
     }
 
     private String destinationFor(long userId) {
