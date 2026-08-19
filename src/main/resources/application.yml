@@ -59,6 +59,12 @@ bot:
     target-games: ${BOT_AUTO_MATCH_TARGET_GAMES:1}
     check-interval-ms: ${BOT_AUTO_MATCH_CHECK_INTERVAL_MS:60000}
     max-sessions-per-sweep: ${BOT_AUTO_MATCH_MAX_SESSIONS_PER_SWEEP:5}
+  # Threads the bot ticks run on. pool-size 0 means one thread per available processor; the pool
+  # is fixed and the queue bounded so bot threads cannot outnumber the cores that run them. A full
+  # queue runs the tick on the calling loop thread, which costs that frame but never drops a tick.
+  executor:
+    pool-size: ${BOT_EXECUTOR_POOL_SIZE:0}
+    queue-capacity: ${BOT_EXECUTOR_QUEUE_CAPACITY:64}
 
 team6515:
   server:
