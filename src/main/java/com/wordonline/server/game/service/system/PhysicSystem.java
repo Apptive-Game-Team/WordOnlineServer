@@ -38,8 +38,12 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
 
     @Override
     public void update(GameContext gameContext) {
-        handleCollisions(gameContext.getActiveGameObjects());
-        checkAndHandleCollisions(gameContext.getActiveGameObjects());
+        List<GameObject> gameObjects = gameContext.getActiveGameObjects();
+        handleCollisions(gameObjects);
+        checkAndHandleCollisions(gameObjects);
+        // deliberately re-read: collision handlers, and the out-of-bounds destroy inside
+        // setPosition, can remove objects mid-frame, so the velocity pass wants the fresher
+        // list rather than the one the broad phase started from
         onUpdateEnd(gameContext.getActiveGameObjects());
     }
 
