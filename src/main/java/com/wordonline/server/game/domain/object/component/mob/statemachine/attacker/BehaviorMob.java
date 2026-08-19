@@ -20,7 +20,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -85,11 +84,36 @@ public class BehaviorMob extends StateMachineMob {
                 && TargetRelation.canAttack(gameObject, target);
     }
 
+    /**
+     * The directive with the highest priority that currently has a move target, with ties going to
+     * the one added first. This runs every frame for every mob and the component list is usually
+     * empty, so it is a plain scan: the stream it replaces sorted the whole list before filtering,
+     * and sorted() buffers even for zero or one element.
+     *
+     * <p>The scan reaches getMoveTarget on a different set of directives than the sort did, which
+     * is safe because the implementations are pure reads - RallyMoveDirective only inspects its
+     * rally target's status and position. The winner is unchanged: a candidate is only asked for a
+     * target once it beats the best priority seen so far, and an equal priority never displaces an
+     * earlier candidate, which is what the stable sort followed by findFirst did.
+     */
+    MovementDirective resolveHighestPriorityDirective() {
+        List<MovementDirective> directives = gameObject.getComponents(MovementDirective.class);
+        MovementDirective best = null;
+        for (int i = 0; i < directives.size(); i++) {
+            MovementDirective candidate = directives.get(i);
+            if (best != null && candidate.priority() <= best.priority()) {
+                continue;
+            }
+            if (candidate.getMoveTarget(gameObject).isEmpty()) {
+                continue;
+            }
+            best = candidate;
+        }
+        return best;
+    }
+
     private Optional<MovementDirective> resolveMovementDirective() {
-        return gameObject.getComponents(MovementDirective.class).stream()
-                .sorted(Comparator.comparingInt(MovementDirective::priority).reversed())
-                .filter(directive -> directive.getMoveTarget(gameObject).isPresent())
-                .findFirst();
+        return Optional.ofNullable(resolveHighestPriorityDirective());
     }
 
     @Override
