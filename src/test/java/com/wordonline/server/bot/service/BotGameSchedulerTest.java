@@ -4,6 +4,7 @@ import com.wordonline.server.bot.config.BotAutoMatchProperties;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.SessionType;
+import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
 import com.wordonline.server.session.dto.SessionDto;
@@ -181,6 +182,71 @@ class BotGameSchedulerTest {
     }
 
     @Test
+    void theTargetIsClampedToTheServersMaxSessions() {
+        // A box measured to hold about a hundred sessions obeys an admin target of two hundred
+        // otherwise, and falls over.
+        when(sessionService.getActiveSessions()).thenReturn(0L);
+        when(serverStatusService.findTargetBotSessions()).thenReturn(Optional.of(200));
+        when(botPersonaService.findEnabled()).thenReturn(List.of(bot(-1, "Beginner Bot"), bot(-2, "Advanced Bot")));
+
+        scheduler(new BotAutoMatchProperties(true, 1), 6, new BotGameScheduler.SweepProperties(1000))
+                .ensureBotGameWhenIdle();
+
+        verify(sessionService, times(6)).createSession(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void theConfiguredTargetIsClampedToMaxSessionsToo() {
+        when(sessionService.getActiveSessions()).thenReturn(2L);
+        when(botPersonaService.findEnabled()).thenReturn(List.of(bot(-1, "Beginner Bot"), bot(-2, "Advanced Bot")));
+
+        scheduler(new BotAutoMatchProperties(true, 50), 5, new BotGameScheduler.SweepProperties(1000))
+                .ensureBotGameWhenIdle();
+
+        verify(sessionService, times(3)).createSession(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void atMostOneSweepsWorthOfSessionsIsCreatedPerSweep() {
+        when(sessionService.getActiveSessions()).thenReturn(0L);
+        when(botPersonaService.findEnabled()).thenReturn(List.of(bot(-1, "Beginner Bot"), bot(-2, "Advanced Bot")));
+
+        scheduler(new BotAutoMatchProperties(true, 50), 100, new BotGameScheduler.SweepProperties(4))
+                .ensureBotGameWhenIdle();
+
+        verify(sessionService, times(4)).createSession(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void aServerAtCapacityCreatesNothingAndDoesNotReadTheOverride() {
+        when(sessionService.getActiveSessions()).thenReturn(8L);
+
+        scheduler(new BotAutoMatchProperties(true, 50), 8, new BotGameScheduler.SweepProperties(1000))
+                .ensureBotGameWhenIdle();
+
+        verify(sessionService, never()).createSession(org.mockito.ArgumentMatchers.any());
+        verify(serverStatusService, never()).findTargetBotSessions();
+    }
+
+    @Test
+    void anAbsentMaxSessionsDoesNotClamp() {
+        when(sessionService.getActiveSessions()).thenReturn(0L);
+        when(botPersonaService.findEnabled()).thenReturn(List.of(bot(-1, "Beginner Bot"), bot(-2, "Advanced Bot")));
+
+        scheduler(new BotAutoMatchProperties(true, 3), null, new BotGameScheduler.SweepProperties(1000))
+                .ensureBotGameWhenIdle();
+
+        verify(sessionService, times(3)).createSession(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void sweepPropertiesFallBackToFiveSessionsPerSweep() {
+        assertThat(new BotGameScheduler.SweepProperties(null).maxSessionsPerSweep()).isEqualTo(5);
+        assertThat(new BotGameScheduler.SweepProperties(0).maxSessionsPerSweep()).isEqualTo(5);
+        assertThat(new BotGameScheduler.SweepProperties(12).maxSessionsPerSweep()).isEqualTo(12);
+    }
+
+    @Test
     void fallsBackToOneGameWhenPropertiesAreMissing() {
         BotAutoMatchProperties properties = new BotAutoMatchProperties(null, null);
 
@@ -189,11 +255,19 @@ class BotGameSchedulerTest {
     }
 
     private BotGameScheduler scheduler(BotAutoMatchProperties properties) {
+        return scheduler(properties, 1000, new BotGameScheduler.SweepProperties(1000));
+    }
+
+    private BotGameScheduler scheduler(BotAutoMatchProperties properties,
+                                       Integer maxSessions,
+                                       BotGameScheduler.SweepProperties sweepProperties) {
         return new BotGameScheduler(
                 sessionService,
                 botPersonaService,
                 serverStatusService,
-                properties
+                properties,
+                new ServerIdentityProperties("http", "localhost", 7777, maxSessions),
+                sweepProperties
         );
     }
 
