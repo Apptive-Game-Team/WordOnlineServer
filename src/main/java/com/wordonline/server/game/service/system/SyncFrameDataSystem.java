@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.service.GameLoop;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class SyncFrameDataSystem extends FrameDataSystem {
 
     @Override
     public void lateUpdate(GameContext gameContext) {
-        if (gameContext.getFrameNum() % 10 != 0) {
+        if (!GameLoop.isSyncFrame(gameContext.getFrameNum())) {
             super.lateUpdate(gameContext);
         } else {
             SnapshotResponseDto leftSnapshotResponseDto = gameContext.getGameLoop().getLastSnapshot(gameContext.getSessionObject().getLeftUserId());

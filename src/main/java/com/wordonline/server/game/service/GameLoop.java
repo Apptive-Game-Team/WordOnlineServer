@@ -53,6 +53,16 @@ public abstract class GameLoop implements Runnable {
     private volatile long lastFrameEndMillis = System.currentTimeMillis();
 
     public static final int FPS = 20;
+
+    // Every tenth frame SyncFrameDataSystem replaces the frame message with a full snapshot.
+    // The loop builds the snapshot for it, so both sides read the period from here rather than
+    // from two literals that can drift apart.
+    public static final int SYNC_FRAME_INTERVAL = 10;
+
+    public static boolean isSyncFrame(int frameNum) {
+        return frameNum % SYNC_FRAME_INTERVAL == 0;
+    }
+
     public SessionObject sessionObject;
 
     // Spectator subscriptions are counted for the whole application, so the registry is a
@@ -247,7 +257,7 @@ public abstract class GameLoop implements Runnable {
         close();
     }
 
-    // 2) Build snapshot
+    // 2) Build snapshot. Only called on sync frames: nothing else reads the result.
     protected void buildSnapshot() {
         lastSnapshotObjects = gameContext.getGameObjects()
                 .stream()
