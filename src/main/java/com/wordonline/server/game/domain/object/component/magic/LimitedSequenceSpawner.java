@@ -18,10 +18,21 @@ public class LimitedSequenceSpawner extends Component {
                                   float spawnIntervalSec,
                                   int maxSpawnCount,
                                   PrefabType... prefabTypes) {
+        this(gameObject, spawnIntervalSec, maxSpawnCount, false, prefabTypes);
+    }
+
+    public LimitedSequenceSpawner(GameObject gameObject,
+                                  float spawnIntervalSec,
+                                  int maxSpawnCount,
+                                  boolean spawnsImmediatelyOnStart,
+                                  PrefabType... prefabTypes) {
         super(gameObject);
         this.spawnIntervalSec = Math.max(0.1f, spawnIntervalSec);
         this.maxSpawnCount = maxSpawnCount;
         this.prefabTypes = prefabTypes.clone();
+        if (spawnsImmediatelyOnStart) {
+            this.elapsed = this.spawnIntervalSec;
+        }
     }
 
     @Override
