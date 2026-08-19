@@ -18,6 +18,7 @@ import com.wordonline.server.server.entity.Server;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.entity.ServerType;
 import com.wordonline.server.server.repository.ServerRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
 class ServerStatusServiceTest {
@@ -89,6 +90,17 @@ class ServerStatusServiceTest {
         Server noOverride = new Server("https", "game.example.com", 7777, ServerType.GAME, ServerState.ACTIVE);
         when(serverRepository.findByDomainAndPort("game.example.com", 7777)).thenReturn(Optional.of(noOverride));
         assertThat(serverStatusService.findTargetBotSessions()).isEmpty();
+    }
+
+    @Test
+    void theRowIsReadAndWrittenInOneTransaction() throws NoSuchMethodException {
+        // The read and SimpleJpaRepository.save's own @Transactional otherwise take one
+        // connection each for a single row update. publishStatus is private, so the boundary
+        // has to sit on the entry points the transaction proxy sees.
+        assertThat(ServerStatusService.class.getMethod("publishHeartbeat", int.class)
+                .isAnnotationPresent(Transactional.class)).isTrue();
+        assertThat(ServerStatusService.class.getMethod("setServerStatus", ServerState.class)
+                .isAnnotationPresent(Transactional.class)).isTrue();
     }
 
     @Test
