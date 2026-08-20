@@ -80,6 +80,46 @@ class BotBrainTest {
         verify(counterEvaluator, never()).evaluateVulnerability(any(), any());
     }
 
+    // The hospitality bot's deck cannot assemble anything but a summon, but a deck constrains
+    // which cards are drawn, not how many end up in one recipe. These two cases are what the code
+    // filter is for.
+    @Test
+    void hospitalityNeverCastsANonSummon() {
+        when(magicParser.getAllMagicRecipes())
+                .thenReturn(List.of(List.of(CardType.Shoot, CardType.Fire), LOSING));
+
+        BotBrain.InputDecision decision = think(hospitalityPersona());
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).isEqualTo(LOSING);
+    }
+
+    @Test
+    void hospitalityNeverCastsASummonBiggerThanThreeCards() {
+        List<CardType> bigSummon = List.of(CardType.Spawn, CardType.Fire, CardType.Water, CardType.Rock);
+        when(magicParser.getAllMagicRecipes()).thenReturn(List.of(bigSummon, LOSING));
+
+        BotBrain.InputDecision decision = think(hospitalityPersona());
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).isEqualTo(LOSING);
+    }
+
+    // Its stored aggression is overridden per cast by the board state, so an unfavourable persona
+    // value cannot make it start playing to win.
+    @Test
+    void hospitalityPrefersThePlayTheFieldAnswersEvenWithAPositivePersonaValue() {
+        BotBrain.InputDecision decision = think(
+                new BotPersona(-1, "Host", BotTier.HOSPITALITY, 0, 1, 1.0, true, true));
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).isEqualTo(LOSING);
+    }
+
+    private BotPersona hospitalityPersona() {
+        return new BotPersona(-1, "Host", BotTier.HOSPITALITY, 0, 1, -1.0, true, true);
+    }
+
     private BotBrain.InputDecision think(BotPersona persona) {
         BotBrain brain = new BotBrain(magicParser, counterEvaluator, persona);
         return brain.think(eye(), parameters, Master.LeftPlayer);
@@ -88,7 +128,7 @@ class BotBrainTest {
     private static BotEye eye() {
         return new BotEye(
                 List.of(BotBrainTestFixtures.enemyUnit()),
-                List.of(CardType.Spawn, CardType.Fire, CardType.Water),
+                List.of(CardType.Spawn, CardType.Fire, CardType.Water, CardType.Rock, CardType.Shoot),
                 100,
                 100);
     }
