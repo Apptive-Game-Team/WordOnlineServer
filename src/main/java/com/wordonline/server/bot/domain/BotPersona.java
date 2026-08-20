@@ -7,7 +7,8 @@ public record BotPersona(
         int thinkingTimeMs,
         int reactionIntervalFrames,
         double counterAggression,
-        boolean enabled
+        boolean enabled,
+        boolean hospitality
 ) {
     public static final BotPersona DEFAULT = new BotPersona(
             0,
@@ -16,7 +17,8 @@ public record BotPersona(
             250,
             8,
             0.25,
-            true
+            true,
+            false
     );
 
     public int normalizedReactionIntervalFrames() {
@@ -27,7 +29,14 @@ public record BotPersona(
         return Math.max(0, thinkingTimeMs);
     }
 
+    /**
+     * Negative values are meaningful, not a mistake to clamp away. The sign chooses which
+     * direction of the matchup the bot is scoring: a positive persona prefers the play that
+     * beats what is on the field, a negative one prefers the play that field answers best.
+     * Only the hospitality bot uses the negative half - it has to lose to the units already
+     * standing there while still putting a real unit down.
+     */
     public double normalizedCounterAggression() {
-        return Math.max(0.0, Math.min(1.0, counterAggression));
+        return Math.max(-1.0, Math.min(1.0, counterAggression));
     }
 }
