@@ -5,6 +5,10 @@ import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.magic.ObjectSummoningMagic;
+import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.bot.BotCounterEvaluator;
@@ -161,6 +165,20 @@ class BotBrainTest {
         assertThat(decision.playCards()).isEqualTo(FAVOURABLE);
     }
 
+    // 스웜 하나가 다섯 마리를 내놓으면 한 마리 값은 레시피 비용의 5분의 1이다. 그러지 않으면
+    // 같은 소환이 필드 위에서 다섯 배로 계산돼, 봇이 훨씬 센 것을 내도 되는 것처럼 보인다.
+    @Test
+    void aSwarmBodyIsWorthItsShareOfTheCast() {
+        priceEnemyBoardAt(ENEMY_BOARD_RECIPE, 5);
+
+        BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
+        BotBrain.InputDecision decision = brain.think(eye(), parameters, Master.LeftPlayer, true);
+
+        // 적 보드가 5마나로 계산되므로 10마나짜리 소환은 규칙을 못 지키고 최저가 폴백을 탄다.
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).hasSize(2);
+    }
+
     private BotPersona hospitalityPersona() {
         return new BotPersona(-1, "Host", BotTier.HOSPITALITY, 0, 1, -1.0, true, true);
     }
@@ -186,13 +204,41 @@ class BotBrainTest {
         assertThat(decision.playCards()).hasSize(1);
     }
 
-    // 적 유닛의 가격은 그 유닛을 소환하는 레시피의 마나 비용이다. 목에서는 프리팹 이름으로
-    // 찾는 마법과 레시피 맵을 함께 세워 그 경로를 그대로 태운다.
+    // 적 유닛의 가격은 그 유닛을 소환하는 마법의 레시피 비용을 소환 개수로 나눈 값이다.
     private void priceEnemyBoardAt(List<CardType> recipe) {
-        Magic enemyMagic = mock(Magic.class);
-        enemyMagic.id = 42L;
-        when(magicParser.parseMagicForBot(anyString())).thenReturn(enemyMagic);
-        when(magicParser.getAllMagicRecipeMap()).thenReturn(Map.of(recipe, enemyMagic));
+        priceEnemyBoardAt(recipe, 1);
+    }
+
+    private void priceEnemyBoardAt(List<CardType> recipe, int quantity) {
+        when(magicParser.getAllMagicRecipeMap())
+                .thenReturn(Map.of(recipe, new TestSummon(PrefabType.FireSpirit, quantity)));
+    }
+
+    /** 필드에 프리팹을 남기는 마법. BoardValue가 값을 매기는 대상이다. */
+    private static final class TestSummon extends Magic implements ObjectSummoningMagic {
+
+        private final PrefabType prefab;
+        private final int quantity;
+
+        private TestSummon(PrefabType prefab, int quantity) {
+            super(CardType.Spawn);
+            this.prefab = prefab;
+            this.quantity = quantity;
+        }
+
+        @Override
+        public void run(GameContext gameContext, Master master, Vector3 position) {
+        }
+
+        @Override
+        public PrefabType summonedPrefab() {
+            return prefab;
+        }
+
+        @Override
+        public int summonedQuantity() {
+            return quantity;
+        }
     }
 
     private BotBrain.InputDecision think(BotPersona persona) {

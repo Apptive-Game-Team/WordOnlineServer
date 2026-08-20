@@ -109,15 +109,20 @@ public class BotBrain {
                     botEye.gameObjectList(), enemySide, playerPos, botEye.enemyPlayerHp());
             Random random = ThreadLocalRandom.current();
 
-            BoardValue boardValue = new BoardValue(dbParser, spellStats);
             double aggression = aggression(botEye, threats, botSide);
 
-            // 접대 봇은 플레이어 필드에 서 있는 것보다 싼 소환만 낸다. 마나로 재는 이유는
-            // BoardValue에 적어 두었다. 필드가 비어 있으면 상한이 없으므로, 아래에서 가장 싼
-            // 소환 하나로 떨어뜨린다.
-            int enemyBoardMana = hospitalityDirector == null
-                    ? Integer.MAX_VALUE
-                    : boardValue.manaOnField(botEye.gameObjectList(), enemySide);
+            // 접대 봇의 보드는 플레이어의 보드를 넘지 않는다. 한 번의 소환만 비교하면 싼 유닛을
+            // 계속 쌓아 결국 앞서게 되므로, 이미 깔아 둔 것까지 더해서 본다. 마나로 재는 이유는
+            // BoardValue에 적어 두었다.
+            int manaBudget = Integer.MAX_VALUE;
+            if (hospitalityDirector != null) {
+                BoardValue boardValue = new BoardValue(dbParser, spellStats);
+                int enemyBoardMana = boardValue.manaOnField(botEye.gameObjectList(), enemySide);
+                int ownBoardMana = boardValue.manaOnField(botEye.gameObjectList(), botSide);
+                manaBudget = enemyBoardMana - ownBoardMana;
+                log.debug("[Bot {}] Hospitality board: enemy={} own={} budget={}",
+                        botSide, enemyBoardMana, ownBoardMana, manaBudget);
+            }
 
             Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
             List<ScoredPlay> plays = new ArrayList<>();
@@ -150,8 +155,8 @@ public class BotBrain {
                     cheapestSummonCost = cost;
                 }
 
-                // 플레이어 필드보다 싸야 한다. 같으면 안 되고 적어야 한다.
-                if (cost >= enemyBoardMana) {
+                // 이번 소환까지 더해도 플레이어 보드보다 적어야 한다. 같으면 안 되고 적어야 한다.
+                if (cost >= manaBudget) {
                     continue;
                 }
 
@@ -172,8 +177,8 @@ public class BotBrain {
                 CardType mainCard = findMainCard(cheapestSummon);
                 Vector3 target = PlacementPlanner.plan(
                         playerPos, spellStats.castRange(mainCard), botSide, threats, random);
-                log.debug("[Bot {}] Nothing cheaper than the enemy board ({} mana); falling back to {}",
-                        botSide, enemyBoardMana, cheapestSummon);
+                log.debug("[Bot {}] Nothing fits the {} mana the board leaves; falling back to {}",
+                        botSide, manaBudget, cheapestSummon);
                 return new InputDecision(cheapestSummon, target);
             }
 
