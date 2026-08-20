@@ -120,6 +120,27 @@ class BotBrainTest {
         return new BotPersona(-1, "Host", BotTier.HOSPITALITY, 0, 1, -1.0, true, true);
     }
 
+    // Holding for mana is right for a bot that is trying to win and wrong for one that has been
+    // quiet too long: the player reads the pause, not the reason for it.
+    // 60 a card against 100 mana: no two-card recipe is affordable, but one card on its own is.
+    @Test
+    void holdsForManaWhenItIsNotOverdue() {
+        when(parameters.getValueOrDefault(anyString(), eq("mana_cost"), anyDouble())).thenReturn(60.0);
+
+        assertThat(think(hospitalityPersona())).isNull();
+    }
+
+    @Test
+    void spendsACardToCycleRatherThanStandStillWhenOverdue() {
+        when(parameters.getValueOrDefault(anyString(), eq("mana_cost"), anyDouble())).thenReturn(60.0);
+
+        BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
+        BotBrain.InputDecision decision = brain.think(eye(), parameters, Master.LeftPlayer, true);
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).hasSize(1);
+    }
+
     private BotBrain.InputDecision think(BotPersona persona) {
         BotBrain brain = new BotBrain(magicParser, counterEvaluator, persona);
         return brain.think(eye(), parameters, Master.LeftPlayer);

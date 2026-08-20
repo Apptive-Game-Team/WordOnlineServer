@@ -24,7 +24,7 @@ public final class BotAgent {
     private final GameLoop gameLoop;
     private final Master botSide;
     private final BotPersona persona;
-    private final CastPacer castPacer;
+    private final CastDeadline castDeadline;
 
     // Written by the bot executor thread in onTick and read by the loop thread in shouldProcess.
     // Only one onTick runs at a time (BotAgentSystem gates it with a CAS), so the two threads never
@@ -45,19 +45,12 @@ public final class BotAgent {
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
         this.persona = persona;
-        this.castPacer = CastPacer.forTier(persona.tier());
+        this.castDeadline = CastDeadline.forTier(persona.tier(), System.currentTimeMillis());
         log.debug("BotAgent initialized for side: {}, persona: {}", botSide, persona.name());
     }
 
     public boolean shouldProcess(int currentFrame) {
-        // A decision already committed to is always allowed to land. The pacer limits how often the
-        // bot starts thinking, not how long a cast it has already chosen may sit unsent.
-        if (hasReadyPendingDecision()) {
-            return true;
-        }
-        return pendingDecision == null
-                && castPacer.allows(System.currentTimeMillis())
-                && shouldThink(currentFrame);
+        return hasReadyPendingDecision() || (pendingDecision == null && shouldThink(currentFrame));
     }
 
     private boolean shouldThink(int currentFrame) {
@@ -84,7 +77,8 @@ public final class BotAgent {
         log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}",
                 botSide, botEye.mana(), botEye.cardList(), botEye.gameObjectList().size());
 
-        BotBrain.InputDecision decision = botBrain.think(botEye, gameLoop.parameters, botSide);
+        BotBrain.InputDecision decision = botBrain.think(
+                botEye, gameLoop.parameters, botSide, castDeadline.overdue(System.currentTimeMillis()));
         
         if(decision != null)
         {
@@ -112,7 +106,7 @@ public final class BotAgent {
         inputRequestDto.setCards(decision.playCards());
         inputRequestDto.setPosition(decision.target());
         botAction.useCard(sessionObject, inputRequestDto, botSide);
-        castPacer.recordCast(System.currentTimeMillis());
+        castDeadline.recordCast(System.currentTimeMillis());
         return true;
     }
 
