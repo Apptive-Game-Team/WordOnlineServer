@@ -76,7 +76,15 @@ public class BotBrain {
 
     // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,
     // never from a live GameObject; parameters are loaded once per session and read-only after that.
-    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide)
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide) {
+        return think(botEye, parameters, botSide, false);
+    }
+
+    /**
+     * @param overdue the bot has been silent long enough that standing still would read as going
+     *                easy on the player, so it must not hold out for a better moment
+     */
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide, boolean overdue)
     {
         List<CardType> cardList = botEye.cardList();
         int mana = botEye.mana();
@@ -138,7 +146,10 @@ public class BotBrain {
                 return new InputDecision(chosen.recipe(), chosen.target());
             }
 
-            if (hasMakeableRecipe && !hasAffordableRecipe) {
+            // Holding for mana is the right play for a bot that is trying to win. For one that has
+            // been quiet too long it is the wrong one: the player reads the pause, not the reason
+            // for it. Overdue, the bot spends a card to cycle toward something it can afford.
+            if (hasMakeableRecipe && !hasAffordableRecipe && !overdue) {
                 log.debug("[Bot {}] Waiting for mana; makeable recipes exist but none are affordable. mana={}", botSide, mana);
                 return null;
             }

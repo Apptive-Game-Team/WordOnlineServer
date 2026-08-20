@@ -4,10 +4,11 @@ package com.wordonline.server.game.domain.bot;
  * How hard the hospitality bot leans into losing, one cast at a time.
  *
  * <p>The bot this drives is the opponent a new player meets at the end of the tutorial. It is meant
- * to lose, but never to look like it is being polite about it: it keeps a summon on the clock the
- * whole game and the difficulty moves through <em>what</em> it summons, never through whether it
- * summons at all. Skipping a cast, or standing still while the player is behind, is the one failure
- * mode that reads as being humoured, and it costs more than losing the fight would.
+ * to lose, but never to look like it is being polite about it. Difficulty comes from <em>what</em>
+ * it summons - a unit the player's board beats - and never from summoning less often. Standing
+ * still is the one failure mode that reads as being humoured, and it costs more than losing the
+ * fight would, which is why {@link CastDeadline} caps how long the bot may stay quiet rather than
+ * how often it may act.
  *
  * <p>The dial it turns is {@code counterAggression}, whose negative half makes the brain prefer the
  * play the enemy board answers best. Full hospitality is a unit that walks straight into what the
