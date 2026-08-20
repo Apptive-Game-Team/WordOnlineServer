@@ -16,8 +16,15 @@ import com.wordonline.server.bot.domain.BotTier;
  */
 final class CastDeadline {
 
-    /** How long the hospitality bot may stay silent before it has to act. */
-    static final long HOSPITALITY_MAX_SILENCE_MILLIS = 30_000L;
+    /**
+     * How long the hospitality bot may stay silent before it has to act.
+     *
+     * <p>A minute rather than half of one: the deadline exists so a quiet bot does not read as one
+     * going easy, and a new player reading their cards does not notice half a minute passing. It
+     * is not a difficulty knob - shortening it does not make the bot harder, it only makes it act
+     * when it would otherwise have nothing worth doing.
+     */
+    static final long HOSPITALITY_MAX_SILENCE_MILLIS = 60_000L;
 
     /** Zero means the persona has no deadline at all. */
     private final long maxSilenceMillis;
