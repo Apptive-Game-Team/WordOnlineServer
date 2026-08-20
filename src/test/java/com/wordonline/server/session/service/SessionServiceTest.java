@@ -37,6 +37,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import com.wordonline.server.bot.domain.BotPersona;
+import com.wordonline.server.bot.domain.BotTier;
+import com.wordonline.server.bot.service.BotPersonaService;
+
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +54,7 @@ class SessionServiceTest {
     private final StatisticService statisticService = mock(StatisticService.class);
     private final GameSessionRecordService gameSessionRecordService = mock(GameSessionRecordService.class);
     private final UserService userService = mock(UserService.class);
+    private final BotPersonaService botPersonaService = mock(BotPersonaService.class);
     private final LobbySessionClient lobbySessionClient = mock(LobbySessionClient.class);
     private final SessionService sessionService = new SessionService(
             sessionObjectFactory,
@@ -55,6 +62,7 @@ class SessionServiceTest {
             statisticService,
             gameSessionRecordService,
             userService,
+            botPersonaService,
             mock(UserScenarioService.class),
             lobbySessionClient);
 
@@ -81,6 +89,73 @@ class SessionServiceTest {
     @AfterEach
     void tearDown() {
         sessionService.clearSessions();
+    }
+
+    @Test
+    void clearsTheNoviceFlagWhenAPracticeSessionAgainstTheHospitalityBotIsReaped() {
+        SessionObject practice = hospitalityPracticeSession("bot-1", 5L, -9L);
+
+        sessionService.createSession(hospitalityPracticeDto("bot-1", 5L, -9L));
+        sessionService.reapStuckSession(practice, "stuck");
+
+        verify(userService).clearNovice(5L);
+    }
+
+    // A reaped session never reaches the normal end path. Leaving the mark on would put the player
+    // back in front of the same opponent, and back in the same loop if that session hangs too.
+    @Test
+    void leavesTheNoviceFlagAloneWhenTheOpponentIsAnOrdinaryBot() {
+        when(botPersonaService.findByParticipantIdOrDefault(-9L))
+                .thenReturn(new BotPersona(-9L, "Ordinary", BotTier.BEGINNER, 250, 8, 0.25, true, false));
+        SessionObject practice = practiceSession("bot-2", 5L, -9L);
+
+        sessionService.createSession(practiceDto("bot-2", 5L, -9L));
+        sessionService.reapStuckSession(practice, "stuck");
+
+        verify(userService, never()).clearNovice(anyLong());
+    }
+
+    @Test
+    void leavesTheNoviceFlagAloneForDebugSessions() {
+        SessionObject practice = hospitalityPracticeSession("debug-1", 5L, -9L);
+
+        sessionService.createSession(hospitalityPracticeDto("debug-1", 5L, -9L));
+        sessionService.reapStuckSession(practice, "stuck");
+
+        verify(userService, never()).clearNovice(anyLong());
+    }
+
+    private SessionDto hospitalityPracticeDto(String sessionId, long leftUserId, long rightUserId) {
+        when(botPersonaService.findByParticipantIdOrDefault(rightUserId))
+                .thenReturn(new BotPersona(rightUserId, "Host", BotTier.HOSPITALITY, 1200, 30, -1.0, true, true));
+        return practiceDto(sessionId, leftUserId, rightUserId);
+    }
+
+    private SessionDto practiceDto(String sessionId, long leftUserId, long rightUserId) {
+        return new SessionDto(sessionId, leftUserId, rightUserId, SessionType.Practice, null);
+    }
+
+    private SessionObject hospitalityPracticeSession(String sessionId, long leftUserId, long rightUserId) {
+        when(botPersonaService.findByParticipantIdOrDefault(rightUserId))
+                .thenReturn(new BotPersona(rightUserId, "Host", BotTier.HOSPITALITY, 1200, 30, -1.0, true, true));
+        return practiceSession(sessionId, leftUserId, rightUserId);
+    }
+
+    private SessionObject practiceSession(String sessionId, long leftUserId, long rightUserId) {
+        SessionDto dto = practiceDto(sessionId, leftUserId, rightUserId);
+        SessionObject practice = mock(SessionObject.class);
+        GameLoop practiceLoop = mock(GameLoop.class);
+        when(sessionObjectFactory.createSessionObject(dto)).thenReturn(practice);
+        when(practice.getSessionId()).thenReturn(sessionId);
+        when(practice.getSessionType()).thenReturn(SessionType.Practice);
+        when(practice.getLeftUserId()).thenReturn(leftUserId);
+        when(practice.getRightUserId()).thenReturn(rightUserId);
+        when(practice.getGameLoop()).thenReturn(practiceLoop);
+        when(practice.getPingChecker()).thenReturn(mock(PingChecker.class));
+        when(gameLoopFactory.create(SessionType.Practice)).thenReturn(practiceLoop);
+        when(practiceLoop.is_running()).thenReturn(true);
+        when(practiceLoop.awaitStart(any())).thenReturn(true);
+        return practice;
     }
 
     @Test
@@ -150,7 +225,7 @@ class SessionServiceTest {
 
     @Test
     void reportsInactiveForUnknownSessionId() {
-        SessionService service = new SessionService(null, null, null, null, null, null, null);
+        SessionService service = new SessionService(null, null, null, null, null, null, null, null);
 
         assertThat(service.isSessionActive("no-such-session")).isFalse();
     }

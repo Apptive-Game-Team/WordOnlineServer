@@ -1,6 +1,8 @@
 package com.wordonline.server.session.service;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.bot.domain.BotParticipant;
+import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
@@ -44,6 +46,7 @@ public class SessionService {
     private final StatisticService statisticService;
     private final GameSessionRecordService gameSessionRecordService;
     private final UserService userService;
+    private final BotPersonaService botPersonaService;
     private final UserScenarioService userScenarioService;
     private final LobbySessionClient lobbySessionClient;
 
@@ -52,6 +55,7 @@ public class SessionService {
                           StatisticService statisticService,
                           GameSessionRecordService gameSessionRecordService,
                           UserService userService,
+                          BotPersonaService botPersonaService,
                           UserScenarioService userScenarioService,
                           LobbySessionClient lobbySessionClient) {
         this.sessionObjectFactory = sessionObjectFactory;
@@ -59,6 +63,7 @@ public class SessionService {
         this.statisticService = statisticService;
         this.gameSessionRecordService = gameSessionRecordService;
         this.userService = userService;
+        this.botPersonaService = botPersonaService;
         this.userScenarioService = userScenarioService;
         this.lobbySessionClient = lobbySessionClient;
     }
@@ -174,6 +179,7 @@ public class SessionService {
                 null, null, statisticGameId);
 
         notifyLobbySessionEnded(sessionObject);
+        clearNoviceAfterHospitalityMatch(sessionObject);
 
         if (loser == null) {
             log.info("[Session] Session ended with no winner; sessionId: {}", sessionObject.getSessionId());
@@ -220,6 +226,7 @@ public class SessionService {
                 "LOOP_STUCK", endDetail, statisticGameId);
 
         notifyLobbySessionEnded(sessionObject);
+        clearNoviceAfterHospitalityMatch(sessionObject);
         userService.markOnline(sessionObject.getLeftUserId());
         userService.markOnline(sessionObject.getRightUserId());
 
@@ -231,6 +238,42 @@ public class SessionService {
 
         log.error("[Session] Reaped stuck session; sessionId: {}", sessionId);
         return true;
+    }
+
+    /**
+     * Ends the tutorial for whoever just played the hospitality bot, win or lose.
+     *
+     * <p>Called from the stuck-session reap as well as from the normal end. A reaped session never
+     * reaches the normal path, and leaving the mark on would put the player back in front of the
+     * same opponent next time they queue - and back in the same loop if that session hangs too.
+     * Losing the tutorial match to a hung session is the cheaper failure.
+     */
+    private void clearNoviceAfterHospitalityMatch(SessionObject sessionObject) {
+        if (sessionObject.getSessionType() != SessionType.Practice
+                || sessionObject.getSessionId().contains("debug")) {
+            return;
+        }
+
+        try {
+            long leftUserId = sessionObject.getLeftUserId();
+            long rightUserId = sessionObject.getRightUserId();
+            if (isHospitalityBot(rightUserId)) {
+                userService.clearNovice(leftUserId);
+            }
+            if (isHospitalityBot(leftUserId)) {
+                userService.clearNovice(rightUserId);
+            }
+        } catch (Exception e) {
+            // The player keeps their novice mark and meets the tutorial opponent once more. That is
+            // a repeated tutorial, not a broken account, and it must not take the teardown with it.
+            log.warn("[Session] Failed to clear the novice flag; sessionId: {}",
+                    sessionObject.getSessionId(), e);
+        }
+    }
+
+    private boolean isHospitalityBot(long participantId) {
+        return BotParticipant.isBot(participantId)
+                && botPersonaService.findByParticipantIdOrDefault(participantId).hospitality();
     }
 
     // The lobby's match ticket lives in Redis and stays MATCHED until it hears the session ended,

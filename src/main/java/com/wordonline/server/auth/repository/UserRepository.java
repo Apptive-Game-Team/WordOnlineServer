@@ -41,6 +41,13 @@ public class UserRepository {
             where id = :userId;
             """;
 
+    private static final String CLEAR_NOVICE = """
+            update users
+            set is_novice = false
+            where id = :userId
+              and is_novice;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public Optional<Long> getSelectedDeckId(long userId) {
@@ -75,5 +82,12 @@ public class UserRepository {
         jdbcClient.sql(INCREMENT_TOTAL_WINS)
                 .param("userId", userId)
                 .update();
+    }
+
+    /** @return true when this call was the one that cleared the flag. */
+    public boolean clearNovice(long userId) {
+        return jdbcClient.sql(CLEAR_NOVICE)
+                .param("userId", userId)
+                .update() > 0;
     }
 }
