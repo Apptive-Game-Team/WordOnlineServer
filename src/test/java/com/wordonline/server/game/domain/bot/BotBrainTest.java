@@ -132,7 +132,8 @@ class BotBrainTest {
     // 10마나짜리만 남는다.
     @Test
     void hospitalityOnlyCastsSummonsCheaperThanTheEnemyBoard() {
-        priceEnemyBoardAt(List.of(CardType.Spawn, CardType.Rock, CardType.Rock));
+        // 적 보드 20마나 -> 허용치 14. 10마나짜리는 통과하고 20마나짜리는 걸린다.
+        priceEnemyBoardAt(List.of(CardType.Spawn, CardType.Rock, CardType.Rock, CardType.Rock));
         List<CardType> tooBig = List.of(CardType.Spawn, CardType.Nature, CardType.Nature, CardType.Nature);
         when(magicParser.getAllMagicRecipes()).thenReturn(List.of(tooBig, LOSING));
 

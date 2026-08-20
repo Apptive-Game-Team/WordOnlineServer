@@ -111,15 +111,15 @@ public class BotBrain {
 
             double aggression = aggression(botEye, threats, botSide);
 
-            // 접대 봇의 보드는 플레이어의 보드를 넘지 않는다. 한 번의 소환만 비교하면 싼 유닛을
-            // 계속 쌓아 결국 앞서게 되므로, 이미 깔아 둔 것까지 더해서 본다. 마나로 재는 이유는
-            // BoardValue에 적어 두었다.
+            // 접대 봇의 보드는 플레이어 보드의 일정 비율 아래로만 간다. 한 번의 소환만 비교하면
+            // 싼 유닛을 계속 쌓아 결국 따라붙으므로, 이미 깔아 둔 것까지 더해서 본다. 비율과
+            // 마나로 재는 이유는 각각 HospitalityDirector와 BoardValue에 적어 두었다.
             int manaBudget = Integer.MAX_VALUE;
             if (hospitalityDirector != null) {
                 BoardValue boardValue = new BoardValue(dbParser, spellStats, parameters);
                 int enemyBoardMana = boardValue.manaOnField(botEye.gameObjectList(), enemySide);
                 int ownBoardMana = boardValue.manaOnField(botEye.gameObjectList(), botSide);
-                manaBudget = enemyBoardMana - ownBoardMana;
+                manaBudget = hospitalityDirector.summonAllowance(enemyBoardMana, ownBoardMana);
                 log.debug("[Bot {}] Hospitality board: enemy={} own={} budget={}",
                         botSide, enemyBoardMana, ownBoardMana, manaBudget);
             }

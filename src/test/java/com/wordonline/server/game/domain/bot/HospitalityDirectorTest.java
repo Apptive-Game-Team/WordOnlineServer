@@ -8,6 +8,29 @@ class HospitalityDirectorTest {
 
     private final HospitalityDirector director = new HospitalityDirector();
 
+    // 플레이어 보드의 일정 비율까지만 쓴다. 한도를 끝까지 채우면 늘 아슬아슬하게만 약한
+    // 상대가 되어, 접대가 아니라 빡빡한 라이벌이 된다.
+    @Test
+    void leavesTheBotWellUnderThePlayersBoard() {
+        assertThat(director.summonAllowance(100, 0)).isEqualTo(70);
+    }
+
+    @Test
+    void countsWhatTheBotAlreadyHasOutAgainstItsAllowance() {
+        assertThat(director.summonAllowance(100, 50)).isEqualTo(20);
+    }
+
+    // 이미 비율을 넘겨 두었으면 더 낼 것이 없다.
+    @Test
+    void allowsNothingOnceTheBotHasSpentItsShare() {
+        assertThat(director.summonAllowance(100, 70)).isNotPositive();
+    }
+
+    @Test
+    void allowsNothingAgainstAnEmptyBoard() {
+        assertThat(director.summonAllowance(0, 0)).isNotPositive();
+    }
+
     @Test
     void handsTheFightOverWhenThePlayerIsNotAheadOnBoard() {
         assertThat(director.aggression(0, 0, 0.0)).isEqualTo(HospitalityDirector.FULL);

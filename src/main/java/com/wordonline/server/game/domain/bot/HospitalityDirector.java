@@ -33,6 +33,27 @@ public final class HospitalityDirector {
     static final double COMFORTABLE_PRESSURE = 0.6;
 
     /**
+     * The share of the player's board the bot is allowed to match.
+     *
+     * <p>Merely staying under the player is not enough. Spending down to the last point of that
+     * leaves the bot permanently a hair behind, which plays as a tight rival rather than an
+     * opponent going down - every trade is close and the player has to earn all of them. Leaving a
+     * margin keeps the fight visibly theirs.
+     */
+    static final double BOARD_SHARE = 0.7;
+
+    /**
+     * Mana the bot may still commit before its board stops being comfortably weaker than the
+     * player's. Zero or less means it should not summon at all right now.
+     *
+     * @param enemyBoardMana what the player has standing, priced by mana spent and health left
+     * @param ownBoardMana   the same for the bot
+     */
+    public int summonAllowance(int enemyBoardMana, int ownBoardMana) {
+        return (int) (enemyBoardMana * BOARD_SHARE) - ownBoardMana;
+    }
+
+    /**
      * @param playerUnitCount bodies the player has on the field
      * @param botUnitCount    bodies the bot has on the field
      * @param pressure        how hard the player is pushing, 0 to 1, from {@link ThreatAssessment}
