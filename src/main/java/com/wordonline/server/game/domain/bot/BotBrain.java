@@ -116,7 +116,7 @@ public class BotBrain {
             // BoardValue에 적어 두었다.
             int manaBudget = Integer.MAX_VALUE;
             if (hospitalityDirector != null) {
-                BoardValue boardValue = new BoardValue(dbParser, spellStats);
+                BoardValue boardValue = new BoardValue(dbParser, spellStats, parameters);
                 int enemyBoardMana = boardValue.manaOnField(botEye.gameObjectList(), enemySide);
                 int ownBoardMana = boardValue.manaOnField(botEye.gameObjectList(), botSide);
                 manaBudget = enemyBoardMana - ownBoardMana;
@@ -128,8 +128,6 @@ public class BotBrain {
             List<ScoredPlay> plays = new ArrayList<>();
             boolean hasMakeableRecipe = false;
             boolean hasAffordableRecipe = false;
-            List<CardType> cheapestSummon = null;
-            int cheapestSummonCost = Integer.MAX_VALUE;
 
             for (List<CardType> recipe : allRecipes) {
                 if (!canMakeRecipe(cardList, recipe)) {
@@ -150,12 +148,9 @@ public class BotBrain {
                 }
                 hasAffordableRecipe = true;
 
-                if (hospitalityDirector != null && (cheapestSummon == null || cost < cheapestSummonCost)) {
-                    cheapestSummon = recipe;
-                    cheapestSummonCost = cost;
-                }
-
-                // 이번 소환까지 더해도 플레이어 보드보다 적어야 한다. 같으면 안 되고 적어야 한다.
+                // 이번 소환이 놓인 뒤에도 봇 보드가 플레이어 보드보다 약해야 한다. 지킬 수 없으면
+                // 소환하지 않는다 - 데드라인이 있어도 이 규칙은 깨지 않는다. 플레이어보다 센 것을
+                // 한 번 내놓는 순간 접대는 실패하고, 그건 잠깐 조용한 것보다 나쁘다.
                 if (cost >= manaBudget) {
                     continue;
                 }
@@ -169,17 +164,6 @@ public class BotBrain {
                 log.debug("[Bot {}] Chose {} at {} (score={}, cost={}, pressure={})",
                         botSide, chosen.recipe(), chosen.target(), chosen.score(), chosen.cost(), threats.pressure());
                 return new InputDecision(chosen.recipe(), chosen.target());
-            }
-
-            // 필드보다 싼 소환이 하나도 없다. 그렇다고 가만히 있으면 봐주는 걸로 읽히므로,
-            // 낼 수 있는 것 중 가장 싼 소환을 낸다. 규칙을 지킬 수 없을 때 고르는 차선이다.
-            if (plays.isEmpty() && cheapestSummon != null && overdue) {
-                CardType mainCard = findMainCard(cheapestSummon);
-                Vector3 target = PlacementPlanner.plan(
-                        playerPos, spellStats.castRange(mainCard), botSide, threats, random);
-                log.debug("[Bot {}] Nothing fits the {} mana the board leaves; falling back to {}",
-                        botSide, manaBudget, cheapestSummon);
-                return new InputDecision(cheapestSummon, target);
             }
 
             // Holding for mana is the right play for a bot that is trying to win. For one that has

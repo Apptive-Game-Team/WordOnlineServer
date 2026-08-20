@@ -142,16 +142,18 @@ class BotBrainTest {
         assertThat(decision.playCards()).isEqualTo(LOSING);
     }
 
-    // 규칙을 지킬 수 없을 때에도 멈추지는 않는다. 멈춘 봇은 봐주는 걸로 읽힌다.
+    // 규칙을 지킬 수 없으면 소환하지 않는다. 데드라인이 지났어도 마찬가지다. 플레이어보다 센
+    // 것을 한 번 내놓는 순간 접대는 실패하고, 그건 잠깐 조용한 것보다 나쁘다.
     @Test
-    void hospitalityFallsBackToTheCheapestSummonWhenNothingIsCheaperThanTheBoard() {
+    void hospitalityRefusesToSummonWhenNothingStaysUnderTheBoard() {
         priceEnemyBoardAt(List.of(CardType.Spawn));
 
         BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
         BotBrain.InputDecision decision = brain.think(eye(), parameters, Master.LeftPlayer, true);
 
-        assertThat(decision).isNotNull();
-        assertThat(decision.playCards()).hasSize(2);
+        assertThat(decision == null || decision.playCards().size() == 1)
+                .as("summoned instead of holding or cycling")
+                .isTrue();
     }
 
     // 일반 봇은 이 규칙과 무관하다. 이기려는 봇이 상대 필드보다 싸게만 낼 이유가 없다.
@@ -169,14 +171,13 @@ class BotBrainTest {
     // 같은 소환이 필드 위에서 다섯 배로 계산돼, 봇이 훨씬 센 것을 내도 되는 것처럼 보인다.
     @Test
     void aSwarmBodyIsWorthItsShareOfTheCast() {
+        // 적 보드가 25가 아니라 5로 계산되므로 10마나짜리 소환은 규칙을 지키지 못한다.
         priceEnemyBoardAt(ENEMY_BOARD_RECIPE, 5);
 
         BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
         BotBrain.InputDecision decision = brain.think(eye(), parameters, Master.LeftPlayer, true);
 
-        // 적 보드가 5마나로 계산되므로 10마나짜리 소환은 규칙을 못 지키고 최저가 폴백을 탄다.
-        assertThat(decision).isNotNull();
-        assertThat(decision.playCards()).hasSize(2);
+        assertThat(decision == null || decision.playCards().size() == 1).isTrue();
     }
 
     private BotPersona hospitalityPersona() {
