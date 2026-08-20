@@ -147,9 +147,7 @@ public class BotBrain {
                                            Vector3 playerPos,
                                            Master botSide,
                                            Random random) {
-        double counterValue = counterEvaluator.evaluate(recipe, enemies)
-                * persona.normalizedCounterAggression()
-                * COUNTER_WEIGHT;
+        double counterValue = counterValue(recipe, enemies);
         double castRange = spellStats.castRange(mainCard);
 
         if (OFFENSIVE_MAIN_CARDS.contains(mainCard)) {
@@ -172,6 +170,27 @@ public class BotBrain {
                 + counterValue;
         Vector3 target = PlacementPlanner.plan(playerPos, castRange, botSide, threats, random);
         return Optional.of(new ScoredPlay(recipe, target, cost, value / cost));
+    }
+
+    /**
+     * The counter term, in whichever direction this persona's aggression asks for.
+     *
+     * <p>A positive aggression scores how much the recipe beats the enemy board, which is what
+     * every ordinary bot wants. A negative one scores how much the enemy board beats the recipe
+     * and adds it with the same sign, so the play the enemy answers best ranks highest. That is
+     * the hospitality bot: it keeps committing real units, and the units it commits lose to what
+     * is already on the field. Simply ranking low on the attacking direction would not do it -
+     * "does not beat them" is satisfied by any irrelevant play, including standing still.
+     */
+    private double counterValue(List<CardType> recipe, List<BotVisibleObject> enemies) {
+        double aggression = persona.normalizedCounterAggression();
+        if (aggression == 0.0) {
+            return 0.0;
+        }
+        double matchup = aggression > 0.0
+                ? counterEvaluator.evaluate(recipe, enemies)
+                : counterEvaluator.evaluateVulnerability(recipe, enemies);
+        return matchup * Math.abs(aggression) * COUNTER_WEIGHT;
     }
 
     /**

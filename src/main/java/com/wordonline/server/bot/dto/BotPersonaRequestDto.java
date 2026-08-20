@@ -9,6 +9,7 @@ public record BotPersonaRequestDto(
         int thinkingTimeMs,
         int reactionIntervalFrames,
         double counterAggression,
-        Boolean enabled
+        Boolean enabled,
+        Boolean hospitality
 ) {
 }

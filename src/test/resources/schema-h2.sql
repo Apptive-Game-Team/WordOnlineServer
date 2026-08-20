@@ -170,6 +170,7 @@ CREATE TABLE bot_personas (
     reaction_interval_frames INT NOT NULL DEFAULT 8,
     counter_aggression DOUBLE PRECISION NOT NULL DEFAULT 0.25,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    hospitality BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

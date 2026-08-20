@@ -20,7 +20,23 @@ public class BotCounterEvaluator {
     private final MagicMetadataService magicMetadataService;
     private final TagRepository tagRepository;
 
+    /** How much this recipe beats what the enemy has on the field. */
     public double evaluate(List<CardType> recipe, List<BotVisibleObject> enemies) {
+        return score(recipe, enemies, Direction.ATTACKING);
+    }
+
+    /**
+     * How much what the enemy has on the field beats this recipe - the same table read the
+     * other way round. A bot that is meant to lose needs this: it still commits a real unit
+     * every time, but the unit it commits is the one the enemy board answers best. Scoring
+     * low on {@link #evaluate} is not the same thing, because that only says "this does not
+     * beat them" and is satisfied by anything irrelevant.
+     */
+    public double evaluateVulnerability(List<CardType> recipe, List<BotVisibleObject> enemies) {
+        return score(recipe, enemies, Direction.DEFENDING);
+    }
+
+    private double score(List<CardType> recipe, List<BotVisibleObject> enemies, Direction direction) {
         try {
             Magic magic = magicMetadataService.findMagic(recipe).orElse(null);
             if (magic == null || magic.id <= 0 || enemies.isEmpty()) {
@@ -34,13 +50,21 @@ public class BotCounterEvaluator {
 
             double score = 0.0;
             for (BotVisibleObject enemy : enemies) {
-                Set<String> targetTags = tagRepository.getGameObjectTags(enemy.type());
-                score += tagRepository.getCounterWeight(magicTags, targetTags);
+                Set<String> enemyTags = tagRepository.getGameObjectTags(enemy.type());
+                score += direction == Direction.ATTACKING
+                        ? tagRepository.getCounterWeight(magicTags, enemyTags)
+                        : tagRepository.getCounterWeight(enemyTags, magicTags);
             }
             return score;
         } catch (RuntimeException e) {
             log.warn("[BotCounterEvaluator] Counter scoring unavailable; using neutral score. recipe={}", recipe, e);
             return 0.0;
         }
+    }
+
+    /** Which side of the matchup is the attacker in the counter table lookup. */
+    private enum Direction {
+        ATTACKING,
+        DEFENDING
     }
 }

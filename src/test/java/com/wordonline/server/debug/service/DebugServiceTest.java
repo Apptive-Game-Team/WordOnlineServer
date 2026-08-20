@@ -82,6 +82,6 @@ class DebugServiceTest {
     }
 
     private BotPersona persona(long userId) {
-        return new BotPersona(userId, "Random Bot", BotTier.BEGINNER, 250, 8, 0.25, true);
+        return new BotPersona(userId, "Random Bot", BotTier.BEGINNER, 250, 8, 0.25, true, false);
     }
 }
