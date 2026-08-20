@@ -24,4 +24,15 @@ public class UserService {
     public void incrementTotalWins(long userId) {
         userRepository.incrementTotalWins(userId);
     }
+
+    /**
+     * How far this player is through the tutorial, from 0.5 to 1.0. Bots and unknown users answer
+     * 1.0 - nothing holds back against them.
+     */
+    public double noviceProgress(long userId) {
+        if (userId < 0) {
+            return 1.0;
+        }
+        return userRepository.getNoviceProgress(userId);
+    }
 }

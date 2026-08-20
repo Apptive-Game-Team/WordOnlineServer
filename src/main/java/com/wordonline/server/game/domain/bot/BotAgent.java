@@ -38,9 +38,10 @@ public final class BotAgent {
                     MagicParser magicParser,
                     Master botSide,
                     BotPersona persona,
-                    BotCounterEvaluator counterEvaluator) {
+                    BotCounterEvaluator counterEvaluator,
+                    double opponentNoviceProgress) {
         this.botAction = new BotAction();
-        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona);
+        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona, opponentNoviceProgress);
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;

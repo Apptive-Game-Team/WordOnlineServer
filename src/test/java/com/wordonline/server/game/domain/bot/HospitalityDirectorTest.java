@@ -6,13 +6,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class HospitalityDirectorTest {
 
-    private final HospitalityDirector director = new HospitalityDirector();
+    // 진행도 0.7인 플레이어를 상대하는 봇.
+    private final HospitalityDirector director = new HospitalityDirector(0.7);
 
     // 플레이어 보드의 일정 비율까지만 쓴다. 한도를 끝까지 채우면 늘 아슬아슬하게만 약한
     // 상대가 되어, 접대가 아니라 빡빡한 라이벌이 된다.
     @Test
     void leavesTheBotWellUnderThePlayersBoard() {
         assertThat(director.summonAllowance(100, 0)).isEqualTo(70);
+    }
+
+    // 비율은 플레이어의 진행도 그 자체다. 갓 시작한 사람에게는 절반만 맞선다.
+    @Test
+    void holdsBackFurtherAgainstAPlayerWhoHasJustStarted() {
+        assertThat(new HospitalityDirector(0.5).summonAllowance(100, 0)).isEqualTo(50);
+    }
+
+    // 1.0은 더 이상 봐주지 않는다는 뜻이고, 그건 곧 튜토리얼을 벗어났다는 뜻이다.
+    @Test
+    void holdsNothingBackAtFullProgress() {
+        assertThat(new HospitalityDirector(1.0).summonAllowance(100, 0)).isEqualTo(100);
+    }
+
+    // 범위 밖 값이 들어와도 시작값보다 더 봐주거나 전력보다 세게 나가지 않는다.
+    @Test
+    void clampsProgressToTheTutorialRange() {
+        assertThat(new HospitalityDirector(0.0).summonAllowance(100, 0)).isEqualTo(50);
+        assertThat(new HospitalityDirector(5.0).summonAllowance(100, 0)).isEqualTo(100);
     }
 
     @Test

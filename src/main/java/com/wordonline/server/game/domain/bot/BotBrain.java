@@ -68,10 +68,23 @@ public class BotBrain {
     private final HospitalityDirector hospitalityDirector;
 
     public BotBrain(MagicParser magicParser, BotCounterEvaluator counterEvaluator, BotPersona persona) {
+        this(magicParser, counterEvaluator, persona, HospitalityDirector.DEFAULT_BOARD_SHARE);
+    }
+
+    /**
+     * @param opponentNoviceProgress how far the human opponent is through the tutorial; the share of
+     *                               their board a hospitality bot may match. Ignored by other tiers.
+     */
+    public BotBrain(MagicParser magicParser,
+                    BotCounterEvaluator counterEvaluator,
+                    BotPersona persona,
+                    double opponentNoviceProgress) {
         this.magicParser = magicParser;
         this.counterEvaluator = counterEvaluator;
         this.persona = persona;
-        this.hospitalityDirector = persona.tier() == BotTier.HOSPITALITY ? new HospitalityDirector() : null;
+        this.hospitalityDirector = persona.tier() == BotTier.HOSPITALITY
+                ? new HospitalityDirector(opponentNoviceProgress)
+                : null;
     }
 
     // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,

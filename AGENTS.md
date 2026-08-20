@@ -67,8 +67,10 @@ cast produces. The summoning families (`AbstractSpawnMagic`,
 family that spawns objects on its own has to declare it.
 
 This is what lets the bot price a board it did not build. The hospitality bot in
-particular may only summon while its own board stays cheaper than the player's,
-and mana spent is how "cheaper" is measured.
+particular may only summon while its own board stays under a share of the
+player's, and mana spent is how that share is measured. The share is the
+player's own `users.novice_progress`, read per session: the same bot faces
+players at different points in the tutorial and must not treat them alike.
 
 Do not reintroduce the link as data. Matching game objects to magics by name
 does not work — `ember_spirit_swarm` summons `ember_spirit`, and most of what

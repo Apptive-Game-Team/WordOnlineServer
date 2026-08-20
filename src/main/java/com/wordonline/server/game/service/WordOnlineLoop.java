@@ -87,8 +87,21 @@ public class WordOnlineLoop extends GameLoop {
                 magicParser,
                 side,
                 botPersonaService.findByParticipantIdOrDefault(participantId),
-                botCounterEvaluator
+                botCounterEvaluator,
+                opponentNoviceProgress(sessionObject, side)
         );
+    }
+
+    /**
+     * How far the human on the other side is through the tutorial. The hospitality bot holds back
+     * by exactly this much, so it is read per session rather than stored on the persona - the same
+     * bot faces players at different points and must not treat them alike.
+     */
+    private double opponentNoviceProgress(SessionObject sessionObject, Master botSide) {
+        long opponentId = botSide == Master.LeftPlayer
+                ? sessionObject.getRightUserId()
+                : sessionObject.getLeftUserId();
+        return getUserService().noviceProgress(opponentId);
     }
 
     // Both bot toggles run on the loop thread: the ping timeout scheduler queues them on the game

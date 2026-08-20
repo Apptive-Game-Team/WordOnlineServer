@@ -32,15 +32,23 @@ public final class HospitalityDirector {
     /** Defensive pressure at which the player is treated as clearly ahead regardless of counts. */
     static final double COMFORTABLE_PRESSURE = 0.6;
 
+    /** Used when the player's progress is unknown; the value a first-time player starts at. */
+    static final double DEFAULT_BOARD_SHARE = 0.5;
+
     /**
      * The share of the player's board the bot is allowed to match.
      *
-     * <p>Merely staying under the player is not enough. Spending down to the last point of that
-     * leaves the bot permanently a hair behind, which plays as a tight rival rather than an
-     * opponent going down - every trade is close and the player has to earn all of them. Leaving a
-     * margin keeps the fight visibly theirs.
+     * <p>This is the player's own novice progress. Merely staying under them is not enough -
+     * spending down to the last point of that leaves the bot permanently a hair behind, which plays
+     * as a tight rival rather than an opponent going down. Starting at half, the fight is visibly
+     * theirs; as they win it climbs, and at 1.0 the bot holds nothing back, which is the same thing
+     * as their having left the tutorial.
      */
-    static final double BOARD_SHARE = 0.7;
+    private final double boardShare;
+
+    public HospitalityDirector(double boardShare) {
+        this.boardShare = Math.clamp(boardShare, DEFAULT_BOARD_SHARE, 1.0);
+    }
 
     /**
      * Mana the bot may still commit before its board stops being comfortably weaker than the
@@ -50,7 +58,7 @@ public final class HospitalityDirector {
      * @param ownBoardMana   the same for the bot
      */
     public int summonAllowance(int enemyBoardMana, int ownBoardMana) {
-        return (int) (enemyBoardMana * BOARD_SHARE) - ownBoardMana;
+        return (int) (enemyBoardMana * boardShare) - ownBoardMana;
     }
 
     /**
