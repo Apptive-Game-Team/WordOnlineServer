@@ -109,12 +109,22 @@ public class BotBrain {
                     botEye.gameObjectList(), enemySide, playerPos, botEye.enemyPlayerHp());
             Random random = ThreadLocalRandom.current();
 
+            BoardValue boardValue = new BoardValue(dbParser, spellStats);
             double aggression = aggression(botEye, threats, botSide);
+
+            // 접대 봇은 플레이어 필드에 서 있는 것보다 싼 소환만 낸다. 마나로 재는 이유는
+            // BoardValue에 적어 두었다. 필드가 비어 있으면 상한이 없으므로, 아래에서 가장 싼
+            // 소환 하나로 떨어뜨린다.
+            int enemyBoardMana = hospitalityDirector == null
+                    ? Integer.MAX_VALUE
+                    : boardValue.manaOnField(botEye.gameObjectList(), enemySide);
 
             Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
             List<ScoredPlay> plays = new ArrayList<>();
             boolean hasMakeableRecipe = false;
             boolean hasAffordableRecipe = false;
+            List<CardType> cheapestSummon = null;
+            int cheapestSummonCost = Integer.MAX_VALUE;
 
             for (List<CardType> recipe : allRecipes) {
                 if (!canMakeRecipe(cardList, recipe)) {
@@ -135,6 +145,16 @@ public class BotBrain {
                 }
                 hasAffordableRecipe = true;
 
+                if (hospitalityDirector != null && (cheapestSummon == null || cost < cheapestSummonCost)) {
+                    cheapestSummon = recipe;
+                    cheapestSummonCost = cost;
+                }
+
+                // 플레이어 필드보다 싸야 한다. 같으면 안 되고 적어야 한다.
+                if (cost >= enemyBoardMana) {
+                    continue;
+                }
+
                 buildPlay(recipe, mainCard, cost, aggression, spellStats, threats, enemies, playerPos, botSide, random)
                         .ifPresent(plays::add);
             }
@@ -144,6 +164,17 @@ public class BotBrain {
                 log.debug("[Bot {}] Chose {} at {} (score={}, cost={}, pressure={})",
                         botSide, chosen.recipe(), chosen.target(), chosen.score(), chosen.cost(), threats.pressure());
                 return new InputDecision(chosen.recipe(), chosen.target());
+            }
+
+            // 필드보다 싼 소환이 하나도 없다. 그렇다고 가만히 있으면 봐주는 걸로 읽히므로,
+            // 낼 수 있는 것 중 가장 싼 소환을 낸다. 규칙을 지킬 수 없을 때 고르는 차선이다.
+            if (plays.isEmpty() && cheapestSummon != null && overdue) {
+                CardType mainCard = findMainCard(cheapestSummon);
+                Vector3 target = PlacementPlanner.plan(
+                        playerPos, spellStats.castRange(mainCard), botSide, threats, random);
+                log.debug("[Bot {}] Nothing cheaper than the enemy board ({} mana); falling back to {}",
+                        botSide, enemyBoardMana, cheapestSummon);
+                return new InputDecision(cheapestSummon, target);
             }
 
             // Holding for mana is the right play for a bot that is trying to win. For one that has

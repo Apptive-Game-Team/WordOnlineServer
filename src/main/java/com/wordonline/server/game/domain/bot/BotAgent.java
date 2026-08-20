@@ -24,7 +24,7 @@ public final class BotAgent {
     private final GameLoop gameLoop;
     private final Master botSide;
     private final BotPersona persona;
-    private final CastDeadline castDeadline;
+    private final CastCadence castCadence;
 
     // Written by the bot executor thread in onTick and read by the loop thread in shouldProcess.
     // Only one onTick runs at a time (BotAgentSystem gates it with a CAS), so the two threads never
@@ -45,12 +45,19 @@ public final class BotAgent {
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
         this.persona = persona;
-        this.castDeadline = CastDeadline.forTier(persona.tier(), System.currentTimeMillis());
+        this.castCadence = CastCadence.forTier(persona.tier(), System.currentTimeMillis());
         log.debug("BotAgent initialized for side: {}, persona: {}", botSide, persona.name());
     }
 
     public boolean shouldProcess(int currentFrame) {
-        return hasReadyPendingDecision() || (pendingDecision == null && shouldThink(currentFrame));
+        // A decision already committed to is always allowed to land. The cadence limits how often
+        // the bot starts thinking, not how long a cast it has already chosen may sit unsent.
+        if (hasReadyPendingDecision()) {
+            return true;
+        }
+        return pendingDecision == null
+                && castCadence.due(System.currentTimeMillis())
+                && shouldThink(currentFrame);
     }
 
     private boolean shouldThink(int currentFrame) {
@@ -77,8 +84,10 @@ public final class BotAgent {
         log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}",
                 botSide, botEye.mana(), botEye.cardList(), botEye.gameObjectList().size());
 
-        BotBrain.InputDecision decision = botBrain.think(
-                botEye, gameLoop.parameters, botSide, castDeadline.overdue(System.currentTimeMillis()));
+        // Reaching here means the cadence let the tick through, so a paced bot is due: it stops
+        // holding out for mana and plays what it can.
+        BotBrain.InputDecision decision =
+                botBrain.think(botEye, gameLoop.parameters, botSide, castCadence.paced());
         
         if(decision != null)
         {
@@ -106,7 +115,7 @@ public final class BotAgent {
         inputRequestDto.setCards(decision.playCards());
         inputRequestDto.setPosition(decision.target());
         botAction.useCard(sessionObject, inputRequestDto, botSide);
-        castDeadline.recordCast(System.currentTimeMillis());
+        castCadence.recordCast(System.currentTimeMillis());
         return true;
     }
 

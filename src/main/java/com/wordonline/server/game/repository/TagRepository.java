@@ -111,7 +111,11 @@ public class TagRepository {
                 .orElse(0.0);
     }
 
-    private static String toGameObjectName(PrefabType prefabType) {
+    /**
+     * The row name a prefab type is stored under. game_objects and magics share one name space, so
+     * this is also how a prefab is matched to the magic that creates it.
+     */
+    public static String toGameObjectName(PrefabType prefabType) {
         String name = prefabType.name();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {

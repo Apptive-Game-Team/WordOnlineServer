@@ -4,6 +4,7 @@ import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.bot.BotCounterEvaluator;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +34,11 @@ class BotBrainTest {
     private static final List<CardType> FAVOURABLE = List.of(CardType.Spawn, CardType.Fire);
     private static final List<CardType> LOSING = List.of(CardType.Spawn, CardType.Water);
 
+    // 적 필드에 서 있는 유닛의 값을 정하는 레시피. 봇이 낼 수 있는 2장짜리(10마나)보다 비싸야
+    // "필드보다 싼 것만 낸다" 규칙이 후보를 남긴다.
+    private static final List<CardType> ENEMY_BOARD_RECIPE =
+            List.of(CardType.Spawn, CardType.Rock, CardType.Rock, CardType.Rock, CardType.Rock);
+
     private final DatabaseMagicParser magicParser = mock(DatabaseMagicParser.class);
     private final BotCounterEvaluator counterEvaluator = mock(BotCounterEvaluator.class);
     private final Parameters parameters = mock(Parameters.class);
@@ -39,6 +46,7 @@ class BotBrainTest {
     @BeforeEach
     void setUp() {
         when(magicParser.getAllMagicRecipes()).thenReturn(List.of(FAVOURABLE, LOSING));
+        priceEnemyBoardAt(ENEMY_BOARD_RECIPE);
         when(parameters.getValueOrDefault(anyString(), anyString(), anyDouble()))
                 .thenAnswer(invocation -> invocation.getArgument(2));
         when(parameters.getValueOrDefault(anyString(), eq("mana_cost"), anyDouble())).thenReturn(5.0);
@@ -116,6 +124,43 @@ class BotBrainTest {
         assertThat(decision.playCards()).isEqualTo(LOSING);
     }
 
+    // 핵심 규칙. 플레이어 필드가 15마나짜리 하나뿐이면 봇의 20마나 소환은 후보에서 빠지고,
+    // 10마나짜리만 남는다.
+    @Test
+    void hospitalityOnlyCastsSummonsCheaperThanTheEnemyBoard() {
+        priceEnemyBoardAt(List.of(CardType.Spawn, CardType.Rock, CardType.Rock));
+        List<CardType> tooBig = List.of(CardType.Spawn, CardType.Nature, CardType.Nature, CardType.Nature);
+        when(magicParser.getAllMagicRecipes()).thenReturn(List.of(tooBig, LOSING));
+
+        BotBrain.InputDecision decision = think(hospitalityPersona());
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).isEqualTo(LOSING);
+    }
+
+    // 규칙을 지킬 수 없을 때에도 멈추지는 않는다. 멈춘 봇은 봐주는 걸로 읽힌다.
+    @Test
+    void hospitalityFallsBackToTheCheapestSummonWhenNothingIsCheaperThanTheBoard() {
+        priceEnemyBoardAt(List.of(CardType.Spawn));
+
+        BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
+        BotBrain.InputDecision decision = brain.think(eye(), parameters, Master.LeftPlayer, true);
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).hasSize(2);
+    }
+
+    // 일반 봇은 이 규칙과 무관하다. 이기려는 봇이 상대 필드보다 싸게만 낼 이유가 없다.
+    @Test
+    void ordinaryTiersIgnoreTheEnemyBoardCap() {
+        priceEnemyBoardAt(List.of(CardType.Spawn));
+
+        BotBrain.InputDecision decision = think(persona(1.0));
+
+        assertThat(decision).isNotNull();
+        assertThat(decision.playCards()).isEqualTo(FAVOURABLE);
+    }
+
     private BotPersona hospitalityPersona() {
         return new BotPersona(-1, "Host", BotTier.HOSPITALITY, 0, 1, -1.0, true, true);
     }
@@ -139,6 +184,15 @@ class BotBrainTest {
 
         assertThat(decision).isNotNull();
         assertThat(decision.playCards()).hasSize(1);
+    }
+
+    // 적 유닛의 가격은 그 유닛을 소환하는 레시피의 마나 비용이다. 목에서는 프리팹 이름으로
+    // 찾는 마법과 레시피 맵을 함께 세워 그 경로를 그대로 태운다.
+    private void priceEnemyBoardAt(List<CardType> recipe) {
+        Magic enemyMagic = mock(Magic.class);
+        enemyMagic.id = 42L;
+        when(magicParser.parseMagicForBot(anyString())).thenReturn(enemyMagic);
+        when(magicParser.getAllMagicRecipeMap()).thenReturn(Map.of(recipe, enemyMagic));
     }
 
     private BotBrain.InputDecision think(BotPersona persona) {
