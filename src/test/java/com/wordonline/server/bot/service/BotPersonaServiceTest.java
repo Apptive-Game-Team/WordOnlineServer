@@ -68,17 +68,17 @@ class BotPersonaServiceTest {
     @Test
     void returnsEmptyWhenNoPersonaIsEnabled() {
         when(repository.findAll()).thenReturn(List.of(
-                new BotPersona(-7, "Disabled", BotTier.BEGINNER, 250, 8, 0.25, false)
+                new BotPersona(-7, "Disabled", BotTier.BEGINNER, 250, 8, 0.25, false, false)
         ));
 
         assertThat(service.findRandomEnabled()).isEmpty();
     }
 
     private BotPersonaRequestDto request(long userId) {
-        return new BotPersonaRequestDto(userId, "Bot", BotTier.BEGINNER, 250, 8, 0.25, true);
+        return new BotPersonaRequestDto(userId, "Bot", BotTier.BEGINNER, 250, 8, 0.25, true, false);
     }
 
     private BotPersona persona(long userId) {
-        return new BotPersona(userId, "Bot", BotTier.BEGINNER, 250, 8, 0.25, true);
+        return new BotPersona(userId, "Bot", BotTier.BEGINNER, 250, 8, 0.25, true, false);
     }
 }

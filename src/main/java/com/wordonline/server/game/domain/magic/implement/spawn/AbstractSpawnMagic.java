@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.magic.ObjectSummoningMagic;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -12,7 +13,7 @@ import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 
-public abstract class AbstractSpawnMagic extends Magic {
+public abstract class AbstractSpawnMagic extends Magic implements ObjectSummoningMagic {
 
     private static final int DEFAULT_QUANTITY = 1;
     private static final float SPAWN_RANGE = 1.0f;
@@ -34,6 +35,16 @@ public abstract class AbstractSpawnMagic extends Magic {
         for (int i = 0; i < quantity; i++) {
             new GameObject(currentMaster, prefabType, spawnPosition(position, quantity), gameContext);
         }
+    }
+
+    @Override
+    public PrefabType summonedPrefab() {
+        return prefabType;
+    }
+
+    @Override
+    public int summonedQuantity() {
+        return parameters.intValueOrDefault(ParameterKey.QUANTITY, DEFAULT_QUANTITY);
     }
 
     private Vector3 spawnPosition(Vector3 position, int quantity) {

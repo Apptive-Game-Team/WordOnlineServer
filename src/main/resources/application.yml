@@ -30,6 +30,13 @@ spring:
     url: ${DATABASE_URL}
     username: ${DATABASE_USER}
     password: ${DATABASE_PW}
+  # The loop watchdog, the server heartbeat and the bot scheduler are all @Scheduled. Spring's
+  # default pool of one thread makes the watchdog wait behind whichever of the others is busy
+  # creating sessions, which is exactly when a stuck loop needs reaping.
+  task:
+    scheduling:
+      pool:
+        size: ${SCHEDULING_POOL_SIZE:3}
 
 logging:
   discord-webhook-url: ${DISCORD_WEBHOOK_URL}
@@ -40,14 +47,24 @@ logging:
 #    com.wordonline.server.game.service.system: DEBUG
 
 # Self-play bot games. target-games is the number of sessions the scheduler keeps running;
-# every check interval it tops the server back up to that number. The default of 1 reproduces
-# the original "one bot game while idle" behaviour. Raise both knobs to generate a synthetic
-# load for profiling, e.g. BOT_AUTO_MATCH_TARGET_GAMES=50 BOT_AUTO_MATCH_CHECK_INTERVAL_MS=5000.
+# every check interval it tops the server back up to that number, never past server.max-sessions.
+# The default of 1 reproduces the original "one bot game while idle" behaviour. Raise both knobs
+# to generate a synthetic load for profiling, e.g. BOT_AUTO_MATCH_TARGET_GAMES=50
+# BOT_AUTO_MATCH_CHECK_INTERVAL_MS=5000.
+# max-sessions-per-sweep spreads the ramp-up over several sweeps: session creation is synchronous
+# on the scheduler thread, so an unbounded top-up holds that thread for the whole batch.
 bot:
   auto-match:
     enabled: ${BOT_AUTO_MATCH_ENABLED:true}
     target-games: ${BOT_AUTO_MATCH_TARGET_GAMES:1}
     check-interval-ms: ${BOT_AUTO_MATCH_CHECK_INTERVAL_MS:60000}
+    max-sessions-per-sweep: ${BOT_AUTO_MATCH_MAX_SESSIONS_PER_SWEEP:5}
+  # Threads the bot ticks run on. pool-size 0 means one thread per available processor; the pool
+  # is fixed and the queue bounded so bot threads cannot outnumber the cores that run them. A full
+  # queue runs the tick on the calling loop thread, which costs that frame but never drops a tick.
+  executor:
+    pool-size: ${BOT_EXECUTOR_POOL_SIZE:0}
+    queue-capacity: ${BOT_EXECUTOR_QUEUE_CAPACITY:64}
 
 team6515:
   server:

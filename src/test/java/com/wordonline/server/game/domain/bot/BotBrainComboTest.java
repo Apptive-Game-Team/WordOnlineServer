@@ -92,7 +92,7 @@ class BotBrainComboTest {
         BotCounterEvaluator counterEvaluator = mock(BotCounterEvaluator.class);
         when(counterEvaluator.evaluate(org.mockito.ArgumentMatchers.anyList(), org.mockito.ArgumentMatchers.anyList()))
                 .thenReturn(0.0);
-        BotPersona persona = new BotPersona(1, "test", tier, 0, 1, 0, true);
+        BotPersona persona = new BotPersona(1, "test", tier, 0, 1, 0, true, false);
         return new BotBrain(parser, counterEvaluator, persona);
     }
 

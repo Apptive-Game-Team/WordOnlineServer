@@ -20,9 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public final class BotAgent {
 
-    private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
-    private static final long THOUGHT_INTERVAL_MILLIS = 10_000;
-
     private final BotAction botAction;
     private final BotBrain botBrain;
 
@@ -30,6 +27,7 @@ public final class BotAgent {
     private final GameLoop gameLoop;
     private final Master botSide;
     private final BotPersona persona;
+    private final CastDeadline castDeadline;
 
     // Written by the bot executor thread in onTick and read by the loop thread in shouldProcess.
     // Only one onTick runs at a time (BotAgentSystem gates it with a CAS), so the two threads never
@@ -37,19 +35,24 @@ public final class BotAgent {
     // stale value at worst submits a tick that returns immediately, or skips one reaction interval.
     private volatile PendingDecision pendingDecision;
     private volatile BotBrain.InputDecision lastDecision;
+
+    private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
+    private static final long THOUGHT_INTERVAL_MILLIS = 10_000;
     private volatile long nextThoughtAtMillis = System.currentTimeMillis() + THOUGHT_INTERVAL_MILLIS;
 
     public BotAgent(SessionObject sessionObject,
                     MagicParser magicParser,
                     Master botSide,
                     BotPersona persona,
-                    BotCounterEvaluator counterEvaluator) {
+                    BotCounterEvaluator counterEvaluator,
+                    double opponentNoviceProgress) {
         this.botAction = new BotAction();
-        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona);
+        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona, opponentNoviceProgress);
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
         this.persona = persona;
+        this.castDeadline = CastDeadline.forTier(persona.tier(), System.currentTimeMillis());
         log.debug("BotAgent initialized for side: {}, persona: {}", botSide, persona.name());
     }
 
@@ -86,8 +89,9 @@ public final class BotAgent {
         log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}",
                 botSide, botEye.mana(), botEye.cardList(), botEye.gameObjectList().size());
 
-        BotBrain.InputDecision decision = botBrain.think(botEye, gameLoop.parameters, botSide);
-        
+        BotBrain.InputDecision decision = botBrain.think(
+                botEye, gameLoop.parameters, botSide, castDeadline.overdue(System.currentTimeMillis()));
+
         if(decision != null)
         {
             long readyAtMillis = System.currentTimeMillis() + persona.normalizedThinkingTimeMs();
@@ -115,6 +119,7 @@ public final class BotAgent {
         inputRequestDto.setCards(decision.playCards());
         inputRequestDto.setPosition(decision.target());
         botAction.useCard(sessionObject, inputRequestDto, botSide);
+        castDeadline.recordCast(System.currentTimeMillis());
         publishBotThought(decision);
         return true;
     }

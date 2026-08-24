@@ -63,25 +63,67 @@ public class BotBrain {
     /** Scales the tag-based counter score into the same range as the damage-based scores. */
     static final double COUNTER_WEIGHT = 3.0;
 
+    /** Smallest recipe the hospitality bot may cast. */
+    static final int HOSPITALITY_MIN_CARDS = 2;
+
+    /**
+     * Largest recipe the hospitality bot may cast. "Low-grade summon" is a card count: the bot's
+     * deck can only assemble summons, but a deck constrains which cards are drawn, not how many of
+     * them end up in one recipe, so the ceiling has to live here.
+     */
+    static final int HOSPITALITY_MAX_CARDS = 3;
+
     private final MagicParser magicParser;
     private final BotCounterEvaluator counterEvaluator;
     private final BotPersona persona;
 
+    /** Non-null only for the tutorial opponent; every other tier scores plays the ordinary way. */
+    private final HospitalityDirector hospitalityDirector;
+
     public BotBrain(MagicParser magicParser, BotCounterEvaluator counterEvaluator, BotPersona persona) {
+        this(magicParser, counterEvaluator, persona, HospitalityDirector.DEFAULT_BOARD_SHARE);
+    }
+
+    /**
+     * @param opponentNoviceProgress how far the human opponent is through the tutorial; the share of
+     *                               their board a hospitality bot may match. Ignored by other tiers.
+     */
+    public BotBrain(MagicParser magicParser,
+                    BotCounterEvaluator counterEvaluator,
+                    BotPersona persona,
+                    double opponentNoviceProgress) {
         this.magicParser = magicParser;
         this.counterEvaluator = counterEvaluator;
         this.persona = persona;
+        this.hospitalityDirector = persona.tier() == BotTier.HOSPITALITY
+                ? new HospitalityDirector(opponentNoviceProgress)
+                : null;
     }
 
     // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,
     // never from a live GameObject; parameters are loaded once per session and read-only after that.
-    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide)
-    {
-        return think(botEye, parameters, botSide, ThreadLocalRandom.current());
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide) {
+        return think(botEye, parameters, botSide, false, ThreadLocalRandom.current());
     }
 
-    InputDecision think(BotEye botEye, Parameters parameters, Master botSide, Random random)
+    /**
+     * @param overdue the bot has been silent long enough that standing still would read as going
+     *                easy on the player, so it must not hold out for a better moment
+     */
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide, boolean overdue)
     {
+        return think(botEye, parameters, botSide, overdue, ThreadLocalRandom.current());
+    }
+
+    InputDecision think(BotEye botEye, Parameters parameters, Master botSide, Random random) {
+        return think(botEye, parameters, botSide, false, random);
+    }
+
+    private InputDecision think(BotEye botEye,
+                                Parameters parameters,
+                                Master botSide,
+                                boolean overdue,
+                                Random random) {
         List<CardType> cardList = botEye.cardList();
         int mana = botEye.mana();
         try {
@@ -103,19 +145,41 @@ public class BotBrain {
             BotSpellStats spellStats = new BotSpellStats(parameters);
             ThreatAssessment threats = ThreatAssessment.observe(
                     botEye.gameObjectList(), enemySide, playerPos, botEye.enemyPlayerHp());
-            Map<List<CardType>, Magic> recipeMap = dbParser.getAllMagicRecipeMap();
-            Collection<List<CardType>> allRecipes = recipeMap.keySet();
+            double aggression = aggression(botEye, threats, botSide);
 
-            Optional<ScoredPlay> combo = findSeedSpiritCombo(
-                    recipeMap, cardList, mana, spellStats, botEye.gameObjectList(), playerPos, botSide, random);
-            if (combo.isEmpty()) {
-                combo = findMobClusterCombo(
-                        recipeMap, cardList, mana, spellStats, botEye.gameObjectList(), playerPos, enemySide, random);
+            // 접대 봇의 보드는 플레이어 보드의 일정 비율 아래로만 간다. 한 번의 소환만 비교하면
+            // 싼 유닛을 계속 쌓아 결국 따라붙으므로, 이미 깔아 둔 것까지 더해서 본다. 비율과
+            // 마나로 재는 이유는 각각 HospitalityDirector와 BoardValue에 적어 두었다.
+            int manaBudget = Integer.MAX_VALUE;
+            if (hospitalityDirector != null) {
+                BoardValue boardValue = new BoardValue(dbParser, spellStats, parameters);
+                int enemyBoardMana = boardValue.manaOnField(botEye.gameObjectList(), enemySide);
+                int ownBoardMana = boardValue.manaOnField(botEye.gameObjectList(), botSide);
+                manaBudget = hospitalityDirector.summonAllowance(enemyBoardMana, ownBoardMana);
+                log.debug("[Bot {}] Hospitality board: enemy={} own={} budget={}",
+                        botSide, enemyBoardMana, ownBoardMana, manaBudget);
             }
-            if (combo.isPresent()) {
-                ScoredPlay chosen = combo.get();
-                log.debug("[Bot {}] Chose priority rule {}: {}", botSide, chosen.ruleId(), chosen.reason());
-                return chosen.toDecision();
+
+            Map<List<CardType>, Magic> recipeMap = dbParser.getAllMagicRecipeMap();
+            Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
+            if ((allRecipes == null || allRecipes.isEmpty()) && recipeMap != null) {
+                allRecipes = recipeMap.keySet();
+            }
+
+            // Tutorial hospitality rules only permit low-grade summons. Priority combos are combat
+            // tactics, so they run for ordinary tiers and still precede the legacy value scorer.
+            if (hospitalityDirector == null && recipeMap != null) {
+                Optional<ScoredPlay> combo = findSeedSpiritCombo(
+                        recipeMap, cardList, mana, spellStats, botEye.gameObjectList(), playerPos, botSide, random);
+                if (combo.isEmpty()) {
+                    combo = findMobClusterCombo(
+                            recipeMap, cardList, mana, spellStats, botEye.gameObjectList(), playerPos, enemySide, random);
+                }
+                if (combo.isPresent()) {
+                    ScoredPlay chosen = combo.get();
+                    log.debug("[Bot {}] Chose priority rule {}: {}", botSide, chosen.ruleId(), chosen.reason());
+                    return chosen.toDecision();
+                }
             }
 
             List<ScoredPlay> plays = new ArrayList<>();
@@ -130,6 +194,9 @@ public class BotBrain {
                 if (mainCard == null) {
                     continue;
                 }
+                if (hospitalityDirector != null && !isLowGradeSummon(recipe, mainCard)) {
+                    continue;
+                }
 
                 hasMakeableRecipe = true;
                 int cost = spellStats.totalManaCost(recipe);
@@ -138,7 +205,14 @@ public class BotBrain {
                 }
                 hasAffordableRecipe = true;
 
-                buildPlay(recipe, mainCard, cost, spellStats, threats, enemies, playerPos, botSide, random)
+                // 이번 소환이 놓인 뒤에도 봇 보드가 플레이어 보드보다 약해야 한다. 지킬 수 없으면
+                // 소환하지 않는다 - 데드라인이 있어도 이 규칙은 깨지 않는다. 플레이어보다 센 것을
+                // 한 번 내놓는 순간 접대는 실패하고, 그건 잠깐 조용한 것보다 나쁘다.
+                if (cost >= manaBudget) {
+                    continue;
+                }
+
+                buildPlay(recipe, mainCard, cost, aggression, spellStats, threats, enemies, playerPos, botSide, random)
                         .ifPresent(plays::add);
             }
 
@@ -149,7 +223,10 @@ public class BotBrain {
                 return chosen.toDecision();
             }
 
-            if (hasMakeableRecipe && !hasAffordableRecipe) {
+            // Holding for mana is the right play for a bot that is trying to win. For one that has
+            // been quiet too long it is the wrong one: the player reads the pause, not the reason
+            // for it. Overdue, the bot spends a card to cycle toward something it can afford.
+            if (hasMakeableRecipe && !hasAffordableRecipe && !overdue) {
                 log.debug("[Bot {}] Waiting for mana; makeable recipes exist but none are affordable. mana={}", botSide, mana);
                 return null;
             }
@@ -174,15 +251,14 @@ public class BotBrain {
     private Optional<ScoredPlay> buildPlay(List<CardType> recipe,
                                            CardType mainCard,
                                            int cost,
+                                           double aggression,
                                            BotSpellStats spellStats,
                                            ThreatAssessment threats,
                                            List<BotVisibleObject> enemies,
                                            Vector3 playerPos,
                                            Master botSide,
                                            Random random) {
-        double counterValue = counterEvaluator.evaluate(recipe, enemies)
-                * persona.normalizedCounterAggression()
-                * COUNTER_WEIGHT;
+        double counterValue = counterValue(recipe, enemies, aggression);
         double castRange = spellStats.castRange(mainCard);
 
         if (OFFENSIVE_MAIN_CARDS.contains(mainCard)) {
@@ -196,8 +272,7 @@ public class BotBrain {
                         double value = impact.expectedDamage()
                                 + KILL_TEMPO_BONUS * impact.lethalCount()
                                 + counterValue;
-                        double score = value / cost;
-                        return scored(recipe, impact.center(), cost, score, VALUE_RULE,
+                        return scored(recipe, impact.center(), cost, value / cost, VALUE_RULE,
                                 "Best offensive value covers " + impact.coveredCount()
                                         + " target(s) with expected damage " + impact.expectedDamage() + ".",
                                 random);
@@ -212,6 +287,26 @@ public class BotBrain {
                 "Best placement value for current defensive pressure " + threats.pressure() + ".", random));
     }
 
+    /**
+     * The counter term, in whichever direction this persona's aggression asks for.
+     *
+     * <p>A positive aggression scores how much the recipe beats the enemy board, which is what
+     * every ordinary bot wants. A negative one scores how much the enemy board beats the recipe
+     * and adds it with the same sign, so the play the enemy answers best ranks highest. That is
+     * the hospitality bot: it keeps committing real units, and the units it commits lose to what
+     * is already on the field. Simply ranking low on the attacking direction would not do it -
+     * "does not beat them" is satisfied by any irrelevant play, including standing still.
+     */
+    private double counterValue(List<CardType> recipe, List<BotVisibleObject> enemies, double aggression) {
+        if (aggression == 0.0) {
+            return 0.0;
+        }
+        double matchup = aggression > 0.0
+                ? counterEvaluator.evaluate(recipe, enemies)
+                : counterEvaluator.evaluateVulnerability(recipe, enemies);
+        return matchup * Math.abs(aggression) * COUNTER_WEIGHT;
+    }
+
     /** Every candidate already carries exactly one tier-scaled random perturbation. */
     private ScoredPlay choosePlay(List<ScoredPlay> plays) {
         return plays.stream()
@@ -221,11 +316,11 @@ public class BotBrain {
 
     static double noiseAmplitude(BotTier tier) {
         return switch (tier) {
+            case HOSPITALITY, ELITE -> 0.0;
             case INTRO -> 0.50;
             case BEGINNER -> 0.30;
             case INTERMEDIATE -> 0.18;
             case ADVANCED -> 0.08;
-            case ELITE -> 0.0;
         };
     }
 
@@ -239,6 +334,46 @@ public class BotBrain {
         double amplitude = noiseAmplitude(persona.tier());
         double noisyScore = score * (1.0 + (random.nextDouble() * 2.0 - 1.0) * amplitude);
         return new ScoredPlay(recipe, target, cost, score, noisyScore, ruleId, reason);
+    }
+
+    /**
+     * The counter aggression to score this tick with. Ordinary personas use the value stored on
+     * them; the hospitality bot has its value chosen per cast from the state of the board, which is
+     * how "lose to what is already summoned" is expressed without ever skipping a cast.
+     */
+    private double aggression(BotEye botEye, ThreatAssessment threats, Master botSide) {
+        if (hospitalityDirector == null) {
+            return persona.normalizedCounterAggression();
+        }
+        Master enemySide = BotSideUtil.getEnemySide(botSide);
+        int playerUnits = countUnits(botEye, enemySide);
+        int botUnits = countUnits(botEye, botSide);
+        double aggression = hospitalityDirector.aggression(playerUnits, botUnits, threats.pressure());
+        log.debug("[Bot {}] Hospitality aggression={} (player units={}, own units={}, pressure={})",
+                botSide, aggression, playerUnits, botUnits, threats.pressure());
+        return aggression;
+    }
+
+    /** Bodies on the field for one side. The player core is not a body anyone summoned. */
+    private static int countUnits(BotEye botEye, Master side) {
+        int count = 0;
+        for (BotVisibleObject object : botEye.gameObjectList()) {
+            if (object.master() == side && object.type() != PrefabType.Player && object.targetable()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Whether the hospitality bot is allowed to cast this recipe: a summon, of the size a new player
+     * can be expected to handle. Anything else is filtered out before scoring, so no amount of
+     * counter weighting can talk the bot into it.
+     */
+    private static boolean isLowGradeSummon(List<CardType> recipe, CardType mainCard) {
+        return mainCard == CardType.Spawn
+                && recipe.size() >= HOSPITALITY_MIN_CARDS
+                && recipe.size() <= HOSPITALITY_MAX_CARDS;
     }
 
     private Optional<ScoredPlay> findSeedSpiritCombo(Map<List<CardType>, Magic> recipeMap,
