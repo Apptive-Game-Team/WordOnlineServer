@@ -185,7 +185,21 @@ public abstract class GameLoop implements Runnable {
         }
     }
 
+    // Never throws. scheduleAtFixedRate stops repeating a task whose run() threw, and it does so
+    // silently: the session would keep its RUNNING state and its registry entry for good, with the
+    // watchdog's staleness check as the only thing left to notice. Anything that escapes the frame
+    // ends the loop here instead.
     public boolean runActorTick() {
+        try {
+            return tickOnce();
+        } catch (Throwable throwable) {
+            log.error("[ERROR] actor tick failed outside the frame", throwable);
+            terminateExecution();
+            return false;
+        }
+    }
+
+    private boolean tickOnce() {
         if (state == LoopState.CREATED) {
             startExecution();
         }
@@ -250,8 +264,11 @@ public abstract class GameLoop implements Runnable {
         if (onTerminated != null) {
             try {
                 onTerminated.run();
-            } catch (Exception e) {
-                log.warn("onTerminated failed", e);
+            } catch (Throwable throwable) {
+                // The teardown is the last thing standing between a finished loop and a session
+                // that stays in the registry, so an Error thrown out of it must not be rethrown
+                // into the caller that is trying to end the loop.
+                log.warn("onTerminated failed", throwable);
             }
         }
     }
