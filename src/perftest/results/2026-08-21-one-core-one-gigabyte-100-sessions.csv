@@ -1,0 +1,7 @@
+repetition,mode,sessions,duration_seconds,frames,frames_per_second,late_percent,p50_lateness_milliseconds,p95_lateness_milliseconds,p99_lateness_milliseconds,max_lateness_milliseconds,actions,process_cpu_seconds,heap_used_megabytes,resident_set_megabytes,peak_threads
+1,dedicated,100,5.000,10000,1999.9,0.000,0.120,0.222,0.314,1.181,20000,0.760,48.8,67.6,106
+1,actor,100,4.954,10000,2018.5,0.000,1.168,2.100,2.466,2.939,20000,0.350,20.2,57.5,7
+2,dedicated,100,4.976,10000,2009.7,0.000,0.119,0.234,0.359,3.430,20000,0.830,48.8,64.7,106
+2,actor,100,4.953,10000,2019.1,0.000,0.764,1.617,2.024,2.523,20000,0.250,20.2,57.5,7
+3,dedicated,100,4.976,10000,2009.7,0.000,0.111,0.185,0.270,0.766,20000,0.660,48.8,67.9,106
+3,actor,100,4.952,10000,2019.2,0.000,0.739,1.548,1.796,2.144,20000,0.270,21.5,55.8,7

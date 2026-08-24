@@ -56,6 +56,7 @@ class SessionServiceTest {
     private final UserService userService = mock(UserService.class);
     private final BotPersonaService botPersonaService = mock(BotPersonaService.class);
     private final LobbySessionClient lobbySessionClient = mock(LobbySessionClient.class);
+    private final GameLoopExecutionService gameLoopExecutionService = mock(GameLoopExecutionService.class);
     private final SessionService sessionService = new SessionService(
             sessionObjectFactory,
             gameLoopFactory,
@@ -64,7 +65,8 @@ class SessionServiceTest {
             userService,
             botPersonaService,
             mock(UserScenarioService.class),
-            lobbySessionClient);
+            lobbySessionClient,
+            gameLoopExecutionService);
 
     private SessionDto sessionDto;
     private SessionObject sessionObject;
@@ -204,7 +206,7 @@ class SessionServiceTest {
 
     @Test
     void reportsInactiveForUnknownSessionId() {
-        SessionService service = new SessionService(null, null, null, null, null, null, null, null);
+        SessionService service = new SessionService(null, null, null, null, null, null, null, null, null);
 
         assertThat(service.isSessionActive("no-such-session")).isFalse();
     }

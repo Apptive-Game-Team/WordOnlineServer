@@ -24,7 +24,7 @@ class GameLoopTest {
         return new GameLoop(mock(MmrService.class), mock(UserService.class),
                 mock(GameContext.class), mock(Parameters.class)) {
             @Override
-            void update() {
+            protected void update() {
                 body.run();
             }
         };
