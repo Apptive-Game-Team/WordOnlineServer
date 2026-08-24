@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
+import com.wordonline.server.game.domain.object.component.effect.receiver.LightningSummonEffectReceiver;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -48,7 +49,11 @@ public class LightningStrike extends MagicComponent {
 
         for (GameObject target : targets) {
             if (target == gameObject || target.isDestroyed()) continue;
-            if (owner != Master.None && target.getMaster() == owner) continue;
+            if (owner != Master.None && target.getMaster() == owner) {
+                // the strike charges the caster's own lightning summons instead of damaging them
+                LightningSummonEffectReceiver.overcharge(target);
+                continue;
+            }
 
             List<Damageable> damageables = target.getComponents(Damageable.class);
             if (damageables.isEmpty()) continue;
