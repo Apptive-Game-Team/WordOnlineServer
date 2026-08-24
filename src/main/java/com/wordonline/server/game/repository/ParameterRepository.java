@@ -26,7 +26,10 @@ public class ParameterRepository {
             """;
 
     public Optional<Double> getParameterValue(String gameObject, String parameter) {
-        log.info("[Database] get parameter gameobject: {} | parameter: {}", gameObject.toLowerCase(), parameter);
+        // Debug, not info: this runs on the game loop thread for every parameter of every
+        // spawned object. The lower-casing stays on the bind value below so a disabled log level
+        // costs nothing.
+        log.debug("[Database] get parameter gameobject: {} | parameter: {}", gameObject, parameter);
         return jdbcClient.sql(GET_PARAMETER_VALUE)
                 .param("gameObject", gameObject.toLowerCase())
                 .param("parameter", parameter)

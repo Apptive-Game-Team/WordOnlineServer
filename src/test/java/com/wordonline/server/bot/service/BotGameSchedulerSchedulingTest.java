@@ -3,6 +3,7 @@ package com.wordonline.server.bot.service;
 import com.wordonline.server.bot.config.BotAutoMatchProperties;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
+import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.ServerState;
 import com.wordonline.server.server.service.ServerStatusService;
 import com.wordonline.server.session.dto.SessionDto;
@@ -34,6 +35,8 @@ import static org.mockito.Mockito.when;
         "bot.auto-match.enabled=true",
         "bot.auto-match.target-games=1",
         "bot.auto-match.check-interval-ms=25",
+        "bot.auto-match.max-sessions-per-sweep=5",
+        "server.max-sessions=100",
         "server.external-port=7777",
         "server.domain=localhost",
         "server.protocol=http"
@@ -82,15 +85,22 @@ class BotGameSchedulerSchedulingTest {
 
     @Configuration
     @EnableScheduling
-    @EnableConfigurationProperties(BotAutoMatchProperties.class)
+    @EnableConfigurationProperties({
+        BotAutoMatchProperties.class,
+        ServerIdentityProperties.class,
+        BotGameScheduler.SweepProperties.class
+})
     static class SchedulingConfig {
 
         @Bean
         BotGameScheduler botGameScheduler(SessionService sessionService,
                                           BotPersonaService botPersonaService,
                                           ServerStatusService serverStatusService,
-                                          BotAutoMatchProperties botAutoMatchProperties) {
-            return new BotGameScheduler(sessionService, botPersonaService, serverStatusService, botAutoMatchProperties);
+                                          BotAutoMatchProperties botAutoMatchProperties,
+                                          ServerIdentityProperties serverIdentityProperties,
+                                          BotGameScheduler.SweepProperties sweepProperties) {
+            return new BotGameScheduler(sessionService, botPersonaService, serverStatusService,
+                    botAutoMatchProperties, serverIdentityProperties, sweepProperties);
         }
 
         @Bean

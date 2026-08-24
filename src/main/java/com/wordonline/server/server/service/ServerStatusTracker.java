@@ -34,14 +34,20 @@ public class ServerStatusTracker {
             subscription.request(1); // 구독 시작
         }
 
+        // No database write here. Every session start, end and reap raises this event, so
+        // writing the row per event cost two connection acquisitions each while bot self-play
+        // was running. The @Scheduled heartbeat below republishes the count anyway, and nothing
+        // downstream needs it sooner: the lobby picks servers from its own health probes and
+        // never reads session_count, and the admin dashboard already polls a value that the
+        // heartbeat refreshes. The drain check stays - it is what lets a DRAINING server exit
+        // once it empties.
         @Override
         public void onNext(Integer item) {
             subscription.request(1);
-            publishHeartbeat(item);
             if (item == 0) {
                 onSessionZero();
             }
-            log.info("[Server State] Session number changed: {}", item);
+            log.debug("[Server State] Session number changed: {}", item);
         }
 
         @Override
