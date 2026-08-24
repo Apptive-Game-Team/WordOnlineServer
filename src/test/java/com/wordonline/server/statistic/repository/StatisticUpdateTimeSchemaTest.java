@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import com.wordonline.server.game.service.system.GameObjectStateInitialSystem;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -17,9 +19,11 @@ import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The statistic_update_time definition in schema-h2.sql is inferred from the INSERT statement in
- * {@link StatisticRepository}; nothing else in the repository describes the table. These tests pin
- * the two together so the inferred definition at least accepts what the production code writes.
+ * The statistic_update_time definition in schema-h2.sql is now copied from the production
+ * migration (V000, as widened by V066) rather than inferred from the INSERT in
+ * {@link StatisticRepository}. These tests pin the two together so the shipped definition accepts
+ * what the production code writes -- including frame intervals past the old INTEGER ceiling, which
+ * only pass once V066 has been applied to the target database.
  */
 class StatisticUpdateTimeSchemaTest {
 
@@ -75,6 +79,13 @@ class StatisticUpdateTimeSchemaTest {
                 .single();
     }
 
+    private String readName(long gameId) {
+        return jdbcClient.sql("SELECT name FROM statistic_update_time WHERE statistic_game_id = ?")
+                .param(gameId)
+                .query(String.class)
+                .single();
+    }
+
     private long insertGame() {
         jdbcClient.sql("""
                 INSERT INTO statistic_games(
@@ -106,6 +117,24 @@ class StatisticUpdateTimeSchemaTest {
     }
 
     @Test
+    void storesTheLongestGameSystemNameWithoutTruncation() throws Exception {
+        long gameId = insertGame();
+        // The longest GameSystem simple name in the server; name is varchar(31) in production, so
+        // this is the row closest to the limit that saveUpdateTime can actually write.
+        String longestSystemName = GameObjectStateInitialSystem.class.getSimpleName();
+
+        jdbcClient.sql(saveUpdateTimeSql())
+                .param("gameId", gameId)
+                .param("name", longestSystemName)
+                .param("minInterval", 1_000L)
+                .param("maxInterval", 9_000L)
+                .param("meanInterval", 4_200.5f)
+                .update();
+
+        assertThat(readName(gameId)).isEqualTo(longestSystemName);
+    }
+
+    @Test
     void storesFrameIntervalsBeyondIntegerMaxValueWithoutTruncation() throws Exception {
         long gameId = insertGame();
         long fourSecondsNs = 4_000_000_000L;
@@ -120,9 +149,6 @@ class StatisticUpdateTimeSchemaTest {
 
         assertThat(readLong(gameId, "max_interval_ns")).isEqualTo(fourSecondsNs);
         assertThat(readLong(gameId, "min_interval_ns")).isEqualTo(50_000_000L);
-        assertThat(jdbcClient.sql("SELECT name FROM statistic_update_time WHERE statistic_game_id = ?")
-                .param(gameId)
-                .query(String.class)
-                .single()).isEqualTo("Frame");
+        assertThat(readName(gameId)).isEqualTo("Frame");
     }
 }
