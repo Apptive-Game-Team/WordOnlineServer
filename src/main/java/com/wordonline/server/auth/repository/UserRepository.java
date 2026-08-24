@@ -41,6 +41,12 @@ public class UserRepository {
             where id = :userId;
             """;
 
+    private static final String GET_NOVICE_PROGRESS = """
+            select novice_progress
+            from users
+            where id = :userId;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public Optional<Long> getSelectedDeckId(long userId) {
@@ -75,5 +81,17 @@ public class UserRepository {
         jdbcClient.sql(INCREMENT_TOTAL_WINS)
                 .param("userId", userId)
                 .update();
+    }
+
+    /**
+     * How far the player is through the tutorial, from 0.5 to 1.0. Missing rows answer 1.0: only a
+     * real account that has not finished it gets an opponent holding back.
+     */
+    public double getNoviceProgress(long userId) {
+        return jdbcClient.sql(GET_NOVICE_PROGRESS)
+                .param("userId", userId)
+                .query(Double.class)
+                .optional()
+                .orElse(1.0);
     }
 }

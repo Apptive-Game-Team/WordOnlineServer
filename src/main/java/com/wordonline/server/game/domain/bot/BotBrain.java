@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import lombok.extern.slf4j.Slf4j;
@@ -49,19 +50,54 @@ public class BotBrain {
     /** Scales the tag-based counter score into the same range as the damage-based scores. */
     static final double COUNTER_WEIGHT = 3.0;
 
+    /** Smallest recipe the hospitality bot may cast. */
+    static final int HOSPITALITY_MIN_CARDS = 2;
+
+    /**
+     * Largest recipe the hospitality bot may cast. "Low-grade summon" is a card count: the bot's
+     * deck can only assemble summons, but a deck constrains which cards are drawn, not how many of
+     * them end up in one recipe, so the ceiling has to live here.
+     */
+    static final int HOSPITALITY_MAX_CARDS = 3;
+
     private final MagicParser magicParser;
     private final BotCounterEvaluator counterEvaluator;
     private final BotPersona persona;
 
+    /** Non-null only for the tutorial opponent; every other tier scores plays the ordinary way. */
+    private final HospitalityDirector hospitalityDirector;
+
     public BotBrain(MagicParser magicParser, BotCounterEvaluator counterEvaluator, BotPersona persona) {
+        this(magicParser, counterEvaluator, persona, HospitalityDirector.DEFAULT_BOARD_SHARE);
+    }
+
+    /**
+     * @param opponentNoviceProgress how far the human opponent is through the tutorial; the share of
+     *                               their board a hospitality bot may match. Ignored by other tiers.
+     */
+    public BotBrain(MagicParser magicParser,
+                    BotCounterEvaluator counterEvaluator,
+                    BotPersona persona,
+                    double opponentNoviceProgress) {
         this.magicParser = magicParser;
         this.counterEvaluator = counterEvaluator;
         this.persona = persona;
+        this.hospitalityDirector = persona.tier() == BotTier.HOSPITALITY
+                ? new HospitalityDirector(opponentNoviceProgress)
+                : null;
     }
 
     // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,
     // never from a live GameObject; parameters are loaded once per session and read-only after that.
-    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide)
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide) {
+        return think(botEye, parameters, botSide, false);
+    }
+
+    /**
+     * @param overdue the bot has been silent long enough that standing still would read as going
+     *                easy on the player, so it must not hold out for a better moment
+     */
+    public InputDecision think(BotEye botEye, Parameters parameters, Master botSide, boolean overdue)
     {
         List<CardType> cardList = botEye.cardList();
         int mana = botEye.mana();
@@ -86,6 +122,21 @@ public class BotBrain {
                     botEye.gameObjectList(), enemySide, playerPos, botEye.enemyPlayerHp());
             Random random = ThreadLocalRandom.current();
 
+            double aggression = aggression(botEye, threats, botSide);
+
+            // 접대 봇의 보드는 플레이어 보드의 일정 비율 아래로만 간다. 한 번의 소환만 비교하면
+            // 싼 유닛을 계속 쌓아 결국 따라붙으므로, 이미 깔아 둔 것까지 더해서 본다. 비율과
+            // 마나로 재는 이유는 각각 HospitalityDirector와 BoardValue에 적어 두었다.
+            int manaBudget = Integer.MAX_VALUE;
+            if (hospitalityDirector != null) {
+                BoardValue boardValue = new BoardValue(dbParser, spellStats, parameters);
+                int enemyBoardMana = boardValue.manaOnField(botEye.gameObjectList(), enemySide);
+                int ownBoardMana = boardValue.manaOnField(botEye.gameObjectList(), botSide);
+                manaBudget = hospitalityDirector.summonAllowance(enemyBoardMana, ownBoardMana);
+                log.debug("[Bot {}] Hospitality board: enemy={} own={} budget={}",
+                        botSide, enemyBoardMana, ownBoardMana, manaBudget);
+            }
+
             Collection<List<CardType>> allRecipes = dbParser.getAllMagicRecipes();
             List<ScoredPlay> plays = new ArrayList<>();
             boolean hasMakeableRecipe = false;
@@ -99,6 +150,9 @@ public class BotBrain {
                 if (mainCard == null) {
                     continue;
                 }
+                if (hospitalityDirector != null && !isLowGradeSummon(recipe, mainCard)) {
+                    continue;
+                }
 
                 hasMakeableRecipe = true;
                 int cost = spellStats.totalManaCost(recipe);
@@ -107,7 +161,14 @@ public class BotBrain {
                 }
                 hasAffordableRecipe = true;
 
-                buildPlay(recipe, mainCard, cost, spellStats, threats, enemies, playerPos, botSide, random)
+                // 이번 소환이 놓인 뒤에도 봇 보드가 플레이어 보드보다 약해야 한다. 지킬 수 없으면
+                // 소환하지 않는다 - 데드라인이 있어도 이 규칙은 깨지 않는다. 플레이어보다 센 것을
+                // 한 번 내놓는 순간 접대는 실패하고, 그건 잠깐 조용한 것보다 나쁘다.
+                if (cost >= manaBudget) {
+                    continue;
+                }
+
+                buildPlay(recipe, mainCard, cost, aggression, spellStats, threats, enemies, playerPos, botSide, random)
                         .ifPresent(plays::add);
             }
 
@@ -118,7 +179,10 @@ public class BotBrain {
                 return new InputDecision(chosen.recipe(), chosen.target());
             }
 
-            if (hasMakeableRecipe && !hasAffordableRecipe) {
+            // Holding for mana is the right play for a bot that is trying to win. For one that has
+            // been quiet too long it is the wrong one: the player reads the pause, not the reason
+            // for it. Overdue, the bot spends a card to cycle toward something it can afford.
+            if (hasMakeableRecipe && !hasAffordableRecipe && !overdue) {
                 log.debug("[Bot {}] Waiting for mana; makeable recipes exist but none are affordable. mana={}", botSide, mana);
                 return null;
             }
@@ -141,13 +205,14 @@ public class BotBrain {
     private Optional<ScoredPlay> buildPlay(List<CardType> recipe,
                                            CardType mainCard,
                                            int cost,
+                                           double aggression,
                                            BotSpellStats spellStats,
                                            ThreatAssessment threats,
                                            List<BotVisibleObject> enemies,
                                            Vector3 playerPos,
                                            Master botSide,
                                            Random random) {
-        double counterValue = counterValue(recipe, enemies);
+        double counterValue = counterValue(recipe, enemies, aggression);
         double castRange = spellStats.castRange(mainCard);
 
         if (OFFENSIVE_MAIN_CARDS.contains(mainCard)) {
@@ -182,8 +247,7 @@ public class BotBrain {
      * is already on the field. Simply ranking low on the attacking direction would not do it -
      * "does not beat them" is satisfied by any irrelevant play, including standing still.
      */
-    private double counterValue(List<CardType> recipe, List<BotVisibleObject> enemies) {
-        double aggression = persona.normalizedCounterAggression();
+    private double counterValue(List<CardType> recipe, List<BotVisibleObject> enemies, double aggression) {
         if (aggression == 0.0) {
             return 0.0;
         }
@@ -207,8 +271,51 @@ public class BotBrain {
                 .orElse(plays.getFirst());
     }
 
+    /**
+     * The counter aggression to score this tick with. Ordinary personas use the value stored on
+     * them; the hospitality bot has its value chosen per cast from the state of the board, which is
+     * how "lose to what is already summoned" is expressed without ever skipping a cast.
+     */
+    private double aggression(BotEye botEye, ThreatAssessment threats, Master botSide) {
+        if (hospitalityDirector == null) {
+            return persona.normalizedCounterAggression();
+        }
+        Master enemySide = BotSideUtil.getEnemySide(botSide);
+        int playerUnits = countUnits(botEye, enemySide);
+        int botUnits = countUnits(botEye, botSide);
+        double aggression = hospitalityDirector.aggression(playerUnits, botUnits, threats.pressure());
+        log.debug("[Bot {}] Hospitality aggression={} (player units={}, own units={}, pressure={})",
+                botSide, aggression, playerUnits, botUnits, threats.pressure());
+        return aggression;
+    }
+
+    /** Bodies on the field for one side. The player core is not a body anyone summoned. */
+    private static int countUnits(BotEye botEye, Master side) {
+        int count = 0;
+        for (BotVisibleObject object : botEye.gameObjectList()) {
+            if (object.master() == side && object.type() != PrefabType.Player && object.targetable()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Whether the hospitality bot is allowed to cast this recipe: a summon, of the size a new player
+     * can be expected to handle. Anything else is filtered out before scoring, so no amount of
+     * counter weighting can talk the bot into it.
+     */
+    private static boolean isLowGradeSummon(List<CardType> recipe, CardType mainCard) {
+        return mainCard == CardType.Spawn
+                && recipe.size() >= HOSPITALITY_MIN_CARDS
+                && recipe.size() <= HOSPITALITY_MAX_CARDS;
+    }
+
     static double explorationRate(BotTier tier) {
         return switch (tier) {
+            // The hospitality bot is not a bad player, it is a player throwing the match on
+            // purpose. Randomness would only take the choice back out of its hands.
+            case HOSPITALITY -> 0.0;
             case INTRO -> 0.8;
             case BEGINNER -> 0.5;
             case INTERMEDIATE -> 0.3;

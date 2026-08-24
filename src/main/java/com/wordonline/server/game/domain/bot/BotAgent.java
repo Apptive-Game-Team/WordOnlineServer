@@ -24,6 +24,7 @@ public final class BotAgent {
     private final GameLoop gameLoop;
     private final Master botSide;
     private final BotPersona persona;
+    private final CastDeadline castDeadline;
 
     // Written by the bot executor thread in onTick and read by the loop thread in shouldProcess.
     // Only one onTick runs at a time (BotAgentSystem gates it with a CAS), so the two threads never
@@ -37,13 +38,15 @@ public final class BotAgent {
                     MagicParser magicParser,
                     Master botSide,
                     BotPersona persona,
-                    BotCounterEvaluator counterEvaluator) {
+                    BotCounterEvaluator counterEvaluator,
+                    double opponentNoviceProgress) {
         this.botAction = new BotAction();
-        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona);
+        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona, opponentNoviceProgress);
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;
         this.persona = persona;
+        this.castDeadline = CastDeadline.forTier(persona.tier(), System.currentTimeMillis());
         log.debug("BotAgent initialized for side: {}, persona: {}", botSide, persona.name());
     }
 
@@ -75,7 +78,8 @@ public final class BotAgent {
         log.debug("[BotAgent {}] State: Mana={}, Cards={}, VisibleObjects={}",
                 botSide, botEye.mana(), botEye.cardList(), botEye.gameObjectList().size());
 
-        BotBrain.InputDecision decision = botBrain.think(botEye, gameLoop.parameters, botSide);
+        BotBrain.InputDecision decision = botBrain.think(
+                botEye, gameLoop.parameters, botSide, castDeadline.overdue(System.currentTimeMillis()));
         
         if(decision != null)
         {
@@ -103,6 +107,7 @@ public final class BotAgent {
         inputRequestDto.setCards(decision.playCards());
         inputRequestDto.setPosition(decision.target());
         botAction.useCard(sessionObject, inputRequestDto, botSide);
+        castDeadline.recordCast(System.currentTimeMillis());
         return true;
     }
 
