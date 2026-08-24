@@ -47,6 +47,13 @@ public class UserRepository {
             where id = :userId;
             """;
 
+    private static final String ADVANCE_NOVICE_PROGRESS = """
+            update users
+            set novice_progress = least(1.0, novice_progress + :step)
+            where id = :userId
+              and novice_progress < 1.0;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public Optional<Long> getSelectedDeckId(long userId) {
@@ -93,5 +100,17 @@ public class UserRepository {
                 .query(Double.class)
                 .optional()
                 .orElse(1.0);
+    }
+
+    /**
+     * Moves the player along the tutorial, never past the end and never for someone already there.
+     *
+     * @return true when this call moved them
+     */
+    public boolean advanceNoviceProgress(long userId, double step) {
+        return jdbcClient.sql(ADVANCE_NOVICE_PROGRESS)
+                .param("userId", userId)
+                .param("step", step)
+                .update() > 0;
     }
 }

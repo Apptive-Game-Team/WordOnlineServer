@@ -1,6 +1,8 @@
 package com.wordonline.server.session.service;
 
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.bot.domain.BotParticipant;
+import com.wordonline.server.bot.service.BotPersonaService;
 import com.wordonline.server.game.domain.SessionType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
@@ -44,6 +46,7 @@ public class SessionService {
     private final StatisticService statisticService;
     private final GameSessionRecordService gameSessionRecordService;
     private final UserService userService;
+    private final BotPersonaService botPersonaService;
     private final UserScenarioService userScenarioService;
     private final LobbySessionClient lobbySessionClient;
 
@@ -52,6 +55,7 @@ public class SessionService {
                           StatisticService statisticService,
                           GameSessionRecordService gameSessionRecordService,
                           UserService userService,
+                          BotPersonaService botPersonaService,
                           UserScenarioService userScenarioService,
                           LobbySessionClient lobbySessionClient) {
         this.sessionObjectFactory = sessionObjectFactory;
@@ -59,6 +63,7 @@ public class SessionService {
         this.statisticService = statisticService;
         this.gameSessionRecordService = gameSessionRecordService;
         this.userService = userService;
+        this.botPersonaService = botPersonaService;
         this.userScenarioService = userScenarioService;
         this.lobbySessionClient = lobbySessionClient;
     }
@@ -188,6 +193,7 @@ public class SessionService {
             }
             if (winnerId >= 0) {
                 userService.incrementTotalWins(winnerId);
+                advanceNoviceProgressAfterHospitalityWin(sessionObject, winnerId);
             }
         }
 
@@ -231,6 +237,40 @@ public class SessionService {
 
         log.error("[Session] Reaped stuck session; sessionId: {}", sessionId);
         return true;
+    }
+
+    /**
+     * Moves the winner along the tutorial when the opponent they beat was the hospitality bot.
+     *
+     * <p>Only on a win. The bot holds back by exactly this number, so a player who is losing is not
+     * someone to give less help to - and because it eases off the further behind they are, they get
+     * there eventually. A session that ends without a winner, including one the watchdog reaps,
+     * leaves the player where they were: they replay the match rather than skipping it.
+     */
+    private void advanceNoviceProgressAfterHospitalityWin(SessionObject sessionObject, long winnerId) {
+        if (sessionObject.getSessionType() != SessionType.Practice) {
+            return;
+        }
+
+        try {
+            long loserId = winnerId == sessionObject.getLeftUserId()
+                    ? sessionObject.getRightUserId()
+                    : sessionObject.getLeftUserId();
+            if (isHospitalityBot(loserId)) {
+                userService.advanceNoviceProgress(winnerId);
+            }
+        } catch (Exception e) {
+            // The player stays where they were and meets the tutorial opponent again on the same
+            // terms. That is a repeated match, not a broken account, and it must not take the
+            // teardown with it.
+            log.warn("[Session] Failed to advance novice progress; sessionId: {}",
+                    sessionObject.getSessionId(), e);
+        }
+    }
+
+    private boolean isHospitalityBot(long participantId) {
+        return BotParticipant.isBot(participantId)
+                && botPersonaService.findByParticipantIdOrDefault(participantId).hospitality();
     }
 
     // The lobby's match ticket lives in Redis and stays MATCHED until it hears the session ended,
