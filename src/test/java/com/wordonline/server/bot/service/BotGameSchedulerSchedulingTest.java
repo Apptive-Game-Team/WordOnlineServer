@@ -79,7 +79,8 @@ class BotGameSchedulerSchedulingTest {
                 250,
                 8,
                 0.25,
-                true
+                true,
+                false
         );
     }
 
