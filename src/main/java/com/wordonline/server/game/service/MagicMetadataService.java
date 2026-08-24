@@ -32,4 +32,14 @@ public class MagicMetadataService {
     public Set<String> getMagicTags(long magicId) {
         return magicTagsCache.computeIfAbsent(magicId, tagRepository::getMagicTags);
     }
+
+    /**
+     * Clears the memoised tag data, including the repository's, so an admin edit to the tag tables
+     * takes effect without a restart. Exposed like ParameterService.invalidateCache and
+     * DatabaseMagicParser.invalidateCache.
+     */
+    public void invalidateCache() {
+        magicTagsCache.clear();
+        tagRepository.invalidateCache();
+    }
 }
