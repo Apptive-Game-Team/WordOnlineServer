@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.wordonline'
-version = '0.9.0'
+version = '0.10.0'
 
 java {
     toolchain {
@@ -67,4 +67,18 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+sourceSets {
+    perftest {
+        java.srcDir 'src/perftest/java'
+    }
+}
+
+tasks.register('sessionSchedulerBenchmark', JavaExec) {
+    group = 'verification'
+    description = 'Compares dedicated session threads with a shared actor scheduler.'
+    classpath = sourceSets.perftest.runtimeClasspath
+    mainClass = 'com.wordonline.server.perftest.SessionSchedulerBenchmark'
+    jvmArgs '-Xms256m', '-Xmx1g', '-XX:ActiveProcessorCount=1'
 }

@@ -49,6 +49,7 @@ public class SessionService {
     private final BotPersonaService botPersonaService;
     private final UserScenarioService userScenarioService;
     private final LobbySessionClient lobbySessionClient;
+    private final GameLoopExecutionService gameLoopExecutionService;
 
     public SessionService(SessionObjectFactory sessionObjectFactory,
                           GameLoopFactory gameLoopFactory,
@@ -57,7 +58,8 @@ public class SessionService {
                           UserService userService,
                           BotPersonaService botPersonaService,
                           UserScenarioService userScenarioService,
-                          LobbySessionClient lobbySessionClient) {
+                          LobbySessionClient lobbySessionClient,
+                          GameLoopExecutionService gameLoopExecutionService) {
         this.sessionObjectFactory = sessionObjectFactory;
         this.gameLoopFactory = gameLoopFactory;
         this.statisticService = statisticService;
@@ -66,6 +68,7 @@ public class SessionService {
         this.botPersonaService = botPersonaService;
         this.userScenarioService = userScenarioService;
         this.lobbySessionClient = lobbySessionClient;
+        this.gameLoopExecutionService = gameLoopExecutionService;
     }
 
     public void subscribeSessionNumChange(Flow.Subscriber<Integer> subscriber) {
@@ -129,9 +132,8 @@ public class SessionService {
         }
 
         sessions.put(sessionObject.getSessionId(), sessionObject);
-        Thread thread = new Thread(loop);
         try {
-            thread.start();
+            gameLoopExecutionService.start(loop);
         } catch (RuntimeException | Error exception) {
             sessions.remove(sessionObject.getSessionId(), sessionObject);
             gameSessionRecordService.recordEnd(sessionObject.getSessionId(),
