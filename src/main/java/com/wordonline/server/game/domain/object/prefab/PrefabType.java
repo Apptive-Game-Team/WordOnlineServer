@@ -82,6 +82,7 @@ public enum PrefabType {
     VineSpirit("vine_spirit_prefab"),
     ThunderBird("thunder_bird_prefab"),
     CloudDragon("cloud_dragon_prefab"),
+    EvilEnt("evil_ent_prefab"),
 
     // 베타전 마지막 상위 마법
     RockMage("rock_mage_prefab"),

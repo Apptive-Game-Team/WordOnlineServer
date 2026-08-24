@@ -12,6 +12,7 @@ public enum GameObjectKey {
     CRATER_EMBER("crater_ember"),
     DIMENSION_TOAD("dimension_toad"),
     EMBER_SPIRIT("ember_spirit"),
+    EVIL_ENT("evil_ent"),
     DROP("drop"),
     ELECTRIC_TOWER("electric_tower"),
     ELECTRIC_DROP("electric_drop"),

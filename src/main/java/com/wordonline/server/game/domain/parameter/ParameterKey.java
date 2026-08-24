@@ -20,6 +20,7 @@ public enum ParameterKey {
     MAX_MANA("max_mana"),
     MIN_DAMAGE("min_damage"),
     PROJECTILE_SPEED("projectile_speed"),
+    PULL_MASS_LIMIT("pull_mass_limit"),
     PUSH_FORCE("push_force"),
     PUSH_RANGE_X("push_range_x"),
     PUSH_RANGE_Y("push_range_y"),
@@ -37,7 +38,8 @@ public enum ParameterKey {
     Z_FORCE("z_force"),
     SPEED("speed"),
 
-    SUB_ATTACK_RANGE("sub_attack_range");
+    SUB_ATTACK_RANGE("sub_attack_range"),
+    SUB_ATTACK_INTERVAL("sub_attack_interval");
 
     private final String dbName;
 
