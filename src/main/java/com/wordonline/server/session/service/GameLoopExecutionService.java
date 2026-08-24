@@ -70,14 +70,20 @@ public class GameLoopExecutionService {
 
         @Override
         public void run() {
-            if (gameLoop.runActorTick()) {
-                return;
-            }
-
-            stopped = true;
-            ScheduledFuture<?> scheduledFuture = future;
-            if (scheduledFuture != null) {
-                scheduledFuture.cancel(false);
+            boolean keepTicking = false;
+            try {
+                keepTicking = gameLoop.runActorTick();
+            } finally {
+                // A periodic task that throws is dropped by the executor without cancelling its
+                // future, so the cancel happens on the way out of every tick that ended the loop,
+                // thrown or returned, and the session stops being scheduled either way.
+                if (!keepTicking) {
+                    stopped = true;
+                    ScheduledFuture<?> scheduledFuture = future;
+                    if (scheduledFuture != null) {
+                        scheduledFuture.cancel(false);
+                    }
+                }
             }
         }
 
