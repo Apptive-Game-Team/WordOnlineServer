@@ -142,15 +142,17 @@ CREATE TABLE statistic_game_magics (
 CREATE INDEX idx_statistic_game_magic_user_id_statistic_game_id
     ON statistic_game_magics(user_id, statistic_game_id);
 
--- Inferred from the INSERT in StatisticRepository; must be reconciled with the production table.
--- Intervals are nanosecond counts: min/max are written from long, mean from float.
+-- Mirrors database/migration/V000_20260406__init_tables.sql line 508. Every column type,
+-- length and nullability below is copied from that definition, not inferred from the
+-- INSERT in StatisticRepository. The inferred version claimed BIGINT intervals and a
+-- VARCHAR(255) name; production has INTEGER and varchar(31).
 CREATE TABLE statistic_update_time (
     id BIGSERIAL PRIMARY KEY,
     statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
-    min_interval_ns BIGINT,
-    max_interval_ns BIGINT,
-    mean_interval_ns REAL
+    name VARCHAR(31),
+    min_interval_ns INTEGER,
+    max_interval_ns INTEGER,
+    mean_interval_ns DOUBLE PRECISION
 );
 
 CREATE INDEX idx_statistic_update_time_statistic_game_id
