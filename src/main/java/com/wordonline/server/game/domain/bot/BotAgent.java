@@ -2,7 +2,9 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
+import com.wordonline.server.game.dto.bot.BotThoughtInfoDto;
 import com.wordonline.server.game.dto.input.InputRequestDto;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameLoop;
@@ -11,11 +13,15 @@ import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Slf4j
 public final class BotAgent {
+
+    private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
+    private static final long THOUGHT_INTERVAL_MILLIS = 10_000;
 
     private final BotAction botAction;
     private final BotBrain botBrain;
@@ -30,8 +36,8 @@ public final class BotAgent {
     // write it concurrently and a plain volatile reference is enough. A shouldProcess that reads a
     // stale value at worst submits a tick that returns immediately, or skips one reaction interval.
     private volatile PendingDecision pendingDecision;
-
-    private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
+    private volatile BotBrain.InputDecision lastDecision;
+    private volatile long nextThoughtAtMillis = System.currentTimeMillis() + THOUGHT_INTERVAL_MILLIS;
 
     public BotAgent(SessionObject sessionObject,
                     MagicParser magicParser,
@@ -48,7 +54,9 @@ public final class BotAgent {
     }
 
     public boolean shouldProcess(int currentFrame) {
-        return hasReadyPendingDecision() || (pendingDecision == null && shouldThink(currentFrame));
+        return shouldPublishPeriodicThought()
+                || hasReadyPendingDecision()
+                || (pendingDecision == null && shouldThink(currentFrame));
     }
 
     private boolean shouldThink(int currentFrame) {
@@ -67,6 +75,9 @@ public final class BotAgent {
 
         if (dispatchPendingDecisionIfReady()) {
             return;
+        }
+        if (shouldPublishPeriodicThought()) {
+            publishPeriodicThought();
         }
         if (pendingDecision != null) {
             return;
@@ -95,6 +106,7 @@ public final class BotAgent {
 
         BotBrain.InputDecision decision = pendingDecision.decision();
         pendingDecision = null;
+        lastDecision = decision;
 
         log.debug("[BotAgent {}] Dispatching decision: {} at {}", botSide, decision.playCards(), decision.target());
         InputRequestDto inputRequestDto = new InputRequestDto();
@@ -103,7 +115,34 @@ public final class BotAgent {
         inputRequestDto.setCards(decision.playCards());
         inputRequestDto.setPosition(decision.target());
         botAction.useCard(sessionObject, inputRequestDto, botSide);
+        publishBotThought(decision);
         return true;
+    }
+
+    private boolean shouldPublishPeriodicThought() {
+        return System.currentTimeMillis() >= nextThoughtAtMillis;
+    }
+
+    private void publishPeriodicThought() {
+        BotBrain.InputDecision decision = lastDecision;
+        if (decision == null) {
+            decision = new BotBrain.InputDecision(
+                    List.of(),
+                    new Vector3(BotSideUtil.getPlayerPosition(botSide)),
+                    "idle.observing",
+                    "No action has been selected yet; observing the battlefield.");
+        }
+        publishBotThought(decision);
+    }
+
+    private void publishBotThought(BotBrain.InputDecision decision) {
+        nextThoughtAtMillis = System.currentTimeMillis() + THOUGHT_INTERVAL_MILLIS;
+        sessionObject.sendBotThought(new BotThoughtInfoDto(
+                botSide,
+                decision.ruleId(),
+                decision.reason(),
+                decision.playCards(),
+                decision.target()));
     }
 
     private record PendingDecision(BotBrain.InputDecision decision, long readyAtMillis) {

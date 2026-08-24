@@ -18,6 +18,7 @@ public record BotVisibleObject(
         PrefabType type,
         Vector3 position,
         int hp,
+        boolean mob,
         boolean targetable
 ) {
 
@@ -32,6 +33,7 @@ public record BotVisibleObject(
                 gameObject.getType(),
                 new Vector3(gameObject.getPosition()),
                 readHp(gameObject),
+                gameObject.hasComponent(Mob.class),
                 gameObject.isActive() && !gameObject.isDying()
         );
     }

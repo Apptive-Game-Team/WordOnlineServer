@@ -136,6 +136,15 @@ public class SessionObject {
         template.convertAndSend(String.format("%s/0", url), data);
     }
 
+    /** Sends bot telemetry to every human participant and to the spectator frame destination. */
+    public void sendBotThought(Object data) {
+        sendFrameInfo(leftUserId, data);
+        if (rightUserId != leftUserId) {
+            sendFrameInfo(rightUserId, data);
+        }
+        broadcastFrameInfo(data);
+    }
+
     // Called from the debug HTTP endpoint, off the loop thread. The hand and the deck are plain
     // loop-thread collections now, so resetting them is queued like any other input. The user id
     // assignment stays inline because callers read it back straight after the call.
