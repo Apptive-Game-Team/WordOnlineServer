@@ -161,6 +161,15 @@ public class SessionObject {
         return registry != null && registry.hasSubscribers(broadcastDestination);
     }
 
+    /** Sends bot telemetry through the same destinations used for frame information. */
+    public void sendBotThought(Object data) {
+        sendFrameInfo(leftUserId, data);
+        if (rightUserId != leftUserId) {
+            sendFrameInfo(rightUserId, data);
+        }
+        broadcastFrameInfo(data);
+    }
+
     private String destinationFor(long userId) {
         if (userId == leftUserId) {
             return leftUserDestination;

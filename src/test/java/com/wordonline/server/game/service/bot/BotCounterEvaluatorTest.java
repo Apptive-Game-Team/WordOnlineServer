@@ -78,6 +78,7 @@ class BotCounterEvaluatorTest {
     }
 
     private static BotVisibleObject enemy() {
-        return new BotVisibleObject(1, Master.RightPlayer, PrefabType.FireSpirit, new Vector3(0, 0, 0), 10, true);
+        return new BotVisibleObject(
+                1, Master.RightPlayer, PrefabType.FireSpirit, new Vector3(0, 0, 0), 10, true, true);
     }
 }

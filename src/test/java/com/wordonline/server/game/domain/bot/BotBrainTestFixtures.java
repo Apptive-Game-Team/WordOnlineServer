@@ -11,6 +11,7 @@ final class BotBrainTestFixtures {
 
     /** One enemy body on the field, so the brain has something to score a matchup against. */
     static BotVisibleObject enemyUnit() {
-        return new BotVisibleObject(1, Master.RightPlayer, PrefabType.FireSpirit, new Vector3(0, 0, 0), 10, true);
+        return new BotVisibleObject(
+                1, Master.RightPlayer, PrefabType.FireSpirit, new Vector3(0, 0, 0), 10, true, true);
     }
 }
