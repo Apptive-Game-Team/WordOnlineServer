@@ -142,15 +142,20 @@ CREATE TABLE statistic_game_magics (
 CREATE INDEX idx_statistic_game_magic_user_id_statistic_game_id
     ON statistic_game_magics(user_id, statistic_game_id);
 
--- Inferred from the INSERT in StatisticRepository; must be reconciled with the production table.
--- Intervals are nanosecond counts: min/max are written from long, mean from float.
+-- Copied from the production definition, not inferred from the INSERT in
+-- StatisticRepository: database/migration/V000_20260406__init_tables.sql line 508, as
+-- amended by V066_20260824__widen_statistic_update_time_intervals.sql. V000 declared the
+-- interval columns INTEGER, which caps them at ~2.147 seconds; V066 widens them to
+-- BIGINT. This file must not run ahead of that migration -- see WordOnlineDatabase#75.
+-- name is varchar(31) and mean_interval_ns is double precision in V000; the earlier
+-- inferred definition guessed VARCHAR(255) and REAL.
 CREATE TABLE statistic_update_time (
     id BIGSERIAL PRIMARY KEY,
     statistic_game_id BIGINT REFERENCES statistic_games(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(31),
     min_interval_ns BIGINT,
     max_interval_ns BIGINT,
-    mean_interval_ns REAL
+    mean_interval_ns DOUBLE PRECISION
 );
 
 CREATE INDEX idx_statistic_update_time_statistic_game_id
