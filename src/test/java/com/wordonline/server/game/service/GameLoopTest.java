@@ -57,6 +57,18 @@ class GameLoopTest {
     }
 
     @Test
+    void actorTickReportsTheEndInsteadOfThrowingWhenTheFrameThrowsAnError() {
+        GameLoop loop = loopThat(() -> {
+            throw new StackOverflowError("frame blew the stack");
+        });
+
+        // The executor drops a tick that throws, and the session it belonged to would stay in
+        // the registry reporting itself as running. The tick reports the end instead.
+        assertThat(loop.runActorTick()).isFalse();
+        assertThat(loop.is_running()).isFalse();
+    }
+
+    @Test
     void stopsReportingRunningWhenTheFrameThrowsAnError() {
         AtomicBoolean ticked = new AtomicBoolean(false);
         GameLoop loop = loopThat(() -> {
