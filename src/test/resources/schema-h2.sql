@@ -6,7 +6,8 @@ CREATE TABLE users (
     selected_deck_id BIGINT,
     mmr SMALLINT NOT NULL DEFAULT 1000,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(255) NOT NULL DEFAULT 'Online'
+    status VARCHAR(255) NOT NULL DEFAULT 'Online',
+    novice_progress REAL NOT NULL DEFAULT 0.5
 );
 
 CREATE TABLE cards (
