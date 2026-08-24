@@ -16,7 +16,7 @@ import com.wordonline.server.game.domain.object.prefab.PrefabType;
 @Component("lightning_drop_prefab")
 public class LightningDropPrefabInitializer extends PrefabInitializer {
 
-    private static final float STRIKE_VISUAL_DURATION = 0.1f;
+    private static final float STRIKE_VISUAL_DURATION = 0.3f;
 
     private final Parameters parameters;
 
