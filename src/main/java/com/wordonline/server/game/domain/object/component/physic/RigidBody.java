@@ -31,14 +31,24 @@ public class RigidBody extends Component {
     }
 
     public void applyVelocity() {
-        log.trace("velocity: {}", velocity);
-        log.trace("delta time: {}", gameObject.getGameContext().getDeltaTime());
-        log.trace("delta position: {}", velocity.multiply(gameObject.getGameContext().getDeltaTime()));
-        log.trace("next position: {}", gameObject.getPosition().plus(velocity.multiply(gameObject.getGameContext().getDeltaTime())));
-        gameObject.setPosition(
-                gameObject.getPosition().plus(velocity.multiply(gameObject.getGameContext().getDeltaTime()))
-        );
-        log.trace("position: {}", gameObject.getPosition());
+        float deltaTime = gameObject.getGameContext().getDeltaTime();
+        Vector3 deltaPosition = velocity.multiply(deltaTime);
+        Vector3 nextPosition = gameObject.getPosition().plus(deltaPosition);
+
+        // the arguments are computed whether or not the level is on, so the trace calls are
+        // guarded: this runs for every rigid body every frame
+        if (log.isTraceEnabled()) {
+            log.trace("velocity: {}", velocity);
+            log.trace("delta time: {}", deltaTime);
+            log.trace("delta position: {}", deltaPosition);
+            log.trace("next position: {}", nextPosition);
+        }
+
+        gameObject.setPosition(nextPosition);
+
+        if (log.isTraceEnabled()) {
+            log.trace("position: {}", gameObject.getPosition());
+        }
 
         velocity.clear();
     }
