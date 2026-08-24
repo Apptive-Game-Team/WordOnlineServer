@@ -1,11 +1,14 @@
 package com.wordonline.server.game.service.system;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.dto.frame.FrameInfoDto;
 import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.service.GameLoop;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,7 @@ public class SyncFrameDataSystem extends FrameDataSystem {
 
     @Override
     public void lateUpdate(GameContext gameContext) {
-        if (gameContext.getFrameNum() % 10 != 0) {
+        if (!GameLoop.isSyncFrame(gameContext.getFrameNum())) {
             super.lateUpdate(gameContext);
         } else {
             SnapshotResponseDto leftSnapshotResponseDto = gameContext.getGameLoop().getLastSnapshot(gameContext.getSessionObject().getLeftUserId());
@@ -39,10 +42,19 @@ public class SyncFrameDataSystem extends FrameDataSystem {
             );
 
             // Broadcast sync info to spectators (userId = 0)
-            // Use left player's snapshot as the canonical state for spectators
-            gameContext.getSessionObject().broadcastFrameInfo(
-                    getBroadcastFrameInfoDto().toSyncDto(leftSnapshotResponseDto)
-            );
+            // Use left player's snapshot as the canonical state for spectators, minus the hand:
+            // SnapshotResponseDto carries myCards, so sending the left player's snapshot as it
+            // stands hands every spectator that player's cards. createBroadcastDto zeroes
+            // updatedMana for the same reason.
+            if (getBroadcastFrameInfoDto() != null) {
+                gameContext.getSessionObject().broadcastFrameInfo(
+                        getBroadcastFrameInfoDto().toSyncDto(withoutHand(leftSnapshotResponseDto))
+                );
+            }
         }
+    }
+
+    private static SnapshotResponseDto withoutHand(SnapshotResponseDto snapshotResponseDto) {
+        return new SnapshotResponseDto(snapshotResponseDto.frame(), snapshotResponseDto.objects(), List.of());
     }
 }

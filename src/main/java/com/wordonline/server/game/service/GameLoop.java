@@ -12,8 +12,10 @@ import com.wordonline.server.game.dto.frame.SnapshotResponseDto;
 import com.wordonline.server.game.dto.result.ResultMmrDto;
 import com.wordonline.server.game.dto.result.ResultType;
 import com.wordonline.server.game.util.*;
+import com.wordonline.server.websocket.SpectatorSubscriptionRegistry;
 
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,7 +53,23 @@ public abstract class GameLoop implements Runnable {
     private volatile long lastFrameEndMillis = System.currentTimeMillis();
 
     public static final int FPS = 20;
+
+    // Every tenth frame SyncFrameDataSystem replaces the frame message with a full snapshot.
+    // The loop builds the snapshot for it, so both sides read the period from here rather than
+    // from two literals that can drift apart.
+    public static final int SYNC_FRAME_INTERVAL = 10;
+
+    public static boolean isSyncFrame(int frameNum) {
+        return frameNum % SYNC_FRAME_INTERVAL == 0;
+    }
+
     public SessionObject sessionObject;
+
+    // Spectator subscriptions are counted for the whole application, so the registry is a
+    // singleton the loop hands to its session. Setter injection rather than a constructor
+    // argument: GameLoop's constructor is chained through WordOnlineLoop into PveLoop, and this
+    // dependency belongs to none of them.
+    private SpectatorSubscriptionRegistry spectatorSubscriptionRegistry;
     private Runnable onTerminated;
 
     private final MmrService mmrService;
@@ -78,9 +96,17 @@ public abstract class GameLoop implements Runnable {
         initializeLoop(sessionObject, onTerminated, true);
     }
 
+    @Autowired
+    public void setSpectatorSubscriptionRegistry(SpectatorSubscriptionRegistry spectatorSubscriptionRegistry) {
+        this.spectatorSubscriptionRegistry = spectatorSubscriptionRegistry;
+    }
+
     protected final void initializeLoop(SessionObject sessionObject, Runnable onTerminated, boolean createRightPlayer) {
         this.sessionObject = sessionObject;
         this.onTerminated = onTerminated;
+        // Every loop, PVP and PVE alike, reaches this method, so this is the one place the session
+        // learns how to tell whether a spectator is listening.
+        sessionObject.setSpectatorSubscriptionRegistry(spectatorSubscriptionRegistry);
 
         new GameObject(Master.LeftPlayer, PrefabType.Player, GameConfig.LEFT_PLAYER_POSITION, gameContext);
         if (createRightPlayer) {
@@ -231,7 +257,7 @@ public abstract class GameLoop implements Runnable {
         close();
     }
 
-    // 2) Build snapshot
+    // 2) Build snapshot. Only called on sync frames: nothing else reads the result.
     protected void buildSnapshot() {
         lastSnapshotObjects = gameContext.getGameObjects()
                 .stream()

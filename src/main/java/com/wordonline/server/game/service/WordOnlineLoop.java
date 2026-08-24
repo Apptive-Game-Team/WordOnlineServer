@@ -173,7 +173,11 @@ public class WordOnlineLoop extends GameLoop {
 
         gameObjectAddRemoveSystem.update(gameContext);
 
-        buildSnapshot();
+        // The snapshot is only read by the sync frame, so it is only built on one. frameNum is
+        // incremented once at the top of the frame, so this and SyncFrameDataSystem agree.
+        if (isSyncFrame(gameContext.getFrameNum())) {
+            buildSnapshot();
+        }
 
         frameDataSystem.lateUpdate(gameContext);
     }
