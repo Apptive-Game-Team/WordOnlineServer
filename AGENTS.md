@@ -50,13 +50,17 @@ Do not commit secrets from `.env` or environment-specific values from `applicati
 
 ## Versioning
 
-`version` in `build.gradle` is the game server's single version source. Update
-it in every runtime-behavior change: PATCH for backward-compatible fixes and
-internal changes, MINOR for backward-compatible features, and MAJOR for
-breaking API or protocol changes. Do not bump for documentation, tests, or
-agent-instruction-only changes. Never add a second runtime version or use a
-`-SNAPSHOT` deployable version. Spring Boot build info embeds this value, and
-game statistics persist it as `server_version`.
+`version` in `build.gradle` is the game server's single version source.
+Do not bump it in a pull request. The monorepo `deploy` skill bumps it once per
+promotion: it commits `chore(release): WordOnlineServer vX.Y.Z` to `main`, merges
+`main` into `deploy`, then tags and releases `vX.Y.Z` on the merge commit. The level comes
+from the Conventional Commit messages promoted in that release: MAJOR for a `!`
+marker or a `BREAKING CHANGE` trailer, MINOR for `feat:`, PATCH otherwise, so
+write accurate commit types.
+
+Never add a second runtime version or use a `-SNAPSHOT` deployable version.
+Spring Boot build info embeds this value, and game statistics persist it as
+`server_version`.
 
 ## Summoning Magics
 
