@@ -36,6 +36,13 @@ public class BehaviorMob extends StateMachineMob {
     RigidBody rigidBody;
     @Getter Stat attackInterval;
     protected float attackRange;
+    /**
+     * Whether engagement ignores the vertical gap to the target. A mob that dives from a hover
+     * height cannot close that gap before it commits, so testing it against the attack range would
+     * leave it circling above ground targets forever. It stays false for ground mobs, where the
+     * full cylindrical check costs nothing because both sides sit at y = 0.
+     */
+    private final boolean verticalRangeIgnored;
     private Master observedMaster;
     @Setter
     Predicate<GameObject> behavior = null;
@@ -56,12 +63,17 @@ public class BehaviorMob extends StateMachineMob {
     }
 
     public BehaviorMob(GameObject gameObject, int maxHp, float speed, int targetMask, float attackInterval, float attackRange, Predicate<GameObject> behavior) {
+        this(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, behavior, false);
+    }
+
+    public BehaviorMob(GameObject gameObject, int maxHp, float speed, int targetMask, float attackInterval, float attackRange, Predicate<GameObject> behavior, boolean verticalRangeIgnored) {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
         this.detector = new ClosestEnemyDetector(getGameContext(), targetMask);
         this.attackInterval = new Stat(attackInterval);
         this.attackRange = attackRange;
         this.behavior = behavior;
+        this.verticalRangeIgnored = verticalRangeIgnored;
     }
 
     public void setStun(float duration)
@@ -151,13 +163,14 @@ public class BehaviorMob extends StateMachineMob {
     }
 
     /**
-     * Engagement is decided on the horizontal plane. Mobs path with grounded positions, and a
-     * hovering mob cannot close the vertical gap while it holds its hover height, so charging it
-     * against the attack range would leave aerial mobs circling above ground targets forever.
-     * Ground mobs are unaffected: both sides sit at y = 0.
+     * Whether the current target sits within {@code range}. See {@link #verticalRangeIgnored} for
+     * why aerial mobs drop the vertical term of the check.
      */
-    protected double horizontalDistanceToTarget() {
-        return gameObject.getPosition().grounded().distance(target.getPosition().grounded());
+    protected boolean withinAttackRange(float range) {
+        if (verticalRangeIgnored) {
+            return CombatRange.horizontalEdgeDistance(gameObject, target) <= range;
+        }
+        return CombatRange.contains(gameObject, target, range);
     }
 
     /**
@@ -254,7 +267,7 @@ public class BehaviorMob extends StateMachineMob {
 
             // Range is checked before the path bookkeeping: a mob that walks onto the last path
             // point would otherwise drop back to idle without ever testing whether it can attack.
-            if (CombatRange.contains(gameObject, target, Math.max(0f, attackRange - 0.1f))) {
+            if (withinAttackRange(Math.max(0f, attackRange - 0.1f))) {
                 setState(new AttackState());
                 return;
             }
@@ -402,7 +415,7 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
             timer += getGameContext().getDeltaTime();
-            if (!CombatRange.contains(gameObject, target, attackRange)) {
+            if (!withinAttackRange(attackRange)) {
                 setState(new MoveState());
             } else if (timer > attackInterval.total()) {
                 timer = 0;
