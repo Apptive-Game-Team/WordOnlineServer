@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.repository.TagRepository;
 import com.wordonline.server.game.service.MagicMetadataService;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,6 +80,7 @@ class BotCounterEvaluatorTest {
 
     private static BotVisibleObject enemy() {
         return new BotVisibleObject(
-                1, Master.RightPlayer, PrefabType.FireSpirit, new Vector3(0, 0, 0), 10, true, true);
+                1, Master.RightPlayer, PrefabType.FireSpirit, new Vector3(0, 0, 0),
+                Status.Idle, 10, true, true);
     }
 }
