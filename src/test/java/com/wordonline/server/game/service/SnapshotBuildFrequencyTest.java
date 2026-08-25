@@ -67,7 +67,8 @@ class SnapshotBuildFrequencyTest {
                 mock(FeverTimeSystem.class), mock(GameObjectStateInitialSystem.class),
                 mock(ComponentUpdateSystem.class), mock(PhysicSystem.class),
                 mock(GameObjectAddRemoteSystem.class), mock(DatabaseMagicParser.class),
-                mock(BotPersonaService.class), mock(BotCounterEvaluator.class)) {
+                mock(BotPersonaService.class), mock(BotCounterEvaluator.class),
+                mock(GameObjectTagService.class)) {
             @Override
             protected void buildSnapshot() {
                 snapshotsBuilt.incrementAndGet();

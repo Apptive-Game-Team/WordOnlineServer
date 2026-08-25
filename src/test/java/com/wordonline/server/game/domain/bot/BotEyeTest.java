@@ -15,6 +15,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.Status;
 
 // The point of the snapshot is that nothing the loop thread does after it is taken can reach the
 // bot executor thread. These tests fail if any part of it goes back to referencing live state.
@@ -29,6 +30,7 @@ class BotEyeTest {
         when(gameObject.getMaster()).thenReturn(master);
         when(gameObject.getType()).thenReturn(type);
         when(gameObject.getPosition()).thenReturn(position);
+        when(gameObject.getStatus()).thenReturn(Status.Attack);
         when(gameObject.isActive()).thenReturn(true);
         return gameObject;
     }
@@ -47,6 +49,7 @@ class BotEyeTest {
             assertThat(visible.master()).isEqualTo(Master.RightPlayer);
             assertThat(visible.type()).isEqualTo(PrefabType.Player);
             assertThat(visible.position()).isEqualTo(new Vector3(1, 0, 2));
+            assertThat(visible.status()).isEqualTo(Status.Attack);
             assertThat(visible.mob()).isFalse();
         });
     }

@@ -37,12 +37,13 @@ public class PveLoop extends WordOnlineLoop {
                    com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser magicParser,
                    BotPersonaService botPersonaService,
                    BotCounterEvaluator botCounterEvaluator,
+                   GameObjectTagService gameObjectTagService,
                    PveScenarioRegistry pveScenarioRegistry,
                    PveScenarioInstaller pveScenarioInstaller,
                    PveScriptSystem pveScriptSystem) {
         super(mmrService, userService, gameContext, parameters, frameDataSystem, botSystem, feverTimeSystem,
                 gameObjectStateInitialSystem, componentUpdateSystem, physicSystem, gameObjectAddRemoveSystem, magicParser,
-                botPersonaService, botCounterEvaluator);
+                botPersonaService, botCounterEvaluator, gameObjectTagService);
         this.pveScenarioRegistry = pveScenarioRegistry;
         this.pveScenarioInstaller = pveScenarioInstaller;
         this.pveScriptSystem = pveScriptSystem;

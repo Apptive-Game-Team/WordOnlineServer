@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.bot;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.Parameters;
+import com.wordonline.server.game.domain.bot.rule.BotRuleBook;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.implement.explode.WaterExplosionMagic;
@@ -12,6 +13,7 @@ import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.bot.BotCounterEvaluator;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +47,7 @@ class BotBrainComboTest {
 
         BotBrain.InputDecision decision = brain.think(eye, parameters(), Master.LeftPlayer, new Random(1));
 
-        assertThat(decision.ruleId()).isEqualTo(BotBrain.SEED_SPIRIT_RULE);
+        assertThat(decision.ruleId()).isEqualTo(BotRuleBook.SEED_SPIRIT_RULE_ID);
         assertThat(decision.playCards()).containsExactly(CardType.Nature, CardType.Shoot);
         assertThat(decision.target()).isEqualTo(seedPosition);
     }
@@ -64,7 +66,7 @@ class BotBrainComboTest {
 
         BotBrain.InputDecision decision = brain.think(eye, parameters(), Master.LeftPlayer, new Random(1));
 
-        assertThat(decision.ruleId()).isEqualTo(BotBrain.MOB_CLUSTER_RULE);
+        assertThat(decision.ruleId()).isEqualTo(BotRuleBook.MOB_CLUSTER_RULE_ID);
         assertThat(decision.target()).isEqualTo(new Vector3(5, 0, 5));
         assertThat(decision.reason()).contains("3 enemy mobs");
     }
@@ -116,7 +118,7 @@ class BotBrainComboTest {
                                             PrefabType type,
                                             Vector3 position,
                                             boolean mob) {
-        return new BotVisibleObject(id, master, type, position, 10, mob, true);
+        return new BotVisibleObject(id, master, type, position, Status.Idle, 10, mob, true);
     }
 
     private static final class CountingRandom extends Random {
