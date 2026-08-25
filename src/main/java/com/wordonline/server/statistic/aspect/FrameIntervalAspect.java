@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.statistic.service.StatisticService;
-import com.wordonline.server.statistic.util.PjpUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +37,17 @@ public class FrameIntervalAspect {
     public void recordFrameStart(JoinPoint joinPoint) {
         long now = System.nanoTime();
 
-        GameContext gameContext = PjpUtils.findArg(joinPoint.getArgs(), GameContext.class);
+        // earlyUpdate(GameContext) is the only signature this pointcut can match, so the context is
+        // read by index. The trace call is guarded because its arguments -- the signature string and
+        // the boxed frame number in a varargs array -- are built even when trace is off, once per
+        // frame per session.
+        GameContext gameContext = (GameContext) joinPoint.getArgs()[0];
 
-        log.trace("[FrameIntervalAspect] Method: {} Frame: {}",
-                joinPoint.getSignature().toShortString(),
-                gameContext.getFrameNum());
+        if (log.isTraceEnabled()) {
+            log.trace("[FrameIntervalAspect] Method: {} Frame: {}",
+                    joinPoint.getSignature().toShortString(),
+                    gameContext.getFrameNum());
+        }
 
         statisticService.saveFrameStart(gameContext, now);
     }

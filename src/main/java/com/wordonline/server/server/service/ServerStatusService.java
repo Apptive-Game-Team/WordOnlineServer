@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wordonline.server.server.config.ServerIdentityProperties;
 import com.wordonline.server.server.entity.Server;
@@ -25,6 +26,11 @@ public class ServerStatusService {
     @Getter
     private volatile ServerState currentState = ServerState.ACTIVE;
 
+    // One transaction around the read and the write. publishStatus is private, so the
+    // annotation has to sit on the entry points the proxy actually sees; without it the
+    // findByDomainAndPort and the @Transactional inside SimpleJpaRepository.save each take
+    // their own connection for what is a single row update.
+    @Transactional
     public synchronized void setServerStatus(ServerState state) {
         publishStatus(state, state == ServerState.INACTIVE ? 0 : null);
     }
@@ -34,12 +40,14 @@ public class ServerStatusService {
      * from this server's own row so a change applies on the next scheduler tick without a
      * restart. Empty when the row is missing or the admin has not set an override.
      */
+    @Transactional(readOnly = true)
     public Optional<Integer> findTargetBotSessions() {
         return serverRepository
                 .findByDomainAndPort(serverIdentityProperties.domain(), serverIdentityProperties.externalPort())
                 .map(Server::getTargetBotSessions);
     }
 
+    @Transactional
     public synchronized void publishHeartbeat(int sessionCount) {
         publishStatus(currentState, sessionCount);
     }

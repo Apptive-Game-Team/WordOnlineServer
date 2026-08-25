@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEn
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 
 public class Cannon extends TimedBehaviorMob {
 
@@ -34,15 +35,12 @@ public class Cannon extends TimedBehaviorMob {
     }
 
     private boolean attack() {
-        GameObject target = detector.detect(gameObject);
+        GameObject target = detector.detect(
+                gameObject,
+                candidate -> CombatRange.contains(gameObject, candidate, attackRange)
+        );
 
         if (target == null) {
-            return false;
-        }
-
-        double distance = target.getPosition().distance(gameObject.getPosition());
-
-        if (distance > attackRange) {
             return false;
         }
 

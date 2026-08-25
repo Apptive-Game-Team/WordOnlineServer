@@ -19,9 +19,15 @@ public final class SnapshotMapper {
                 p.getX(), p.getY(), p.getZ(),
                 g.getMaster().toString(),
                 g.getStatus(),
-                List.copyOf(g.getEffects()),
-                List.copyOf(g.getGizmos()),
+                copyOrEmpty(g.getEffects()),
+                copyOrEmpty(g.getGizmos()),
                 GaugeExtractor.extractGaugeDto(g)
         );
+    }
+
+    // effects and gizmos are usually empty and ArrayList.toArray() allocates even then,
+    // so hand back the shared empty list instead of copying.
+    private static <T> List<T> copyOrEmpty(List<T> source) {
+        return source.isEmpty() ? List.of() : List.copyOf(source);
     }
 }

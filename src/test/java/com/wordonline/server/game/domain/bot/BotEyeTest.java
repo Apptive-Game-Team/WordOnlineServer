@@ -29,6 +29,7 @@ class BotEyeTest {
         when(gameObject.getMaster()).thenReturn(master);
         when(gameObject.getType()).thenReturn(type);
         when(gameObject.getPosition()).thenReturn(position);
+        when(gameObject.isActive()).thenReturn(true);
         return gameObject;
     }
 
@@ -46,6 +47,7 @@ class BotEyeTest {
             assertThat(visible.master()).isEqualTo(Master.RightPlayer);
             assertThat(visible.type()).isEqualTo(PrefabType.Player);
             assertThat(visible.position()).isEqualTo(new Vector3(1, 0, 2));
+            assertThat(visible.mob()).isFalse();
         });
     }
 

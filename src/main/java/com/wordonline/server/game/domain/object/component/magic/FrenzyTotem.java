@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.object.component.effect.receiver.Effect
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 
 public class FrenzyTotem extends MagicComponent implements Collidable {
     private final float speed;
@@ -38,7 +39,9 @@ public class FrenzyTotem extends MagicComponent implements Collidable {
         triggered = true;
 
         gameObject.setStatus(Status.Attack);
-        getGameContext().overlapSphereAll(gameObject, attackRange).stream()
+        getGameContext().getGameSessionData().gameObjects.stream()
+                .filter(GameObject::isActive)
+                .filter(target -> CombatRange.contains(gameObject, target, attackRange))
                 .map(target -> target.getComponent(EffectReceiver.class))
                 .filter(effectReceiver -> effectReceiver != null)
                 .forEach(effectReceiver -> effectReceiver.onReceive(Effect.Frenzy, buffDuration));

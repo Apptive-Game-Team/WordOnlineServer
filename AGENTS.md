@@ -50,13 +50,43 @@ Do not commit secrets from `.env` or environment-specific values from `applicati
 
 ## Versioning
 
-`version` in `build.gradle` is the game server's single version source. Update
-it in every runtime-behavior change: PATCH for backward-compatible fixes and
-internal changes, MINOR for backward-compatible features, and MAJOR for
-breaking API or protocol changes. Do not bump for documentation, tests, or
-agent-instruction-only changes. Never add a second runtime version or use a
-`-SNAPSHOT` deployable version. Spring Boot build info embeds this value, and
-game statistics persist it as `server_version`.
+`version` in `build.gradle` is the game server's single version source.
+Do not bump it in a pull request. The monorepo `deploy` skill bumps it once per
+promotion: it commits `chore(release): WordOnlineServer vX.Y.Z` to `main`, merges
+`main` into `deploy`, then tags and releases `vX.Y.Z` on the merge commit. The level comes
+from the Conventional Commit messages promoted in that release: MAJOR for a `!`
+marker or a `BREAKING CHANGE` trailer, MINOR for `feat:`, PATCH otherwise, so
+write accurate commit types.
+
+Never add a second runtime version or use a `-SNAPSHOT` deployable version.
+Spring Boot build info embeds this value, and game statistics persist it as
+`server_version`.
+
+## Summoning Magics
+
+A magic that leaves a lasting body on the field implements
+`ObjectSummoningMagic`, returning the prefab it puts down and how many of it one
+cast produces. The summoning families (`AbstractSpawnMagic`,
+`AbstractSummonMagic`) already do, so a magic extending them inherits it; a new
+family that spawns objects on its own has to declare it.
+
+This is what lets the bot price a board it did not build. The hospitality bot in
+particular may only summon while its own board stays under a share of the
+player's, and mana spent is how that share is measured. The share is the
+player's own `users.novice_progress`, read per session: the same bot faces
+players at different points in the tutorial and must not treat them alike.
+
+Do not reintroduce the link as data. Matching game objects to magics by name
+does not work — `ember_spirit_swarm` summons `ember_spirit`, and most of what
+stands on the field has no magic of its own name — and a column listing it would
+be one more thing to forget when a unit is added. The magic that creates the
+object is the only place that reliably knows it does, so the declaration lives
+there.
+
+A missing declaration has no loud symptom: those units price as free, the
+hospitality bot reads the player's board as weaker than it is, and it plays
+weaker than intended. Shots, drops and explosions deliberately do not implement
+it — they are in flight rather than standing on the field.
 
 ## Database Changes
 

@@ -23,6 +23,12 @@ public class UpdatedObjectDto {
     private Vector3 position;
     private List<GaugeDto> gauges = new ArrayList<>();
 
+    // ArrayList.toArray() allocates even for an empty source, and effects are empty on most
+    // objects on most frames.
+    private static <T> List<T> copyOrEmpty(List<T> source) {
+        return source.isEmpty() ? List.of() : List.copyOf(source);
+    }
+
     public void updateGauges(GameObject gameObject) {
         GaugeExtractor.mergeGaugeDto(gameObject, gauges);
     }
@@ -33,7 +39,7 @@ public class UpdatedObjectDto {
         updateGauges(gameObject);
 
         this.status = gameObject.getStatus();
-        this.effects = List.copyOf(gameObject.getEffects());
+        this.effects = copyOrEmpty(gameObject.getEffects());
         this.master = gameObject.getMaster();
         this.position = gameObject.getPosition();
     }

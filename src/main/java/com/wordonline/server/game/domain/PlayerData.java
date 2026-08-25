@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PlayerData {
     public final static int MAX_CARD_NUM = 6;
-    public final static int MAX_HP = 100;
 
     public final ManaCharger manaCharger;
 
@@ -28,7 +27,7 @@ public class PlayerData {
     // Mutated only by the loop thread, so the check-then-act methods below need no locking, and
     // the bot reads a copy taken by BotEye.observe rather than these fields.
     public int mana = 0;
-    public int hp = MAX_HP;
+    public int hp;
     public List<CardType> cards = new ArrayList<>();
 
     // charge mana up to max

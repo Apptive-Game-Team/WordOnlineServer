@@ -9,6 +9,8 @@ import com.wordonline.server.game.domain.object.component.effect.receiver.Common
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.domain.parameter.GameObjectKey;
+import com.wordonline.server.game.domain.parameter.ParameterKey;
 import org.springframework.stereotype.Component;
 
 @Component("player_prefab")
@@ -23,9 +25,14 @@ public class PlayerPrefabInitializer extends PrefabInitializer {
 
     @Override
     public void initialize(GameObject gameObject) {
+        var playerParameters = parameters.object(GameObjectKey.PLAYER);
+
         gameObject.addCollider(new CircleCollider(gameObject, 1, false));
         gameObject.setElement(ElementType.NONE);
-        gameObject.addComponent(new PlayerHealthComponent(gameObject));
+        gameObject.addComponent(new PlayerHealthComponent(
+                gameObject,
+                playerParameters.intValue(ParameterKey.HP)
+        ));
         gameObject.addComponent(new PlayerStatusSetter(gameObject));
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
     }

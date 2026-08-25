@@ -7,8 +7,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Tag lookups are memoised because they sit inside the bot's scoring loop: BotBrain scores every
+ * affordable recipe against every visible enemy 2.5 times a second per bot, and each pair used to
+ * cost two SQL round trips. Tag data is reference data edited by admins, so the cache is cleared
+ * through {@link #invalidateCache()} the same way ParameterService and DatabaseMagicParser expose
+ * theirs, rather than being given a time to live.
+ */
 @Repository
 @RequiredArgsConstructor
 public class TagRepository {
@@ -39,28 +48,61 @@ public class TagRepository {
 
     private final JdbcClient jdbcClient;
 
+    private final Map<Long, Set<String>> magicTagsCache = new ConcurrentHashMap<>();
+    private final Map<PrefabType, Set<String>> prefabTagsCache = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> gameObjectTagsCache = new ConcurrentHashMap<>();
+    private final Map<CounterWeightKey, Double> counterWeightCache = new ConcurrentHashMap<>();
+
+    public void invalidateCache() {
+        magicTagsCache.clear();
+        prefabTagsCache.clear();
+        gameObjectTagsCache.clear();
+        counterWeightCache.clear();
+    }
+
     public Set<String> getMagicTags(long magicId) {
+        return magicTagsCache.computeIfAbsent(magicId, this::loadMagicTags);
+    }
+
+    public Set<String> getGameObjectTags(PrefabType prefabType) {
+        // Keyed by the enum as well as by the name, so the repeated lookup also skips rebuilding
+        // the snake_case game object name.
+        return prefabTagsCache.computeIfAbsent(prefabType, type -> getGameObjectTags(toGameObjectName(type)));
+    }
+
+    public Set<String> getGameObjectTags(String gameObjectName) {
+        return gameObjectTagsCache.computeIfAbsent(gameObjectName, this::loadGameObjectTags);
+    }
+
+    /**
+     * The weight is a pure function of the two tag sets: the SQL sums the rules matching any
+     * attacker tag against any target tag, so order and duplicates in the arguments do not change
+     * the result and set equality is the right cache key.
+     */
+    public double getCounterWeight(Collection<String> attackerTags, Collection<String> targetTags) {
+        if (attackerTags.isEmpty() || targetTags.isEmpty()) {
+            return 0.0;
+        }
+        CounterWeightKey key = new CounterWeightKey(Set.copyOf(attackerTags), Set.copyOf(targetTags));
+        return counterWeightCache.computeIfAbsent(
+                key, k -> loadCounterWeight(k.attackerTags(), k.targetTags()));
+    }
+
+    protected Set<String> loadMagicTags(long magicId) {
         return Set.copyOf(jdbcClient.sql(FIND_MAGIC_TAGS)
                 .param("magicId", magicId)
                 .query(String.class)
                 .list());
     }
 
-    public Set<String> getGameObjectTags(PrefabType prefabType) {
-        return getGameObjectTags(toGameObjectName(prefabType));
-    }
-
-    public Set<String> getGameObjectTags(String gameObjectName) {
+    protected Set<String> loadGameObjectTags(String gameObjectName) {
         return Set.copyOf(jdbcClient.sql(FIND_GAME_OBJECT_TAGS)
                 .param("gameObjectName", gameObjectName)
                 .query(String.class)
                 .list());
     }
 
-    public double getCounterWeight(Collection<String> attackerTags, Collection<String> targetTags) {
-        if (attackerTags.isEmpty() || targetTags.isEmpty()) {
-            return 0.0;
-        }
+    protected double loadCounterWeight(Collection<String> attackerTags, Collection<String> targetTags) {
         return jdbcClient.sql(COUNTER_WEIGHT)
                 .param("attackerTags", List.copyOf(attackerTags))
                 .param("targetTags", List.copyOf(targetTags))
@@ -69,7 +111,11 @@ public class TagRepository {
                 .orElse(0.0);
     }
 
-    private static String toGameObjectName(PrefabType prefabType) {
+    /**
+     * The row name a prefab type is stored under. game_objects and magics share one name space, so
+     * this is also how a prefab is matched to the magic that creates it.
+     */
+    public static String toGameObjectName(PrefabType prefabType) {
         String name = prefabType.name();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
@@ -80,5 +126,8 @@ public class TagRepository {
             builder.append(Character.toLowerCase(c));
         }
         return builder.toString();
+    }
+
+    private record CounterWeightKey(Set<String> attackerTags, Set<String> targetTags) {
     }
 }

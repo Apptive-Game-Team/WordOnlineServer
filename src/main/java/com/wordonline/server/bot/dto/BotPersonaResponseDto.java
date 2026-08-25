@@ -10,7 +10,8 @@ public record BotPersonaResponseDto(
         int thinkingTimeMs,
         int reactionIntervalFrames,
         double counterAggression,
-        boolean enabled
+        boolean enabled,
+        boolean hospitality
 ) {
     public BotPersonaResponseDto(BotPersona persona) {
         this(
@@ -20,7 +21,8 @@ public record BotPersonaResponseDto(
                 persona.thinkingTimeMs(),
                 persona.reactionIntervalFrames(),
                 persona.counterAggression(),
-                persona.enabled()
+                persona.enabled(),
+                persona.hospitality()
         );
     }
 }

@@ -8,6 +8,7 @@ import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.GameLoop;
 import com.wordonline.server.game.service.WordOnlineLoop;
 import com.wordonline.server.game.util.DeckSeedDeriver;
+import com.wordonline.server.websocket.SpectatorSubscriptionRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,11 @@ public class SessionObject {
     private long rightUserId;
     private final SimpMessagingTemplate template;
     private final String url;
+    // STOMP destinations are fixed strings, so they are built once instead of formatted on every
+    // send. The broadcast one never changes; the per-user ones are rebuilt when a user id changes.
+    private final String broadcastDestination;
+    private String leftUserDestination;
+    private String rightUserDestination;
     private final CardDeck leftUserCardDeck;
     private final CardDeck rightUserCardDeck;
     private final PingChecker pingChecker;
@@ -59,6 +65,11 @@ public class SessionObject {
     @Setter
     private GameLoop gameLoop;
 
+    // Wired by GameLoop.initializeLoop. Written on the session creation thread and read by the
+    // loop thread every frame, so it is volatile; a session with no registry has no spectators.
+    @Setter
+    private volatile SpectatorSubscriptionRegistry spectatorSubscriptionRegistry;
+
     public GameContext getGameContext() {
         return gameLoop.getGameContext();
     }
@@ -76,6 +87,9 @@ public class SessionObject {
         this.rightUserId = rightUserId;
         this.template = template;
         this.url = String.format("/game/%s/frameInfos", sessionId);
+        this.broadcastDestination = url + "/0";
+        this.leftUserDestination = userDestination(leftUserId);
+        this.rightUserDestination = userDestination(rightUserId);
         this.randomSeed = ThreadLocalRandom.current().nextLong();
         long leftDeckSeed = DeckSeedDeriver.forLeftDeck(randomSeed);
         long rightDeckSeed = DeckSeedDeriver.forRightDeck(randomSeed);
@@ -128,12 +142,46 @@ public class SessionObject {
         if (userId < 0) {
             return;
         }
-        template.convertAndSend(String.format("%s/%d", url, userId), data);
+        template.convertAndSend(destinationFor(userId), data);
     }
 
     // this method is used to broadcast frame information to spectators (userId = 0)
     public void broadcastFrameInfo(Object data) {
-        template.convertAndSend(String.format("%s/0", url), data);
+        if (!hasSpectators()) {
+            return;
+        }
+        template.convertAndSend(broadcastDestination, data);
+    }
+
+    // convertAndSend serializes the payload before it reaches the broker, and the broker channel
+    // dispatches inline on the game loop thread, so a broadcast with no subscriber costs a full
+    // JSON encode per frame and is then dropped. Callers check this before building the payload.
+    public boolean hasSpectators() {
+        SpectatorSubscriptionRegistry registry = spectatorSubscriptionRegistry;
+        return registry != null && registry.hasSubscribers(broadcastDestination);
+    }
+
+    /** Sends bot telemetry through the same destinations used for frame information. */
+    public void sendBotThought(Object data) {
+        sendFrameInfo(leftUserId, data);
+        if (rightUserId != leftUserId) {
+            sendFrameInfo(rightUserId, data);
+        }
+        broadcastFrameInfo(data);
+    }
+
+    private String destinationFor(long userId) {
+        if (userId == leftUserId) {
+            return leftUserDestination;
+        }
+        if (userId == rightUserId) {
+            return rightUserDestination;
+        }
+        return userDestination(userId);
+    }
+
+    private String userDestination(long userId) {
+        return String.format("%s/%d", url, userId);
     }
 
     // Called from the debug HTTP endpoint, off the loop thread. The hand and the deck are plain
@@ -141,6 +189,7 @@ public class SessionObject {
     // assignment stays inline because callers read it back straight after the call.
     public void setLeftUser(long userId, List<CardType> cards) {
         leftUserId = userId;
+        leftUserDestination = userDestination(userId);
         GameContext gameContext = getGameContext();
         gameContext.submitAction("setLeftUserDeck", () -> {
             gameContext.getGameSessionData().leftPlayerData.cards.clear();
@@ -150,6 +199,7 @@ public class SessionObject {
 
     public void setRightUser(long userId, List<CardType> cards) {
         rightUserId = userId;
+        rightUserDestination = userDestination(userId);
         GameContext gameContext = getGameContext();
         gameContext.submitAction("setRightUserDeck", () -> {
             gameContext.getGameSessionData().rightPlayerData.cards.clear();

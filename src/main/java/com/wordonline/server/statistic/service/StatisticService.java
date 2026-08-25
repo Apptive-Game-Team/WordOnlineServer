@@ -82,7 +82,7 @@ public class StatisticService {
 
     // The statistic name stays the simple class name so rows already recorded for
     // each GameSystem keep the exact same value in the name column.
-    public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, Long intervalNs) {
+    public void saveUpdateTime(GameContext gameContext, Class<? extends GameSystem> clazz, long intervalNs) {
         getGameResultBuilder(gameContext)
                 .ifPresent(builder ->
                         builder.addInterval(clazz.getSimpleName(), intervalNs)

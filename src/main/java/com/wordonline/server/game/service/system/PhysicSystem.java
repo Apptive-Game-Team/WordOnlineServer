@@ -14,6 +14,7 @@ import com.wordonline.server.game.util.CollisionChecker;
 import com.wordonline.server.game.util.CollisionSystem;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,11 +30,20 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
     private static final float SAME_PLACE_THRESHOLD = 1e-6f;
 
     private final Set<Pair<GameObject>> collidedPairs = new HashSet<>();
+    // Scratch list reused across frames: the broad phase fills it once per call with the
+    // objects that can actually take part in a collision, so the pair loop never has to
+    // re-derive per-object data. PhysicSystem is prototype-scoped and only ever touched by
+    // its own single-threaded game loop, same as collidedPairs above.
+    private final List<GameObject> collisionCandidates = new ArrayList<>();
 
     @Override
     public void update(GameContext gameContext) {
-        handleCollisions(gameContext.getActiveGameObjects());
-        checkAndHandleCollisions(gameContext.getActiveGameObjects());
+        List<GameObject> gameObjects = gameContext.getActiveGameObjects();
+        handleCollisions(gameObjects);
+        checkAndHandleCollisions(gameObjects);
+        // deliberately re-read: collision handlers, and the out-of-bounds destroy inside
+        // setPosition, can remove objects mid-frame, so the velocity pass wants the fresher
+        // list rather than the one the broad phase started from
         onUpdateEnd(gameContext.getActiveGameObjects());
     }
 
@@ -43,20 +53,32 @@ public class PhysicSystem implements CollisionSystem, GameSystem {
     }
 
     private void calculateCollisions(List<GameObject> gameObjects) {
-        for (int i = 0; i < gameObjects.size(); i++) {
-            GameObject a = gameObjects.get(i);
-            List<Collidable> collidableAList = a.getComponents(Collidable.class);
-            if (collidableAList.isEmpty() || !isCollidable(a)) continue;
+        collectCollisionCandidates(gameObjects);
 
-            for (int j = i + 1; j < gameObjects.size(); j++) {
-                GameObject b = gameObjects.get(j);
-                List<Collidable> collidableBList = b.getComponents(Collidable.class);
-                if (collidableBList.isEmpty() || !isCollidable(b)) continue;
+        for (int i = 0; i < collisionCandidates.size(); i++) {
+            GameObject a = collisionCandidates.get(i);
+
+            for (int j = i + 1; j < collisionCandidates.size(); j++) {
+                GameObject b = collisionCandidates.get(j);
 
                 if (CollisionChecker.isColliding(a, b)) {
                     collidedPairs.add(new Pair<>(a, b));
                 }
             }
+        }
+    }
+
+    // Both predicates are pure and nothing in the pair loop below changes an object's
+    // status or components, so testing each object once is equivalent to testing it again
+    // for every pair it appears in. The candidate list keeps the source order, so pairs are
+    // still formed with the same (a, b) orientation as before.
+    private void collectCollisionCandidates(List<GameObject> gameObjects) {
+        collisionCandidates.clear();
+        for (int i = 0; i < gameObjects.size(); i++) {
+            GameObject gameObject = gameObjects.get(i);
+            if (!isCollidable(gameObject)) continue;
+            if (gameObject.getComponents(Collidable.class).isEmpty()) continue;
+            collisionCandidates.add(gameObject);
         }
     }
 

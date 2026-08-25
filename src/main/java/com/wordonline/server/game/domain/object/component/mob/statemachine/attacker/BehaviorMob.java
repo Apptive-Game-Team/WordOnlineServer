@@ -15,11 +15,11 @@ import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.util.CombatRange;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -84,11 +84,36 @@ public class BehaviorMob extends StateMachineMob {
                 && TargetRelation.canAttack(gameObject, target);
     }
 
+    /**
+     * The directive with the highest priority that currently has a move target, with ties going to
+     * the one added first. This runs every frame for every mob and the component list is usually
+     * empty, so it is a plain scan: the stream it replaces sorted the whole list before filtering,
+     * and sorted() buffers even for zero or one element.
+     *
+     * <p>The scan reaches getMoveTarget on a different set of directives than the sort did, which
+     * is safe because the implementations are pure reads - RallyMoveDirective only inspects its
+     * rally target's status and position. The winner is unchanged: a candidate is only asked for a
+     * target once it beats the best priority seen so far, and an equal priority never displaces an
+     * earlier candidate, which is what the stable sort followed by findFirst did.
+     */
+    MovementDirective resolveHighestPriorityDirective() {
+        List<MovementDirective> directives = gameObject.getComponents(MovementDirective.class);
+        MovementDirective best = null;
+        for (int i = 0; i < directives.size(); i++) {
+            MovementDirective candidate = directives.get(i);
+            if (best != null && candidate.priority() <= best.priority()) {
+                continue;
+            }
+            if (candidate.getMoveTarget(gameObject).isEmpty()) {
+                continue;
+            }
+            best = candidate;
+        }
+        return best;
+    }
+
     private Optional<MovementDirective> resolveMovementDirective() {
-        return gameObject.getComponents(MovementDirective.class).stream()
-                .sorted(Comparator.comparingInt(MovementDirective::priority).reversed())
-                .filter(directive -> directive.getMoveTarget(gameObject).isPresent())
-                .findFirst();
+        return Optional.ofNullable(resolveHighestPriorityDirective());
     }
 
     @Override
@@ -229,7 +254,7 @@ public class BehaviorMob extends StateMachineMob {
 
             // Range is checked before the path bookkeeping: a mob that walks onto the last path
             // point would otherwise drop back to idle without ever testing whether it can attack.
-            if (horizontalDistanceToTarget() - targetRadius <= attackRange - 0.1f) {
+            if (CombatRange.contains(gameObject, target, Math.max(0f, attackRange - 0.1f))) {
                 setState(new AttackState());
                 return;
             }
@@ -237,7 +262,7 @@ public class BehaviorMob extends StateMachineMob {
             log.trace("State : {}", currentState);
             Vector3 currentPosition = gameObject.getPosition().grounded();
             log.trace("Path Remain Distance : {}",currentPosition.distance(path.get(0)));
-            log.trace("Target Distance : {}", horizontalDistanceToTarget() - targetRadius);
+            log.trace("Target Edge Distance : {}", CombatRange.horizontalEdgeDistance(gameObject, target));
             // Check if we reached the next path point
             if (currentPosition.distance(path.get(0)) < PathFinder.REACH_THRESHOLD) {
                 path.remove(0);
@@ -377,7 +402,7 @@ public class BehaviorMob extends StateMachineMob {
                 return;
             }
             timer += getGameContext().getDeltaTime();
-            if (horizontalDistanceToTarget() - targetRadius > attackRange) {
+            if (!CombatRange.contains(gameObject, target, attackRange)) {
                 setState(new MoveState());
             } else if (timer > attackInterval.total()) {
                 timer = 0;

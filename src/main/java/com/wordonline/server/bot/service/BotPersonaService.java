@@ -88,8 +88,9 @@ public class BotPersonaService {
                 requestDto.tier(),
                 Math.max(0, requestDto.thinkingTimeMs()),
                 Math.max(1, requestDto.reactionIntervalFrames()),
-                Math.max(0.0, Math.min(1.0, requestDto.counterAggression())),
-                requestDto.enabled()
+                Math.max(-1.0, Math.min(1.0, requestDto.counterAggression())),
+                requestDto.enabled(),
+                requestDto.hospitality()
         );
     }
 }

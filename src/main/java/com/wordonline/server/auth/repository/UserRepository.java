@@ -41,6 +41,19 @@ public class UserRepository {
             where id = :userId;
             """;
 
+    private static final String GET_NOVICE_PROGRESS = """
+            select novice_progress
+            from users
+            where id = :userId;
+            """;
+
+    private static final String ADVANCE_NOVICE_PROGRESS = """
+            update users
+            set novice_progress = least(1.0, novice_progress + :step)
+            where id = :userId
+              and novice_progress < 1.0;
+            """;
+
     private final JdbcClient jdbcClient;
 
     public Optional<Long> getSelectedDeckId(long userId) {
@@ -75,5 +88,29 @@ public class UserRepository {
         jdbcClient.sql(INCREMENT_TOTAL_WINS)
                 .param("userId", userId)
                 .update();
+    }
+
+    /**
+     * How far the player is through the tutorial, from 0.5 to 1.0. Missing rows answer 1.0: only a
+     * real account that has not finished it gets an opponent holding back.
+     */
+    public double getNoviceProgress(long userId) {
+        return jdbcClient.sql(GET_NOVICE_PROGRESS)
+                .param("userId", userId)
+                .query(Double.class)
+                .optional()
+                .orElse(1.0);
+    }
+
+    /**
+     * Moves the player along the tutorial, never past the end and never for someone already there.
+     *
+     * @return true when this call moved them
+     */
+    public boolean advanceNoviceProgress(long userId, double step) {
+        return jdbcClient.sql(ADVANCE_NOVICE_PROGRESS)
+                .param("userId", userId)
+                .param("step", step)
+                .update() > 0;
     }
 }
