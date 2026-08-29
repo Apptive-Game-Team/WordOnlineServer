@@ -65,7 +65,6 @@ public enum PrefabType {
     FireDrop("fire_drop_prefab"),
     NatureDrop("nature_drop_prefab"),
     RockDrop("rock_drop_prefab"),
-    LightningDrop("lightning_drop_prefab"),
     WindDrop("wind_drop_prefab"),
     RallyingTotem("rallying_totem_prefab"),
 
