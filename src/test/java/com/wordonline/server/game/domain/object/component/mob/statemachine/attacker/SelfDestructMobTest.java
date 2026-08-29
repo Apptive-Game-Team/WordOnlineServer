@@ -38,7 +38,7 @@ class SelfDestructMobTest {
         when(physics.overlapSphereAll(any(GameObject.class), anyFloat()))
                 .thenReturn(List.of(windSpirit, ally, enemy, destroyedEnemy));
 
-        SelfDestructMob mob = new SelfDestructMob(windSpirit, 10, 1f, TargetMask.ANY.bit, 7, 1f, 2f);
+        SelfDestructMob mob = new SelfDestructMob(windSpirit, 10, 1f, TargetMask.ANY.bit, 7, 1f, 2f, true);
         windSpirit.getComponents().add(mob);
         mob.onDeath();
 
@@ -63,12 +63,12 @@ class SelfDestructMobTest {
         enemy.setStatus(Status.Idle);
 
         SelfDestructMob enemyMob = new SelfDestructMob(
-                enemy, 10, 1f, TargetMask.AIR.bit, 0, 1f, 1f);
+                enemy, 10, 1f, TargetMask.AIR.bit, 0, 1f, 1f, true);
         enemy.getComponents().add(enemyMob);
         when(physics.overlapSphereAll(any(GameObject.class), anyFloat())).thenReturn(List.of(enemy));
 
         SelfDestructMob windSpiritMob = new SelfDestructMob(
-                windSpirit, 10, 1f, TargetMask.AIR.bit, 7, 1f, 2f);
+                windSpirit, 10, 1f, TargetMask.AIR.bit, 7, 1f, 2f, true);
         windSpirit.getComponents().add(windSpiritMob);
         windSpiritMob.start();
         windSpiritMob.setState(windSpiritMob.new AttackingState(enemyMob));
