@@ -58,7 +58,7 @@ public class BehaviorMob extends StateMachineMob {
         setState(new IdleState());
         rigidBody = gameObject.getComponent(RigidBody.class);
         if (attackRange > 0f) {
-            gameObject.drawCircle(Vector3.ZERO, attackRange, GizmoCategory.AttackRange);
+            gameObject.drawCircle(Vector3.ZERO, CombatRange.reachFrom(gameObject, attackRange), GizmoCategory.AttackRange);
         }
     }
 

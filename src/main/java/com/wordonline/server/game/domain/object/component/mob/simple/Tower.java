@@ -55,7 +55,7 @@ public class Tower extends Component {
     @Override
     public void start() {
         detector = new ClosestEnemyDetector(getGameContext(), targetMask);
-        gameObject.drawCircle(Vector3.ZERO, attackRange, GizmoCategory.AttackRange);
+        gameObject.drawCircle(Vector3.ZERO, CombatRange.reachFrom(gameObject, attackRange), GizmoCategory.AttackRange);
     }
 
     @Override
