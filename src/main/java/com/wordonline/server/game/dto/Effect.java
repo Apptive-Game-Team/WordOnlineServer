@@ -14,6 +14,9 @@ public enum Effect {
     Bubble,
     Inspired,
     Overcharge,
+    StormStagCharge2,
+    StormStagCharge3,
+    StormStagCharge4,
 
     FireIdleAura,
     FireAttackAura,

@@ -76,6 +76,7 @@ public enum GameObjectKey {
     SHOOT("shoot"),
     SLIME("slime"),
     SEED_SPIRIT("seed_spirit"),
+    STORM_STAG("storm_stag"),
     STORM_RIDER("storm_rider"),
     THUNDER_BIRD("thunder_bird"),
     THUNDER_SPIRIT("thunder_spirit"),

@@ -102,6 +102,7 @@ public enum PrefabType {
     EmberSpirit("fire_slime_prefab"),
     SeedSpirit("seed_spirit_prefab"),
     ZapMouse("zap_mouse_prefab"),
+    StormStag("storm_stag_prefab"),
     WindSpirit("wind_spirit_prefab"),
     MiniRock("mini_rock_prefab"),
     RockRemnant("rock_remnant_prefab"),
