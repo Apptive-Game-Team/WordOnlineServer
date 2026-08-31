@@ -21,10 +21,11 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     private boolean isExploded = false;
 
     public SelfDestructMob(GameObject gameObject, int maxHp,
-                           float speed, int targetMask, int damage, float attackInterval, float attackRange) {
+                           float speed, int targetMask, int damage, float attackInterval, float attackRange,
+                           boolean verticalRangeIgnored) {
         // Self-destruct mobs should commit as soon as they can collide, so they do not use the
         // shared attack interval or explosion radius as their attack-state trigger distance.
-        super(gameObject, maxHp, speed, targetMask, 0f, 0f, null);
+        super(gameObject, maxHp, speed, targetMask, 0f, 0f, null, verticalRangeIgnored);
         setBehavior(predicate);
         this.damage = damage;
         this.explosionRange = attackRange;
