@@ -1,6 +1,7 @@
 package com.wordonline.server.game.domain.parameter;
 
 public enum ParameterKey {
+    ACCELERATION("acceleration"),
     ATTACK_INTERVAL("attack_interval"),
     ATTACK_RANGE("attack_range"),
     BEAM_WIDTH("beam_width"),
