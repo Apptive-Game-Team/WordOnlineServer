@@ -17,6 +17,7 @@ public enum PrefabType {
     WaterExplode("water_explode_prefab"),
     WaterField("water_field_prefab"),
     WaterSlime("water_slime_prefab"),
+    SeaSerpent("sea_serpent_prefab"),
 
     // rock ========================================================
     RockRolling("rock_rolling_prefab"),

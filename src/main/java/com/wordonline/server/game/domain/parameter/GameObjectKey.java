@@ -72,6 +72,7 @@ public enum GameObjectKey {
     RUNE("rune"),
     SAND_STORM("sand_storm"),
     SEED_NEST("seed_nest"),
+    SEA_SERPENT("sea_serpent"),
     SHOCK_OVERLOAD("shock_overload"),
     SHOOT("shoot"),
     SLIME("slime"),
