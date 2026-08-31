@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.effect.statuseffect.OverchargeStatusEffect;
 import com.wordonline.server.game.domain.object.component.mob.MovementSpeedTracker;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.attacker.StormStagMob;
@@ -42,10 +43,10 @@ public class StormStagPrefabInitializer extends PrefabInitializer {
                 TargetMask.GROUND.bit,
                 values.intValue(ParameterKey.DAMAGE),
                 values.floatValue(ParameterKey.ACCELERATION),
-                values.floatValue(ParameterKey.ATTACK_INTERVAL),
                 values.floatValue(ParameterKey.DETECTION_RANGE),
                 values.floatValue(ParameterKey.PANIC_DURATION)));
         gameObject.setElement(ElementType.LIGHTNING);
         gameObject.addComponent(new CommonEffectReceiver(gameObject));
+        gameObject.addComponent(new OverchargeStatusEffect(gameObject, Float.POSITIVE_INFINITY));
     }
 }

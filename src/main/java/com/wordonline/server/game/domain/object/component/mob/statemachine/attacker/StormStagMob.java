@@ -27,15 +27,17 @@ public class StormStagMob extends StateMachineMob {
     private static final float ELECTRIC_HIT_DURATION = 0.2f;
     private static final String ELECTRIC_HIT_PROJECTILE = "ElectricShot";
     private static final List<TargetCategory> OBJECTIVE_PRIORITY = List.of(
+            TargetCategory.UNIT,
             TargetCategory.BUILDING,
             TargetCategory.PLAYER);
-    private static final List<TargetCategory> THREAT_PRIORITY = List.of(TargetCategory.UNIT);
+    private static final List<TargetCategory> THREAT_PRIORITY = List.of(
+            TargetCategory.UNIT,
+            TargetCategory.PLAYER);
     private static final float[] DAMAGE_MULTIPLIER = {0f, 1f, 1.25f, 1.5f, 2f};
 
     private final int targetMask;
     private final int damage;
     private final float acceleration;
-    private final float attackInterval;
     private final float detectionRange;
     private final float panicDuration;
 
@@ -47,13 +49,11 @@ public class StormStagMob extends StateMachineMob {
     private float panicCooldownRemaining;
 
     public StormStagMob(GameObject gameObject, int maxHp, float maxSpeed, int targetMask,
-            int damage, float acceleration, float attackInterval, float detectionRange,
-            float panicDuration) {
+            int damage, float acceleration, float detectionRange, float panicDuration) {
         super(gameObject, maxHp, maxSpeed);
         this.targetMask = targetMask;
         this.damage = damage;
         this.acceleration = acceleration;
-        this.attackInterval = attackInterval;
         this.detectionRange = detectionRange;
         this.panicDuration = panicDuration;
     }
@@ -143,7 +143,7 @@ public class StormStagMob extends StateMachineMob {
         damageable.onDamaged(new AttackInfo(impactDamage, gameObject.getElement().total())
                 .withAttacker(gameObject));
         gameObject.setStatus(Status.Attack);
-        setState(new RecoverState());
+        setState(new PanicState(target));
     }
 
     public class TargetSearchState extends State {
@@ -282,24 +282,4 @@ public class StormStagMob extends StateMachineMob {
         }
     }
 
-    public class RecoverState extends State {
-        private float timer;
-
-        @Override
-        public void onEnter() {
-            speedTracker.reset();
-            timer = 0f;
-        }
-
-        @Override
-        public void onExit() { }
-
-        @Override
-        public void onUpdate() {
-            timer += getGameContext().getDeltaTime();
-            if (timer >= attackInterval) {
-                setState(new TargetSearchState());
-            }
-        }
-    }
 }
