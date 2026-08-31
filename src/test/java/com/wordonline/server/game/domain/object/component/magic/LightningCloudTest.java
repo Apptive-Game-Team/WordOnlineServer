@@ -5,6 +5,9 @@ import com.wordonline.server.game.domain.object.Element;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
+import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
+import com.wordonline.server.game.domain.object.component.effect.receiver.LightningSummonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.effect.statuseffect.OverchargeStatusEffect;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -110,5 +113,31 @@ class LightningCloudTest {
         cloud.start();
 
         verify(damageable, never()).onDamaged(any());
+    }
+
+    @Test
+    void overchargesTheCastersOwnLightningSummonsInTheColumnBelow() {
+        LightningCloud cloud = cloud(2f, 1);
+        GameObject ownSummon = lightningSummon(Master.LeftPlayer);
+        GameObject enemySummon = lightningSummon(Master.RightPlayer);
+        when(physics.overlapBoxAll(any(), any())).thenReturn(List.of(ownSummon, enemySummon));
+
+        cloud.start();
+
+        assertThat(overchargeOf(ownSummon)).isInstanceOf(OverchargeStatusEffect.class);
+        assertThat(overchargeOf(enemySummon)).isNull();
+    }
+
+    private GameObject lightningSummon(Master master) {
+        GameObject gameObject = new GameObject(master, PrefabType.ElectricSlime, Vector3.ZERO, gameContext);
+        gameObject.setElement(ElementType.LIGHTNING);
+        gameObject.addComponent(new LightningSummonEffectReceiver(gameObject));
+        gameObject.flushComponents();
+        return gameObject;
+    }
+
+    private Object overchargeOf(GameObject gameObject) {
+        return gameObject.getComponent(LightningSummonEffectReceiver.class)
+                .getEffectByKey(StatusEffectKey.Overcharge_Receive);
     }
 }

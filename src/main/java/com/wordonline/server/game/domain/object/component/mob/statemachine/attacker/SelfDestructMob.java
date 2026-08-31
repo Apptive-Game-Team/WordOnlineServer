@@ -66,7 +66,7 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     }
 
     @Override
-    public void onCollision(GameObject otherObject) {
+    public void onCollisionWithEnemy(GameObject otherObject) {
         if (otherObject.getComponent(Mob.class) != null && TargetRelation.canAttack(gameObject, otherObject)) {
             explode();
             gameObject.destroy();

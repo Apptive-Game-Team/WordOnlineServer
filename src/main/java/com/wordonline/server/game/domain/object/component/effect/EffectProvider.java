@@ -11,10 +11,10 @@ public class EffectProvider extends Component implements Collidable {
     protected final Effect effect;
 
     @Override
-    public void onCollision(GameObject otherObject) {
+    public void onCollisionWithEnemy(GameObject otherObject) {
         EffectReceiver effectReceiver = (EffectReceiver) otherObject.getComponent(EffectReceiver.class);
         if (effectReceiver != null) {
-            effectReceiver.onReceive(effect);
+            effectReceiver.onReceive(new EffectApplication(effect, gameObject));
         }
     }
 
