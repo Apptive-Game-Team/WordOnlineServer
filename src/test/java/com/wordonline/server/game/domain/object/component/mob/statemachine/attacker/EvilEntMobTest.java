@@ -50,12 +50,18 @@ class EvilEntMobTest {
     }
 
     @Test
-    void grabArmStunsAndMovesALightVictimToTheEntFrontBeforeTheFireFist() {
+    void grabArmStunsAndSmoothlyMovesALightVictimToTheEntFrontBeforeTheFireFist() {
         GameObject victim = victim(5f, 1);
         EvilEntMob mob = evilEntTargeting(victim, SUB_ATTACK_INTERVAL);
 
-        assertThat(updateUntil(mob, () -> currentState(mob) instanceof EvilEntMob.FistState)).isTrue();
+        assertThat(updateUntil(mob, () -> currentState(victim.getComponent(BehaviorMob.class))
+                instanceof BehaviorMob.StunState)).isTrue();
+        assertThat(victim.getPosition().getX()).isEqualTo(5f);
 
+        mob.update();
+        assertThat(victim.getPosition().getX()).isBetween(1.7f, 5f);
+
+        assertThat(updateUntil(mob, () -> currentState(mob) instanceof EvilEntMob.FistState)).isTrue();
         assertThat(victim.getPosition().getX()).isCloseTo(1.7f, within(0.0001f));
         assertThat(victim.getPosition().getY()).isZero();
         assertThat(victim.getPosition().getZ()).isZero();

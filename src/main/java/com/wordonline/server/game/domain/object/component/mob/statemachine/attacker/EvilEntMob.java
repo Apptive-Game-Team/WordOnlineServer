@@ -47,7 +47,7 @@ public class EvilEntMob extends BehaviorMob {
     private static final int MAX_PULL_CHARGES = 3;
 
     /** Distance at which a dragged victim is close enough for the fire fist to land early. */
-    private static final float FIST_RANGE = 1.5f;
+    private static final float FIST_RANGE = 0.2f;
 
     /** Ceiling on one grab sequence stage, so a stalled projectile can never park the ent. */
     private static final float STAGE_TIMEOUT = 3f;
@@ -178,31 +178,16 @@ public class EvilEntMob extends BehaviorMob {
                 && rigidBody.getMass() <= pullMassLimit;
     }
 
-    /**
-     * Moves the victim directly to the ent's front. Returning the target to the ent's height makes
-     * the same placement work for ground and aerial targets, and the sum of the two body radii
-     * keeps their colliders from overlapping while leaving zero horizontal edge distance.
-     */
-    private boolean pull(GameObject victim) {
-        if (!canBeDragged(victim)) {
-            return false;
-        }
-
+    private Vector3 pullDestination(GameObject victim) {
         Vector3 directionToVictim = victim.getPosition().grounded()
                 .subtract(gameObject.getPosition().grounded())
                 .normalize();
         if (directionToVictim.getX() == 0f && directionToVictim.getZ() == 0f) {
             directionToVictim = Vector3.RIGHT;
         }
-        BehaviorMob victimBehavior = victim.getComponent(BehaviorMob.class);
-        if (victimBehavior != null) {
-            victimBehavior.setStun(PULL_DURATION);
-        }
         float frontDistance = CombatRange.radiusOf(gameObject) + CombatRange.radiusOf(victim);
-        Vector3 frontPosition = gameObject.getPosition().grounded()
+        return gameObject.getPosition().grounded()
                 .plus(directionToVictim.multiply(frontDistance));
-        victim.setPosition(frontPosition);
-        return true;
     }
 
     private void abortGrabSequence() {
@@ -226,7 +211,10 @@ public class EvilEntMob extends BehaviorMob {
         private boolean launched;
         private boolean pulled;
         private float reachTime;
+        private float pullStartTime;
         private float pullEndTime;
+        private Vector3 pullStartPosition;
+        private Vector3 pullTargetPosition;
 
         public GrabState(GameObject victim) {
             this.victim = victim;
@@ -272,12 +260,22 @@ public class EvilEntMob extends BehaviorMob {
                 pulled = true;
                 // No drag, no fire fist. Let go at once rather than holding the arm out for a
                 // pull that is not happening and then cashing in the heavy hit for free.
-                if (!pull(victim)) {
+                if (!canBeDragged(victim)) {
                     abortGrabSequence();
                     return;
                 }
+                BehaviorMob victimBehavior = victim.getComponent(BehaviorMob.class);
+                if (victimBehavior != null) {
+                    victimBehavior.setStun(PULL_DURATION);
+                }
+                pullStartTime = timer;
                 pullEndTime = timer + PULL_DURATION;
+                pullStartPosition = victim.getPosition();
+                pullTargetPosition = pullDestination(victim);
             }
+
+            float pullProgress = (timer - pullStartTime) / PULL_DURATION;
+            victim.setPosition(Vector3.lerp(pullStartPosition, pullTargetPosition, pullProgress));
 
             if (CombatRange.contains(gameObject, victim, FIST_RANGE)
                     || timer >= pullEndTime
