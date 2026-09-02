@@ -7,7 +7,6 @@ import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.domain.object.component.effect.receiver.EffectReceiver;
 import com.wordonline.server.game.domain.object.component.physic.ForcedMovement;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
-import com.wordonline.server.game.domain.object.component.physic.TimedMassPush;
 import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.util.CombatRange;
@@ -42,8 +41,10 @@ public class EvilEntMob extends BehaviorMob {
     private static final float GRAB_IMPACT_FRACTION = 0.22f;
     private static final float FIRE_FIST_IMPACT_FRACTION = 0.45f;
 
-    /** How long a hooked victim is dragged, and how long it is held in place while dragged. */
+    /** How long a hooked victim is held in place after being moved in front of the ent. */
     private static final float PULL_DURATION = 0.8f;
+
+    private static final int MAX_PULL_CHARGES = 3;
 
     /** Distance at which a dragged victim is close enough for the fire fist to land early. */
     private static final float FIST_RANGE = 1.5f;
@@ -54,24 +55,15 @@ public class EvilEntMob extends BehaviorMob {
     /** Wind-down after the fire fist connects, before the ent looks for a target again. */
     private static final float FIST_RECOVERY = 0.4f;
 
-    /**
-     * Cooldown left when a grab sequence is abandoned. The ent has spent nothing on a target that
-     * died, slipped away or turned out not to be draggable after all, so it retries shortly
-     * instead of waiting out the whole interval. It cannot busy-retry on this: a target that is
-     * merely undraggable is refused by the trigger without ever reaching a sequence, and the
-     * refusal costs nothing but the predicate.
-     */
-    private static final float ABORT_RETRY_DELAY = 1f;
-
     private final int damage;
     private final int subDamage;
     private final float projectileSpeed;
     private final float subAttackRange;
-    private final float pullSpeed;
     private final float subAttackInterval;
     private final float pullMassLimit;
 
-    private float subAttackTimer;
+    private int pullCharges;
+    private float pullRechargeTimer;
 
     public EvilEntMob(GameObject gameObject,
                       int maxHp,
@@ -83,7 +75,6 @@ public class EvilEntMob extends BehaviorMob {
                       float projectileSpeed,
                       int subDamage,
                       float subAttackRange,
-                      float subSpeed,
                       float subAttackInterval,
                       float pullMassLimit) {
         super(gameObject, maxHp, speed, targetMask, attackInterval, attackRange, null);
@@ -91,7 +82,6 @@ public class EvilEntMob extends BehaviorMob {
         this.subDamage = subDamage;
         this.projectileSpeed = projectileSpeed;
         this.subAttackRange = subAttackRange;
-        this.pullSpeed = subSpeed;
         this.subAttackInterval = subAttackInterval;
         this.pullMassLimit = pullMassLimit;
         setBehavior(this::punch);
@@ -99,8 +89,9 @@ public class EvilEntMob extends BehaviorMob {
 
     /**
      * The grab runs on a cooldown of its own rather than through the attack state, so it can start
-     * from a longer range than the punch and hook a target the ent cannot yet reach. While the
-     * sequence owns the state machine the timer neither advances nor retriggers.
+     * from a longer range than the punch and hook a target the ent cannot yet reach. Charges keep
+     * recovering while the sequence owns the state machine, so saved grabs can be spent in
+     * consecutive sequences once the current fist has resolved.
      *
      * <p>Whether the sequence is running is read off the state machine rather than latched in a
      * field of our own, because we are not the only writer: the super call on the line above can
@@ -113,12 +104,13 @@ public class EvilEntMob extends BehaviorMob {
     public void update() {
         super.update();
 
+        rechargePullCharges();
+
         if (currentState instanceof GrabState || currentState instanceof FistState) {
             return;
         }
 
-        subAttackTimer = Math.min(subAttackInterval, subAttackTimer + getGameContext().getDeltaTime());
-        if (subAttackTimer < subAttackInterval) {
+        if (pullCharges == 0) {
             return;
         }
         if (!isValidTarget(target) || !CombatRange.contains(gameObject, target, subAttackRange)) {
@@ -132,8 +124,24 @@ public class EvilEntMob extends BehaviorMob {
             return;
         }
 
-        subAttackTimer = 0f;
+        pullCharges--;
         setState(new GrabState(target));
+    }
+
+    private void rechargePullCharges() {
+        if (pullCharges == MAX_PULL_CHARGES) {
+            pullRechargeTimer = 0f;
+            return;
+        }
+
+        pullRechargeTimer += getGameContext().getDeltaTime();
+        while (pullRechargeTimer >= subAttackInterval && pullCharges < MAX_PULL_CHARGES) {
+            pullRechargeTimer -= subAttackInterval;
+            pullCharges++;
+        }
+        if (pullCharges == MAX_PULL_CHARGES) {
+            pullRechargeTimer = 0f;
+        }
     }
 
     private boolean punch(GameObject victim) {
@@ -171,29 +179,33 @@ public class EvilEntMob extends BehaviorMob {
     }
 
     /**
-     * Drags the victim toward the ent. Returns whether the drag actually happened: the trigger
-     * already refused undraggable targets, but the seconds between the trigger and the arm landing
-     * are long enough for that to stop being true.
+     * Moves the victim directly to the ent's front. Returning the target to the ent's height makes
+     * the same placement work for ground and aerial targets, and the sum of the two body radii
+     * keeps their colliders from overlapping while leaving zero horizontal edge distance.
      */
     private boolean pull(GameObject victim) {
         if (!canBeDragged(victim)) {
             return false;
         }
 
-        Vector3 direction = gameObject.getPosition().grounded()
-                .subtract(victim.getPosition().grounded())
+        Vector3 directionToVictim = victim.getPosition().grounded()
+                .subtract(gameObject.getPosition().grounded())
                 .normalize();
-        TimedMassPush.apply(victim, gameObject, direction, pullSpeed, PULL_DURATION);
-
+        if (directionToVictim.getX() == 0f && directionToVictim.getZ() == 0f) {
+            directionToVictim = Vector3.RIGHT;
+        }
         BehaviorMob victimBehavior = victim.getComponent(BehaviorMob.class);
         if (victimBehavior != null) {
             victimBehavior.setStun(PULL_DURATION);
         }
+        float frontDistance = CombatRange.radiusOf(gameObject) + CombatRange.radiusOf(victim);
+        Vector3 frontPosition = gameObject.getPosition().grounded()
+                .plus(directionToVictim.multiply(frontDistance));
+        victim.setPosition(frontPosition);
         return true;
     }
 
     private void abortGrabSequence() {
-        subAttackTimer = Math.max(0f, subAttackInterval - ABORT_RETRY_DELAY);
         resetTarget();
         setState(new IdleState());
     }

@@ -4,11 +4,9 @@ import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
-import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
-import com.wordonline.server.game.domain.object.component.physic.TimedMassPush;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -52,17 +50,71 @@ class EvilEntMobTest {
     }
 
     @Test
-    void grabArmDragsALightVictimTowardTheEnt() {
+    void grabArmStunsAndMovesALightVictimToTheEntFrontBeforeTheFireFist() {
         GameObject victim = victim(5f, 1);
         EvilEntMob mob = evilEntTargeting(victim, SUB_ATTACK_INTERVAL);
 
-        assertThat(updateUntil(mob, () -> pushOn(victim) != null)).isTrue();
+        assertThat(updateUntil(mob, () -> currentState(mob) instanceof EvilEntMob.FistState)).isTrue();
 
-        Vector3 direction = (Vector3) ReflectionTestUtils.getField(pushOn(victim), "direction");
-        assertThat(direction.getX()).isCloseTo(-1f, within(0.0001f));
-        assertThat(direction.getY()).isZero();
-        assertThat(direction.getZ()).isZero();
-        assertThat(sentProjectileTypes()).contains("EvilEntGrabArm");
+        assertThat(victim.getPosition().getX()).isCloseTo(1.7f, within(0.0001f));
+        assertThat(victim.getPosition().getY()).isZero();
+        assertThat(victim.getPosition().getZ()).isZero();
+        assertThat(currentState(victim.getComponent(BehaviorMob.class)))
+                .isInstanceOf(BehaviorMob.StunState.class);
+        mob.update();
+        assertThat(sentProjectileTypes()).contains("EvilEntGrabArm", "EvilEntFireFist");
+    }
+
+    @Test
+    void grabArmMovesAnAerialVictimToTheEntFront() {
+        GameObject victim = victim(5f, 2f, 1);
+        EvilEntMob mob = evilEntTargeting(victim, SUB_ATTACK_INTERVAL);
+
+        assertThat(updateUntil(mob, () -> currentState(mob) instanceof EvilEntMob.FistState)).isTrue();
+
+        assertThat(victim.getPosition().getX()).isCloseTo(1.7f, within(0.0001f));
+        assertThat(victim.getPosition().getY()).isZero();
+        assertThat(currentState(victim.getComponent(BehaviorMob.class)))
+                .isInstanceOf(BehaviorMob.StunState.class);
+    }
+
+    @Test
+    void pullChargesRecoverOnePerIntervalAndCapAtThree() {
+        GameObject victim = victim(5f, 1);
+        EvilEntMob mob = evilEntTargeting(victim, SUB_ATTACK_INTERVAL);
+        victim.destroy();
+
+        for (int i = 0; i < 40; i++) {
+            mob.update();
+        }
+
+        assertThat(pullCharges(mob)).isEqualTo(3);
+    }
+
+    @Test
+    void savedPullChargesCanStartConsecutiveGrabSequences() {
+        GameObject victim = victim(5f, 1);
+        EvilEntMob mob = evilEntTargeting(victim, 10f);
+        setPullCharges(mob, 3);
+
+        mob.update();
+        assertThat(pullCharges(mob)).isEqualTo(2);
+
+        mob.setState(mob.new IdleState());
+        mob.update();
+
+        assertThat(currentState(mob)).isInstanceOf(EvilEntMob.GrabState.class);
+        assertThat(pullCharges(mob)).isEqualTo(1);
+    }
+
+    @Test
+    void fireFistDealsTheConfiguredSubDamage() {
+        GameObject victim = victim(5f, 1);
+        EvilEntMob mob = evilEntTargeting(victim, SUB_ATTACK_INTERVAL);
+
+        assertThat(updateUntil(mob, () -> victim.getComponent(TargetDummy.class).getHp() < 1000)).isTrue();
+
+        assertThat(victim.getComponent(TargetDummy.class).getHp()).isEqualTo(972);
     }
 
     @Test
@@ -125,7 +177,7 @@ class EvilEntMobTest {
     void grabThatLosesItsDragAbortsWithoutAFireFist() {
         GameObject victim = victim(5f, 1);
         EvilEntMob mob = evilEntTargeting(victim, 30f);
-        ReflectionTestUtils.setField(mob, "subAttackTimer", 30f);
+        setPullCharges(mob, 1);
 
         mob.update();
         mob.update();
@@ -138,8 +190,7 @@ class EvilEntMobTest {
         assertThat(sentProjectileTypes())
                 .contains("EvilEntGrabArm")
                 .doesNotContain("EvilEntFireFist");
-        // Abandoned the same way a dead victim is: the short retry window, not the full interval.
-        assertThat(subAttackTimer(mob)).isCloseTo(29f + DELTA_TIME, within(0.0001f));
+        assertThat(pullCharges(mob)).isZero();
     }
 
     @Test
@@ -160,14 +211,14 @@ class EvilEntMobTest {
     void stateStolenMidSequenceLetsTheSpecialRecover() {
         GameObject victim = victim(5f, 1);
         EvilEntMob mob = evilEntTargeting(victim, 1f);
-        ReflectionTestUtils.setField(mob, "subAttackTimer", 1f);
+        setPullCharges(mob, 1);
 
         mob.update();
         assertThat(currentState(mob)).isInstanceOf(EvilEntMob.GrabState.class);
 
-        // A sequence that is genuinely running still holds the cooldown at zero.
+        // A sequence keeps recovering charges while it owns the state machine.
         mob.update();
-        assertThat(subAttackTimer(mob)).isZero();
+        assertThat(pullRechargeTimer(mob)).isCloseTo(0.2f, within(0.0001f));
 
         // What BehaviorMob.update does to us when the ent changes master, or when a movement
         // directive such as a rallying totem claims the state machine: the sequence is dropped
@@ -175,23 +226,21 @@ class EvilEntMobTest {
         mob.setState(mob.new IdleState());
 
         mob.update();
-        assertThat(subAttackTimer(mob)).isCloseTo(DELTA_TIME, within(0.0001f));
+        assertThat(pullRechargeTimer(mob)).isCloseTo(0.3f, within(0.0001f));
         assertThat(updateUntil(mob, () -> currentState(mob) instanceof EvilEntMob.GrabState)).isTrue();
     }
 
     @Test
-    void abortedGrabLeavesOnlyAShortRetryWindowOnTheCooldown() {
+    void abortedGrabConsumesOnlyTheChargeItStartedWith() {
         GameObject victim = victim(5f, 1);
         EvilEntMob mob = evilEntTargeting(victim, 30f);
-        ReflectionTestUtils.setField(mob, "subAttackTimer", 30f);
+        setPullCharges(mob, 1);
 
         mob.update();
         victim.destroy();
         mob.update();
 
-        // A thirty second interval leaves a one second retry window, and the aborting frame has
-        // already ticked one delta back onto it.
-        assertThat(subAttackTimer(mob)).isCloseTo(29f + DELTA_TIME, within(0.0001f));
+        assertThat(pullCharges(mob)).isZero();
     }
 
     private void assertPunchesWithoutEverGrabbing(GameObject victim) {
@@ -200,7 +249,6 @@ class EvilEntMobTest {
 
         assertThat(updateUntil(mob, () -> sentProjectileTypes().contains("EvilEntPunchArm"))).isTrue();
         assertThat(sentProjectileTypes()).doesNotContain("EvilEntGrabArm", "EvilEntFireFist");
-        assertThat(pushOn(victim)).isNull();
     }
 
     private EvilEntMob evilEntTargeting(GameObject victim, float subAttackInterval) {
@@ -216,7 +264,6 @@ class EvilEntMobTest {
                 14f,
                 28,
                 6f,
-                4f,
                 subAttackInterval,
                 PULL_MASS_LIMIT);
         entObject.getComponents().add(mob);
@@ -234,21 +281,24 @@ class EvilEntMobTest {
         return false;
     }
 
-    private float subAttackTimer(EvilEntMob mob) {
-        return (Float) ReflectionTestUtils.getField(mob, "subAttackTimer");
+    private void setPullCharges(EvilEntMob mob, int charges) {
+        ReflectionTestUtils.setField(mob, "pullCharges", charges);
+    }
+
+    private int pullCharges(EvilEntMob mob) {
+        return (Integer) ReflectionTestUtils.getField(mob, "pullCharges");
+    }
+
+    private float pullRechargeTimer(EvilEntMob mob) {
+        return (Float) ReflectionTestUtils.getField(mob, "pullRechargeTimer");
     }
 
     private Object currentState(EvilEntMob mob) {
         return ReflectionTestUtils.getField(mob, "currentState");
     }
 
-    private TimedMassPush pushOn(GameObject victim) {
-        TimedMassPush pending = victim.getComponentsToAdd().stream()
-                .filter(TimedMassPush.class::isInstance)
-                .map(TimedMassPush.class::cast)
-                .findFirst()
-                .orElse(null);
-        return pending != null ? pending : victim.getComponent(TimedMassPush.class);
+    private Object currentState(BehaviorMob mob) {
+        return ReflectionTestUtils.getField(mob, "currentState");
     }
 
     /** The builder hands out and clears its frame's projectiles, so drain it into one running list. */
@@ -282,7 +332,11 @@ class EvilEntMobTest {
     }
 
     private GameObject victim(float x, int mass) {
-        GameObject victim = target(PrefabType.RockSlime, x);
+        return victim(x, 0f, mass);
+    }
+
+    private GameObject victim(float x, float y, int mass) {
+        GameObject victim = target(PrefabType.RockSlime, x, y);
         victim.getComponents().add(new RigidBody(victim, mass));
         return victim;
     }
@@ -293,8 +347,12 @@ class EvilEntMobTest {
     }
 
     private GameObject target(PrefabType prefabType, float x) {
+        return target(prefabType, x, 0f);
+    }
+
+    private GameObject target(PrefabType prefabType, float x, float y) {
         GameObject target = new GameObject(
-                Master.RightPlayer, prefabType, new Vector3(x, 0f, 0f), gameContext);
+                Master.RightPlayer, prefabType, new Vector3(x, y, 0f), gameContext);
         target.setStatus(Status.Idle);
         target.addCollider(new CircleCollider(target, 0.5f, false));
         target.getComponents().add(new TargetDummy(target));
@@ -303,10 +361,10 @@ class EvilEntMobTest {
     }
 
     /** Just enough of a mob for the ent's detector to see the victim and for damage to land. */
-    private static final class TargetDummy extends Mob {
+    private static final class TargetDummy extends BehaviorMob {
 
         private TargetDummy(GameObject gameObject) {
-            super(gameObject, 1000, 0f);
+            super(gameObject, 1000, 0f, TargetMask.ANY.bit, 0f, 0f, null);
         }
 
         @Override
