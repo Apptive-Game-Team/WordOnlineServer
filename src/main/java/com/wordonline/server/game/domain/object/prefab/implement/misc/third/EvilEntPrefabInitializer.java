@@ -37,14 +37,13 @@ public class EvilEntPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new EvilEntMob(gameObject,
                 evilEntParameters.intValue(ParameterKey.HP),
                 evilEntParameters.floatValue(ParameterKey.SPEED),
-                TargetMask.GROUND.bit,
+                TargetMask.ANY.bit,
                 evilEntParameters.intValue(ParameterKey.DAMAGE),
                 evilEntParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
                 evilEntParameters.floatValue(ParameterKey.ATTACK_RANGE),
                 evilEntParameters.floatValue(ParameterKey.PROJECTILE_SPEED),
                 evilEntParameters.intValue(ParameterKey.SUB_DAMAGE),
                 evilEntParameters.floatValue(ParameterKey.SUB_ATTACK_RANGE),
-                evilEntParameters.floatValue(ParameterKey.SUB_SPEED),
                 evilEntParameters.floatValue(ParameterKey.SUB_ATTACK_INTERVAL),
                 evilEntParameters.floatValue(ParameterKey.PULL_MASS_LIMIT)
         ));

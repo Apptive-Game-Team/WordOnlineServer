@@ -46,7 +46,6 @@ class EvilEntPrefabInitializerTest {
         when(evilEnt.floatValue(ParameterKey.PROJECTILE_SPEED)).thenReturn(14f);
         when(evilEnt.intValue(ParameterKey.SUB_DAMAGE)).thenReturn(28);
         when(evilEnt.floatValue(ParameterKey.SUB_ATTACK_RANGE)).thenReturn(6f);
-        when(evilEnt.floatValue(ParameterKey.SUB_SPEED)).thenReturn(4f);
         when(evilEnt.floatValue(ParameterKey.SUB_ATTACK_INTERVAL)).thenReturn(12f);
         when(evilEnt.floatValue(ParameterKey.PULL_MASS_LIMIT)).thenReturn(5f);
         when(entObject.getPosition()).thenReturn(Vector3.ZERO);
@@ -72,12 +71,11 @@ class EvilEntPrefabInitializerTest {
         assertThat(ReflectionTestUtils.getField(mob, "projectileSpeed")).isEqualTo(14f);
         assertThat(ReflectionTestUtils.getField(mob, "subDamage")).isEqualTo(28);
         assertThat(ReflectionTestUtils.getField(mob, "subAttackRange")).isEqualTo(6f);
-        assertThat(ReflectionTestUtils.getField(mob, "pullSpeed")).isEqualTo(4f);
         assertThat(ReflectionTestUtils.getField(mob, "subAttackInterval")).isEqualTo(12f);
         assertThat(ReflectionTestUtils.getField(mob, "pullMassLimit")).isEqualTo(5f);
 
         Object detector = ReflectionTestUtils.getField(mob, "detector");
-        assertThat(ReflectionTestUtils.getField(detector, "targetMask")).isEqualTo(TargetMask.GROUND.bit);
+        assertThat(ReflectionTestUtils.getField(detector, "targetMask")).isEqualTo(TargetMask.ANY.bit);
 
         ArgumentCaptor<CircleCollider> collider = ArgumentCaptor.forClass(CircleCollider.class);
         verify(entObject).addCollider(collider.capture());
