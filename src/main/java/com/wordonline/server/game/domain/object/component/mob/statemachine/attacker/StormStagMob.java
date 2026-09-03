@@ -12,7 +12,10 @@ import com.wordonline.server.game.domain.object.component.mob.detector.PriorityE
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetCategory;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.domain.object.component.mob.statemachine.StateMachineMob;
+import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.util.CombatRange;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Slf4j
-public class StormStagMob extends StateMachineMob {
+public class StormStagMob extends StateMachineMob implements Collidable {
     private static final float PANIC_COOLDOWN = 10f;
     private static final float PANIC_SPEED_MULTIPLIER = 1.25f;
     private static final float IMPACT_RANGE = 0.05f;
@@ -83,6 +86,21 @@ public class StormStagMob extends StateMachineMob {
         gameObject.destroy();
     }
 
+    @Override
+    public void onCollision(GameObject otherObject) {
+        if (otherObject.getType() != PrefabType.Wall
+                || !(currentState instanceof PanicState)) {
+            return;
+        }
+
+        panicCooldownRemaining = PANIC_COOLDOWN;
+        if (isValidTarget(target)) {
+            setState(new ChargeState());
+        } else {
+            setState(new TargetSearchState());
+        }
+    }
+
     private boolean isValidTarget(GameObject candidate) {
         return candidate != null
                 && candidate.getStatus() != Status.Destroyed
@@ -120,6 +138,8 @@ public class StormStagMob extends StateMachineMob {
         if (panic != null) {
             gameObject.removeComponent(panic);
         }
+        gameObject.getComponentsToAdd().removeIf(PanicStatusEffect.class::isInstance);
+        gameObject.removeEffect(Effect.Panic);
     }
 
     private void impactTarget() {
