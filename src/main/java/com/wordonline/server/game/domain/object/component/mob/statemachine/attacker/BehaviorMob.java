@@ -6,6 +6,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.domain.object.component.mob.directive.MovementDirective;
 import com.wordonline.server.game.domain.object.component.mob.pathfinder.PathFinder;
@@ -36,6 +37,7 @@ public class BehaviorMob extends StateMachineMob {
     RigidBody rigidBody;
     @Getter Stat attackInterval;
     protected float attackRange;
+    private final int targetMask;
     /**
      * Whether engagement ignores the vertical gap to the target. A mob that dives from a hover
      * height cannot close that gap before it commits, so testing it against the attack range would
@@ -70,6 +72,7 @@ public class BehaviorMob extends StateMachineMob {
         super(gameObject, maxHp, speed);
         this.pathFinder = new SimplePathFinder();
         this.detector = new ClosestEnemyDetector(getGameContext(), targetMask);
+        this.targetMask = targetMask;
         this.attackInterval = new Stat(attackInterval);
         this.attackRange = attackRange;
         this.behavior = behavior;
@@ -93,7 +96,8 @@ public class BehaviorMob extends StateMachineMob {
     protected boolean isValidTarget(GameObject target) {
         return target != null
                 && target.getStatus() != Status.Destroyed
-                && TargetRelation.canAttack(gameObject, target);
+                && TargetRelation.canAttack(gameObject, target)
+                && (TargetMask.of(target) & targetMask) != 0;
     }
 
     /**
