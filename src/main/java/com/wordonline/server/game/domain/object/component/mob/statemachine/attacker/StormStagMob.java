@@ -86,6 +86,14 @@ public class StormStagMob extends StateMachineMob implements Collidable {
         gameObject.destroy();
     }
 
+    /**
+     * StormStag deals its damage from the range check in {@link ChargeState}, not on contact,
+     * so an enemy collision alone triggers nothing.
+     */
+    @Override
+    public void onCollisionWithEnemy(GameObject otherObject) {
+    }
+
     @Override
     public void onCollision(GameObject otherObject) {
         if (otherObject.getType() != PrefabType.Wall
