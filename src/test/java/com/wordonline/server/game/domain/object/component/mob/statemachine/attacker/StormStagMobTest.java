@@ -15,7 +15,9 @@ import com.wordonline.server.game.domain.object.component.mob.detector.PriorityE
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetCategory;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.simple.PlayerHealthComponent;
+import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.service.GameContext;
@@ -106,6 +108,23 @@ class StormStagMobTest {
         assertThat(ReflectionTestUtils.getField(mob, "currentState"))
                 .isInstanceOf(StormStagMob.PanicState.class);
         verify(damageable).onDamaged(any());
+    }
+
+    @Test
+    void resumesChargeWhenPanicFleeHitsWall() {
+        GameObject target = target(TargetCategory.UNIT, new Vector3(5f, 0f, 0f));
+        GameObject wall = mock(GameObject.class);
+        when(wall.getType()).thenReturn(PrefabType.Wall);
+        ReflectionTestUtils.setField(mob, "target", target);
+        mob.setState(mob.new PanicState(target));
+
+        ((Collidable) mob).onCollision(wall);
+
+        assertThat(ReflectionTestUtils.getField(mob, "currentState"))
+                .isInstanceOf(StormStagMob.ChargeState.class);
+        assertThat(ReflectionTestUtils.getField(mob, "panicCooldownRemaining"))
+                .isEqualTo(10f);
+        verify(stormStag).setStatus(Status.Move);
     }
 
     private GameObject target(TargetCategory category, Vector3 position) {
