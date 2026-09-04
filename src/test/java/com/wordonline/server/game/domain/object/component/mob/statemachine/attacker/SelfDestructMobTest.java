@@ -81,6 +81,40 @@ class SelfDestructMobTest {
         assertThat(windSpirit.isDestroyed()).isTrue();
     }
 
+    @Test
+    void explodesWhenAltitudeDropsToConfiguredThreshold() {
+        GameContext gameContext = mock(GameContext.class);
+        Physics physics = mock(Physics.class);
+        when(gameContext.getPhysics()).thenReturn(physics);
+
+        GameObject windSpirit = new GameObject(
+                Master.LeftPlayer,
+                PrefabType.WindSpirit,
+                new Vector3(0f, 1.1f, 0f),
+                gameContext);
+        windSpirit.setStatus(Status.Idle);
+        windSpirit.addCollider(new CircleCollider(windSpirit, 0.3f, false));
+        GameObject enemy = objectWithMob(Master.RightPlayer, gameContext);
+        when(physics.overlapSphereAll(any(GameObject.class), anyFloat()))
+                .thenReturn(List.of(windSpirit, enemy));
+
+        SelfDestructMob windSpiritMob = new SelfDestructMob(
+                windSpirit, 10, 1f, TargetMask.AIR.bit, 7, 1f, 2f, true, 1f);
+        windSpirit.getComponents().add(windSpiritMob);
+        windSpiritMob.start();
+
+        windSpiritMob.update();
+
+        assertThat(windSpirit.isDestroyed()).isFalse();
+        assertThat(damageOf(enemy)).isZero();
+
+        windSpirit.setPosition(new Vector3(0f, 1f, 0f));
+        windSpiritMob.update();
+
+        assertThat(windSpirit.isDestroyed()).isTrue();
+        assertThat(damageOf(enemy)).isEqualTo(7);
+    }
+
     private int damageOf(GameObject gameObject) {
         return ((RecordingMob) gameObject.getComponent(Mob.class)).takenDamage;
     }
