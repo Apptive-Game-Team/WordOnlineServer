@@ -1,7 +1,9 @@
 package com.wordonline.server.game.domain.object.component.mob.statemachine.attacker;
 
 import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.GameSessionData;
 import com.wordonline.server.game.domain.AttackInfo;
+import com.wordonline.server.game.domain.PlayerData;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
@@ -86,6 +88,8 @@ class SelfDestructMobTest {
         GameContext gameContext = mock(GameContext.class);
         Physics physics = mock(Physics.class);
         when(gameContext.getPhysics()).thenReturn(physics);
+        when(gameContext.getGameSessionData()).thenReturn(
+                new GameSessionData(mock(PlayerData.class), mock(PlayerData.class)));
 
         GameObject windSpirit = new GameObject(
                 Master.LeftPlayer,
