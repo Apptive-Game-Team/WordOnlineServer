@@ -54,6 +54,46 @@ class ThunderBirdMobTest {
         assertThat(bird.getPosition()).isEqualTo(positionBeforeUpdate);
     }
 
+    @Test
+    void chargeCollisionDamagesAnotherEnemyMobOnceAndEndsTheCharge() {
+        GameObject targetObject = groundObject(1f, 0f, 0f);
+        RecordingMob targetMob = new RecordingMob(targetObject);
+        targetObject.getComponents().add(targetMob);
+
+        GameObject collidedObject = groundObject(0.3f, 0f, 0f);
+        RecordingMob collidedMob = new RecordingMob(collidedObject);
+        collidedObject.getComponents().add(collidedMob);
+
+        GameObject bird = aerialObject();
+        ThunderBirdMob mob = new ThunderBirdMob(bird, 10, 1.5f, TargetMask.GROUND.bit, 5, 3f, 4f);
+        bird.getComponents().add(mob);
+        mob.start();
+        mob.setState(mob.new AttackingState(targetMob));
+
+        mob.onCollision(collidedObject);
+        mob.update();
+        mob.onCollision(collidedObject);
+
+        assertThat(collidedMob.takenDamage).isEqualTo(5);
+        assertThat(targetMob.takenDamage).isZero();
+    }
+
+    @Test
+    void ignoresEnemyCollisionOutsideCharge() {
+        GameObject collidedObject = groundObject(0.3f, 0f, 0f);
+        RecordingMob collidedMob = new RecordingMob(collidedObject);
+        collidedObject.getComponents().add(collidedMob);
+
+        GameObject bird = aerialObject();
+        ThunderBirdMob mob = new ThunderBirdMob(bird, 10, 1.5f, TargetMask.GROUND.bit, 5, 3f, 4f);
+        bird.getComponents().add(mob);
+        mob.start();
+
+        mob.onCollision(collidedObject);
+
+        assertThat(collidedMob.takenDamage).isZero();
+    }
+
     private GameObject aerialObject() {
         GameObject bird = new GameObject(
                 Master.LeftPlayer,
@@ -68,7 +108,12 @@ class ThunderBirdMobTest {
     }
 
     private GameObject groundObject() {
+        return groundObject(1f, 0f, 0f);
+    }
+
+    private GameObject groundObject(float x, float y, float z) {
         GameObject target = new GameObject(Master.RightPlayer, PrefabType.RockSlime, new Vector3(1f, 0f, 0f), gameContext);
+        target.setPosition(new Vector3(x, y, z));
         target.setStatus(Status.Idle);
         target.addCollider(new CircleCollider(target, 0.5f, false));
         sessionData.gameObjects.add(target);
