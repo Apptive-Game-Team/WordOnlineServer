@@ -17,17 +17,25 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     private static final float ATTACK_THRESHOLD = 0.3f;
     private final int damage;
     private final float explosionRange;
+    private final float explosionAltitudeThreshold;
     private float selfRadius;
     private boolean isExploded = false;
 
     public SelfDestructMob(GameObject gameObject, int maxHp,
                            float speed, int targetMask, int damage, float attackInterval, float attackRange) {
+        this(gameObject, maxHp, speed, targetMask, damage, attackInterval, attackRange, Float.NaN);
+    }
+
+    public SelfDestructMob(GameObject gameObject, int maxHp,
+                           float speed, int targetMask, int damage, float attackInterval, float attackRange,
+                           float explosionAltitudeThreshold) {
         // Self-destruct mobs should commit as soon as they can collide, so they do not use the
         // shared attack interval or explosion radius as their attack-state trigger distance.
         super(gameObject, maxHp, speed, targetMask, 0f, 0f, null);
         setBehavior(predicate);
         this.damage = damage;
         this.explosionRange = attackRange;
+        this.explosionAltitudeThreshold = explosionAltitudeThreshold;
     }
 
     private final Predicate<GameObject> predicate = (target) -> {
@@ -62,6 +70,16 @@ public class SelfDestructMob extends BehaviorMob implements Collidable {
     public void onDeath() {
         explode();
         super.onDeath();
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        if (!Float.isNaN(explosionAltitudeThreshold)
+                && gameObject.getPosition().getY() <= explosionAltitudeThreshold) {
+            explode();
+            gameObject.destroy();
+        }
     }
 
     @Override
