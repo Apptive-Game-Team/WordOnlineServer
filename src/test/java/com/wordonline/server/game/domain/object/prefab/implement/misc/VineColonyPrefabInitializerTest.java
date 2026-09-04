@@ -29,20 +29,17 @@ import static org.mockito.Mockito.when;
 class VineColonyPrefabInitializerTest {
 
     @Test
-    void usesRockTurretHitPointsForLifetime() {
+    void usesVineColonyDurationForLifetime() {
         Parameters parameters = mock(Parameters.class);
         GameObjectParameters vineColonyParameters = mock(GameObjectParameters.class);
-        GameObjectParameters rockTurretParameters = mock(GameObjectParameters.class);
         when(parameters.object(GameObjectKey.VINE_COLONY)).thenReturn(vineColonyParameters);
-        when(parameters.object(GameObjectKey.ROCK_TURRET)).thenReturn(rockTurretParameters);
         when(vineColonyParameters.intValue(ParameterKey.MASS)).thenReturn(3);
         when(vineColonyParameters.floatValue(ParameterKey.RADIUS)).thenReturn(1f);
         when(vineColonyParameters.intValue(ParameterKey.HP)).thenReturn(40);
         when(vineColonyParameters.intValue(ParameterKey.DAMAGE)).thenReturn(9);
         when(vineColonyParameters.intValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(1);
         when(vineColonyParameters.intValue(ParameterKey.ATTACK_RANGE)).thenReturn(3);
-        when(vineColonyParameters.floatValue(ParameterKey.DURATION)).thenReturn(60f);
-        when(rockTurretParameters.intValue(ParameterKey.HP)).thenReturn(15);
+        when(vineColonyParameters.floatValue(ParameterKey.DURATION)).thenReturn(15f);
 
         GameObject vineColony = new GameObject(
                 Master.LeftPlayer,
@@ -61,7 +58,6 @@ class VineColonyPrefabInitializerTest {
         GaugeDto gauge = selfDestroyer.getGauge();
 
         assertThat(gauge.maxValue()).isEqualTo(15f);
-        assertThat(gauge.maxValue()).isNotEqualTo(60f);
         assertThat(gauge.category()).isEqualTo(GaugeCategory.TTL);
         assertThat(vineColony.getElement().nativeHas(ElementType.NATURE)).isTrue();
         assertThat(components(vineColony)).anyMatch(RigidBody.class::isInstance);
