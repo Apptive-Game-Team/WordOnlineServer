@@ -28,6 +28,7 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         var vineColonyParameters = parameters.object(GameObjectKey.VINE_COLONY);
+        var rockTurretParameters = parameters.object(GameObjectKey.ROCK_TURRET);
         gameObject.getComponents().add(new RigidBody(gameObject, vineColonyParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, vineColonyParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.getComponents().add(
@@ -39,7 +40,7 @@ public class VineColonyPrefabInitializer extends PrefabInitializer {
                         vineColonyParameters.intValue(ParameterKey.ATTACK_RANGE),
                         PrefabType.Vine
                 ));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, vineColonyParameters.floatValue(ParameterKey.DURATION)));
+        gameObject.addComponent(new TimedSelfDestroyer(gameObject, rockTurretParameters.intValue(ParameterKey.HP)));
         gameObject.setElement(ElementType.NATURE);
         gameObject.getComponents().add(new CommonEffectReceiver(gameObject));
     }
