@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.game.domain.SessionObject;
+import com.wordonline.server.game.domain.bot.view.GameObjectTags;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
 import com.wordonline.server.game.dto.bot.BotThoughtInfoDto;
@@ -45,9 +46,11 @@ public final class BotAgent {
                     Master botSide,
                     BotPersona persona,
                     BotCounterEvaluator counterEvaluator,
-                    double opponentNoviceProgress) {
+                    double opponentNoviceProgress,
+                    GameObjectTags gameObjectTags) {
         this.botAction = new BotAction();
-        this.botBrain = new BotBrain(magicParser, counterEvaluator, persona, opponentNoviceProgress);
+        this.botBrain = new BotBrain(
+                magicParser, counterEvaluator, persona, opponentNoviceProgress, gameObjectTags);
         this.sessionObject = sessionObject;
         this.gameLoop = sessionObject.getGameLoop();
         this.botSide = botSide;

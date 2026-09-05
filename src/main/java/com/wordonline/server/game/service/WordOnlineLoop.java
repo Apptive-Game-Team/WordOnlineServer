@@ -38,6 +38,7 @@ public class WordOnlineLoop extends GameLoop {
     private final DatabaseMagicParser magicParser;
     private final BotPersonaService botPersonaService;
     private final BotCounterEvaluator botCounterEvaluator;
+    private final GameObjectTagService gameObjectTagService;
 
     private volatile BotAgent leftBotAgent;
     private volatile BotAgent rightBotAgent;
@@ -49,7 +50,8 @@ public class WordOnlineLoop extends GameLoop {
                           GameObjectStateInitialSystem gameObjectStateInitialSystem,
                           ComponentUpdateSystem componentUpdateSystem, PhysicSystem physicSystem,
                           GameObjectAddRemoteSystem gameObjectAddRemoveSystem, DatabaseMagicParser magicParser,
-                          BotPersonaService botPersonaService, BotCounterEvaluator botCounterEvaluator) {
+                          BotPersonaService botPersonaService, BotCounterEvaluator botCounterEvaluator,
+                          GameObjectTagService gameObjectTagService) {
         super(mmrService, userService, gameContext, parameters);
         this.frameDataSystem = frameDataSystem;
         this.botSystem = botSystem;
@@ -61,6 +63,7 @@ public class WordOnlineLoop extends GameLoop {
         this.magicParser = magicParser;
         this.botPersonaService = botPersonaService;
         this.botCounterEvaluator = botCounterEvaluator;
+        this.gameObjectTagService = gameObjectTagService;
     }
 
     @Override
@@ -88,7 +91,8 @@ public class WordOnlineLoop extends GameLoop {
                 side,
                 botPersonaService.findByParticipantIdOrDefault(participantId),
                 botCounterEvaluator,
-                opponentNoviceProgress(sessionObject, side)
+                opponentNoviceProgress(sessionObject, side),
+                gameObjectTagService
         );
     }
 

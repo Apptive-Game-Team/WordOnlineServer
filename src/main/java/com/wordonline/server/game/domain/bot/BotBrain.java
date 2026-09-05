@@ -2,11 +2,17 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
+import com.wordonline.server.game.domain.bot.rule.BotRuleBook;
+import com.wordonline.server.game.domain.bot.rule.BotRuleEngine;
+import com.wordonline.server.game.domain.bot.rule.PriorityBotRuleEngine;
+import com.wordonline.server.game.domain.bot.rule.RecipeOption;
+import com.wordonline.server.game.domain.bot.rule.RuleOutcome;
+import com.wordonline.server.game.domain.bot.view.BotMemory;
+import com.wordonline.server.game.domain.bot.view.BotWorldView;
+import com.wordonline.server.game.domain.bot.view.BotWorldViewFactory;
+import com.wordonline.server.game.domain.bot.view.GameObjectTags;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.implement.explode.AbstractExplosionMagic;
-import com.wordonline.server.game.domain.magic.implement.explode.OvergrowthMagic;
-import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
@@ -40,12 +46,8 @@ public class BotBrain {
 
     public record InputDecision(List<CardType> playCards, Vector3 target, String ruleId, String reason) {}
 
-    static final String SEED_SPIRIT_RULE = "combo.seed-spirit";
-    static final String MOB_CLUSTER_RULE = "combo.mob-cluster";
     static final String VALUE_RULE = "score.best-value";
     static final String CYCLE_RULE = "cycle.low-utility";
-    static final double COMBO_CLUSTER_RADIUS = 2.5;
-    static final int COMBO_CLUSTER_MIN_MOBS = 3;
 
     /** Main cards whose spell lands on a target rather than building the bot's own board. */
     private static final Set<CardType> OFFENSIVE_MAIN_CARDS =
@@ -80,24 +82,50 @@ public class BotBrain {
     /** Non-null only for the tutorial opponent; every other tier scores plays the ordinary way. */
     private final HospitalityDirector hospitalityDirector;
 
+    /** The declared tactics. Consulted before the value scorer; silent when nothing applies. */
+    private final BotRuleEngine ruleEngine;
+
+    private final BotWorldViewFactory worldViewFactory;
+
+    /**
+     * Belongs to this brain alone. It is what lets a rule ask whether something is coming at the
+     * bot: velocity has to be differenced across think passes, so it cannot be a local.
+     */
+    private final BotMemory memory = new BotMemory();
+
     public BotBrain(MagicParser magicParser, BotCounterEvaluator counterEvaluator, BotPersona persona) {
         this(magicParser, counterEvaluator, persona, HospitalityDirector.DEFAULT_BOARD_SHARE);
+    }
+
+    public BotBrain(MagicParser magicParser,
+                    BotCounterEvaluator counterEvaluator,
+                    BotPersona persona,
+                    double opponentNoviceProgress) {
+        this(magicParser, counterEvaluator, persona, opponentNoviceProgress, GameObjectTags.none());
     }
 
     /**
      * @param opponentNoviceProgress how far the human opponent is through the tutorial; the share of
      *                               their board a hospitality bot may match. Ignored by other tiers.
      */
+    /**
+     * @param gameObjectTags prefab tag lookup for the rule layer. A bot built without one still
+     *                       plays; its tag-based conditions simply never match.
+     */
     public BotBrain(MagicParser magicParser,
                     BotCounterEvaluator counterEvaluator,
                     BotPersona persona,
-                    double opponentNoviceProgress) {
+                    double opponentNoviceProgress,
+                    GameObjectTags gameObjectTags) {
         this.magicParser = magicParser;
         this.counterEvaluator = counterEvaluator;
         this.persona = persona;
         this.hospitalityDirector = persona.tier() == BotTier.HOSPITALITY
                 ? new HospitalityDirector(opponentNoviceProgress)
                 : null;
+        this.ruleEngine = new PriorityBotRuleEngine(BotRuleBook.defaultRules());
+        this.worldViewFactory = new BotWorldViewFactory(
+                gameObjectTags, BotRuleBook.CLUSTER_RADIUS, BotRuleBook.CLUSTER_MIN_MOBS);
     }
 
     // Runs on the bot executor thread. Everything it reads about the world comes from the snapshot,
@@ -166,20 +194,13 @@ public class BotBrain {
                 allRecipes = recipeMap.keySet();
             }
 
-            // Tutorial hospitality rules only permit low-grade summons. Priority combos are combat
-            // tactics, so they run for ordinary tiers and still precede the legacy value scorer.
-            if (hospitalityDirector == null && recipeMap != null) {
-                Optional<ScoredPlay> combo = findSeedSpiritCombo(
-                        recipeMap, cardList, mana, spellStats, botEye.gameObjectList(), playerPos, botSide, random);
-                if (combo.isEmpty()) {
-                    combo = findMobClusterCombo(
-                            recipeMap, cardList, mana, spellStats, botEye.gameObjectList(), playerPos, enemySide, random);
-                }
-                if (combo.isPresent()) {
-                    ScoredPlay chosen = combo.get();
-                    log.debug("[Bot {}] Chose priority rule {}: {}", botSide, chosen.ruleId(), chosen.reason());
-                    return chosen.toDecision();
-                }
+            // The declared tactics get first refusal. Whether the tutorial bot is excluded is a
+            // property of each rule now (they are all gated above HOSPITALITY), not an if here.
+            Optional<ScoredPlay> tactic = applyRules(botEye, botSide, spellStats, recipeMap, random);
+            if (tactic.isPresent()) {
+                ScoredPlay chosen = tactic.get();
+                log.debug("[Bot {}] Chose priority rule {}: {}", botSide, chosen.ruleId(), chosen.reason());
+                return chosen.toDecision();
             }
 
             List<ScoredPlay> plays = new ArrayList<>();
@@ -187,7 +208,7 @@ public class BotBrain {
             boolean hasAffordableRecipe = false;
 
             for (List<CardType> recipe : allRecipes) {
-                if (!canMakeRecipe(cardList, recipe)) {
+                if (!RecipeMatcher.canMake(cardList, recipe)) {
                     continue;
                 }
                 CardType mainCard = findMainCard(recipe);
@@ -376,138 +397,67 @@ public class BotBrain {
                 && recipe.size() <= HOSPITALITY_MAX_CARDS;
     }
 
-    private Optional<ScoredPlay> findSeedSpiritCombo(Map<List<CardType>, Magic> recipeMap,
-                                                      List<CardType> hand,
-                                                      int mana,
-                                                      BotSpellStats spellStats,
-                                                      List<BotVisibleObject> objects,
-                                                      Vector3 playerPos,
-                                                      Master botSide,
-                                                      Random random) {
-        List<BotVisibleObject> seedSpirits = objects.stream()
-                .filter(object -> object.master() == botSide)
-                .filter(BotVisibleObject::targetable)
-                .filter(object -> object.type() == PrefabType.SeedSpirit)
-                .toList();
-        if (seedSpirits.isEmpty()) {
+    /**
+     * Runs the declared tactics and turns the winner into a scored play.
+     *
+     * <p>The engine hands back every candidate of the one rule that matched and picks no winner:
+     * the tier-scaled perturbation below has to be applied exactly once per candidate, and it
+     * lives here, on the same side of the seam as the value scorer's. A rule that scored itself
+     * would either skip that noise or get it twice.
+     */
+    private Optional<ScoredPlay> applyRules(BotEye botEye,
+                                            Master botSide,
+                                            BotSpellStats spellStats,
+                                            Map<List<CardType>, Magic> recipeMap,
+                                            Random random) {
+        if (recipeMap == null || recipeMap.isEmpty()) {
             return Optional.empty();
         }
 
-        List<ScoredPlay> candidates = new ArrayList<>();
-        for (Map.Entry<List<CardType>, Magic> entry : recipeMap.entrySet()) {
-            Magic magic = entry.getValue();
-            if (!(magic instanceof VineTossMagic) && !(magic instanceof OvergrowthMagic)) {
-                continue;
-            }
-            List<CardType> recipe = entry.getKey();
-            int cost = spellStats.totalManaCost(recipe);
-            CardType mainCard = findMainCard(recipe);
-            if (!canMakeRecipe(hand, recipe) || cost > mana || mainCard == null) {
-                continue;
-            }
-            double castRange = spellStats.castRange(mainCard);
-            for (BotVisibleObject seedSpirit : seedSpirits) {
-                if (seedSpirit.position().distance(playerPos) > castRange) {
-                    continue;
-                }
-                String magicName = magic.getClass().getSimpleName();
-                candidates.add(scored(recipe, seedSpirit.position(), cost, 1.0 / cost, SEED_SPIRIT_RULE,
-                        magicName + " targets allied SeedSpirit " + seedSpirit.id() + ".", random));
-            }
-        }
-        return candidates.stream().max(Comparator.comparingDouble(ScoredPlay::noisyScore));
-    }
-
-    private Optional<ScoredPlay> findMobClusterCombo(Map<List<CardType>, Magic> recipeMap,
-                                                      List<CardType> hand,
-                                                      int mana,
-                                                      BotSpellStats spellStats,
-                                                      List<BotVisibleObject> objects,
-                                                      Vector3 playerPos,
-                                                      Master enemySide,
-                                                      Random random) {
-        List<BotVisibleObject> enemyMobs = objects.stream()
-                .filter(object -> object.master() == enemySide && object.mob() && object.targetable())
-                .toList();
-        if (enemyMobs.size() < COMBO_CLUSTER_MIN_MOBS) {
+        BotWorldView view = worldViewFactory.build(botEye, botSide, persona.tier(), memory);
+        List<RecipeOption> options = castableOptions(recipeMap, botEye.cardList(), botEye.mana(), spellStats);
+        if (options.isEmpty()) {
             return Optional.empty();
         }
 
-        List<ScoredPlay> candidates = new ArrayList<>();
+        List<RuleOutcome> outcomes = ruleEngine.evaluate(view, options, System.currentTimeMillis());
+        return outcomes.stream()
+                .map(outcome -> scored(outcome.recipe(), outcome.target(), outcome.cost(),
+                        outcome.score(), outcome.ruleId(), outcome.reason(), random))
+                .max(Comparator.comparingDouble(ScoredPlay::noisyScore));
+    }
+
+    /**
+     * Every recipe the hand can make and the bot can pay for, priced once.
+     *
+     * <p>Each tactic used to redo this filter for itself. Doing it here means a rule states only
+     * its tactic and cannot propose a cast the input handler would turn away.
+     */
+    private static List<RecipeOption> castableOptions(Map<List<CardType>, Magic> recipeMap,
+                                                      List<CardType> hand,
+                                                      int mana,
+                                                      BotSpellStats spellStats) {
+        List<RecipeOption> options = new ArrayList<>();
         for (Map.Entry<List<CardType>, Magic> entry : recipeMap.entrySet()) {
-            if (!(entry.getValue() instanceof AbstractExplosionMagic)) {
-                continue;
-            }
             List<CardType> recipe = entry.getKey();
-            int cost = spellStats.totalManaCost(recipe);
             CardType mainCard = findMainCard(recipe);
-            if (!canMakeRecipe(hand, recipe) || cost > mana || mainCard == null) {
+            if (mainCard == null || !RecipeMatcher.canMake(hand, recipe)) {
                 continue;
             }
-            findBestMobCluster(enemyMobs, playerPos, spellStats.castRange(mainCard)).ifPresent(cluster ->
-                    candidates.add(scored(recipe, cluster.center(), cost, (double) cluster.count() / cost,
-                            MOB_CLUSTER_RULE,
-                            entry.getValue().getClass().getSimpleName() + " targets a cluster of "
-                                    + cluster.count() + " enemy mobs.", random)));
-        }
-        return candidates.stream().max(Comparator.comparingDouble(ScoredPlay::noisyScore));
-    }
-
-    private static Optional<MobCluster> findBestMobCluster(List<BotVisibleObject> mobs,
-                                                            Vector3 playerPos,
-                                                            double castRange) {
-        MobCluster best = null;
-        for (BotVisibleObject anchor : mobs) {
-            List<BotVisibleObject> cluster = mobs.stream()
-                    .filter(mob -> mob.position().distance(anchor.position()) <= COMBO_CLUSTER_RADIUS)
-                    .toList();
-            if (cluster.size() < COMBO_CLUSTER_MIN_MOBS) {
+            int cost = spellStats.totalManaCost(recipe);
+            if (cost > mana) {
                 continue;
             }
-            Vector3 initialCenter = averagePosition(cluster);
-            cluster = mobs.stream()
-                    .filter(mob -> mob.position().distance(initialCenter) <= COMBO_CLUSTER_RADIUS)
-                    .toList();
-            if (cluster.size() < COMBO_CLUSTER_MIN_MOBS) {
-                continue;
-            }
-            Vector3 center = averagePosition(cluster);
-            if (center.distance(playerPos) > castRange) {
-                continue;
-            }
-            MobCluster candidate = new MobCluster(center, cluster.size());
-            if (best == null || candidate.count() > best.count()
-                    || (candidate.count() == best.count()
-                    && candidate.center().distance(playerPos) < best.center().distance(playerPos))) {
-                best = candidate;
-            }
+            options.add(new RecipeOption(
+                    recipe,
+                    entry.getValue(),
+                    mainCard,
+                    cost,
+                    spellStats.castRange(mainCard),
+                    spellStats.blastRadius(mainCard),
+                    spellStats.damagePerTarget(mainCard)));
         }
-        return Optional.ofNullable(best);
-    }
-
-    private static Vector3 averagePosition(List<BotVisibleObject> objects) {
-        float x = 0;
-        float y = 0;
-        float z = 0;
-        for (BotVisibleObject object : objects) {
-            x += object.position().getX();
-            y += object.position().getY();
-            z += object.position().getZ();
-        }
-        float count = objects.size();
-        return new Vector3(x / count, y / count, z / count);
-    }
-
-    private static boolean canMakeRecipe(List<CardType> hand, List<CardType> recipe) {
-        List<CardType> temp = new ArrayList<>(hand);
-        for (CardType c : recipe) {
-            int idx = temp.indexOf(c);
-            if (idx == -1) {
-                return false;
-            }
-            temp.remove(idx);
-        }
-        return true;
+        return options;
     }
 
     private static CardType findMainCard(List<CardType> combo) {
@@ -542,8 +492,6 @@ public class BotBrain {
         }
         return leastUseful;
     }
-
-    private record MobCluster(Vector3 center, int count) {}
 
     private record ScoredPlay(List<CardType> recipe,
                               Vector3 target,

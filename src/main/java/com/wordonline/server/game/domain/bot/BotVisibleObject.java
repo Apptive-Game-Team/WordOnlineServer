@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.Status;
 
 // One game object as the bot saw it at a single frame. Everything the brain reads off an object is
 // copied in here, position included: Vector3 is mutable and the loop thread moves the live one every
@@ -17,6 +18,7 @@ public record BotVisibleObject(
         Master master,
         PrefabType type,
         Vector3 position,
+        Status status,
         int hp,
         boolean mob,
         boolean targetable
@@ -32,6 +34,7 @@ public record BotVisibleObject(
                 gameObject.getMaster(),
                 gameObject.getType(),
                 new Vector3(gameObject.getPosition()),
+                gameObject.getStatus(),
                 readHp(gameObject),
                 gameObject.hasComponent(Mob.class),
                 gameObject.isActive() && !gameObject.isDying()
