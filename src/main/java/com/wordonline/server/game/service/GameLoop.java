@@ -44,6 +44,7 @@ public abstract class GameLoop implements Runnable {
     // stalled loop and snapshot where it is stuck. close() alone cannot end a loop whose
     // thread never returns to the while condition.
     private volatile Thread loopThread;
+    private volatile long previousFrameStartNanos;
 
     // Written by the loop thread once per completed frame and read by monitoring threads.
     // deltaTime cannot serve that purpose: it holds the last completed frame's duration, so a
@@ -155,31 +156,18 @@ public abstract class GameLoop implements Runnable {
 
     @Override
     public void run() {
-        runLoop();
+        runDedicatedLoop();
     }
 
-    // this method is called when the game loop is started
-    private void runLoop() {
+    private void runDedicatedLoop() {
         long frameDuration = 1000 / FPS;
 
-        loopThread = Thread.currentThread();
-        state = LoopState.RUNNING;
-        startSignal.countDown();
+        startExecution();
 
         try {
             while (!stopRequested) {
-                gameContext.incrementFrameNum();
                 long startTime = System.currentTimeMillis();
-
-                try {
-                    // Every write to game state happens on this thread: first the input, bot and
-                    // ping actions other threads queued since the last frame, then the frame itself.
-                    // Nothing else mutates it, so no lock is taken here or anywhere below.
-                    gameContext.drainActions();
-                    update();
-                } catch (Exception e) {
-                    log.error("[ERROR] {}", e.getMessage(), e);
-                    finalizeAfterFailure();
+                if (!runFrame()) {
                     break;
                 }
 
@@ -191,21 +179,96 @@ public abstract class GameLoop implements Runnable {
                     } catch (InterruptedException ignored) {
                     }
                 }
-                gameContext.setDeltaTime((System.currentTimeMillis() - startTime) / 1000.0f);
-                lastFrameEndMillis = System.currentTimeMillis();
             }
         } finally {
-            // An Error thrown out of update() escapes the catch above. Without this the thread would
-            // die while the session stayed in the registry, permanently reported as active.
-            state = LoopState.TERMINATED;
-            startSignal.countDown();
+            terminateExecution();
+        }
+    }
 
-            if (onTerminated != null) {
-                try {
-                    onTerminated.run();
-                } catch (Exception e) {
-                    log.warn("onTerminated failed", e);
-                }
+    // Never throws. scheduleAtFixedRate stops repeating a task whose run() threw, and it does so
+    // silently: the session would keep its RUNNING state and its registry entry for good, with the
+    // watchdog's staleness check as the only thing left to notice. Anything that escapes the frame
+    // ends the loop here instead.
+    public boolean runActorTick() {
+        try {
+            return tickOnce();
+        } catch (Throwable throwable) {
+            log.error("[ERROR] actor tick failed outside the frame", throwable);
+            terminateExecution();
+            return false;
+        }
+    }
+
+    private boolean tickOnce() {
+        if (state == LoopState.CREATED) {
+            startExecution();
+        }
+        if (state != LoopState.RUNNING || stopRequested) {
+            terminateExecution();
+            return false;
+        }
+
+        boolean continueRunning;
+        try {
+            continueRunning = runFrame();
+        } finally {
+            // Shared workers execute other actors between ticks. Keeping this reference would make
+            // watchdog diagnostics attribute another session's stack to this actor.
+            loopThread = null;
+        }
+        if (!continueRunning || stopRequested) {
+            terminateExecution();
+            return false;
+        }
+        return true;
+    }
+
+    private void startExecution() {
+        loopThread = Thread.currentThread();
+        previousFrameStartNanos = 0;
+        state = LoopState.RUNNING;
+        startSignal.countDown();
+    }
+
+    private boolean runFrame() {
+        loopThread = Thread.currentThread();
+        long frameStartNanos = System.nanoTime();
+        if (previousFrameStartNanos != 0) {
+            gameContext.setDeltaTime((frameStartNanos - previousFrameStartNanos) / 1_000_000_000.0f);
+        }
+        previousFrameStartNanos = frameStartNanos;
+        gameContext.incrementFrameNum();
+
+        try {
+            // Mailbox ownership rule: only the session's tick mutates game state. Scheduled
+            // executions of the same actor never overlap, even when the shared pool has many threads.
+            gameContext.drainActions();
+            update();
+            lastFrameEndMillis = System.currentTimeMillis();
+            return true;
+        } catch (Throwable throwable) {
+            log.error("[ERROR] {}", throwable.getMessage(), throwable);
+            finalizeAfterFailure();
+            return false;
+        }
+    }
+
+    private synchronized void terminateExecution() {
+        if (state == LoopState.TERMINATED) {
+            return;
+        }
+        state = LoopState.TERMINATED;
+        loopThread = null;
+        startSignal.countDown();
+
+        if (onTerminated != null) {
+            try {
+                onTerminated.run();
+            } catch (Throwable throwable) {
+                // The teardown is the last thing standing between a finished loop and a session
+                // that stays in the registry, so an Error thrown out of it must not be rethrown
+                // into the caller that is trying to end the loop.
+                log.warn("onTerminated failed", throwable);
             }
         }
     }
@@ -219,13 +282,13 @@ public abstract class GameLoop implements Runnable {
         try {
             gameContext.getResultChecker().setEnd();
             handleGameEnd();
-        } catch (Exception e) {
-            log.error("failed to finalize match after loop failure", e);
+        } catch (Throwable throwable) {
+            log.error("failed to finalize match after loop failure", throwable);
         }
     }
 
     // this method is called when the game loop is stopped
-    abstract void update();
+    protected abstract void update();
 
     protected void handleGameEnd() {
         Master loser = gameContext.getResultChecker().getLoser();

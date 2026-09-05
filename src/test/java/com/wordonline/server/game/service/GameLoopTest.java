@@ -24,7 +24,7 @@ class GameLoopTest {
         return new GameLoop(mock(MmrService.class), mock(UserService.class),
                 mock(GameContext.class), mock(Parameters.class)) {
             @Override
-            void update() {
+            protected void update() {
                 body.run();
             }
         };
@@ -53,6 +53,18 @@ class GameLoopTest {
         loop.close();
         thread.join(TIMEOUT.toMillis());
 
+        assertThat(loop.is_running()).isFalse();
+    }
+
+    @Test
+    void actorTickReportsTheEndInsteadOfThrowingWhenTheFrameThrowsAnError() {
+        GameLoop loop = loopThat(() -> {
+            throw new StackOverflowError("frame blew the stack");
+        });
+
+        // The executor drops a tick that throws, and the session it belonged to would stay in
+        // the registry reporting itself as running. The tick reports the end instead.
+        assertThat(loop.runActorTick()).isFalse();
         assertThat(loop.is_running()).isFalse();
     }
 
