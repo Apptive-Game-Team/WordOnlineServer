@@ -87,11 +87,6 @@ public class StormStagMob extends StateMachineMob implements Collidable {
     }
 
     @Override
-    public void onCollisionWithEnemy(GameObject otherObject) {
-
-    }
-
-    @Override
     public void onCollision(GameObject otherObject) {
         if (otherObject.getType() == PrefabType.Wall
                 && currentState instanceof PanicState) {
