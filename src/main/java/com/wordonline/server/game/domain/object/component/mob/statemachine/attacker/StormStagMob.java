@@ -93,11 +93,24 @@ public class StormStagMob extends StateMachineMob implements Collidable {
 
     @Override
     public void onCollision(GameObject otherObject) {
-        if (otherObject.getType() != PrefabType.Wall
-                || !(currentState instanceof PanicState)) {
+        if (otherObject.getType() == PrefabType.Wall
+                && currentState instanceof PanicState) {
+            handleWallCollision();
             return;
         }
 
+    }
+
+    @Override
+    public void onCollisionWithEnemy(GameObject otherObject) {
+        if (!(currentState instanceof ChargeState) || !isValidTarget(otherObject)) {
+            return;
+        }
+
+        impactTarget(otherObject);
+    }
+
+    private void handleWallCollision() {
         panicCooldownRemaining = PANIC_COOLDOWN;
         if (isValidTarget(target)) {
             setState(new ChargeState());
@@ -148,12 +161,16 @@ public class StormStagMob extends StateMachineMob implements Collidable {
     }
 
     private void impactTarget() {
-        if (!isValidTarget(target)) {
+        impactTarget(target);
+    }
+
+    private void impactTarget(GameObject impactTarget) {
+        if (!isValidTarget(impactTarget)) {
             setState(new TargetSearchState());
             return;
         }
 
-        Damageable damageable = target.getComponent(Damageable.class);
+        Damageable damageable = impactTarget.getComponent(Damageable.class);
         if (damageable == null) {
             setState(new TargetSearchState());
             return;
@@ -168,7 +185,8 @@ public class StormStagMob extends StateMachineMob implements Collidable {
         damageable.onDamaged(new AttackInfo(impactDamage, gameObject.getElement().total())
                 .withAttacker(gameObject));
         gameObject.setStatus(Status.Attack);
-        setState(new PanicState(target));
+        target = impactTarget;
+        setState(new PanicState(impactTarget));
     }
 
     public class TargetSearchState extends State {

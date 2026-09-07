@@ -111,6 +111,36 @@ class StormStagMobTest {
     }
 
     @Test
+    void damagesAnEnemyWhenCollidingDuringChargeAndDoesNotHitAgain() {
+        GameObject target = target(TargetCategory.UNIT, new Vector3(5f, 0f, 0f));
+        GameObject collidedEnemy = target(TargetCategory.UNIT, new Vector3(0.25f, 0f, 0f));
+        Damageable damageable = mock(Damageable.class);
+        when(collidedEnemy.getComponent(Damageable.class)).thenReturn(damageable);
+        when(speedTracker.getTier()).thenReturn(1);
+        ReflectionTestUtils.setField(mob, "target", target);
+        mob.setState(mob.new ChargeState());
+
+        mob.onCollisionWithEnemy(collidedEnemy);
+        mob.update();
+        mob.onCollisionWithEnemy(collidedEnemy);
+
+        verify(damageable).onDamaged(any());
+        assertThat(ReflectionTestUtils.getField(mob, "currentState"))
+                .isInstanceOf(StormStagMob.PanicState.class);
+    }
+
+    @Test
+    void ignoresEnemyCollisionOutsideCharge() {
+        GameObject collidedEnemy = target(TargetCategory.UNIT, new Vector3(0.25f, 0f, 0f));
+        Damageable damageable = mock(Damageable.class);
+        when(collidedEnemy.getComponent(Damageable.class)).thenReturn(damageable);
+
+        mob.onCollisionWithEnemy(collidedEnemy);
+
+        verify(damageable, org.mockito.Mockito.never()).onDamaged(any());
+    }
+
+    @Test
     void resumesChargeWhenPanicFleeHitsWall() {
         GameObject target = target(TargetCategory.UNIT, new Vector3(5f, 0f, 0f));
         GameObject wall = mock(GameObject.class);
