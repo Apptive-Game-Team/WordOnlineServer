@@ -35,6 +35,7 @@ class RepairTotemPrefabInitializerTest {
         when(repairTotemParameters.intValue(ParameterKey.HP)).thenReturn(150);
         when(repairTotemParameters.floatValue(ParameterKey.RADIUS)).thenReturn(4f);
         when(repairTotemParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
+        when(repairTotemParameters.intValue(ParameterKey.MASS)).thenReturn(1000000);
 
         GameObject repairTotem = new GameObject(
                 Master.LeftPlayer,

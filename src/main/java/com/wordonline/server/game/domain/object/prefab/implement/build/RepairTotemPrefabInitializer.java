@@ -19,11 +19,6 @@ import com.wordonline.server.game.domain.parameter.ParameterKey;
 @Component("repair_totem_prefab")
 public class RepairTotemPrefabInitializer extends PrefabInitializer {
 
-    // repair_totem only has hp, radius, and duration parameters; a building doesn't move, so
-    // it does not need a database-configured mass and falls back to the same immovable weight
-    // other stationary buildings use.
-    private static final int IMMOVABLE_MASS = 99999;
-
     private final Parameters parameters;
 
     public RepairTotemPrefabInitializer(Parameters parameters) {
@@ -36,7 +31,7 @@ public class RepairTotemPrefabInitializer extends PrefabInitializer {
         var repairTotemParameters = parameters.object(GameObjectKey.REPAIR_TOTEM);
         float radius = repairTotemParameters.floatValue(ParameterKey.RADIUS);
 
-        gameObject.addComponent(new RigidBody(gameObject, IMMOVABLE_MASS));
+        gameObject.addComponent(new RigidBody(gameObject, repairTotemParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, radius, false));
         gameObject.addComponent(new DummyMob(gameObject, repairTotemParameters.intValue(ParameterKey.HP)));
         gameObject.addComponent(new RepairAura(gameObject, radius));
