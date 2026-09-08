@@ -81,6 +81,11 @@ public class DatabaseMagicParser implements MagicParser {
         }
 
         Magic magic = applicationContext.getBean(magicName, Magic.class);
+        // A bean with no magics row never went through init, so it carries no name to read
+        // parameters under. The bean name is that name.
+        if (magic.name == null) {
+            magic.name = magicName;
+        }
         if (magic.id <= 0) {
             log.warn("[MagicIdMissing] Magic '{}' has non-positive id ({}).", magicName, magic.id);
         }

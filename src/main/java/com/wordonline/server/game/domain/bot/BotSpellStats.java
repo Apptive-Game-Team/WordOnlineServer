@@ -52,8 +52,8 @@ public final class BotSpellStats {
     }
 
     // The same key MagicInputHandler reads the cast with, so the bot never prices a cast
-    // differently from the handler that charges it. Issue #497 moves it to the magic name.
+    // differently from the handler that charges it.
     private static String key(Magic magic) {
-        return magic.magicType.name();
+        return magic.name;
     }
 }
