@@ -51,6 +51,7 @@ public enum PrefabType {
     ManaWell("mana_well_prefab"),
     AquaArcher("aqua_archer_prefab"),
     RockGolem("rock_golem_prefab"),
+    WallGolem("wall_golem_prefab"),
     StormRider("storm_rider_prefab"),
     FireSpirit("fire_spirit_prefab"),
     ThunderSpirit("thunder_spirit_prefab"),

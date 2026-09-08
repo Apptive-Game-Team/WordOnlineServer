@@ -11,6 +11,7 @@ import com.wordonline.server.game.domain.object.prefab.implement.explode.RockExp
 import com.wordonline.server.game.domain.object.prefab.implement.misc.GroundCannonPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.GroundTowerPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.RockGolemPrefabInitializer;
+import com.wordonline.server.game.domain.object.prefab.implement.misc.WallGolemPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.TowerbackPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.misc.RockMagePrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.rock.MiniRockPrefabInitializer;
@@ -38,6 +39,7 @@ class RockDeathRemnantPrefabAllowlistTest {
         Parameters parameters = parameters();
         List<PrefabInitializer> eligible = List.of(
                 new RockGolemPrefabInitializer(parameters),
+                new WallGolemPrefabInitializer(parameters),
                 new RockMagePrefabInitializer(parameters),
                 new RockSlimePrefabInitializer(parameters),
                 new MiniRockPrefabInitializer(parameters),
