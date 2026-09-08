@@ -9,10 +9,18 @@ public class TimedSelfDestroyer extends Component implements GaugeComponent {
     protected final float timeToLive;
     protected float elapsedTime;
 
+    // recover(float) rewinds elapsedTime. Several sources (e.g. overlapping repair auras) can
+    // each call it within the same frame; without a cap the total rewind would exceed the one
+    // tick of decay update() just applied, so the object would live longer than its duration
+    // instead of merely having its decay frozen. recoveredThisFrame tracks how much of that
+    // one-tick budget has already been spent, and update() resets it for the next frame.
+    protected float recoveredThisFrame;
+
     public TimedSelfDestroyer(GameObject gameObject, float timeToLive) {
         super(gameObject);
         this.timeToLive = timeToLive;
         this.elapsedTime = 0f;
+        this.recoveredThisFrame = 0f;
     }
 
     @Override
@@ -20,6 +28,7 @@ public class TimedSelfDestroyer extends Component implements GaugeComponent {
 
     @Override
     public void update() {
+        recoveredThisFrame = 0f;
         elapsedTime += getGameContext().getDeltaTime();
         if (elapsedTime >= timeToLive) {
             gameObject.destroy();
@@ -39,7 +48,14 @@ public class TimedSelfDestroyer extends Component implements GaugeComponent {
             return;
         }
 
-        elapsedTime = Math.max(0f, elapsedTime - amount);
+        float budget = Math.max(0f, getGameContext().getDeltaTime() - recoveredThisFrame);
+        float applied = Math.min(amount, budget);
+        if (applied <= 0f) {
+            return;
+        }
+
+        recoveredThisFrame += applied;
+        elapsedTime = Math.max(0f, elapsedTime - applied);
         gameObject.applyUpdate();
     }
 
