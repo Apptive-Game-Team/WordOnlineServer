@@ -6,15 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 public class InputRequestDto {
     private String type;
     private CardType card;
-    private List<CardType> cards;
+    private long magicId;
     private int id;
     private Vector3 position;
 
@@ -23,7 +21,7 @@ public class InputRequestDto {
             throw new IllegalArgumentException("InputRequestDto type is not 'useMagic'");
         }
 
-        return new MagicUseRequestDto("useMagic", cards, id, position);
+        return new MagicUseRequestDto("useMagic", magicId, id, position);
     }
 
     public CardSelectRequestDto toCardSelect() {
@@ -51,12 +49,9 @@ public class InputRequestDto {
     }
 
     private CardType resolveCard() {
-        if (card != null) {
-            return card;
+        if (card == null) {
+            throw new IllegalArgumentException("InputRequestDto card is missing");
         }
-        if (cards != null && !cards.isEmpty()) {
-            return cards.getFirst();
-        }
-        throw new IllegalArgumentException("InputRequestDto card is missing");
+        return card;
     }
 }

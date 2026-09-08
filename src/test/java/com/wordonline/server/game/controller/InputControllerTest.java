@@ -11,8 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -126,7 +124,7 @@ class InputControllerTest {
     private static InputRequestDto magicRequest() {
         InputRequestDto dto = new InputRequestDto();
         dto.setType("useMagic");
-        dto.setCards(List.of(CardType.Fire));
+        dto.setMagicId(34L);
         dto.setPosition(Vector3.ZERO);
         dto.setId(1);
         return dto;

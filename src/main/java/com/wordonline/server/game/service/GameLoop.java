@@ -2,7 +2,6 @@ package com.wordonline.server.game.service;
 
 import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.*;
-import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -267,7 +266,7 @@ public abstract class GameLoop implements Runnable {
     }
 
     public SnapshotResponseDto getLastSnapshot(Long userId) {
-        List<CardType> cards;
+        List<Long> cards;
         if (gameContext.getSessionObject().getLeftUserId() == userId) {
             cards = gameContext.getGameSessionData().leftPlayerData.cards;
         } else if (gameContext.getSessionObject().getRightUserId() == userId) {
