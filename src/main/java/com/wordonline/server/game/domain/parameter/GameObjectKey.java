@@ -64,6 +64,7 @@ public enum GameObjectKey {
     ROCK_DROP("rock_drop"),
     ROCK_EXPLODE("rock_explode"),
     ROCK_GOLEM("rock_golem"),
+    WALL_GOLEM("wall_golem"),
     ROCK_MAGE("rock_mage"),
     ROCK_TURRET("rock_turret"),
     ROCK_ROLLING("rock_rolling"),
