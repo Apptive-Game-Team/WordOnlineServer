@@ -2,9 +2,11 @@ package com.wordonline.server.game.domain.bot;
 
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.magic.Magic;
+import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -18,41 +20,41 @@ class BotSpellStatsTest {
     private final BotSpellStats spellStats = new BotSpellStats(parameters);
 
     @Test
-    void chargesEveryCardInTheRecipeNotOnlyTheMagicCard() {
-        manaCost("Shoot", 15);
-        manaCost("Fire", 10);
-        manaCost("Rock", 10);
+    void chargesOneCastRatherThanASumOfCards() {
+        when(parameters.getValueOrDefault(eq("Shoot"), eq("mana_cost"), anyDouble())).thenReturn(35.0);
 
-        assertThat(spellStats.totalManaCost(List.of(CardType.Shoot, CardType.Fire, CardType.Rock)))
-                .isEqualTo(35);
+        assertThat(spellStats.manaCost(magic(CardType.Shoot))).isEqualTo(35);
     }
 
     @Test
-    void treatsRecipeWithUnpricedCardAsUnaffordable() {
-        manaCost("Shoot", 15);
-        when(parameters.getValueOrDefault(eq("Fire"), eq("mana_cost"), anyDouble()))
+    void treatsAnUnpricedMagicAsUnaffordable() {
+        when(parameters.getValueOrDefault(eq("Shoot"), eq("mana_cost"), anyDouble()))
                 .thenAnswer(invocation -> invocation.getArgument(2));
 
-        assertThat(spellStats.totalManaCost(List.of(CardType.Shoot, CardType.Fire)))
+        assertThat(spellStats.manaCost(magic(CardType.Shoot)))
                 .isEqualTo(BotSpellStats.UNKNOWN_MANA_COST);
     }
 
     @Test
-    void readsCastRangeFromTheMagicCard() {
+    void readsCastRangeFromTheMagic() {
         when(parameters.getValueOrDefault(eq("Explode"), eq("range"), anyDouble())).thenReturn(9.0);
 
-        assertThat(spellStats.castRange(CardType.Explode)).isEqualTo(9.0);
+        assertThat(spellStats.castRange(magic(CardType.Explode))).isEqualTo(9.0);
     }
 
     @Test
-    void fallsBackToNeutralDamageWhenTheCardHasNoDamageRow() {
+    void fallsBackToNeutralDamageWhenTheMagicHasNoDamageRow() {
         when(parameters.getValueOrDefault(eq("Spawn"), eq("damage"), anyDouble()))
                 .thenAnswer(invocation -> invocation.getArgument(2));
 
-        assertThat(spellStats.damagePerTarget(CardType.Spawn)).isEqualTo(BotSpellStats.UNKNOWN_DAMAGE);
+        assertThat(spellStats.damagePerTarget(magic(CardType.Spawn))).isEqualTo(BotSpellStats.UNKNOWN_DAMAGE);
     }
 
-    private void manaCost(String card, double cost) {
-        when(parameters.getValueOrDefault(eq(card), eq("mana_cost"), anyDouble())).thenReturn(cost);
+    private static Magic magic(CardType castType) {
+        return new Magic(castType) {
+            @Override
+            public void run(GameContext gameContext, Master master, Vector3 position) {
+            }
+        };
     }
 }
