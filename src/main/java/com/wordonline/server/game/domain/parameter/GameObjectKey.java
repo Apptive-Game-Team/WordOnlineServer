@@ -18,6 +18,7 @@ public enum GameObjectKey {
     EVIL_ENT("evil_ent"),
     DROP("drop"),
     ELECTRIC_TOWER("electric_tower"),
+    SHOCK_TRAP("shock_trap"),
     ELECTRIC_DROP("electric_drop"),
     ELECTRIC_EXPLODE("electric_explode"),
     ELECTRIC_FIELD("electric_field"),
