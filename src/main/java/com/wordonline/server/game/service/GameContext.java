@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.wordonline.server.game.domain.magic.CardType;
+import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +38,10 @@ public class GameContext {
     private final Parameters parameters;
     private Physics physics;
     private final MagicInputHandler magicInputHandler;
+    private final DatabaseMagicParser magicParser;
     private ObjectsInfoDtoBuilder objectsInfoDtoBuilder;
     private float deltaTime = 1f / GameLoop.FPS;
-    private final CardSelectVisualizer cardSelectVisualizer = new CardSelectVisualizer();
+    private CardSelectVisualizer cardSelectVisualizer;
     private final List<GameEventDto> events = new ArrayList<>();
     private final GameActionQueue actionQueue = new GameActionQueue();
 
@@ -48,6 +49,7 @@ public class GameContext {
 
     public void init(SessionObject sessionObject, WordOnlineLoop gameLoop) {
         this.sessionObject = sessionObject;
+        this.cardSelectVisualizer = new CardSelectVisualizer(magicParser);
         this.gameSessionData.initCardDeck(sessionObject.getLeftUserCardDeck(), sessionObject.getRightUserCardDeck());
         this.resultChecker = new ResultChecker(sessionObject);
         this.objectsInfoDtoBuilder = new ObjectsInfoDtoBuilder(this);
@@ -135,15 +137,11 @@ public class GameContext {
 
     // =============
 
-    public void selectCard(long userId, CardType card) {
-        cardSelectVisualizer.selectCard(this, userId, card);
+    public void selectCard(long userId, long magicId) {
+        cardSelectVisualizer.selectCard(this, userId, magicId);
     }
 
-    public void unselectCard(long userId, CardType card) {
-        cardSelectVisualizer.unselectCard(this, userId, card);
-    }
-
-    public void unselectAllCard(long userId) {
-        cardSelectVisualizer.unselectAll(this, userId);
+    public void unselectCard(long userId, long magicId) {
+        cardSelectVisualizer.unselectCard(this, userId, magicId);
     }
 }
