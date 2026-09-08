@@ -20,36 +20,49 @@ import java.util.List;
 public class Tower extends Component {
 
     private static final float DEFAULT_ATTACK_DURATION = 0.2f;
-    private static final float SPLASH_RADIUS = 1f;
+    private static final String DEFAULT_PROJECTILE_NAME = "RockShot";
+    private static final float DEFAULT_SPLASH_RADIUS = 1f;
 
     @Getter
     private final Stat attackInterval;
     private final AttackInfo attackInfo;
+    @Getter
     private final int targetMask;
     private final float attackDuration;
+    @Getter
     private final float attackRange;
+    @Getter
+    private final String projectileName;
+    @Getter
+    private final float splashRadius;
     private Detector detector;
     private float timer;
 
     public Tower(GameObject gameObject, int damage, int targetMask, float attackInterval, float attackRange) {
-        this(gameObject, damage, targetMask, DEFAULT_ATTACK_DURATION, attackInterval, attackRange);
-    }
-
-    public Tower(GameObject gameObject, int maxHp, int damage, int targetMask, float attackInterval, float attackRange) {
-        this(gameObject, damage, targetMask, DEFAULT_ATTACK_DURATION, attackInterval, attackRange);
-    }
-
-    public Tower(GameObject gameObject, int maxHp, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
-        this(gameObject, damage, targetMask, attackDuration, attackInterval, attackRange);
+        this(gameObject, damage, targetMask, DEFAULT_ATTACK_DURATION, attackInterval, attackRange,
+                DEFAULT_PROJECTILE_NAME, DEFAULT_SPLASH_RADIUS);
     }
 
     public Tower(GameObject gameObject, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange) {
+        this(gameObject, damage, targetMask, attackDuration, attackInterval, attackRange,
+                DEFAULT_PROJECTILE_NAME, DEFAULT_SPLASH_RADIUS);
+    }
+
+    public Tower(GameObject gameObject, int damage, int targetMask, float attackInterval, float attackRange, String projectileName) {
+        this(gameObject, damage, targetMask, DEFAULT_ATTACK_DURATION, attackInterval, attackRange,
+                projectileName, DEFAULT_SPLASH_RADIUS);
+    }
+
+    public Tower(GameObject gameObject, int damage, int targetMask, float attackDuration, float attackInterval, float attackRange,
+                 String projectileName, float splashRadius) {
         super(gameObject);
         this.attackInfo = new AttackInfo(damage, ElementType.ROCK).withAttacker(gameObject);
         this.targetMask = targetMask;
         this.attackDuration = attackDuration;
         this.attackInterval = new Stat(attackInterval);
         this.attackRange = attackRange;
+        this.projectileName = projectileName;
+        this.splashRadius = splashRadius;
     }
 
     @Override
@@ -91,13 +104,13 @@ public class Tower extends Component {
 
         applySplashDamage(target);
         getGameContext().getObjectsInfoDtoBuilder()
-                .createProjection(gameObject, target, "RockShot", attackDuration);
+                .createProjection(gameObject, target, projectileName, attackDuration);
         gameObject.setStatus(Status.Attack);
         return true;
     }
 
     private void applySplashDamage(GameObject centerTarget) {
-        List<GameObject> victims = getGameContext().overlapSphereAll(centerTarget, SPLASH_RADIUS);
+        List<GameObject> victims = getGameContext().overlapSphereAll(centerTarget, splashRadius);
         for (GameObject candidate : victims) {
             if (!TargetRelation.canAttack(gameObject, candidate)) {
                 continue;
