@@ -48,6 +48,7 @@ public enum PrefabType {
     // 상위 마법 ========================================================
     GroundCannon("ground_cannon_prefab"),
     GroundTower("ground_tower_prefab"),
+    DragonTower("dragon_tower_prefab"),
     ManaWell("mana_well_prefab"),
     AquaArcher("aqua_archer_prefab"),
     RockGolem("rock_golem_prefab"),

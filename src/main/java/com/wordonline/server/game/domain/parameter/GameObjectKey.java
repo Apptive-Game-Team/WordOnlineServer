@@ -39,6 +39,7 @@ public enum GameObjectKey {
     GIANT_VINE("giant_vine"),
     GROUND_CANNON("ground_cannon"),
     GROUND_TOWER("ground_tower"),
+    DRAGON_TOWER("dragon_tower"),
     HEALING_TOTEM("healing_totem"),
     LEAF_DROP("leaf_drop"),
     LEAF_EXPLODE("leaf_explode"),

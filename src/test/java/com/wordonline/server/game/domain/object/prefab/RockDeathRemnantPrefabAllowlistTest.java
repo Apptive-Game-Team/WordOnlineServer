@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
+import com.wordonline.server.game.domain.object.prefab.implement.build.DragonTowerPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.build.ElectricTowerPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.build.RockTurretPrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.implement.drop.RockDropPrefabInitializer;
@@ -45,6 +46,7 @@ class RockDeathRemnantPrefabAllowlistTest {
                 new RockTurretPrefabInitializer(parameters),
                 new GroundCannonPrefabInitializer(parameters),
                 new GroundTowerPrefabInitializer(parameters),
+                new DragonTowerPrefabInitializer(parameters),
                 new ElectricTowerPrefabInitializer(parameters),
                 new TowerbackPrefabInitializer(parameters)
         );
