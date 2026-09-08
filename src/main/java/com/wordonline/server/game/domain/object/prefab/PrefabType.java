@@ -131,6 +131,7 @@ public enum PrefabType {
     Crater("crater_prefab"),
     BubbleGenerator("bubble_generator_prefab"),
     ElectricTower("electric_tower_prefab"),
+    ShockTrap("shock_trap_prefab"),
 
     FireLordSpirit("fire_lord_spirit_prefab"),
     BubbleSpirit("bubble_spirit_prefab"),
