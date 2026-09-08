@@ -41,7 +41,10 @@ public enum ParameterKey {
     SPEED("speed"),
 
     SUB_ATTACK_RANGE("sub_attack_range"),
-    SUB_ATTACK_INTERVAL("sub_attack_interval");
+    SUB_ATTACK_INTERVAL("sub_attack_interval"),
+
+    TRIGGER_DELAY("trigger_delay"),
+    STUN_DURATION("stun_duration");
 
     private final String dbName;
 
