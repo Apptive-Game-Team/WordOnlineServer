@@ -135,6 +135,7 @@ public enum PrefabType {
     FireLordSpirit("fire_lord_spirit_prefab"),
     BubbleSpirit("bubble_spirit_prefab"),
     Towerback("towerback_prefab"),
+    RepairTotem("repair_totem_prefab"),
     FireChildSpirit("fire_child_spirit_prefab"),
     DimensionToad("dimension_toad_prefab"),
     FireTadpole("fire_tadpole_prefab"),

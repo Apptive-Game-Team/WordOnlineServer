@@ -95,6 +95,7 @@ public enum GameObjectKey {
     WATER_SUMMON("water_summon"),
     TORNADO_STRIKE("tornado_strike"),
     TOWERBACK("towerback"),
+    REPAIR_TOTEM("repair_totem"),
     TREE_GOLEM("tree_golem"),
     VINE("vine"),
     VINE_COLONY("vine_colony"),
