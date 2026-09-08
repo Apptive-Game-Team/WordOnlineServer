@@ -1,11 +1,14 @@
+-- game_objects.name equals magics.name for anything a cast reads its own values under. The
+-- shoot / explode / spawn / build rows were the cast type axis and are gone with it.
 INSERT INTO game_objects
 VALUES
     (1, 'slime'),
-    (2, 'shoot'),
-    (3, 'explode'),
-    (4, 'spawn'),
-    (5, 'build'),
-    (6, 'field');
+    (6, 'field'),
+    (7, 'fire_shot'),
+    (8, 'water_shot'),
+    (9, 'fire_explosion'),
+    (10, 'fire_slime_swarm'),
+    (11, 'cannon');
 
 INSERT INTO parameters
 VALUES
@@ -14,28 +17,38 @@ VALUES
     (3, 'radius'),
     (4, 'hp'),
     (5, 'mass'),
-    (6, 'duration');
+    (6, 'duration'),
+    (7, 'mana_cost'),
+    (8, 'range'),
+    (9, 'aim_shape');
 
 INSERT INTO parameter_values(game_object_id, parameter_id, value)
 VALUES
     (1, 3, 0.5),
-    (2, 3, 0.5),
-    (3, 3, 0.5),
-    (5, 3, 0.5),
     (6, 3, 0.5),
+    (7, 3, 0.5),
+    (9, 3, 0.5),
 
     (1, 2, 3),
-    (2, 2, 10),
-    (3, 2, 8),
+    (7, 2, 10),
+    (9, 2, 8),
 
     (1, 4, 8),
-    (5, 4, 5),
+    (11, 4, 5),
 
     (1, 1, 0.8),
 
     (1, 5, 1),
 
-    (6, 6, 3);
+    (6, 6, 3),
+
+    -- mana_cost, range and aim_shape are keyed by the magic name now. The values are the ones the
+    -- old combinations summed to: fire_shot was Fire(10) + Shoot(15) with the Shoot card's range 18.
+    (7, 7, 25), (7, 8, 18), (7, 9, 1),
+    (8, 7, 25), (8, 8, 18), (8, 9, 1),
+    (9, 7, 20), (9, 8, 9), (9, 9, 0),
+    (10, 7, 25), (10, 8, 6), (10, 9, 0),
+    (11, 7, 30), (11, 8, 6), (11, 9, 0);
 
 INSERT INTO magics(id, name, element)
 VALUES

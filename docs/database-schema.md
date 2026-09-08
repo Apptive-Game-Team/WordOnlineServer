@@ -50,8 +50,10 @@ tables are described below:
 
 To tweak gameplay metrics without re-compiling Java code, dimensions like range, damage, speed, and mana costs are stored in the DB and loaded dynamically at startup:
 
-- **`game_objects`**: Defines physical objects/prefabs in the game.
+- **`game_objects`**: Defines physical objects/prefabs in the game, and the magics themselves.
   - Columns: `id` (bigserial), `name` (varchar, unique, e.g., `leafair_prefab`).
+  - `game_objects.name` equals `magics.name` for every magic, which is how a cast reads its own
+    `mana_cost` and `range`. There is no cast type left to key them by.
 - **`parameters`**: Defines parameter names.
   - Columns: `id` (bigserial), `name` (varchar, unique, e.g., `damage`, `radius`, `speed`, `range`, `mana_cost`).
 - **`parameter_values`**: Junction table mapping objects and parameters to numeric values.
@@ -61,6 +63,7 @@ To tweak gameplay metrics without re-compiling Java code, dimensions like range,
 At runtime, classes can access these values using the [Parameters](file:///Users/jeong-yunseong/development/word-online/dev/game-server/src/main/java/com/wordonline/server/game/domain/Parameters.java) domain object.
 - **API Call**: `parameters.getValue(objectName, parameterName)`
 - **Example Usage**:
-  `int damage = (int) parameters.getValue("drop", "damage");`
+  `int damage = (int) parameters.getValue("leafair", "damage");`
   `float range = (float) parameters.getValue("fire_shot", "range");`
-- **Scaffolding Requirements**: When adding a new magic spell, default values for parameters (e.g. `mana_cost`, `range`) must be populated in `parameter_values` using the spell's Spring bean name (for casting validations) and the spawned entity's prefab name (for radius/damage calculations).
+- **Scaffolding Requirements**: When adding a new magic spell, default values for parameters (e.g. `mana_cost`, `range`, `aim_shape`) must be populated in `parameter_values` using the spell's Spring bean name, which is also `magics.name` (for casting validations), and the spawned entity's prefab name (for radius/damage calculations).
+- **`aim_shape`**: `1` draws a straight aiming line, `0` a circle. The client reads it; the game server does not.
