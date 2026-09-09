@@ -119,16 +119,41 @@ class GrassSpreadTest {
     }
 
     @Test
-    void neverSpreadsMoreThanTheLifetimeCapRegardlessOfHowLongItRuns() {
+    void stopsSpreadingWhileACapWorthOfFieldsIsStillAlive() {
         GameContext gameContext = mock(GameContext.class);
         GameObject building = new GameObject(Master.LeftPlayer, PrefabType.GrassGenerator, Vector3.ZERO, gameContext);
-        when(gameContext.getDeltaTime()).thenReturn(ATTACK_INTERVAL_SEC * (GrassSpread.MAX_SPAWN_COUNT + 5));
+        when(gameContext.getDeltaTime()).thenReturn(ATTACK_INTERVAL_SEC * (GrassSpread.MAX_ALIVE_FIELD_COUNT + 5));
         clearInvocations(gameContext);
 
         GrassSpread grassSpread = new GrassSpread(building, ATTACK_INTERVAL_SEC, RADIUS, QUANTITY_PER_RING);
         grassSpread.update();
         grassSpread.update();
 
-        verify(gameContext, times(GrassSpread.MAX_SPAWN_COUNT)).createGameObject(any(GameObject.class));
+        // no field has expired yet, so the cap is the only thing holding the count down
+        verify(gameContext, times(GrassSpread.MAX_ALIVE_FIELD_COUNT)).createGameObject(any(GameObject.class));
+    }
+
+    @Test
+    void spreadsAgainOnceExpiredFieldsFreeTheirSlots() {
+        GameContext gameContext = mock(GameContext.class);
+        GameObject building = new GameObject(Master.LeftPlayer, PrefabType.GrassGenerator, Vector3.ZERO, gameContext);
+        when(gameContext.getDeltaTime()).thenReturn(ATTACK_INTERVAL_SEC * (GrassSpread.MAX_ALIVE_FIELD_COUNT + 5));
+        clearInvocations(gameContext);
+
+        GrassSpread grassSpread = new GrassSpread(building, ATTACK_INTERVAL_SEC, RADIUS, QUANTITY_PER_RING);
+        grassSpread.update();
+
+        ArgumentCaptor<GameObject> spawned = ArgumentCaptor.forClass(GameObject.class);
+        verify(gameContext, times(GrassSpread.MAX_ALIVE_FIELD_COUNT)).createGameObject(spawned.capture());
+        List<GameObject> firstFields = spawned.getAllValues();
+        clearInvocations(gameContext);
+
+        // every leaf field runs out its own TimedSelfDestroyer duration
+        firstFields.forEach(GameObject::destroy);
+
+        when(gameContext.getDeltaTime()).thenReturn(ATTACK_INTERVAL_SEC * 3);
+        grassSpread.update();
+
+        verify(gameContext, times(3)).createGameObject(any(GameObject.class));
     }
 }
