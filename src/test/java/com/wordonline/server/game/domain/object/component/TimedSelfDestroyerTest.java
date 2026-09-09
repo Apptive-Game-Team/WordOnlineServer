@@ -22,7 +22,7 @@ class TimedSelfDestroyerTest {
         return new TimedSelfDestroyer(gameObject, timeToLive);
     }
 
-    // --- pre-existing behavior, pinned before the per-frame recover() cap is added ---
+    // --- pre-existing behavior, pinned before freeze() is added ---
 
     @Test
     void doesNotDestroyBeforeItsTimeToLiveElapses() {
@@ -62,35 +62,6 @@ class TimedSelfDestroyerTest {
     }
 
     @Test
-    void recoverWithAmountSubtractsFromElapsedTimeAndClampsAtZero() {
-        when(gameContext.getDeltaTime()).thenReturn(1f);
-        TimedSelfDestroyer destroyer = destroyer(10f);
-
-        destroyer.update(); // elapsedTime = 1
-
-        destroyer.recover(0.4f);
-        assertThat(destroyer.getGauge().value()).isEqualTo(10f - 0.6f);
-
-        destroyer.recover(100f);
-        assertThat(destroyer.getGauge().value()).isEqualTo(10f);
-
-        verify(gameObject, org.mockito.Mockito.times(2)).applyUpdate();
-    }
-
-    @Test
-    void recoverWithNonPositiveAmountIsANoOp() {
-        when(gameContext.getDeltaTime()).thenReturn(1f);
-        TimedSelfDestroyer destroyer = destroyer(10f);
-        destroyer.update(); // elapsedTime = 1
-
-        destroyer.recover(0f);
-        destroyer.recover(-5f);
-
-        assertThat(destroyer.getGauge().value()).isEqualTo(9f);
-        verify(gameObject, never()).applyUpdate();
-    }
-
-    @Test
     void gaugeReportsRemainingTimeAgainstTimeToLiveAsTtlCategory() {
         when(gameContext.getDeltaTime()).thenReturn(2f);
         TimedSelfDestroyer destroyer = destroyer(5f);
@@ -103,48 +74,81 @@ class TimedSelfDestroyerTest {
         assertThat(gauge.category()).isEqualTo(GaugeCategory.TTL);
     }
 
-    // --- new behavior: recover(amount) is capped to at most one tick of rewind per frame ---
+    // --- new behavior: freeze() stops the next tick instead of rewinding elapsed time ---
 
     @Test
-    void recoverAmountIsCappedToOneTickPerFrameEvenWhenCalledRepeatedly() {
+    void freezeSkipsTheNextTickWithoutAdvancingElapsedTime() {
         when(gameContext.getDeltaTime()).thenReturn(1f);
-        TimedSelfDestroyer destroyer = destroyer(100f);
+        TimedSelfDestroyer destroyer = destroyer(10f);
 
-        for (int i = 0; i < 5; i++) {
-            destroyer.update(); // elapsedTime = 5, away from the zero floor
-        }
-        destroyer.update(); // elapsedTime = 6, one tick of decay this frame
+        destroyer.update(); // elapsedTime = 1
+        destroyer.freeze();
+        destroyer.update(); // frozen: elapsedTime stays at 1
 
-        // three overlapping repair auras each try to recover a full tick in the same frame
-        destroyer.recover(1f);
-        destroyer.recover(1f);
-        destroyer.recover(1f);
-
-        // only one tick's worth is actually rewound: the totem freezes the timer for this frame,
-        // it does not run it backwards just because several auras overlap it
-        assertThat(destroyer.getGauge().value()).isEqualTo(95f);
+        assertThat(destroyer.getGauge().value()).isEqualTo(9f);
     }
 
     @Test
-    void recoverAmountCapResetsEveryFrame() {
+    void freezeNeverRewindsElapsedTimeEvenWhenSeveralSourcesFreezeTheSameFrame() {
         when(gameContext.getDeltaTime()).thenReturn(1f);
-        TimedSelfDestroyer destroyer = destroyer(100f);
+        TimedSelfDestroyer destroyer = destroyer(10f);
 
-        for (int i = 0; i < 5; i++) {
+        destroyer.update(); // elapsedTime = 1
+
+        // three overlapping repair auras freeze the same object in one frame
+        destroyer.freeze();
+        destroyer.freeze();
+        destroyer.freeze();
+        destroyer.update();
+
+        // one skipped tick, not three: elapsedTime is held at 1, never pushed below it
+        assertThat(destroyer.getGauge().value()).isEqualTo(9f);
+    }
+
+    @Test
+    void freezeHoldsForOneTickOnlySoDecayResumesWithoutIt() {
+        when(gameContext.getDeltaTime()).thenReturn(1f);
+        TimedSelfDestroyer destroyer = destroyer(10f);
+
+        destroyer.update(); // elapsedTime = 1
+        destroyer.freeze();
+        destroyer.update(); // frozen: elapsedTime = 1
+        destroyer.update(); // not frozen any more: elapsedTime = 2
+
+        assertThat(destroyer.getGauge().value()).isEqualTo(8f);
+    }
+
+    @Test
+    void freezeEveryTickKeepsTheObjectAliveIndefinitely() {
+        when(gameContext.getDeltaTime()).thenReturn(1f);
+        TimedSelfDestroyer destroyer = destroyer(3f);
+
+        destroyer.update();
+        destroyer.update(); // elapsedTime = 2, one tick short of destruction
+        for (int i = 0; i < 100; i++) {
+            destroyer.freeze();
             destroyer.update();
         }
-        destroyer.update(); // elapsedTime = 6
-        destroyer.recover(1f);
-        destroyer.recover(1f); // blocked by this frame's cap; elapsedTime stays at 5
 
-        destroyer.update(); // next frame: cap resets, elapsedTime = 5 + 1 = 6
-        destroyer.recover(1f); // honored again now that the cap has reset
-
-        assertThat(destroyer.getGauge().value()).isEqualTo(95f);
+        verify(gameObject, never()).destroy();
+        assertThat(destroyer.getGauge().value()).isEqualTo(1f);
     }
 
     @Test
-    void withoutAnyCallerOfRecoverAmountTheCapHasNoEffectOnPlainDecay() {
+    void aFrozenTickCannotDestroyTheObject() {
+        when(gameContext.getDeltaTime()).thenReturn(1f);
+        TimedSelfDestroyer destroyer = destroyer(3f);
+
+        destroyer.update();
+        destroyer.update(); // elapsedTime = 2
+        destroyer.freeze();
+        destroyer.update(); // the tick that would have destroyed it is skipped
+
+        verify(gameObject, never()).destroy();
+    }
+
+    @Test
+    void withoutAnyCallerOfFreezePlainDecayIsUnchanged() {
         when(gameContext.getDeltaTime()).thenReturn(1f);
         TimedSelfDestroyer destroyer = destroyer(3f);
 

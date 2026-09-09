@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,7 +21,6 @@ class RepairAuraTest {
     private RepairAura aura(float radius) {
         when(totem.getGameContext()).thenReturn(gameContext);
         when(totem.getMaster()).thenReturn(Master.LeftPlayer);
-        when(gameContext.getDeltaTime()).thenReturn(0.3f);
         return new RepairAura(totem, radius);
     }
 
@@ -34,7 +32,7 @@ class RepairAuraTest {
     }
 
     @Test
-    void recoversTimedSelfDestroyerOfAlliedTargetsInRange() {
+    void freezesTimedSelfDestroyerOfAlliedTargetsInRange() {
         TimedSelfDestroyer allySelfDestroyer = mock(TimedSelfDestroyer.class);
         GameObject ally = allyWithSelfDestroyer(allySelfDestroyer);
 
@@ -43,7 +41,36 @@ class RepairAuraTest {
 
         aura.update();
 
-        verify(allySelfDestroyer).recover(eq(0.3f));
+        verify(allySelfDestroyer).freeze();
+    }
+
+    @Test
+    void freezesEveryTickSoTheHoldLastsWhileTheTargetStaysInRange() {
+        TimedSelfDestroyer allySelfDestroyer = mock(TimedSelfDestroyer.class);
+        GameObject ally = allyWithSelfDestroyer(allySelfDestroyer);
+
+        RepairAura aura = aura(5f);
+        when(gameContext.overlapSphereAll(totem, 5f)).thenReturn(List.of(ally));
+
+        aura.update();
+        aura.update();
+        aura.update();
+
+        verify(allySelfDestroyer, org.mockito.Mockito.times(3)).freeze();
+    }
+
+    @Test
+    void neverRewindsElapsedTime() {
+        TimedSelfDestroyer allySelfDestroyer = mock(TimedSelfDestroyer.class);
+        GameObject ally = allyWithSelfDestroyer(allySelfDestroyer);
+
+        RepairAura aura = aura(5f);
+        when(gameContext.overlapSphereAll(totem, 5f)).thenReturn(List.of(ally));
+
+        aura.update();
+
+        verify(allySelfDestroyer, never()).recover();
+        verify(allySelfDestroyer, never()).recover(org.mockito.ArgumentMatchers.anyFloat());
     }
 
     @Test
@@ -58,11 +85,11 @@ class RepairAuraTest {
 
         aura.update();
 
-        verify(enemySelfDestroyer, never()).recover(org.mockito.ArgumentMatchers.anyFloat());
+        verify(enemySelfDestroyer, never()).freeze();
     }
 
     @Test
-    void neverRecoversItsOwnTimedSelfDestroyerEvenIfItOverlapsItself() {
+    void neverFreezesItsOwnTimedSelfDestroyerEvenIfItOverlapsItself() {
         TimedSelfDestroyer ownSelfDestroyer = mock(TimedSelfDestroyer.class);
         when(totem.getComponent(TimedSelfDestroyer.class)).thenReturn(ownSelfDestroyer);
 
@@ -72,7 +99,7 @@ class RepairAuraTest {
 
         aura.update();
 
-        verify(ownSelfDestroyer, never()).recover(org.mockito.ArgumentMatchers.anyFloat());
+        verify(ownSelfDestroyer, never()).freeze();
     }
 
     @Test
@@ -102,6 +129,6 @@ class RepairAuraTest {
         aura.update();
 
         verify(gameContext, never()).overlapSphereAll(totem, 5f);
-        verify(allySelfDestroyer, never()).recover(org.mockito.ArgumentMatchers.anyFloat());
+        verify(allySelfDestroyer, never()).freeze();
     }
 }

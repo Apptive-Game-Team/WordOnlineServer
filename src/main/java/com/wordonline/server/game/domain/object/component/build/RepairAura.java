@@ -8,10 +8,10 @@ import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.dto.Master;
 
 /**
- * Freezes the lifetime of nearby allied objects: every tick it calls
- * {@link TimedSelfDestroyer#recover(float)} with this tick's delta time, canceling that tick's
- * decay for anything with one in range. It does not heal, and it never touches its own
- * {@link TimedSelfDestroyer}.
+ * Stops the lifetime of nearby allied objects: every tick it calls
+ * {@link TimedSelfDestroyer#freeze()} on everything with one in range, so that object's next
+ * tick does not age it. It does not rewind elapsed time, it does not heal, and it never touches
+ * its own {@link TimedSelfDestroyer}.
  */
 public class RepairAura extends Component {
 
@@ -33,10 +33,9 @@ public class RepairAura extends Component {
             return;
         }
 
-        float deltaTime = getGameContext().getDeltaTime();
         getGameContext().overlapSphereAll(gameObject, radius).stream()
                 .filter(this::canRepair)
-                .forEach(target -> target.getComponent(TimedSelfDestroyer.class).recover(deltaTime));
+                .forEach(target -> target.getComponent(TimedSelfDestroyer.class).freeze());
     }
 
     @Override
