@@ -16,12 +16,15 @@ import com.wordonline.server.game.domain.parameter.GameObjectParameters;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
+import com.wordonline.server.game.service.ObjectsInfoDtoBuilder;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -96,10 +99,16 @@ class FireworkTowerPrefabInitializerTest {
                 .findFirst()
                 .orElseThrow();
 
-        when(gameContext.getDeltaTime()).thenReturn(4f);
+        when(gameContext.getObjectsInfoDtoBuilder()).thenReturn(mock(ObjectsInfoDtoBuilder.class));
+        // attack_offset (3) / FireworkLauncher's horizontal speed (6) = 0.5s of flight
+        // after the launch tick before the shell appears at the impact point.
+        when(gameContext.getDeltaTime()).thenReturn(4f, 0.5f);
         clearInvocations(gameContext);
 
-        launcher.update();
+        launcher.update(); // launch tick: shot is in flight, no shell yet
+        verify(gameContext, never()).createGameObject(any(GameObject.class));
+
+        launcher.update(); // flight duration elapses: the shell lands at the impact point
 
         ArgumentCaptor<GameObject> spawned = ArgumentCaptor.forClass(GameObject.class);
         verify(gameContext, times(1)).createGameObject(spawned.capture());
