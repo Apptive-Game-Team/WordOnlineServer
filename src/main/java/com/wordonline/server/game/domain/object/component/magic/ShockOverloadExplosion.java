@@ -5,6 +5,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Effect;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.ArrayList;
@@ -55,7 +56,9 @@ public class ShockOverloadExplosion extends Explode {
 
     private void explodePrimary() {
         for (GameObject target : getGameContext().overlapSphereAll(gameObject, radius)) {
-            if (target == gameObject || target.getComponents(Damageable.class).isEmpty()) {
+            if (target == gameObject
+                    || !isEnemy(target)
+                    || target.getComponents(Damageable.class).isEmpty()) {
                 continue;
             }
 
@@ -88,14 +91,23 @@ public class ShockOverloadExplosion extends Explode {
             );
 
             for (GameObject affected : getGameContext().getPhysics().overlapSphereAll(center, secondaryRadius)) {
-                if (affected == gameObject || affected.getComponents(Damageable.class).isEmpty()) {
+                if (!isEnemy(affected)) {
+                    continue;
+                }
+
+                List<Damageable> damageables = affected.getComponents(Damageable.class);
+                if (damageables.isEmpty()) {
                     continue;
                 }
 
                 affected.setStatus(Status.Damaged);
-                affected.getComponents(Damageable.class)
-                        .forEach(damageable -> damageable.onDamaged(secondaryAttack));
+                damageables.forEach(damageable -> damageable.onDamaged(secondaryAttack));
             }
         }
+    }
+
+    private boolean isEnemy(GameObject target) {
+        Master sourceMaster = gameObject.getMaster();
+        return sourceMaster == Master.None || target.getMaster() != sourceMaster;
     }
 }
