@@ -24,6 +24,7 @@ public enum PrefabType {
     RockExplode("rock_explode_prefab"),
     RockSlime("rock_slime_prefab"),
     RockSummon("rock_summon_prefab"),
+    BoulderStrike("boulder_strike_prefab"),
 
     // electric ========================================================
     ElectricShot("electric_shot_prefab"),
