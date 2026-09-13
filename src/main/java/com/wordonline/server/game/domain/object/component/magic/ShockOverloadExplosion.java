@@ -16,7 +16,7 @@ public class ShockOverloadExplosion extends Explode {
     static final float SECONDARY_DELAY = 1f;
     static final float SECONDARY_RADIUS_MULTIPLIER = 0.5f;
     static final float SECONDARY_DAMAGE_MULTIPLIER = 0.5f;
-    private static final float SECONDARY_EFFECT_DURATION = 0.25f;
+    private static final float SECONDARY_EFFECT_DURATION = 0.8f;
     private static final String SECONDARY_EFFECT_TYPE = "ShockOverloadSecondary";
 
     private final List<GameObject> markedTargets = new ArrayList<>();
