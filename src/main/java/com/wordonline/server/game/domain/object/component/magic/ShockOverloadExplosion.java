@@ -5,7 +5,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Effect;
-import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
 
 import java.util.ArrayList;
@@ -57,7 +57,7 @@ public class ShockOverloadExplosion extends Explode {
     private void explodePrimary() {
         for (GameObject target : getGameContext().overlapSphereAll(gameObject, radius)) {
             if (target == gameObject
-                    || !isEnemy(target)
+                    || !TargetRelation.canAttack(gameObject, target)
                     || target.getComponents(Damageable.class).isEmpty()) {
                 continue;
             }
@@ -91,7 +91,7 @@ public class ShockOverloadExplosion extends Explode {
             );
 
             for (GameObject affected : getGameContext().getPhysics().overlapSphereAll(center, secondaryRadius)) {
-                if (!isEnemy(affected)) {
+                if (!TargetRelation.canAttack(gameObject, affected)) {
                     continue;
                 }
 
@@ -106,8 +106,4 @@ public class ShockOverloadExplosion extends Explode {
         }
     }
 
-    private boolean isEnemy(GameObject target) {
-        Master sourceMaster = gameObject.getMaster();
-        return sourceMaster == Master.None || target.getMaster() != sourceMaster;
-    }
 }
