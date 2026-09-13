@@ -83,6 +83,7 @@ public enum GameObjectKey {
     THUNDER_BIRD("thunder_bird"),
     THUNDER_SPIRIT("thunder_spirit"),
     TIDE_CALL("tide_call"),
+    TIDAL_WARHEAD("tidal_warhead"),
     VINE_COUNT("vine_count"),
     VINE_SPACING("vine_spacing"),
     VINE_SPAWN_INTERVAL("vine_spawn_interval"),
