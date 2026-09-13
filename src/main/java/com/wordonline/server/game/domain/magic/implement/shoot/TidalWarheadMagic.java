@@ -31,22 +31,12 @@ public class TidalWarheadMagic extends Magic {
         }
 
         Vector3 aimPosition = position == null ? source.getPosition() : position;
-        Optional<GameObject> aerialTarget = findClosestTarget(
-                gameContext,
-                source,
-                aimPosition,
-                TargetMask.AIR.bit);
-        GameObject target = aerialTarget.orElseGet(() -> findClosestTarget(
-                gameContext,
-                source,
-                aimPosition,
-                TargetMask.GROUND.bit).orElse(null));
-
+        GameObject target = selectTarget(gameContext, source, aimPosition);
         if (target == null) {
             return;
         }
 
-        boolean targetsAir = aerialTarget.isPresent();
+        boolean targetsAir = (TargetMask.of(target) & TargetMask.AIR.bit) != 0;
         PrefabType prefabType = targetsAir
                 ? PrefabType.TidalWarhead
                 : PrefabType.GroundTidalWarhead;
@@ -58,7 +48,16 @@ public class TidalWarheadMagic extends Magic {
         warhead.getComponent(TidalWarheadProjectile.class).setTarget(target, targetsAir);
     }
 
-    private Optional<GameObject> findClosestTarget(
+    GameObject selectTarget(GameContext gameContext, GameObject source, Vector3 aimPosition) {
+        return findClosestTarget(gameContext, source, aimPosition, TargetMask.AIR.bit)
+                .orElseGet(() -> findClosestTarget(
+                        gameContext,
+                        source,
+                        aimPosition,
+                        TargetMask.GROUND.bit).orElse(null));
+    }
+
+    Optional<GameObject> findClosestTarget(
             GameContext gameContext,
             GameObject source,
             Vector3 aimPosition,
