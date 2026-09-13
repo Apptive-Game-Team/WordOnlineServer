@@ -97,7 +97,7 @@ class ShockOverloadExplosionTest {
                 movedPosition,
                 movedPosition,
                 "ShockOverloadSecondary",
-                0.25f
+                0.8f
         );
         ArgumentCaptor<AttackInfo> attack = ArgumentCaptor.forClass(AttackInfo.class);
         verify(nearbyDamageable).onDamaged(attack.capture());
