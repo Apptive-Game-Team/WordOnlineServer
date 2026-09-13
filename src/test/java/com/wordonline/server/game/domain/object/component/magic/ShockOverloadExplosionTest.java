@@ -7,6 +7,7 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
 import com.wordonline.server.game.dto.Effect;
+import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.ObjectsInfoDtoBuilder;
 import com.wordonline.server.game.util.Physics;
@@ -42,11 +43,13 @@ class ShockOverloadExplosionTest {
         element.addNative(ElementType.LIGHTNING);
 
         when(source.getGameContext()).thenReturn(gameContext);
+        when(source.getMaster()).thenReturn(Master.LeftPlayer);
         when(source.getElement()).thenReturn(element);
         when(source.getId()).thenReturn(101);
         when(gameContext.getDeltaTime()).thenReturn(0.5f);
         when(gameContext.getPhysics()).thenReturn(physics);
         when(gameContext.getObjectsInfoDtoBuilder()).thenReturn(dtoBuilder);
+        when(markedTarget.getMaster()).thenReturn(Master.RightPlayer);
         when(markedTarget.getComponents(Damageable.class)).thenReturn(List.of(markedDamageable));
         when(gameContext.overlapSphereAll(source, 4f)).thenReturn(List.of(markedTarget));
 
@@ -63,11 +66,27 @@ class ShockOverloadExplosionTest {
     }
 
     @Test
+    void primaryExplosionSkipsAllies() {
+        GameObject ally = mock(GameObject.class);
+        Damageable allyDamageable = mock(Damageable.class);
+        when(ally.getMaster()).thenReturn(Master.LeftPlayer);
+        when(ally.getComponents(Damageable.class)).thenReturn(List.of(allyDamageable));
+        when(gameContext.overlapSphereAll(source, 4f)).thenReturn(List.of(ally, markedTarget));
+
+        explosion.update();
+
+        verifyNoInteractions(allyDamageable);
+        verify(ally, never()).addEffect(any());
+        verify(markedDamageable).onDamaged(any(AttackInfo.class));
+    }
+
+    @Test
     void secondaryExplosionUsesCurrentTargetPositionAndReducedDamageAndRadius() {
         GameObject nearbyEnemy = mock(GameObject.class);
         Damageable nearbyDamageable = mock(Damageable.class);
         Vector3 movedPosition = new Vector3(7f, 0f, 3f);
         when(markedTarget.getPosition()).thenReturn(movedPosition);
+        when(nearbyEnemy.getMaster()).thenReturn(Master.RightPlayer);
         when(nearbyEnemy.getComponents(Damageable.class)).thenReturn(List.of(nearbyDamageable));
         when(physics.overlapSphereAll(movedPosition, 2f)).thenReturn(List.of(nearbyEnemy));
 
