@@ -20,6 +20,7 @@ public enum PrefabType {
     SeaSerpent("sea_serpent_prefab"),
     TidalWarhead("tidal_warhead_prefab"),
     GroundTidalWarhead("ground_tidal_warhead_prefab"),
+    TidalWarheadExplosion("tidal_warhead_explosion_prefab"),
 
     // rock ========================================================
     RockRolling("rock_rolling_prefab"),
