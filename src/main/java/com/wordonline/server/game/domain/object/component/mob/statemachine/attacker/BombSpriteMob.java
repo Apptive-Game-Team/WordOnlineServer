@@ -5,7 +5,6 @@ import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.magic.BombSpriteBomb;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
-import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
 
 public class BombSpriteMob extends BehaviorMob {
@@ -33,10 +32,7 @@ public class BombSpriteMob extends BehaviorMob {
             return false;
         }
 
-        GameObject bomb = new GameObject(
-                gameObject,
-                Master.None,
-                PrefabType.BombSpriteBomb);
+        GameObject bomb = new GameObject(gameObject, PrefabType.BombSpriteBomb);
         BombSpriteBomb bombComponent = bomb.getComponent(BombSpriteBomb.class);
         bombComponent.setTarget(new Vector3(target.getPosition()).grounded());
         gameObject.setStatus(Status.Attack);
