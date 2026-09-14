@@ -83,6 +83,7 @@ public enum GameObjectKey {
     SEED_SPIRIT("seed_spirit"),
     STORM_STAG("storm_stag"),
     STORM_RIDER("storm_rider"),
+    SPIRIT_BOMB("spirit_bomb"),
     THUNDER_BIRD("thunder_bird"),
     THUNDER_SPIRIT("thunder_spirit"),
     TITAN_FIST("titan_fist"),
