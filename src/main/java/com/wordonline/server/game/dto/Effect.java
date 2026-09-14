@@ -6,6 +6,7 @@ public enum Effect {
     Wet,
     Shock,
     Snared,
+    ShockTrapArming,
     Knockback,
     LeafFieldHeal,
     Sandstorm,
