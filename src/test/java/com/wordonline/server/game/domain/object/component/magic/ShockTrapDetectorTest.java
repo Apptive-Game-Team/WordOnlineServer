@@ -4,7 +4,9 @@ import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.EffectApplyPolicy;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.dto.Effect;
 import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.dto.frame.GameEventDto;
 import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +27,7 @@ class ShockTrapDetectorTest {
     private static final float TRIGGER_DELAY = 2f;
     private static final float STUN_DURATION = 1.5f;
     private static final float ATTACK_INTERVAL = 4f;
+    private static final int TRAP_ID = 42;
 
     @Test
     void stunsTargetsStillInRangeWhenTriggerDelayElapses() {
@@ -67,6 +70,84 @@ class ShockTrapDetectorTest {
         detector.update(); // countdown elapses, but nobody remains inside
 
         verify(receiver, never()).applyEffect(any(), any(), any(), anyFloat());
+    }
+
+    @Test
+    void emitsExactlyOneShockEventCarryingTheTrapIdWhenTheTriggerFires() {
+        GameObject trap = mock(GameObject.class);
+        GameContext gameContext = mock(GameContext.class);
+        GameObject enemy = enemyOf(trap, gameContext);
+        CommonEffectReceiver receiver = mock(CommonEffectReceiver.class);
+        when(enemy.getComponent(CommonEffectReceiver.class)).thenReturn(receiver);
+        when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
+        when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
+        when(trap.getId()).thenReturn(TRAP_ID);
+
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+
+        detector.update(); // enemy first seen: countdown starts
+        verify(gameContext, never()).addEvent(any());
+
+        detector.update(); // countdown elapses: trap discharges
+        verify(gameContext, times(1)).addEvent(GameEventDto.shock(TRAP_ID));
+    }
+
+    @Test
+    void emitsAShockEventEvenWhenTheEnemyLeftBeforeTriggerDelayElapsed() {
+        GameObject trap = mock(GameObject.class);
+        GameContext gameContext = mock(GameContext.class);
+        GameObject enemy = enemyOf(trap, gameContext);
+        CommonEffectReceiver receiver = mock(CommonEffectReceiver.class);
+        when(enemy.getComponent(CommonEffectReceiver.class)).thenReturn(receiver);
+        when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
+        when(trap.getId()).thenReturn(TRAP_ID);
+
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+
+        when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
+        detector.update(); // enemy seen: countdown starts
+
+        when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of()); // enemy left the radius
+        detector.update(); // countdown elapses, but nobody remains inside
+
+        verify(receiver, never()).applyEffect(any(), any(), any(), anyFloat());
+        verify(gameContext, times(1)).addEvent(GameEventDto.shock(TRAP_ID));
+    }
+
+    @Test
+    void addsTheArmingEffectWhenAnEnemyEntersRangeAndRemovesItWhenTheTriggerFires() {
+        GameObject trap = mock(GameObject.class);
+        GameContext gameContext = mock(GameContext.class);
+        GameObject enemy = enemyOf(trap, gameContext);
+        CommonEffectReceiver receiver = mock(CommonEffectReceiver.class);
+        when(enemy.getComponent(CommonEffectReceiver.class)).thenReturn(receiver);
+        when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
+        when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
+
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+
+        detector.update(); // enemy first seen: countdown starts
+        verify(trap, times(1)).addEffect(Effect.ShockTrapArming);
+        verify(trap, never()).removeEffect(Effect.ShockTrapArming);
+
+        detector.update(); // countdown elapses: trap discharges
+        verify(trap, times(1)).removeEffect(Effect.ShockTrapArming);
+    }
+
+    @Test
+    void removesTheArmingEffectWhenTheTrapIsDestroyedMidCountdown() {
+        GameObject trap = mock(GameObject.class);
+        GameContext gameContext = mock(GameContext.class);
+        GameObject enemy = enemyOf(trap, gameContext);
+        when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
+        when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
+
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+
+        detector.update(); // enemy seen: countdown starts, arming effect added
+        detector.onDestroy();
+
+        verify(trap, times(1)).removeEffect(Effect.ShockTrapArming);
     }
 
     @Test

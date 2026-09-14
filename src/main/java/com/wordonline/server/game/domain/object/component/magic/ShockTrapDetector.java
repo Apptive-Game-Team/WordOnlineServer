@@ -12,6 +12,8 @@ import com.wordonline.server.game.domain.object.component.effect.receiver.Common
 import com.wordonline.server.game.domain.object.component.effect.statuseffect.StunStatusEffect;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Effect;
+import com.wordonline.server.game.dto.Status;
+import com.wordonline.server.game.dto.frame.GameEventDto;
 
 /**
  * Arms on placement, waits for an opponent to enter {@code radius}, counts down
@@ -60,6 +62,7 @@ public class ShockTrapDetector extends Component {
             if (!detectEnemies().isEmpty()) {
                 counting = true;
                 triggerCounter = 0f;
+                gameObject.addEffect(Effect.ShockTrapArming);
             }
             return;
         }
@@ -74,6 +77,7 @@ public class ShockTrapDetector extends Component {
 
     @Override
     public void onDestroy() {
+        gameObject.removeEffect(Effect.ShockTrapArming);
     }
 
     private void reload() {
@@ -86,6 +90,10 @@ public class ShockTrapDetector extends Component {
 
     private void trigger() {
         detectEnemies().forEach(this::stun);
+
+        gameObject.removeEffect(Effect.ShockTrapArming);
+        gameObject.setStatus(Status.Attack);
+        getGameContext().addEvent(GameEventDto.shock(gameObject.getId()));
 
         counting = false;
         triggerCounter = 0f;
