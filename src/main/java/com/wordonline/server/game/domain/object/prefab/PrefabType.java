@@ -109,6 +109,9 @@ public enum PrefabType {
     ZapMouse("zap_mouse_prefab"),
     StormStag("storm_stag_prefab"),
     WindSpirit("wind_spirit_prefab"),
+    BombSprite("bomb_sprite_prefab"),
+    BombSpriteBomb("bomb_sprite_bomb_prefab"),
+    BombSpriteExplosion("bomb_sprite_explosion_prefab"),
     MiniRock("mini_rock_prefab"),
     RockRemnant("rock_remnant_prefab"),
 
