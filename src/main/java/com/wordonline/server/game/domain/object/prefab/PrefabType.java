@@ -100,6 +100,7 @@ public enum PrefabType {
     MeteorDrop("meteor_drop_prefab"),
     CraterEmber("crater_ember_prefab"),
     TitanFist("titan_fist_prefab"),
+    FireworkShell("firework_shell_prefab"),
 
     // PVE
     PveNatureSlimeNest("pve_nature_slime_nest_prefab"),
@@ -139,6 +140,7 @@ public enum PrefabType {
     GiantVine("giant_vine_prefab"),
     SeedNest("seed_nest_prefab"),
     Crater("crater_prefab"),
+    FireworkTower("firework_tower_prefab"),
     BubbleGenerator("bubble_generator_prefab"),
     ElectricTower("electric_tower_prefab"),
     ShockTrap("shock_trap_prefab"),
