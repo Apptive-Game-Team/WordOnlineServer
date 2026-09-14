@@ -7,8 +7,8 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
-import com.wordonline.server.game.domain.object.component.build.FlameBreath;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.magic.FlameLauncher;
 import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
@@ -29,16 +29,15 @@ public class DragonTowerPrefabInitializer extends PrefabInitializer {
     @Override
     public void initialize(GameObject gameObject) {
         var dragonTowerParameters = parameters.object(GameObjectKey.DRAGON_TOWER);
+
+        // dragon_tower.attack_range is not read here: it exists only so the client indicator can
+        // draw how wide the flame is before the tower is placed. The real value is
+        // dragon_flame.radius, and the database migration is what keeps the two equal.
         gameObject.getComponents().add(new RigidBody(gameObject, dragonTowerParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, dragonTowerParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new DummyMob(gameObject, dragonTowerParameters.intValue(ParameterKey.HP)));
         gameObject.getComponents().add(
-                new FlameBreath(
-                        gameObject,
-                        dragonTowerParameters.intValue(ParameterKey.DAMAGE),
-                        dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
-                        dragonTowerParameters.floatValue(ParameterKey.BEAM_WIDTH)
-                ));
+                new FlameLauncher(gameObject, dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, dragonTowerParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new RockDeathRemnant(gameObject));
         gameObject.setElement(ElementType.FIRE);

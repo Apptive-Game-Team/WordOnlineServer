@@ -4,8 +4,8 @@ import com.wordonline.server.game.domain.AttackInfo;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.Damageable;
+import com.wordonline.server.game.domain.object.component.mob.detector.TargetRelation;
 import com.wordonline.server.game.dto.Status;
-import com.wordonline.server.game.util.Beam;
 import com.wordonline.server.game.util.CombatRange;
 
 public class SeaSerpentMob extends BehaviorMob {
@@ -51,13 +51,42 @@ public class SeaSerpentMob extends BehaviorMob {
         AttackInfo attackInfo = new AttackInfo(damage, seaSerpent.getElement().total())
                 .withAttacker(seaSerpent);
 
-        for (GameObject target : Beam.targetsAlong(seaSerpent, groundOrigin, groundEnd, beamWidth)) {
-            target.getComponent(Damageable.class).onDamaged(attackInfo, HYDRO_PUMP_DURATION);
+        for (GameObject candidate : seaSerpent.getGameContext().getActiveGameObjects()) {
+            if (!TargetRelation.canAttack(seaSerpent, candidate)) {
+                continue;
+            }
+
+            Damageable damageable = candidate.getComponent(Damageable.class);
+            if (damageable == null) {
+                continue;
+            }
+
+            float targetRadius = candidate.getFirstCircleCollider()
+                    .map(collider -> collider.getRadius())
+                    .orElse(0f);
+            if (distanceToSegment(candidate.getPosition().grounded(), groundOrigin, groundEnd)
+                    > beamWidth + targetRadius) {
+                continue;
+            }
+
+            damageable.onDamaged(attackInfo, HYDRO_PUMP_DURATION);
         }
 
         seaSerpent.getGameContext().getObjectsInfoDtoBuilder()
                 .createProjection(visualOrigin, visualEnd, HYDRO_PUMP_PROJECTILE, HYDRO_PUMP_DURATION);
         seaSerpent.setStatus(Status.Attack);
         return true;
+    }
+
+    static double distanceToSegment(Vector3 point, Vector3 start, Vector3 end) {
+        Vector3 segment = end.subtract(start);
+        float lengthSquared = segment.dot(segment);
+        if (lengthSquared == 0f) {
+            return point.distance(start);
+        }
+
+        float progress = Math.clamp(point.subtract(start).dot(segment) / lengthSquared, 0f, 1f);
+        Vector3 closest = start.plus(segment.multiply(progress));
+        return point.distance(closest);
     }
 }
