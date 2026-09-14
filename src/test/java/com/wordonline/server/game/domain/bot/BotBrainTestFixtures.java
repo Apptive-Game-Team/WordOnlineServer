@@ -1,6 +1,5 @@
 package com.wordonline.server.game.domain.bot;
 
-import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.ObjectSummoningMagic;
 import com.wordonline.server.game.domain.object.Vector3;
@@ -20,8 +19,8 @@ final class BotBrainTestFixtures {
     }
 
     /** A magic that leaves nothing standing: the brain scores it against a target. */
-    static Magic offensive(long id, String name, CardType castType) {
-        Magic magic = new Magic(castType) {
+    static Magic offensive(long id, String name) {
+        Magic magic = new Magic() {
             @Override
             public void run(GameContext gameContext, Master master, Vector3 position) {
             }
@@ -32,8 +31,8 @@ final class BotBrainTestFixtures {
     }
 
     /** A magic that puts bodies on the field, which is what BoardValue prices. */
-    static Magic summon(long id, String name, CardType castType, PrefabType prefab, int quantity) {
-        TestSummon magic = new TestSummon(castType, prefab, quantity);
+    static Magic summon(long id, String name, PrefabType prefab, int quantity) {
+        TestSummon magic = new TestSummon(prefab, quantity);
         magic.id = id;
         magic.name = name;
         return magic;
@@ -44,8 +43,7 @@ final class BotBrainTestFixtures {
         private final PrefabType prefab;
         private final int quantity;
 
-        private TestSummon(CardType castType, PrefabType prefab, int quantity) {
-            super(castType);
+        private TestSummon(PrefabType prefab, int quantity) {
             this.prefab = prefab;
             this.quantity = quantity;
         }

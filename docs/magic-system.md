@@ -23,7 +23,7 @@ Client (WS JSON)
    +--> 2. Look the magic up (DatabaseMagicParser.parseMagic)
    |      |--> Check if the id names a known magic
    |      |--> Check if user has unlocked the magic in their inventory
-   +--> 3. Calculate target distance vs spell range parameters
+   +--> 3. Calculate target distance vs the magic's own range parameter
    +--> 4. Deduct the card and its mana cost (PlayerData.useCard)
    +--> 5. Call magic.run()
    +--> 6. Return the card to the bottom of the player's deck
@@ -78,6 +78,6 @@ When adding a new magic spell, developers use the following steps:
    - Add a versioned Flyway migration under `../database/migration/` and
      publish it before game-server code that requires the new magic.
    - Seed a row in `magics` (naming must match the Spring component name exactly) with its `element`.
-   - Register the default gameplay parameters (such as `mana_cost`, `range`, `damage`, `radius`) in `parameter_values`.
+   - Register the default gameplay parameters (such as `mana_cost`, `range`, `damage`, `radius`) in `parameter_values`, keyed by a `game_objects` row of the same name as the magic.
 3. **Define a Prefab Type**:
    - If the spell spawns a new physical entity, define a new `PrefabType` and implement a corresponding `PrefabInitializer` (see [Prefab System Reference](file:///Users/jeong-yunseong/development/word-online/dev/game-server/docs/prefab-system.md)).

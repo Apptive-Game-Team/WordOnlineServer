@@ -3,7 +3,6 @@ package com.wordonline.server.game.domain.bot;
 import com.wordonline.server.bot.domain.BotPersona;
 import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.Parameters;
-import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
@@ -28,23 +27,20 @@ import static org.mockito.Mockito.when;
 /**
  * The sign of {@code counterAggression} decides which direction of the matchup the brain scores.
  * Both cards here cost the same and place one body, so the counter term is the only thing that can
- * separate them.
- *
- * <p>Mana is still read with the cast type as the parameter key; issue #497 moves that key to the
- * magic name, which is why the two summons below carry different cast types to get two prices.
+ * separate them. Every price is read under the magic's own name.
  */
 class BotBrainTest {
 
     private static final Magic FAVOURABLE =
-            BotBrainTestFixtures.summon(1, "favourable", CardType.Spawn, PrefabType.FireSpirit, 1);
+            BotBrainTestFixtures.summon(1, "favourable", PrefabType.FireSpirit, 1);
     private static final Magic LOSING =
-            BotBrainTestFixtures.summon(2, "losing", CardType.Spawn, PrefabType.FireSpirit, 1);
+            BotBrainTestFixtures.summon(2, "losing", PrefabType.FireSpirit, 1);
     private static final Magic SHOT =
-            BotBrainTestFixtures.offensive(3, "shot", CardType.Shoot);
+            BotBrainTestFixtures.offensive(3, "shot");
     // 적 필드에 서 있는 유닛의 값을 정하는 마법. 봇이 낼 수 있는 5마나짜리보다 비싸야
     // "필드보다 싼 것만 낸다" 규칙이 후보를 남긴다.
     private static final Magic ENEMY_BOARD =
-            BotBrainTestFixtures.summon(4, "enemy_board", CardType.Build, PrefabType.FireSpirit, 1);
+            BotBrainTestFixtures.summon(4, "enemy_board", PrefabType.FireSpirit, 1);
 
     private final DatabaseMagicParser magicParser = mock(DatabaseMagicParser.class);
     private final BotCounterEvaluator counterEvaluator = mock(BotCounterEvaluator.class);
@@ -56,9 +52,10 @@ class BotBrainTest {
         priceEnemyBoardWith(ENEMY_BOARD);
         when(parameters.getValueOrDefault(anyString(), anyString(), anyDouble()))
                 .thenAnswer(invocation -> invocation.getArgument(2));
-        manaCost("Spawn", 5.0);
-        manaCost("Shoot", 5.0);
-        manaCost("Build", 25.0);
+        manaCost(FAVOURABLE, 5.0);
+        manaCost(LOSING, 5.0);
+        manaCost(SHOT, 5.0);
+        manaCost(ENEMY_BOARD, 25.0);
 
         when(counterEvaluator.evaluate(eq(FAVOURABLE), any())).thenReturn(10.0);
         when(counterEvaluator.evaluate(eq(LOSING), any())).thenReturn(0.0);
@@ -123,7 +120,8 @@ class BotBrainTest {
     // 25마나짜리 소환은 후보에서 빠지고 5마나짜리만 남는다.
     @Test
     void hospitalityOnlyCastsSummonsCheaperThanTheEnemyBoard() {
-        Magic tooBig = BotBrainTestFixtures.summon(5, "too_big", CardType.Build, PrefabType.FireSpirit, 1);
+        Magic tooBig = BotBrainTestFixtures.summon(5, "too_big", PrefabType.FireSpirit, 1);
+        manaCost(tooBig, 25.0);
         stubHand(tooBig);
 
         BotBrain.InputDecision decision = think(hospitalityPersona(), hand(tooBig, LOSING));
@@ -159,7 +157,8 @@ class BotBrainTest {
     @Test
     void aSwarmBodyIsWorthItsShareOfTheCast() {
         // 적 보드가 25가 아니라 5로 계산되므로 5마나짜리 소환도 규칙을 지키지 못한다.
-        Magic swarm = BotBrainTestFixtures.summon(6, "swarm", CardType.Build, PrefabType.FireSpirit, 5);
+        Magic swarm = BotBrainTestFixtures.summon(6, "swarm", PrefabType.FireSpirit, 5);
+        manaCost(swarm, 25.0);
         priceEnemyBoardWith(swarm);
 
         BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
@@ -172,7 +171,8 @@ class BotBrainTest {
     // nothing cheaper to cycle into either: waiting is the only move left, deadline or not.
     @Test
     void holdsForManaWhenNothingInHandIsAffordable() {
-        manaCost("Spawn", 200.0);
+        manaCost(FAVOURABLE, 200.0);
+        manaCost(LOSING, 200.0);
 
         BotBrain brain = new BotBrain(magicParser, counterEvaluator, hospitalityPersona());
 
@@ -197,8 +197,8 @@ class BotBrainTest {
         return new BotPersona(-1, "Host", BotTier.HOSPITALITY, 0, 1, -1.0, true, true);
     }
 
-    private void manaCost(String castType, double cost) {
-        when(parameters.getValueOrDefault(eq(castType), eq("mana_cost"), anyDouble())).thenReturn(cost);
+    private void manaCost(Magic magic, double cost) {
+        when(parameters.getValueOrDefault(eq(magic.name), eq("mana_cost"), anyDouble())).thenReturn(cost);
     }
 
     // 적 유닛의 가격은 그 유닛을 소환하는 마법의 시전 비용을 소환 개수로 나눈 값이다.

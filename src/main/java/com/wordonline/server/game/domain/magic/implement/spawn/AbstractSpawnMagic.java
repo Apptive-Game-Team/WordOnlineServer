@@ -2,7 +2,6 @@ package com.wordonline.server.game.domain.magic.implement.spawn;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.ObjectSummoningMagic;
 import com.wordonline.server.game.domain.object.GameObject;
@@ -27,7 +26,6 @@ public abstract class AbstractSpawnMagic extends Magic implements ObjectSummonin
     }
 
     protected AbstractSpawnMagic(PrefabType prefabType, GameObjectParameters parameters, float spawnHeight) {
-        super(CardType.Spawn);
         this.prefabType = prefabType;
         this.parameters = parameters;
         this.spawnHeight = spawnHeight;

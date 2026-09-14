@@ -197,10 +197,10 @@ public class MagicInputHandler {
         return gameContext.getParameters().getValue(parameterKey(magic), "range");
     }
 
-    // The cast type is still the parameter key. Issue #497 moves it to the magic name, which is
-    // what game_objects.name becomes once the migration lands.
+    // game_objects.name equals magics.name, so mana_cost and range are read under the magic's own
+    // name. There is no cast type left to key them by.
     private static String parameterKey(Magic magic) {
-        return magic.magicType.name();
+        return magic.name;
     }
 
     private Vector3 clampToRange(Vector3 origin, Vector3 position, double range) {
