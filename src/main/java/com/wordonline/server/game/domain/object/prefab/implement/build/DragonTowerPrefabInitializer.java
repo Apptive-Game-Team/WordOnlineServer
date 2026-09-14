@@ -7,10 +7,9 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
+import com.wordonline.server.game.domain.object.component.build.FlameBreath;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
-import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
-import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Component;
 
 @Component("dragon_tower_prefab")
 public class DragonTowerPrefabInitializer extends PrefabInitializer {
-
-    private static final String FIRE_SHOT_PROJECTILE_NAME = "FireShot";
 
     private final Parameters parameters;
 
@@ -36,13 +33,11 @@ public class DragonTowerPrefabInitializer extends PrefabInitializer {
         gameObject.addCollider(new CircleCollider(gameObject, dragonTowerParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new DummyMob(gameObject, dragonTowerParameters.intValue(ParameterKey.HP)));
         gameObject.getComponents().add(
-                new Tower(
+                new FlameBreath(
                         gameObject,
                         dragonTowerParameters.intValue(ParameterKey.DAMAGE),
-                        TargetMask.ANY.bit,
                         dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
-                        dragonTowerParameters.floatValue(ParameterKey.ATTACK_RANGE),
-                        FIRE_SHOT_PROJECTILE_NAME
+                        dragonTowerParameters.floatValue(ParameterKey.BEAM_WIDTH)
                 ));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, dragonTowerParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new RockDeathRemnant(gameObject));

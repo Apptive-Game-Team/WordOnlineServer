@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.build.FlameBreath;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Cannon;
@@ -89,6 +90,11 @@ public class FrenzyStatusEffect extends BaseStatusEffect {
         Tower tower = gameObject.getComponent(Tower.class);
         if (tower != null) {
             tower.getAttackInterval().setModifierPercent(modifier);
+        }
+
+        FlameBreath flameBreath = gameObject.getComponent(FlameBreath.class);
+        if (flameBreath != null) {
+            flameBreath.getAttackInterval().setModifierPercent(modifier);
         }
     }
 }
