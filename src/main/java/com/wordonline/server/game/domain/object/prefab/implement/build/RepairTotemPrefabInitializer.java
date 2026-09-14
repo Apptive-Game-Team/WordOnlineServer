@@ -30,11 +30,12 @@ public class RepairTotemPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         var repairTotemParameters = parameters.object(GameObjectKey.REPAIR_TOTEM);
         float radius = repairTotemParameters.floatValue(ParameterKey.RADIUS);
+        float effectRadius = repairTotemParameters.floatValue(ParameterKey.EFFECT_RADIUS);
 
         gameObject.addComponent(new RigidBody(gameObject, repairTotemParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, radius, false));
         gameObject.addComponent(new DummyMob(gameObject, repairTotemParameters.intValue(ParameterKey.HP)));
-        gameObject.addComponent(new RepairAura(gameObject, radius));
+        gameObject.addComponent(new RepairAura(gameObject, effectRadius));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, repairTotemParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new BuildingEffectReceiver(gameObject));
         gameObject.setElement(ElementType.NATURE);

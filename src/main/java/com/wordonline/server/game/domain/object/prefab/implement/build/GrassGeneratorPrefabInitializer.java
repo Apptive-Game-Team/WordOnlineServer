@@ -30,6 +30,7 @@ public class GrassGeneratorPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         var grassGeneratorParameters = parameters.object(GameObjectKey.GRASS_GENERATOR);
         float radius = grassGeneratorParameters.floatValue(ParameterKey.RADIUS);
+        float effectRadius = grassGeneratorParameters.floatValue(ParameterKey.EFFECT_RADIUS);
         float leafFieldRadius = parameters.object(GameObjectKey.LEAF_FIELD).floatValue(ParameterKey.RADIUS);
 
         gameObject.addComponent(new RigidBody(gameObject, grassGeneratorParameters.intValue(ParameterKey.MASS)));
@@ -38,7 +39,7 @@ public class GrassGeneratorPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new GrassSpread(
                 gameObject,
                 grassGeneratorParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
-                radius,
+                effectRadius,
                 grassGeneratorParameters.intValue(ParameterKey.QUANTITY),
                 leafFieldRadius
         ));
