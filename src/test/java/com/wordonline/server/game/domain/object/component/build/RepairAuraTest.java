@@ -1,7 +1,9 @@
 package com.wordonline.server.game.domain.object.component.build;
 
+import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
+import com.wordonline.server.game.domain.object.component.mob.Mob;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
@@ -25,9 +27,14 @@ class RepairAuraTest {
     }
 
     private GameObject allyWithSelfDestroyer(TimedSelfDestroyer selfDestroyer) {
+        // TargetCategory.of() classifies a target with a Mob whose speed is 0 as BUILDING,
+        // which is what repair_totem itself looks like (DummyMob(hp) with no movement).
         GameObject ally = mock(GameObject.class);
         when(ally.getMaster()).thenReturn(Master.LeftPlayer);
         when(ally.getComponent(TimedSelfDestroyer.class)).thenReturn(selfDestroyer);
+        Mob mob = mock(Mob.class);
+        when(mob.getSpeed()).thenReturn(new Stat(0f));
+        when(ally.getComponent(Mob.class)).thenReturn(mob);
         return ally;
     }
 
@@ -130,5 +137,57 @@ class RepairAuraTest {
 
         verify(gameContext, never()).overlapSphereAll(totem, 5f);
         verify(allySelfDestroyer, never()).freeze();
+    }
+
+    @Test
+    void ignoresAlliedNonBuildingTargetsWithNoMobOrDamageable() {
+        // TargetCategory.of() falls back to UNKNOWN when the target has neither a Mob nor a
+        // Damageable component, which is what an elemental field or a spell effect like
+        // sand_storm looks like even though it carries a TimedSelfDestroyer.
+        TimedSelfDestroyer fieldSelfDestroyer = mock(TimedSelfDestroyer.class);
+        GameObject field = mock(GameObject.class);
+        when(field.getMaster()).thenReturn(Master.LeftPlayer);
+        when(field.getComponent(TimedSelfDestroyer.class)).thenReturn(fieldSelfDestroyer);
+
+        RepairAura aura = aura(5f);
+        when(gameContext.overlapSphereAll(totem, 5f)).thenReturn(List.of(field));
+
+        aura.update();
+
+        verify(fieldSelfDestroyer, never()).freeze();
+    }
+
+    @Test
+    void ignoresAlliedUnitsWithPositiveSpeed() {
+        // TargetCategory.of() classifies a target with a Mob whose speed is above 0 as UNIT
+        // (e.g. a tadpole), which repair_totem must not freeze.
+        TimedSelfDestroyer unitSelfDestroyer = mock(TimedSelfDestroyer.class);
+        GameObject unit = mock(GameObject.class);
+        when(unit.getMaster()).thenReturn(Master.LeftPlayer);
+        when(unit.getComponent(TimedSelfDestroyer.class)).thenReturn(unitSelfDestroyer);
+        Mob mob = mock(Mob.class);
+        when(mob.getSpeed()).thenReturn(new Stat(1f));
+        when(unit.getComponent(Mob.class)).thenReturn(mob);
+
+        RepairAura aura = aura(5f);
+        when(gameContext.overlapSphereAll(totem, 5f)).thenReturn(List.of(unit));
+
+        aura.update();
+
+        verify(unitSelfDestroyer, never()).freeze();
+    }
+
+    @Test
+    void ignoresAnotherRepairTotemEvenThoughItIsAnAlliedBuilding() {
+        TimedSelfDestroyer otherTotemSelfDestroyer = mock(TimedSelfDestroyer.class);
+        GameObject otherTotem = allyWithSelfDestroyer(otherTotemSelfDestroyer);
+        when(otherTotem.getComponent(RepairAura.class)).thenReturn(mock(RepairAura.class));
+
+        RepairAura aura = aura(5f);
+        when(gameContext.overlapSphereAll(totem, 5f)).thenReturn(List.of(otherTotem));
+
+        aura.update();
+
+        verify(otherTotemSelfDestroyer, never()).freeze();
     }
 }
