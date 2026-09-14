@@ -14,6 +14,7 @@ import com.wordonline.server.game.domain.object.component.physic.RigidBody;
 import com.wordonline.server.game.domain.object.component.physic.ZPhysics;
 import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("fire_slime_prefab")
@@ -21,8 +22,13 @@ public class FireSlimePrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
 
+    @Autowired
     public FireSlimePrefabInitializer(Parameters parameters) {
-        super(PrefabType.FireSlime);
+        this(PrefabType.FireSlime, parameters);
+    }
+
+    protected FireSlimePrefabInitializer(PrefabType prefabType, Parameters parameters) {
+        super(prefabType);
         this.parameters = parameters;
     }
 

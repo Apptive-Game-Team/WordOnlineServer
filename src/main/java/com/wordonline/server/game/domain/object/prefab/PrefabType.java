@@ -112,7 +112,7 @@ public enum PrefabType {
     PveVineWitch("pve_vine_witch_prefab"),
 
     // New 2 card Magic
-    EmberSpirit("fire_slime_prefab"),
+    EmberSpirit("ember_spirit_prefab"),
     SeedSpirit("seed_spirit_prefab"),
     ZapMouse("zap_mouse_prefab"),
     StormStag("storm_stag_prefab"),
