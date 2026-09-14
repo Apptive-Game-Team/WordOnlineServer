@@ -5,9 +5,9 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
-import com.wordonline.server.game.domain.object.component.build.FlameBreath;
 import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
+import com.wordonline.server.game.domain.object.component.magic.FlameLauncher;
 import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DragonTowerPrefabInitializerTest {
@@ -35,25 +37,8 @@ class DragonTowerPrefabInitializerTest {
     }
 
     @Test
-    void buildsATowerThatBreathesForwardOnATimerAndExpiresAfterDuration() {
-        Parameters parameters = mock(Parameters.class);
-        GameObjectParameters dragonTowerParameters = mock(GameObjectParameters.class);
-        when(parameters.object(GameObjectKey.DRAGON_TOWER)).thenReturn(dragonTowerParameters);
-        when(dragonTowerParameters.floatValue(ParameterKey.RADIUS)).thenReturn(0.8f);
-        when(dragonTowerParameters.intValue(ParameterKey.HP)).thenReturn(120);
-        when(dragonTowerParameters.intValue(ParameterKey.DAMAGE)).thenReturn(30);
-        when(dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(1.5f);
-        when(dragonTowerParameters.floatValue(ParameterKey.BEAM_WIDTH)).thenReturn(1f);
-        when(dragonTowerParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
-
-        GameObject dragonTower = new GameObject(
-                Master.LeftPlayer,
-                PrefabType.DragonTower,
-                Vector3.ZERO,
-                mock(GameContext.class)
-        );
-
-        new DragonTowerPrefabInitializer(parameters).initialize(dragonTower);
+    void buildsALauncherTowerThatExpiresAfterDuration() {
+        GameObject dragonTower = initializedDragonTower();
 
         assertThat(dragonTower.getElement().has(ElementType.FIRE)).isTrue();
 
@@ -66,9 +51,9 @@ class DragonTowerPrefabInitializerTest {
         assertThat(mob.getHp()).isEqualTo(120);
         assertThat(mob.getMaxHp()).isEqualTo(120);
 
-        FlameBreath flameBreath = findComponent(dragonTower, FlameBreath.class);
-        assertThat(flameBreath).isNotNull();
-        assertThat(flameBreath.getAttackInterval().total()).isEqualTo(1.5f);
+        FlameLauncher launcher = findComponent(dragonTower, FlameLauncher.class);
+        assertThat(launcher).isNotNull();
+        assertThat(launcher.getAttackInterval().total()).isEqualTo(1.5f);
 
         TimedSelfDestroyer selfDestroyer = findComponent(dragonTower, TimedSelfDestroyer.class);
         assertThat(selfDestroyer).isNotNull();
@@ -78,12 +63,31 @@ class DragonTowerPrefabInitializerTest {
         assertThat(findComponent(dragonTower, CommonEffectReceiver.class)).isNotNull();
     }
 
-    // dragon_tower no longer picks a target, so it must not carry the detector-driven Tower
+    // dragon_tower does not pick a target, so it must not carry the detector-driven Tower
     // component that every other tower uses.
     @Test
     void doesNotAttachTheTargetingTowerComponent() {
+        assertThat(findComponent(initializedDragonTower(), Tower.class)).isNull();
+    }
+
+    // attack_range is carried for the client indicator only. Reading it here would make the
+    // server's behaviour depend on a number the migration is free to keep in step with
+    // dragon_flame.radius instead.
+    @Test
+    void neverReadsAttackRange() {
+        GameObjectParameters dragonTowerParameters = dragonTowerParameters();
+
+        initializedDragonTower(dragonTowerParameters);
+
+        verify(dragonTowerParameters, never()).floatValue(ParameterKey.ATTACK_RANGE);
+    }
+
+    private GameObject initializedDragonTower() {
+        return initializedDragonTower(dragonTowerParameters());
+    }
+
+    private GameObject initializedDragonTower(GameObjectParameters dragonTowerParameters) {
         Parameters parameters = mock(Parameters.class);
-        GameObjectParameters dragonTowerParameters = mock(GameObjectParameters.class);
         when(parameters.object(GameObjectKey.DRAGON_TOWER)).thenReturn(dragonTowerParameters);
 
         GameObject dragonTower = new GameObject(
@@ -94,8 +98,16 @@ class DragonTowerPrefabInitializerTest {
         );
 
         new DragonTowerPrefabInitializer(parameters).initialize(dragonTower);
+        return dragonTower;
+    }
 
-        assertThat(findComponent(dragonTower, Tower.class)).isNull();
+    private GameObjectParameters dragonTowerParameters() {
+        GameObjectParameters dragonTowerParameters = mock(GameObjectParameters.class);
+        when(dragonTowerParameters.floatValue(ParameterKey.RADIUS)).thenReturn(0.8f);
+        when(dragonTowerParameters.intValue(ParameterKey.HP)).thenReturn(120);
+        when(dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(1.5f);
+        when(dragonTowerParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
+        return dragonTowerParameters;
     }
 
     // Some components land in `components` and others in the pending `componentsToAdd` queue

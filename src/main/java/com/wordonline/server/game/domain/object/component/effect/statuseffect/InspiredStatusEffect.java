@@ -2,7 +2,7 @@ package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.build.FlameBreath;
+import com.wordonline.server.game.domain.object.component.magic.FlameLauncher;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.simple.TimedBehaviorMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
@@ -36,9 +36,9 @@ public class InspiredStatusEffect extends BaseStatusEffect {
             tower.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
         }
 
-        FlameBreath flameBreath = gameObject.getComponent(FlameBreath.class);
-        if (flameBreath != null) {
-            flameBreath.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
+        FlameLauncher flameLauncher = gameObject.getComponent(FlameLauncher.class);
+        if (flameLauncher != null) {
+            flameLauncher.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
         }
     }
 
@@ -63,9 +63,9 @@ public class InspiredStatusEffect extends BaseStatusEffect {
             tower.getAttackInterval().setModifierPercent(0f);
         }
 
-        FlameBreath flameBreath = gameObject.getComponent(FlameBreath.class);
-        if (flameBreath != null) {
-            flameBreath.getAttackInterval().setModifierPercent(0f);
+        FlameLauncher flameLauncher = gameObject.getComponent(FlameLauncher.class);
+        if (flameLauncher != null) {
+            flameLauncher.getAttackInterval().setModifierPercent(0f);
         }
 
         super.expire();
