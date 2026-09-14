@@ -53,10 +53,10 @@ class TitanRemnantPrefabInitializerTest {
         assertThat(components(remnant)).anyMatch(RigidBody.class::isInstance);
         assertThat(components(remnant)).anyMatch(TitanRemnantMob.class::isInstance);
         assertThat(components(remnant)).anyMatch(BuildingEffectReceiver.class::isInstance);
-        assertThat(components(remnant))
+        assertThat(components(remnant)
                 .filter(TimedSelfDestroyer.class::isInstance)
                 .map(TimedSelfDestroyer.class::cast)
-                .map(TimedSelfDestroyer::getGauge)
+                .map(TimedSelfDestroyer::getGauge))
                 .anyMatch(gauge -> gauge.category() == GaugeCategory.TTL
                         && gauge.maxValue() == 15f);
     }
