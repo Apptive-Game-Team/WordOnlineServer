@@ -31,7 +31,7 @@ class GameLoopFailureEndTest {
 
         GameLoop loop = new GameLoop(mmrService, userService, gameContext, null) {
             @Override
-            void update() {
+            protected void update() {
                 beforeThrow.run();
                 throw new IllegalStateException("boom");
             }
