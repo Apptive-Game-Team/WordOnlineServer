@@ -89,6 +89,7 @@ public enum GameObjectKey {
     TITAN_FIST("titan_fist"),
     TITAN_REMNANT("titan_remnant"),
     TIDE_CALL("tide_call"),
+    TIDAL_WARHEAD("tidal_warhead"),
     VINE_COUNT("vine_count"),
     VINE_SPACING("vine_spacing"),
     VINE_SPAWN_INTERVAL("vine_spawn_interval"),
