@@ -4,6 +4,7 @@ import com.wordonline.server.game.config.GameConfig;
 import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.component.IntervalAttacker;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.Status;
@@ -19,7 +20,7 @@ import lombok.Getter;
  * {@link com.wordonline.server.game.domain.object.component.build.WindPushComponent} uses, since a
  * GameObject carries no facing vector.
  */
-public class FlameLauncher extends MagicComponent {
+public class FlameLauncher extends MagicComponent implements IntervalAttacker {
 
     @Getter
     private final Stat attackInterval;
