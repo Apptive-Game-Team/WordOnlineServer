@@ -20,6 +20,7 @@ import com.wordonline.server.game.dto.frame.GaugeCategory;
 import com.wordonline.server.game.dto.frame.GaugeDto;
 import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -38,7 +39,10 @@ class GrassGeneratorPrefabInitializerTest {
         when(parameters.object(GameObjectKey.GRASS_GENERATOR)).thenReturn(grassGeneratorParameters);
         when(parameters.object(GameObjectKey.LEAF_FIELD)).thenReturn(leafFieldParameters);
         when(grassGeneratorParameters.intValue(ParameterKey.MASS)).thenReturn(99999);
+        // RADIUS (body collider) and EFFECT_RADIUS (spread distance) are mocked to different
+        // values so a test that reads the wrong one fails instead of passing by coincidence.
         when(grassGeneratorParameters.floatValue(ParameterKey.RADIUS)).thenReturn(5f);
+        when(grassGeneratorParameters.floatValue(ParameterKey.EFFECT_RADIUS)).thenReturn(7f);
         when(grassGeneratorParameters.intValue(ParameterKey.HP)).thenReturn(60);
         when(grassGeneratorParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(3f);
         when(grassGeneratorParameters.intValue(ParameterKey.QUANTITY)).thenReturn(6);
@@ -65,6 +69,13 @@ class GrassGeneratorPrefabInitializerTest {
                 .filteredOn(CircleCollider.class::isInstance)
                 .map(CircleCollider.class::cast)
                 .anyMatch(collider -> collider.getRadius() == 5f && !collider.isTrigger());
+
+        GrassSpread grassSpread = components.stream()
+                .filter(GrassSpread.class::isInstance)
+                .map(GrassSpread.class::cast)
+                .findFirst()
+                .orElseThrow();
+        assertThat(ReflectionTestUtils.getField(grassSpread, "radius")).isEqualTo(7f);
 
         TimedSelfDestroyer selfDestroyer = components.stream()
                 .filter(TimedSelfDestroyer.class::isInstance)
