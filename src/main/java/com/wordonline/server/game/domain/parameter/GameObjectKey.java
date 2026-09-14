@@ -82,6 +82,8 @@ public enum GameObjectKey {
     STORM_RIDER("storm_rider"),
     THUNDER_BIRD("thunder_bird"),
     THUNDER_SPIRIT("thunder_spirit"),
+    TITAN_FIST("titan_fist"),
+    TITAN_REMNANT("titan_remnant"),
     TIDE_CALL("tide_call"),
     VINE_COUNT("vine_count"),
     VINE_SPACING("vine_spacing"),
