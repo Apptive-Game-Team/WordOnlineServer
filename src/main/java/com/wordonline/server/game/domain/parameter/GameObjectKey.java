@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.parameter;
 public enum GameObjectKey {
     AQUA_ARCHER("aqua_archer"),
     BUBBLE_GENERATOR("bubble_generator"),
+    BOULDER_STRIKE("boulder_strike"),
     BUBBLE_SPIRIT("bubble_spirit"),
     BUILD("build"),
     CHAIN_LIGHTNING("chain_lightning"),
