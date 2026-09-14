@@ -31,8 +31,10 @@ tables are described below:
 - **`cards`**: Contains element cards used for recipes.
   - Columns: `id` (bigint), `name` (varchar), `card_type` (enum 'Magic', 'Type').
 - **`magics`**: Holds spells registered in the game.
-  - Columns: `id` (bigserial), `name` (varchar).
-  - **Rule**: `magics.name` value must match the corresponding Spring magic bean component name in lowercase (e.g. `fire_shot`, `leafair`).
+  - Columns: `id` (bigserial), `name` (varchar), `cast_kind` (varchar, nullable), `game_object_id` (bigint, nullable, FK -> `game_objects`).
+  - `cast_kind` is how the server builds the spell: `Shot`, `Drop`, `Explosion`, `Summon`, `Spawn`, or `Code`. Anything but `Code` is built from data and needs no Java class; `Code` (and an empty `cast_kind`) is looked up as a Spring bean.
+  - `game_object_id` points at what the spell creates. The prefab name comes from that row's `game_objects.prefab`, and a spawn family reads its `quantity` from that row's parameters.
+  - **Rule**: a `Code` magic's `magics.name` must match the corresponding Spring magic bean component name in lowercase (e.g. `spirit_bomb`, `vine_toss`).
 - **`magic_cards`**: Junction table mapping card combinations to magic spells.
   - Columns: `id`, `magic_id`, `card_id`.
 - **`user_magics`**: Junction table mapping which magic spells are unlocked/owned by each user.
@@ -53,11 +55,15 @@ tables are described below:
 To tweak gameplay metrics without re-compiling Java code, dimensions like range, damage, speed, and mana costs are stored in the DB and loaded dynamically at startup:
 
 - **`game_objects`**: Defines physical objects/prefabs in the game.
-  - Columns: `id` (bigserial), `name` (varchar, unique, e.g., `leafair_prefab`).
+  - Columns: `id` (bigserial), `name` (varchar, unique, e.g., `leafair_prefab`), `prefab` (varchar, nullable).
+  - `prefab` holds a `PrefabType` enum constant name (e.g. `EmberSpirit`, `GroundCannon`). It is not the prefab bean name and not always the object's own name: `PrefabType.EmberSpirit` has bean name `fire_slime_prefab`, and the magic that summons it reads its `quantity` from the `ember_spirit` row.
 - **`parameters`**: Defines parameter names.
   - Columns: `id` (bigserial), `name` (varchar, unique, e.g., `damage`, `radius`, `speed`, `range`, `mana_cost`).
 - **`parameter_values`**: Junction table mapping objects and parameters to numeric values.
   - Columns: `id`, `parameter_id`, `game_object_id`, `value` (double).
+- **`magic_parameters`**: The same thing for a magic rather than an object - values the cast itself needs.
+  - Columns: `id`, `magic_id`, `parameter_id`, `value` (double).
+  - So far only `spawn_height`, which overrides the family default: `Spawn` starts at 0, `Drop` at `GameConfig.DROP_MAGIC_INITIAL_HEIGHT`, and `Summon` keeps the aim point's own height when no row exists.
 
 ### Querying Parameters at Runtime
 At runtime, classes can access these values using the [Parameters](file:///Users/jeong-yunseong/development/word-online/dev/game-server/src/main/java/com/wordonline/server/game/domain/Parameters.java) domain object.

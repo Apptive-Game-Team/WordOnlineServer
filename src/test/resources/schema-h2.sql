@@ -46,7 +46,8 @@ ALTER TABLE users
 
 CREATE TABLE game_objects (
   id BIGSERIAL PRIMARY KEY,
-  name VARCHAR(31) UNIQUE
+  name VARCHAR(31) UNIQUE,
+  prefab VARCHAR(63)
 );
 
 CREATE TABLE parameters(
@@ -87,7 +88,9 @@ ALTER TABLE deck_cards
 -- Statistic tables
 CREATE TABLE magics (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255),
+    cast_kind VARCHAR(15),
+    game_object_id BIGINT REFERENCES game_objects(id)
 );
 
 CREATE TABLE statistic_games (
@@ -166,6 +169,14 @@ CREATE TABLE magic_cards (
     id BIGSERIAL PRIMARY KEY,
     magic_id BIGINT REFERENCES magics(id),
     card_id BIGINT REFERENCES cards(id)
+);
+
+CREATE TABLE magic_parameters(
+    id BIGSERIAL PRIMARY KEY,
+    magic_id BIGINT REFERENCES magics(id),
+    parameter_id BIGINT REFERENCES parameters(id),
+    value DOUBLE PRECISION,
+    CONSTRAINT uq_magic_parameter UNIQUE (magic_id, parameter_id)
 );
 
 CREATE TABLE bot_personas (

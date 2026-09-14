@@ -1,0 +1,55 @@
+package com.wordonline.server.game.domain.magic.implement.drop;
+
+import com.wordonline.server.game.config.GameConfig;
+import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.prefab.PrefabType;
+import com.wordonline.server.game.dto.Master;
+import com.wordonline.server.game.service.GameContext;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+class DropMagicTest {
+
+    @Test
+    void spawnsStormCloudAtGroundHeight() {
+        GameContext gameContext = mock(GameContext.class);
+
+        new DropMagic(PrefabType.LightningCloud, 0f).run(
+                gameContext,
+                Master.LeftPlayer,
+                new Vector3(4f, 7f, 6f)
+        );
+
+        ArgumentCaptor<GameObject> gameObjectCaptor = ArgumentCaptor.forClass(GameObject.class);
+        verify(gameContext).createGameObject(gameObjectCaptor.capture());
+
+        GameObject stormCloud = gameObjectCaptor.getValue();
+        assertThat(stormCloud.getType()).isEqualTo(PrefabType.LightningCloud);
+        assertThat(stormCloud.getPosition())
+                .usingRecursiveComparison()
+                .isEqualTo(new Vector3(4f, 0f, 6f));
+    }
+
+    @Test
+    void dropsFromTheDefaultHeightWhenNoSpawnHeightIsGiven() {
+        GameContext gameContext = mock(GameContext.class);
+
+        new DropMagic(PrefabType.RockDrop, GameConfig.DROP_MAGIC_INITIAL_HEIGHT).run(
+                gameContext,
+                Master.LeftPlayer,
+                new Vector3(4f, 0f, 6f)
+        );
+
+        ArgumentCaptor<GameObject> gameObjectCaptor = ArgumentCaptor.forClass(GameObject.class);
+        verify(gameContext).createGameObject(gameObjectCaptor.capture());
+
+        assertThat(gameObjectCaptor.getValue().getPosition())
+                .usingRecursiveComparison()
+                .isEqualTo(new Vector3(4f, GameConfig.DROP_MAGIC_INITIAL_HEIGHT, 6f));
+    }
+}
