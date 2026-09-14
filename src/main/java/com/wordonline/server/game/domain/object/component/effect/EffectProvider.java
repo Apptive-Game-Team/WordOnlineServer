@@ -5,9 +5,11 @@ import com.wordonline.server.game.domain.object.component.effect.receiver.Effect
 import com.wordonline.server.game.domain.object.component.physic.Collidable;
 import com.wordonline.server.game.domain.object.component.Component;
 import com.wordonline.server.game.dto.Effect;
+import lombok.Getter;
 
 public class EffectProvider extends Component implements Collidable {
 
+    @Getter
     protected final Effect effect;
 
     @Override
