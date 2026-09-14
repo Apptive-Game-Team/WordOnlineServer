@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.prefab.PrefabInitializer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("tidal_warhead_prefab")
@@ -18,6 +19,7 @@ public class TidalWarheadPrefabInitializer extends PrefabInitializer {
 
     private final Parameters parameters;
 
+    @Autowired
     public TidalWarheadPrefabInitializer(Parameters parameters) {
         this(PrefabType.TidalWarhead, parameters);
     }
