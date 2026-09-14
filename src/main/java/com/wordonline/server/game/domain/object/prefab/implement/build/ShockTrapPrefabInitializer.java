@@ -7,7 +7,6 @@ import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
-import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.effect.receiver.BuildingEffectReceiver;
 import com.wordonline.server.game.domain.object.component.magic.ShockTrapDetector;
 import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
@@ -36,10 +35,8 @@ public class ShockTrapPrefabInitializer extends PrefabInitializer {
                 gameObject,
                 shockTrapParameters.floatValue(ParameterKey.RADIUS),
                 shockTrapParameters.floatValue(ParameterKey.TRIGGER_DELAY),
-                shockTrapParameters.floatValue(ParameterKey.STUN_DURATION),
-                shockTrapParameters.floatValue(ParameterKey.ATTACK_INTERVAL)
+                shockTrapParameters.floatValue(ParameterKey.STUN_DURATION)
         ));
-        gameObject.addComponent(new TimedSelfDestroyer(gameObject, shockTrapParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new BuildingEffectReceiver(gameObject));
         gameObject.setElement(ElementType.LIGHTNING);
     }

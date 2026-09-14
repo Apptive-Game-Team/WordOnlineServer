@@ -16,34 +16,31 @@ import com.wordonline.server.game.dto.Status;
 import com.wordonline.server.game.dto.frame.GameEventDto;
 
 /**
- * Arms on placement, waits for an opponent to enter {@code radius}, counts down
- * {@code triggerDelay}, then stuns whoever is still inside the radius at that moment.
- * The trap itself survives the trigger: it reloads for {@code attackInterval} and then
- * re-arms, instead of destroying itself like {@link Explode} does.
+ * Arms on placement and stays on the field indefinitely: nothing ages it out. It waits
+ * for an opponent to enter {@code radius}, counts down {@code triggerDelay}, then stuns
+ * whoever is still inside the radius at that moment and destroys itself, the same
+ * one-shot shape as {@link Explode}. The only other way it leaves the field is an enemy
+ * killing its {@code DummyMob} hit points.
  */
 public class ShockTrapDetector extends Component {
 
     private final float radius;
     private final float triggerDelay;
     private final float stunDuration;
-    private final float attackInterval;
 
-    private boolean armed = true;
     private boolean counting = false;
+    private boolean triggered = false;
     private float triggerCounter = 0f;
-    private float reloadCounter = 0f;
 
     public ShockTrapDetector(
             GameObject gameObject,
             float radius,
             float triggerDelay,
-            float stunDuration,
-            float attackInterval) {
+            float stunDuration) {
         super(gameObject);
         this.radius = radius;
         this.triggerDelay = triggerDelay;
         this.stunDuration = stunDuration;
-        this.attackInterval = attackInterval;
     }
 
     @Override
@@ -53,8 +50,7 @@ public class ShockTrapDetector extends Component {
 
     @Override
     public void update() {
-        if (!armed) {
-            reload();
+        if (triggered) {
             return;
         }
 
@@ -80,25 +76,14 @@ public class ShockTrapDetector extends Component {
         gameObject.removeEffect(Effect.ShockTrapArming);
     }
 
-    private void reload() {
-        reloadCounter += getGameContext().getDeltaTime();
-        if (reloadCounter >= attackInterval) {
-            armed = true;
-            reloadCounter = 0f;
-        }
-    }
-
     private void trigger() {
         detectEnemies().forEach(this::stun);
 
         gameObject.removeEffect(Effect.ShockTrapArming);
         gameObject.setStatus(Status.Attack);
         getGameContext().addEvent(GameEventDto.shock(gameObject.getId()));
-
-        counting = false;
-        triggerCounter = 0f;
-        armed = false;
-        reloadCounter = 0f;
+        triggered = true;
+        gameObject.destroy();
     }
 
     private List<GameObject> detectEnemies() {

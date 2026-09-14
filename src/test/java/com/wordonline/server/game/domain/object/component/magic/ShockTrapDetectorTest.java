@@ -26,7 +26,6 @@ class ShockTrapDetectorTest {
     private static final float RADIUS = 3f;
     private static final float TRIGGER_DELAY = 2f;
     private static final float STUN_DURATION = 1.5f;
-    private static final float ATTACK_INTERVAL = 4f;
     private static final int TRAP_ID = 42;
 
     @Test
@@ -39,7 +38,7 @@ class ShockTrapDetectorTest {
         when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         detector.update(); // enemy first seen: countdown starts, does not consume time yet
         verify(receiver, never()).applyEffect(any(), any(), any(), anyFloat());
@@ -61,7 +60,7 @@ class ShockTrapDetectorTest {
         when(enemy.getComponent(CommonEffectReceiver.class)).thenReturn(receiver);
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
         detector.update(); // enemy seen: countdown starts
@@ -83,7 +82,7 @@ class ShockTrapDetectorTest {
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
         when(trap.getId()).thenReturn(TRAP_ID);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         detector.update(); // enemy first seen: countdown starts
         verify(gameContext, never()).addEvent(any());
@@ -102,7 +101,7 @@ class ShockTrapDetectorTest {
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
         when(trap.getId()).thenReturn(TRAP_ID);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
         detector.update(); // enemy seen: countdown starts
@@ -124,7 +123,7 @@ class ShockTrapDetectorTest {
         when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         detector.update(); // enemy first seen: countdown starts
         verify(trap, times(1)).addEffect(Effect.ShockTrapArming);
@@ -142,7 +141,7 @@ class ShockTrapDetectorTest {
         when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         detector.update(); // enemy seen: countdown starts, arming effect added
         detector.onDestroy();
@@ -151,7 +150,7 @@ class ShockTrapDetectorTest {
     }
 
     @Test
-    void doesNotTriggerAgainBeforeReloadingAndRearmsAfterAttackInterval() {
+    void destroysItselfWhenTheTriggerFiresAndDoesNotStunASecondTime() {
         GameObject trap = mock(GameObject.class);
         GameContext gameContext = mock(GameContext.class);
         GameObject enemy = enemyOf(trap, gameContext);
@@ -160,23 +159,35 @@ class ShockTrapDetectorTest {
         when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
         when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
 
-        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION, ATTACK_INTERVAL);
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
 
         detector.update(); // enemy seen: countdown starts
-        detector.update(); // countdown elapses: first stun
+        detector.update(); // countdown elapses: trap discharges and destroys itself
+        verify(trap, times(1)).destroy();
         verify(receiver, times(1)).applyEffect(
                 eq(StatusEffectKey.TrapStun_Receive), any(), eq(EffectApplyPolicy.REFRESH_DURATION), eq(STUN_DURATION));
 
-        // enemy is still sitting in range, but the trap must reload for ATTACK_INTERVAL seconds first
-        detector.update(); // reloadCounter == TRIGGER_DELAY (< ATTACK_INTERVAL)
+        // the enemy is still sitting in range, but the trap already discharged and must not fire again
+        detector.update();
+        verify(trap, times(1)).destroy();
         verify(receiver, times(1)).applyEffect(
                 eq(StatusEffectKey.TrapStun_Receive), any(), eq(EffectApplyPolicy.REFRESH_DURATION), eq(STUN_DURATION));
+    }
 
-        detector.update(); // reloadCounter == 2 * TRIGGER_DELAY == ATTACK_INTERVAL: re-arms, no detection this tick
-        detector.update(); // re-armed: enemy still present, countdown starts again
-        detector.update(); // countdown elapses again: second stun
-        verify(receiver, times(2)).applyEffect(
-                eq(StatusEffectKey.TrapStun_Receive), any(), eq(EffectApplyPolicy.REFRESH_DURATION), eq(STUN_DURATION));
+    @Test
+    void doesNotDestroyItselfBeforeTheTriggerFires() {
+        GameObject trap = mock(GameObject.class);
+        GameContext gameContext = mock(GameContext.class);
+        GameObject enemy = enemyOf(trap, gameContext);
+        CommonEffectReceiver receiver = mock(CommonEffectReceiver.class);
+        when(enemy.getComponent(CommonEffectReceiver.class)).thenReturn(receiver);
+        when(gameContext.overlapSphereAll(trap, RADIUS)).thenReturn(List.of(enemy));
+        when(gameContext.getDeltaTime()).thenReturn(TRIGGER_DELAY);
+
+        ShockTrapDetector detector = new ShockTrapDetector(trap, RADIUS, TRIGGER_DELAY, STUN_DURATION);
+
+        detector.update(); // enemy first seen: countdown starts, does not consume time yet
+        verify(trap, never()).destroy();
     }
 
     private GameObject enemyOf(GameObject trap, GameContext gameContext) {
