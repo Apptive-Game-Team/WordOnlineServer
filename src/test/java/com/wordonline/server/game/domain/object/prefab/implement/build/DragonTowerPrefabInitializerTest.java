@@ -18,13 +18,12 @@ import com.wordonline.server.game.domain.parameter.ParameterKey;
 import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DragonTowerPrefabInitializerTest {
@@ -54,6 +53,7 @@ class DragonTowerPrefabInitializerTest {
         FlameLauncher launcher = findComponent(dragonTower, FlameLauncher.class);
         assertThat(launcher).isNotNull();
         assertThat(launcher.getAttackInterval().total()).isEqualTo(1.5f);
+        assertThat(ReflectionTestUtils.getField(launcher, "attackRange")).isEqualTo(8f);
 
         TimedSelfDestroyer selfDestroyer = findComponent(dragonTower, TimedSelfDestroyer.class);
         assertThat(selfDestroyer).isNotNull();
@@ -68,18 +68,6 @@ class DragonTowerPrefabInitializerTest {
     @Test
     void doesNotAttachTheTargetingTowerComponent() {
         assertThat(findComponent(initializedDragonTower(), Tower.class)).isNull();
-    }
-
-    // attack_range is carried for the client indicator only. Reading it here would make the
-    // server's behaviour depend on a number the migration is free to keep in step with
-    // dragon_flame.radius instead.
-    @Test
-    void neverReadsAttackRange() {
-        GameObjectParameters dragonTowerParameters = dragonTowerParameters();
-
-        initializedDragonTower(dragonTowerParameters);
-
-        verify(dragonTowerParameters, never()).floatValue(ParameterKey.ATTACK_RANGE);
     }
 
     private GameObject initializedDragonTower() {
@@ -106,6 +94,7 @@ class DragonTowerPrefabInitializerTest {
         when(dragonTowerParameters.floatValue(ParameterKey.RADIUS)).thenReturn(0.8f);
         when(dragonTowerParameters.intValue(ParameterKey.HP)).thenReturn(120);
         when(dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(1.5f);
+        when(dragonTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)).thenReturn(8f);
         when(dragonTowerParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
         return dragonTowerParameters;
     }

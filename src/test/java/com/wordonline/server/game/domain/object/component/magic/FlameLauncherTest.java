@@ -3,6 +3,7 @@ package com.wordonline.server.game.domain.object.component.magic;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.component.DistanceSelfDestroyer;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.object.prefab.implement.fire.DragonFlamePrefabInitializer;
 import com.wordonline.server.game.domain.parameter.GameObjectKey;
@@ -13,6 +14,7 @@ import com.wordonline.server.game.service.GameContext;
 import com.wordonline.server.game.service.ObjectsInfoDtoBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.when;
 class FlameLauncherTest {
 
     private static final float ATTACK_INTERVAL = 1.5f;
+    private static final float ATTACK_RANGE = 8f;
     private static final float FLAME_SPEED = 8f;
     private static final int FLAME_DAMAGE = 30;
 
@@ -64,6 +67,21 @@ class FlameLauncherTest {
         assertThat(flame.getComponent(Shot.class).getDirection()).isEqualTo(Vector3.RIGHT);
     }
 
+    // the flame stops at the range rather than at the field edge, and the range is the tower's
+    // own attack_range, so one number is both what the server flies and what the client draws
+    @Test
+    void givesTheFlameTheTowersRangeToFly() {
+        FlameLauncher launcher = launcherOn(towerAt(new Vector3(4f, 0f, 5f), Master.LeftPlayer));
+
+        launcher.update();
+
+        GameObject flame = created.getFirst();
+        DistanceSelfDestroyer selfDestroyer = pendingComponent(flame, DistanceSelfDestroyer.class);
+        assertThat(selfDestroyer).isNotNull();
+        assertThat(ReflectionTestUtils.getField(selfDestroyer, "maxDistance")).isEqualTo(ATTACK_RANGE);
+        assertThat(ReflectionTestUtils.getField(selfDestroyer, "origin")).isEqualTo(new Vector3(4f, 0f, 5f));
+    }
+
     @Test
     void aimsTheOtherWayForTheRightPlayer() {
         FlameLauncher launcher = launcherOn(towerAt(new Vector3(14f, 0f, 5f), Master.RightPlayer));
@@ -78,7 +96,7 @@ class FlameLauncherTest {
     void holdsItsFireUntilTheAttackIntervalHasPassed() {
         GameObject tower = towerAt(new Vector3(4f, 0f, 5f), Master.LeftPlayer);
         when(gameContext.getDeltaTime()).thenReturn(1f);
-        FlameLauncher launcher = new FlameLauncher(tower, ATTACK_INTERVAL);
+        FlameLauncher launcher = new FlameLauncher(tower, ATTACK_INTERVAL, ATTACK_RANGE);
 
         launcher.update();
         assertThat(created).isEmpty();
@@ -97,9 +115,17 @@ class FlameLauncherTest {
         assertThat(created).isEmpty();
     }
 
+    private <T> T pendingComponent(GameObject gameObject, Class<T> clazz) {
+        return gameObject.getComponentsToAdd().stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .findFirst()
+                .orElse(null);
+    }
+
     private FlameLauncher launcherOn(GameObject tower) {
         when(gameContext.getDeltaTime()).thenReturn(ATTACK_INTERVAL);
-        return new FlameLauncher(tower, ATTACK_INTERVAL);
+        return new FlameLauncher(tower, ATTACK_INTERVAL, ATTACK_RANGE);
     }
 
     private GameObject towerAt(Vector3 position, Master master) {

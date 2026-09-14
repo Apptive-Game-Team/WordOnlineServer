@@ -30,14 +30,13 @@ public class DragonTowerPrefabInitializer extends PrefabInitializer {
     public void initialize(GameObject gameObject) {
         var dragonTowerParameters = parameters.object(GameObjectKey.DRAGON_TOWER);
 
-        // dragon_tower.attack_range is not read here: it exists only so the client indicator can
-        // draw how wide the flame is before the tower is placed. The real value is
-        // dragon_flame.radius, and the database migration is what keeps the two equal.
         gameObject.getComponents().add(new RigidBody(gameObject, dragonTowerParameters.intValue(ParameterKey.MASS)));
         gameObject.addCollider(new CircleCollider(gameObject, dragonTowerParameters.floatValue(ParameterKey.RADIUS), false));
         gameObject.addComponent(new DummyMob(gameObject, dragonTowerParameters.intValue(ParameterKey.HP)));
-        gameObject.getComponents().add(
-                new FlameLauncher(gameObject, dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)));
+        gameObject.getComponents().add(new FlameLauncher(
+                gameObject,
+                dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL),
+                dragonTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)));
         gameObject.addComponent(new TimedSelfDestroyer(gameObject, dragonTowerParameters.floatValue(ParameterKey.DURATION)));
         gameObject.addComponent(new RockDeathRemnant(gameObject));
         gameObject.setElement(ElementType.FIRE);
