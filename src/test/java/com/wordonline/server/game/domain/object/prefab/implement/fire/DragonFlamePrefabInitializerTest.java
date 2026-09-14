@@ -53,7 +53,29 @@ class DragonFlamePrefabInitializerTest {
         assertThat(ReflectionTestUtils.getField(effectProvider, "effect")).isEqualTo(Effect.Burn);
     }
 
+    // Shot itself has no despawn rule; GameObject.setPosition destroys anything it moves past the
+    // field bounds. dragon_flame leans on that, because unlike fire_shot it is always fired with
+    // no target and reaches the edge whenever its row is empty.
+    @Test
+    void isDestroyedWhenItFliesOffTheField() {
+        GameObject dragonFlame = initializedDragonFlame(new Vector3(4f, 0f, 5f));
+        when(dragonFlame.getGameContext().getDeltaTime()).thenReturn(1f);
+        Shot shot = findComponent(dragonFlame, Shot.class);
+        shot.setTarget(new Vector3(18f, 0f, 5f));
+
+        shot.update();
+        assertThat(dragonFlame.getPosition().getX()).isEqualTo(12f);
+        assertThat(dragonFlame.isDestroyed()).isFalse();
+
+        shot.update();
+        assertThat(dragonFlame.isDestroyed()).isTrue();
+    }
+
     private GameObject initializedDragonFlame() {
+        return initializedDragonFlame(Vector3.ZERO);
+    }
+
+    private GameObject initializedDragonFlame(Vector3 position) {
         Parameters parameters = mock(Parameters.class);
         GameObjectParameters dragonFlameParameters = mock(GameObjectParameters.class);
         when(parameters.object(GameObjectKey.DRAGON_FLAME)).thenReturn(dragonFlameParameters);
@@ -64,7 +86,7 @@ class DragonFlamePrefabInitializerTest {
         GameObject dragonFlame = new GameObject(
                 Master.LeftPlayer,
                 PrefabType.DragonFlame,
-                Vector3.ZERO,
+                position,
                 mock(GameContext.class)
         );
 
