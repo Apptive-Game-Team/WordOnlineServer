@@ -14,6 +14,7 @@ public enum ParameterKey {
     DAMAGE("damage"),
     DETECTION_RANGE("detection_range"),
     DURATION("duration"),
+    EFFECT_RADIUS("effect_radius"),
     FEVER_DURATION("fever_duration"),
     FALL_GRAVITY("fall_gravity"),
     HEAL_AMOUNT("heal_amount"),

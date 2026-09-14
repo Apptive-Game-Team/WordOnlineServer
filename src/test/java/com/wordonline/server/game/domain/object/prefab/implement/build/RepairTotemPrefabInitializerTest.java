@@ -9,6 +9,7 @@ import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
 import com.wordonline.server.game.domain.object.component.build.RepairAura;
 import com.wordonline.server.game.domain.object.component.effect.receiver.BuildingEffectReceiver;
 import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
+import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
 import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.GameObjectParameters;
@@ -17,6 +18,7 @@ import com.wordonline.server.game.dto.Master;
 import com.wordonline.server.game.dto.frame.GaugeDto;
 import com.wordonline.server.game.service.GameContext;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -33,7 +35,10 @@ class RepairTotemPrefabInitializerTest {
         GameObjectParameters repairTotemParameters = mock(GameObjectParameters.class);
         when(parameters.object(GameObjectKey.REPAIR_TOTEM)).thenReturn(repairTotemParameters);
         when(repairTotemParameters.intValue(ParameterKey.HP)).thenReturn(150);
+        // RADIUS (body collider) and EFFECT_RADIUS (repair aura range) are mocked to different
+        // values so a test that reads the wrong one fails instead of passing by coincidence.
         when(repairTotemParameters.floatValue(ParameterKey.RADIUS)).thenReturn(4f);
+        when(repairTotemParameters.floatValue(ParameterKey.EFFECT_RADIUS)).thenReturn(6f);
         when(repairTotemParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
         when(repairTotemParameters.intValue(ParameterKey.MASS)).thenReturn(1000000);
 
@@ -49,9 +54,11 @@ class RepairTotemPrefabInitializerTest {
         DummyMob mob = component(repairTotem, DummyMob.class);
         assertThat(mob.getGauge().maxValue()).isEqualTo(150f);
 
+        CircleCollider collider = repairTotem.getFirstCircleCollider().orElseThrow();
+        assertThat(collider.getRadius()).isEqualTo(4f);
+
         RepairAura aura = component(repairTotem, RepairAura.class);
-        // the aura and the totem's own collision footprint share the single "radius" parameter
-        assertThat(aura).isNotNull();
+        assertThat(ReflectionTestUtils.getField(aura, "radius")).isEqualTo(6f);
 
         TimedSelfDestroyer selfDestroyer = component(repairTotem, TimedSelfDestroyer.class);
         GaugeDto gauge = selfDestroyer.getGauge();
