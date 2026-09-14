@@ -5,15 +5,13 @@ import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
 import com.wordonline.server.game.domain.object.component.TimedSelfDestroyer;
+import com.wordonline.server.game.domain.object.component.build.FlameBreath;
 import com.wordonline.server.game.domain.object.component.effect.RockDeathRemnant;
 import com.wordonline.server.game.domain.object.component.effect.receiver.CommonEffectReceiver;
-import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
 import com.wordonline.server.game.domain.object.component.mob.simple.DummyMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
 import com.wordonline.server.game.domain.object.component.physic.CircleCollider;
 import com.wordonline.server.game.domain.object.prefab.PrefabType;
-import com.wordonline.server.game.domain.object.prefab.implement.misc.GroundTowerPrefabInitializer;
-import com.wordonline.server.game.domain.object.prefab.implement.misc.TowerbackPrefabInitializer;
 import com.wordonline.server.game.domain.parameter.GameObjectKey;
 import com.wordonline.server.game.domain.parameter.GameObjectParameters;
 import com.wordonline.server.game.domain.parameter.ParameterKey;
@@ -37,7 +35,7 @@ class DragonTowerPrefabInitializerTest {
     }
 
     @Test
-    void buildsAFireBoltTowerThatHitsGroundAndAirAndExpiresAfterDuration() {
+    void buildsATowerThatBreathesForwardOnATimerAndExpiresAfterDuration() {
         Parameters parameters = mock(Parameters.class);
         GameObjectParameters dragonTowerParameters = mock(GameObjectParameters.class);
         when(parameters.object(GameObjectKey.DRAGON_TOWER)).thenReturn(dragonTowerParameters);
@@ -45,7 +43,7 @@ class DragonTowerPrefabInitializerTest {
         when(dragonTowerParameters.intValue(ParameterKey.HP)).thenReturn(120);
         when(dragonTowerParameters.intValue(ParameterKey.DAMAGE)).thenReturn(30);
         when(dragonTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(1.5f);
-        when(dragonTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)).thenReturn(5f);
+        when(dragonTowerParameters.floatValue(ParameterKey.BEAM_WIDTH)).thenReturn(1f);
         when(dragonTowerParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
 
         GameObject dragonTower = new GameObject(
@@ -68,13 +66,9 @@ class DragonTowerPrefabInitializerTest {
         assertThat(mob.getHp()).isEqualTo(120);
         assertThat(mob.getMaxHp()).isEqualTo(120);
 
-        Tower tower = findComponent(dragonTower, Tower.class);
-        assertThat(tower).isNotNull();
-        assertThat(tower.getTargetMask()).isEqualTo(TargetMask.ANY.bit);
-        assertThat(tower.getAttackRange()).isEqualTo(5f);
-        assertThat(tower.getAttackInterval().total()).isEqualTo(1.5f);
-        assertThat(tower.getProjectileName()).isEqualTo("FireShot");
-        assertThat(tower.getSplashRadius()).isEqualTo(1f);
+        FlameBreath flameBreath = findComponent(dragonTower, FlameBreath.class);
+        assertThat(flameBreath).isNotNull();
+        assertThat(flameBreath.getAttackInterval().total()).isEqualTo(1.5f);
 
         TimedSelfDestroyer selfDestroyer = findComponent(dragonTower, TimedSelfDestroyer.class);
         assertThat(selfDestroyer).isNotNull();
@@ -84,62 +78,24 @@ class DragonTowerPrefabInitializerTest {
         assertThat(findComponent(dragonTower, CommonEffectReceiver.class)).isNotNull();
     }
 
+    // dragon_tower no longer picks a target, so it must not carry the detector-driven Tower
+    // component that every other tower uses.
     @Test
-    void groundTowerKeepsItsOriginalProjectileAndSplashRadiusAfterTowerConstructorChange() {
+    void doesNotAttachTheTargetingTowerComponent() {
         Parameters parameters = mock(Parameters.class);
-        GameObjectParameters groundTowerParameters = mock(GameObjectParameters.class);
-        when(parameters.object(GameObjectKey.GROUND_TOWER)).thenReturn(groundTowerParameters);
-        when(groundTowerParameters.intValue(ParameterKey.DAMAGE)).thenReturn(10);
-        when(groundTowerParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(2f);
-        when(groundTowerParameters.floatValue(ParameterKey.ATTACK_RANGE)).thenReturn(4f);
+        GameObjectParameters dragonTowerParameters = mock(GameObjectParameters.class);
+        when(parameters.object(GameObjectKey.DRAGON_TOWER)).thenReturn(dragonTowerParameters);
 
-        GameObject groundTower = new GameObject(
+        GameObject dragonTower = new GameObject(
                 Master.LeftPlayer,
-                PrefabType.GroundTower,
+                PrefabType.DragonTower,
                 Vector3.ZERO,
                 mock(GameContext.class)
         );
 
-        new GroundTowerPrefabInitializer(parameters).initialize(groundTower);
+        new DragonTowerPrefabInitializer(parameters).initialize(dragonTower);
 
-        Tower tower = findComponent(groundTower, Tower.class);
-        assertThat(tower).isNotNull();
-        assertThat(tower.getTargetMask()).isEqualTo(TargetMask.AIR.bit);
-        assertThat(tower.getAttackRange()).isEqualTo(4f);
-        assertThat(tower.getAttackInterval().total()).isEqualTo(2f);
-        assertThat(tower.getProjectileName()).isEqualTo("RockShot");
-        assertThat(tower.getSplashRadius()).isEqualTo(1f);
-    }
-
-    @Test
-    void towerbackKeepsItsOriginalProjectileAndSplashRadiusAfterTowerConstructorChange() {
-        Parameters parameters = mock(Parameters.class);
-        GameObjectParameters towerbackParameters = mock(GameObjectParameters.class);
-        when(parameters.object(GameObjectKey.TOWERBACK)).thenReturn(towerbackParameters);
-        when(towerbackParameters.intValue(ParameterKey.HP)).thenReturn(100);
-        when(towerbackParameters.floatValue(ParameterKey.SUB_SPEED)).thenReturn(1f);
-        when(towerbackParameters.intValue(ParameterKey.SUB_DAMAGE)).thenReturn(5);
-        when(towerbackParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(1.2f);
-        when(towerbackParameters.floatValue(ParameterKey.SUB_ATTACK_RANGE)).thenReturn(2f);
-        when(towerbackParameters.intValue(ParameterKey.DAMAGE)).thenReturn(15);
-        when(towerbackParameters.floatValue(ParameterKey.ATTACK_RANGE)).thenReturn(6f);
-
-        GameObject towerback = new GameObject(
-                Master.LeftPlayer,
-                PrefabType.Towerback,
-                Vector3.ZERO,
-                mock(GameContext.class)
-        );
-
-        new TowerbackPrefabInitializer(parameters).initialize(towerback);
-
-        Tower tower = findComponent(towerback, Tower.class);
-        assertThat(tower).isNotNull();
-        assertThat(tower.getTargetMask()).isEqualTo(TargetMask.AIR.bit);
-        assertThat(tower.getAttackRange()).isEqualTo(6f);
-        assertThat(tower.getAttackInterval().total()).isEqualTo(1.2f);
-        assertThat(tower.getProjectileName()).isEqualTo("RockShot");
-        assertThat(tower.getSplashRadius()).isEqualTo(1f);
+        assertThat(findComponent(dragonTower, Tower.class)).isNull();
     }
 
     // Some components land in `components` and others in the pending `componentsToAdd` queue

@@ -2,6 +2,7 @@ package com.wordonline.server.game.domain.object.component.effect.statuseffect;
 
 import com.wordonline.server.game.domain.magic.ElementType;
 import com.wordonline.server.game.domain.object.GameObject;
+import com.wordonline.server.game.domain.object.component.build.FlameBreath;
 import com.wordonline.server.game.domain.object.component.effect.StatusEffectKey;
 import com.wordonline.server.game.domain.object.component.mob.simple.TimedBehaviorMob;
 import com.wordonline.server.game.domain.object.component.mob.simple.Tower;
@@ -34,6 +35,11 @@ public class InspiredStatusEffect extends BaseStatusEffect {
         if (tower != null) {
             tower.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
         }
+
+        FlameBreath flameBreath = gameObject.getComponent(FlameBreath.class);
+        if (flameBreath != null) {
+            flameBreath.getAttackInterval().setModifierPercent(ATTACK_INTERVAL_MODIFIER);
+        }
     }
 
     @Override
@@ -55,6 +61,11 @@ public class InspiredStatusEffect extends BaseStatusEffect {
         Tower tower = gameObject.getComponent(Tower.class);
         if (tower != null) {
             tower.getAttackInterval().setModifierPercent(0f);
+        }
+
+        FlameBreath flameBreath = gameObject.getComponent(FlameBreath.class);
+        if (flameBreath != null) {
+            flameBreath.getAttackInterval().setModifierPercent(0f);
         }
 
         super.expire();
