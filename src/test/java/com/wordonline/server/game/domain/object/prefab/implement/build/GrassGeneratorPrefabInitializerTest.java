@@ -34,13 +34,16 @@ class GrassGeneratorPrefabInitializerTest {
     void wiresConfiguredGrassGeneratorParametersIntoItsComponents() {
         Parameters parameters = mock(Parameters.class);
         GameObjectParameters grassGeneratorParameters = mock(GameObjectParameters.class);
+        GameObjectParameters leafFieldParameters = mock(GameObjectParameters.class);
         when(parameters.object(GameObjectKey.GRASS_GENERATOR)).thenReturn(grassGeneratorParameters);
+        when(parameters.object(GameObjectKey.LEAF_FIELD)).thenReturn(leafFieldParameters);
         when(grassGeneratorParameters.intValue(ParameterKey.MASS)).thenReturn(99999);
         when(grassGeneratorParameters.floatValue(ParameterKey.RADIUS)).thenReturn(5f);
         when(grassGeneratorParameters.intValue(ParameterKey.HP)).thenReturn(60);
         when(grassGeneratorParameters.floatValue(ParameterKey.ATTACK_INTERVAL)).thenReturn(3f);
         when(grassGeneratorParameters.intValue(ParameterKey.QUANTITY)).thenReturn(6);
         when(grassGeneratorParameters.floatValue(ParameterKey.DURATION)).thenReturn(20f);
+        when(leafFieldParameters.floatValue(ParameterKey.RADIUS)).thenReturn(0.5f);
 
         GameObject grassGenerator = new GameObject(
                 Master.LeftPlayer,
