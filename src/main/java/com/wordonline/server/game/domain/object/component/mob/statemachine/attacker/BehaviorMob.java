@@ -4,6 +4,7 @@ import com.wordonline.server.game.domain.Stat;
 import com.wordonline.server.game.domain.debug.GizmoCategory;
 import com.wordonline.server.game.domain.object.GameObject;
 import com.wordonline.server.game.domain.object.Vector3;
+import com.wordonline.server.game.domain.object.component.IntervalAttacker;
 import com.wordonline.server.game.domain.object.component.mob.detector.ClosestEnemyDetector;
 import com.wordonline.server.game.domain.object.component.mob.detector.Detector;
 import com.wordonline.server.game.domain.object.component.mob.detector.TargetMask;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 @Slf4j
-public class BehaviorMob extends StateMachineMob {
+public class BehaviorMob extends StateMachineMob implements IntervalAttacker {
 
     private static final float DIVE_ALTITUDE_EPSILON = 1e-4f;
 
