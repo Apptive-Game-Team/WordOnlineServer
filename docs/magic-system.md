@@ -6,7 +6,9 @@ This document explains the spell-casting, card recipe parsing, and magic executi
 
 ## The Spell Casting Flow
 
-Casting magic follows a strict validation pipeline from client input to runtime execution:
+Casting is two steps: the player picks a card from hand, which decides the magic, and then picks a
+position, which casts it. The cast follows a strict validation pipeline from client input to runtime
+execution:
 
 ```
 Client (WS JSON)
@@ -15,7 +17,7 @@ Client (WS JSON)
 [InputController] -- (Validates authorization token)
    |
    v
-[MagicInputHandler.handleInput()]
+[MagicInputHandler.handleInput()]   <- { "type": "useMagic", "magicId": 34, "id": 7, "position": {...} }
    |
    +--> 1. Check if the card is in hand (PlayerData.cards contains magicId)
    +--> 2. Look the magic up (DatabaseMagicParser.parseMagic)
@@ -40,6 +42,13 @@ A card is one magic, so there is no combination to resolve. Cards are looked up 
    - Copies `magics.id`, `magics.name` and `magics.element` onto the bean and registers it: `magicIdMap.put(magic.id, magicBean)`.
 2. **Id Lookup**: `parseMagic(userId, magicId)` reads that map. The id comes from the card the player is holding, which the client sends as `magicId`.
 3. **Ownership Validation**: Before executing a parsed spell, `parseMagic` verifies the player owns the magic using `magicRepository.existUserMagic(userId, magic.id)`.
+
+## Aiming
+
+`selectCard` and `unselectCard` carry the same `magicId` and only tell the server which card the
+player is aiming with. [CardSelectVisualizer](file:///Users/jeong-yunseong/development/word-online/dev/game-server/src/main/java/com/wordonline/server/game/service/CardSelectVisualizer.java)
+puts an idle aura of `magics.element` on the caster and takes it off again. A magic whose element is
+`None` gets no aura, the way a cast type card used to get none.
 
 ---
 
