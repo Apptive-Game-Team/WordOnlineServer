@@ -17,6 +17,7 @@ public enum Effect {
     StormStagCharge2,
     StormStagCharge3,
     StormStagCharge4,
+    CardSelected,
 
     FireIdleAura,
     FireAttackAura,
