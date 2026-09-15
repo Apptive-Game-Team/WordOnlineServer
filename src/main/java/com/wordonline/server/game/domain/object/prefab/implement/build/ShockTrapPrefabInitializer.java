@@ -33,7 +33,7 @@ public class ShockTrapPrefabInitializer extends PrefabInitializer {
         gameObject.addComponent(new DummyMob(gameObject, shockTrapParameters.intValue(ParameterKey.HP)));
         gameObject.addComponent(new ShockTrapDetector(
                 gameObject,
-                shockTrapParameters.floatValue(ParameterKey.RADIUS),
+                shockTrapParameters.floatValue(ParameterKey.EFFECT_RADIUS),
                 shockTrapParameters.floatValue(ParameterKey.TRIGGER_DELAY),
                 shockTrapParameters.floatValue(ParameterKey.STUN_DURATION)
         ));
