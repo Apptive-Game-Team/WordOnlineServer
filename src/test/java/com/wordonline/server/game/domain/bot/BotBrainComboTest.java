@@ -5,7 +5,7 @@ import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
-import com.wordonline.server.game.domain.magic.implement.explode.WaterExplosionMagic;
+import com.wordonline.server.game.domain.magic.implement.explode.ExplosionMagic;
 import com.wordonline.server.game.domain.magic.implement.explode.WindExplosionMagic;
 import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
@@ -31,8 +31,8 @@ class BotBrainComboTest {
     @Test
     void seedSpiritComboPrecedesTheExistingValueDecision() {
         Map<List<CardType>, Magic> recipes = new LinkedHashMap<>();
-        recipes.put(List.of(CardType.Nature, CardType.Shoot), new VineTossMagic());
-        recipes.put(List.of(CardType.Water, CardType.Explode), new WaterExplosionMagic());
+        recipes.put(List.of(CardType.Nature, CardType.Shoot), named(new VineTossMagic(), "vine_toss"));
+        recipes.put(List.of(CardType.Water, CardType.Explode), waterExplosion());
         BotBrain brain = brain(recipes, BotTier.ELITE);
         Vector3 seedPosition = new Vector3(4, 0, 5);
         BotEye eye = new BotEye(
@@ -53,7 +53,7 @@ class BotBrainComboTest {
     @Test
     void explosionComboTargetsTheAverageOfThreeNearbyEnemyMobs() {
         Map<List<CardType>, Magic> recipes = Map.of(
-                List.of(CardType.Water, CardType.Explode), new WaterExplosionMagic());
+                List.of(CardType.Water, CardType.Explode), waterExplosion());
         BotBrain brain = brain(recipes, BotTier.ELITE);
         BotEye eye = new BotEye(
                 List.of(
@@ -72,8 +72,8 @@ class BotBrainComboTest {
     @Test
     void appliesTierNoiseExactlyOncePerScoredCandidate() {
         Map<List<CardType>, Magic> recipes = new LinkedHashMap<>();
-        recipes.put(List.of(CardType.Water, CardType.Explode), new WaterExplosionMagic());
-        recipes.put(List.of(CardType.Wind, CardType.Explode), new WindExplosionMagic());
+        recipes.put(List.of(CardType.Water, CardType.Explode), waterExplosion());
+        recipes.put(List.of(CardType.Wind, CardType.Explode), named(new WindExplosionMagic(), "wind_explosion"));
         BotBrain brain = brain(recipes, BotTier.BEGINNER);
         BotEye eye = new BotEye(
                 List.of(visible(2, Master.RightPlayer, PrefabType.WaterSlime, new Vector3(5, 0, 5), true)),
@@ -84,6 +84,16 @@ class BotBrainComboTest {
 
         assertThat(decision).isNotNull();
         assertThat(random.nextDoubleCalls).isEqualTo(2);
+    }
+
+    private static Magic waterExplosion() {
+        return named(new ExplosionMagic(PrefabType.WaterExplosion), "water_explosion");
+    }
+
+    /** 등록될 때 파서가 채우는 이름. 봇은 클래스가 아니라 이 이름으로 마법을 고른다. */
+    private static Magic named(Magic magic, String name) {
+        magic.name = name;
+        return magic;
     }
 
     private static BotBrain brain(Map<List<CardType>, Magic> recipes, BotTier tier) {

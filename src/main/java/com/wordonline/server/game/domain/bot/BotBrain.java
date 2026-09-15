@@ -5,8 +5,6 @@ import com.wordonline.server.bot.domain.BotTier;
 import com.wordonline.server.game.domain.magic.CardType;
 import com.wordonline.server.game.domain.magic.Magic;
 import com.wordonline.server.game.domain.magic.implement.explode.AbstractExplosionMagic;
-import com.wordonline.server.game.domain.magic.implement.explode.OvergrowthMagic;
-import com.wordonline.server.game.domain.magic.implement.shoot.VineTossMagic;
 import com.wordonline.server.game.domain.magic.parser.DatabaseMagicParser;
 import com.wordonline.server.game.domain.Parameters;
 import com.wordonline.server.game.domain.magic.parser.MagicParser;
@@ -46,6 +44,12 @@ public class BotBrain {
     static final String CYCLE_RULE = "cycle.low-utility";
     static final double COMBO_CLUSTER_RADIUS = 2.5;
     static final int COMBO_CLUSTER_MIN_MOBS = 3;
+
+    /**
+     * SeedSpirit 를 노리는 두 마법. 계열이 데이터로 옮겨간 뒤로는 여러 마법이 같은 클래스를
+     * 쓰기 때문에 클래스가 아니라 {@code magics.name} 으로 고른다.
+     */
+    private static final Set<String> SEED_SPIRIT_MAGIC_NAMES = Set.of("vine_toss", "overgrowth");
 
     /** Main cards whose spell lands on a target rather than building the bot's own board. */
     private static final Set<CardType> OFFENSIVE_MAIN_CARDS =
@@ -396,7 +400,7 @@ public class BotBrain {
         List<ScoredPlay> candidates = new ArrayList<>();
         for (Map.Entry<List<CardType>, Magic> entry : recipeMap.entrySet()) {
             Magic magic = entry.getValue();
-            if (!(magic instanceof VineTossMagic) && !(magic instanceof OvergrowthMagic)) {
+            if (magic.name == null || !SEED_SPIRIT_MAGIC_NAMES.contains(magic.name)) {
                 continue;
             }
             List<CardType> recipe = entry.getKey();
@@ -410,7 +414,7 @@ public class BotBrain {
                 if (seedSpirit.position().distance(playerPos) > castRange) {
                     continue;
                 }
-                String magicName = magic.getClass().getSimpleName();
+                String magicName = magic.name;
                 candidates.add(scored(recipe, seedSpirit.position(), cost, 1.0 / cost, SEED_SPIRIT_RULE,
                         magicName + " targets allied SeedSpirit " + seedSpirit.id() + ".", random));
             }
@@ -447,7 +451,7 @@ public class BotBrain {
             findBestMobCluster(enemyMobs, playerPos, spellStats.castRange(mainCard)).ifPresent(cluster ->
                     candidates.add(scored(recipe, cluster.center(), cost, (double) cluster.count() / cost,
                             MOB_CLUSTER_RULE,
-                            entry.getValue().getClass().getSimpleName() + " targets a cluster of "
+                            entry.getValue().name + " targets a cluster of "
                                     + cluster.count() + " enemy mobs.", random)));
         }
         return candidates.stream().max(Comparator.comparingDouble(ScoredPlay::noisyScore));
