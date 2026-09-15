@@ -51,12 +51,31 @@ class SpiritBombChannelTest {
         assertThat(nearMob.getHp()).isEqualTo(93);
         assertThat(farMob.getHp()).isEqualTo(100);
         assertThat(player.getComponentsToRemove()).contains(channel);
+        // 굵기까지 실어 보내는 overload 로 바뀌었다. 피해량 7 은 굵기 구간의 아래 끝이라 최소 굵기다.
         verify(dtoBuilder, times(4)).createProjection(
                 player,
                 nearEnemy,
                 SpiritBombChannel.BEAM_PROJECTILE,
-                1.05f
+                1.05f,
+                SpiritBombChannel.visualWidth(7)
         );
+    }
+
+    @Test
+    void aSmallHitDrawsTheThinnestBeamAndAHugeOneTheThickest() {
+        assertThat(SpiritBombChannel.visualWidth(0)).isEqualTo(0.25f);
+        assertThat(SpiritBombChannel.visualWidth(100)).isEqualTo(0.25f);
+        assertThat(SpiritBombChannel.visualWidth(1000)).isEqualTo(1f);
+        assertThat(SpiritBombChannel.visualWidth(5000)).isEqualTo(1f);
+    }
+
+    @Test
+    void betweenTheEndsTheBeamThickensWithTheDamage() {
+        float half = SpiritBombChannel.visualWidth(550);
+
+        assertThat(half).isEqualTo(0.625f);
+        assertThat(SpiritBombChannel.visualWidth(300)).isLessThan(half);
+        assertThat(SpiritBombChannel.visualWidth(800)).isGreaterThan(half);
     }
 
     private DummyMob addMob(GameObject object) {
