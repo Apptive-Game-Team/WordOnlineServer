@@ -6,6 +6,7 @@ public enum Effect {
     Wet,
     Shock,
     Snared,
+    ShockTrapArming,
     Knockback,
     LeafFieldHeal,
     Sandstorm,
@@ -17,6 +18,7 @@ public enum Effect {
     StormStagCharge2,
     StormStagCharge3,
     StormStagCharge4,
+    CardSelected,
 
     FireIdleAura,
     FireAttackAura,
